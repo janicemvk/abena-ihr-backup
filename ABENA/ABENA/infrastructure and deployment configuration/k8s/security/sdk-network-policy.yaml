@@ -1,0 +1,89 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: sdk-network-policy
+  namespace: abena-ihr
+spec:
+  podSelector:
+    matchLabels:
+      app: abena-shared-sdk
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  # Allow traffic from the main application
+  - from:
+    - podSelector:
+        matchLabels:
+          app: abena-ihr-app
+    ports:
+    - protocol: TCP
+      port: 3001
+  # Allow traffic from nginx ingress
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: ingress-nginx
+    ports:
+    - protocol: TCP
+      port: 3001
+  # Allow health checks from kubelet
+  - from:
+    - namespaceSelector: {}
+    ports:
+    - protocol: TCP
+      port: 3001
+  egress:
+  # Allow access to Redis
+  - to:
+    - podSelector:
+        matchLabels:
+          app: redis
+    ports:
+    - protocol: TCP
+      port: 6379
+  # Allow access to external healthcare APIs
+  - to:
+    - ipBlock:
+        cidr: 0.0.0.0/0
+    ports:
+    - protocol: TCP
+      port: 443
+    - protocol: TCP
+      port: 80
+  # Allow DNS resolution
+  - to:
+    - namespaceSelector: {}
+    ports:
+    - protocol: UDP
+      port: 53
+  - to:
+    - namespaceSelector: {}
+    ports:
+    - protocol: TCP
+      port: 53
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: sdk-service-isolation
+  namespace: abena-ihr
+spec:
+  podSelector:
+    matchLabels:
+      component: sdk
+  policyTypes:
+  - Ingress
+  ingress:
+  # Only allow traffic from authorized services
+  - from:
+    - podSelector:
+        matchLabels:
+          app: abena-ihr-app
+    - podSelector:
+        matchLabels:
+          app: abena-shared-sdk
+    ports:
+    - protocol: TCP
+      port: 3001 

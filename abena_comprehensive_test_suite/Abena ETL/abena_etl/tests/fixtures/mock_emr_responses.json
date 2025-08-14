@@ -1,0 +1,430 @@
+{
+  "patient_response": {
+    "resourceType": "Patient",
+    "id": "test_patient_123",
+    "active": true,
+    "name": [
+      {
+        "use": "official",
+        "family": "Test",
+        "given": ["Patient", "Example"]
+      }
+    ],
+    "gender": "female",
+    "birthDate": "1978-05-15",
+    "address": [
+      {
+        "use": "home",
+        "city": "Test City",
+        "state": "TS",
+        "postalCode": "12345"
+      }
+    ]
+  },
+  "observations_response": {
+    "resourceType": "Bundle",
+    "type": "searchset",
+    "total": 5,
+    "entry": [
+      {
+        "resource": {
+          "resourceType": "Observation",
+          "id": "obs_001",
+          "status": "final",
+          "category": [
+            {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                  "code": "survey",
+                  "display": "Survey"
+                }
+              ]
+            }
+          ],
+          "code": {
+            "coding": [
+              {
+                "system": "http://loinc.org",
+                "code": "72133-2",
+                "display": "Pain severity"
+              }
+            ]
+          },
+          "subject": {
+            "reference": "Patient/test_patient_123"
+          },
+          "effectiveDateTime": "2023-12-01T10:30:00Z",
+          "valueQuantity": {
+            "value": 7,
+            "unit": "score",
+            "system": "http://unitsofmeasure.org",
+            "code": "1"
+          }
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "Observation",
+          "id": "obs_002",
+          "status": "final",
+          "category": [
+            {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                  "code": "vital-signs",
+                  "display": "Vital Signs"
+                }
+              ]
+            }
+          ],
+          "code": {
+            "coding": [
+              {
+                "system": "http://loinc.org",
+                "code": "8480-6",
+                "display": "Systolic blood pressure"
+              }
+            ]
+          },
+          "subject": {
+            "reference": "Patient/test_patient_123"
+          },
+          "effectiveDateTime": "2023-12-01T10:00:00Z",
+          "valueQuantity": {
+            "value": 130,
+            "unit": "mmHg",
+            "system": "http://unitsofmeasure.org",
+            "code": "mm[Hg]"
+          }
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "Observation",
+          "id": "obs_003",
+          "status": "final",
+          "category": [
+            {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                  "code": "vital-signs",
+                  "display": "Vital Signs"
+                }
+              ]
+            }
+          ],
+          "code": {
+            "coding": [
+              {
+                "system": "http://loinc.org",
+                "code": "8462-4",
+                "display": "Diastolic blood pressure"
+              }
+            ]
+          },
+          "subject": {
+            "reference": "Patient/test_patient_123"
+          },
+          "effectiveDateTime": "2023-12-01T10:00:00Z",
+          "valueQuantity": {
+            "value": 85,
+            "unit": "mmHg",
+            "system": "http://unitsofmeasure.org",
+            "code": "mm[Hg]"
+          }
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "Observation",
+          "id": "obs_004",
+          "status": "final",
+          "category": [
+            {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                  "code": "laboratory",
+                  "display": "Laboratory"
+                }
+              ]
+            }
+          ],
+          "code": {
+            "coding": [
+              {
+                "system": "http://loinc.org",
+                "code": "2160-0",
+                "display": "Creatinine"
+              }
+            ]
+          },
+          "subject": {
+            "reference": "Patient/test_patient_123"
+          },
+          "effectiveDateTime": "2023-11-28T09:00:00Z",
+          "valueQuantity": {
+            "value": 1.1,
+            "unit": "mg/dL",
+            "system": "http://unitsofmeasure.org",
+            "code": "mg/dL"
+          }
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "Observation",
+          "id": "obs_005",
+          "status": "final",
+          "category": [
+            {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                  "code": "survey",
+                  "display": "Survey"
+                }
+              ]
+            }
+          ],
+          "code": {
+            "coding": [
+              {
+                "system": "http://loinc.org",
+                "code": "72133-2",
+                "display": "Functional assessment"
+              }
+            ]
+          },
+          "subject": {
+            "reference": "Patient/test_patient_123"
+          },
+          "effectiveDateTime": "2023-12-01T10:30:00Z",
+          "valueQuantity": {
+            "value": 35,
+            "unit": "score",
+            "system": "http://unitsofmeasure.org",
+            "code": "1"
+          }
+        }
+      }
+    ]
+  },
+  "medications_response": {
+    "resourceType": "Bundle",
+    "type": "searchset",
+    "total": 2,
+    "entry": [
+      {
+        "resource": {
+          "resourceType": "MedicationStatement",
+          "id": "med_001",
+          "status": "active",
+          "medicationCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+                "code": "187832",
+                "display": "gabapentin"
+              }
+            ]
+          },
+          "subject": {
+            "reference": "Patient/test_patient_123"
+          },
+          "effectiveDateTime": "2023-10-01",
+          "dosage": [
+            {
+              "text": "300mg three times daily",
+              "timing": {
+                "repeat": {
+                  "frequency": 3,
+                  "period": 1,
+                  "periodUnit": "d"
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "MedicationStatement",
+          "id": "med_002",
+          "status": "active",
+          "medicationCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+                "code": "321988",
+                "display": "sertraline"
+              }
+            ]
+          },
+          "subject": {
+            "reference": "Patient/test_patient_123"
+          },
+          "effectiveDateTime": "2023-08-15",
+          "dosage": [
+            {
+              "text": "50mg once daily",
+              "timing": {
+                "repeat": {
+                  "frequency": 1,
+                  "period": 1,
+                  "periodUnit": "d"
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "conditions_response": {
+    "resourceType": "Bundle",
+    "type": "searchset",
+    "total": 3,
+    "entry": [
+      {
+        "resource": {
+          "resourceType": "Condition",
+          "id": "cond_001",
+          "clinicalStatus": {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+                "code": "active"
+              }
+            ]
+          },
+          "code": {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "82423001",
+                "display": "Chronic pain"
+              }
+            ]
+          },
+          "subject": {
+            "reference": "Patient/test_patient_123"
+          },
+          "onsetDateTime": "2020-03-15"
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "Condition",
+          "id": "cond_002",
+          "clinicalStatus": {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+                "code": "active"
+              }
+            ]
+          },
+          "code": {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "48694002",
+                "display": "Anxiety"
+              }
+            ]
+          },
+          "subject": {
+            "reference": "Patient/test_patient_123"
+          },
+          "onsetDateTime": "2019-07-20"
+        }
+      },
+      {
+        "resource": {
+          "resourceType": "Condition",
+          "id": "cond_003",
+          "clinicalStatus": {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+                "code": "active"
+              }
+            ]
+          },
+          "code": {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "24693007",
+                "display": "Fibromyalgia"
+              }
+            ]
+          },
+          "subject": {
+            "reference": "Patient/test_patient_123"
+          },
+          "onsetDateTime": "2021-01-10"
+        }
+      }
+    ]
+  },
+  "note_creation_response": {
+    "resourceType": "DocumentReference",
+    "id": "new_note_123",
+    "status": "current",
+    "type": {
+      "coding": [
+        {
+          "system": "http://loinc.org",
+          "code": "11506-3",
+          "display": "Progress note"
+        }
+      ]
+    },
+    "subject": {
+      "reference": "Patient/test_patient_123"
+    },
+    "date": "2023-12-01T11:00:00Z",
+    "author": [
+      {
+        "reference": "Practitioner/dr_smith"
+      }
+    ],
+    "description": "Clinical note created by Abena IHR System"
+  },
+  "alert_creation_response": {
+    "resourceType": "Communication",
+    "id": "alert_456",
+    "status": "in-progress",
+    "category": [
+      {
+        "coding": [
+          {
+            "system": "http://terminology.hl7.org/CodeSystem/communication-category",
+            "code": "alert",
+            "display": "Alert"
+          }
+        ]
+      }
+    ],
+    "priority": "high",
+    "subject": {
+      "reference": "Patient/test_patient_123"
+    },
+    "recipient": [
+      {
+        "reference": "Practitioner/dr_smith"
+      }
+    ],
+    "sent": "2023-12-01T11:00:00Z",
+    "payload": [
+      {
+        "contentString": "High-risk drug interaction detected. Please review treatment plan."
+      }
+    ]
+  }
+} 

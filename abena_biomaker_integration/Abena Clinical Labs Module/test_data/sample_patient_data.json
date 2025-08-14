@@ -1,0 +1,206 @@
+{
+  "patient_scenarios": {
+    "healthy_baseline": {
+      "description": "Patient with optimal ECS function and normal biomarker levels",
+      "expected_score_range": "0-20",
+      "expected_classification": "Optimal ECS Function",
+      "key_characteristics": [
+        "Normal AEA and 2-AG levels",
+        "Low inflammatory markers",
+        "Balanced stress hormones",
+        "Optimal neurotransmitter levels"
+      ]
+    },
+    "mild_dysfunction": {
+      "description": "Patient with early signs of ECS imbalance",
+      "expected_score_range": "21-40",
+      "expected_classification": "Mild ECS Dysfunction",
+      "key_characteristics": [
+        "Slightly reduced endocannabinoid levels",
+        "Mild elevation in inflammatory markers",
+        "Slight stress hormone imbalance",
+        "Minor neurotransmitter fluctuations"
+      ]
+    },
+    "moderate_dysfunction": {
+      "description": "Patient with clear ECS deficiency pattern",
+      "expected_score_range": "41-60",
+      "expected_classification": "Moderate ECS Dysfunction",
+      "key_characteristics": [
+        "Significantly reduced AEA and 2-AG",
+        "Elevated inflammatory markers",
+        "Stress hormone dysregulation",
+        "Neurotransmitter imbalances"
+      ]
+    },
+    "severe_dysfunction": {
+      "description": "Patient with multiple system involvement",
+      "expected_score_range": "61-100",
+      "expected_classification": "Severe ECS Dysfunction",
+      "key_characteristics": [
+        "Severe endocannabinoid deficiency",
+        "High inflammatory burden",
+        "Severe stress hormone dysregulation",
+        "Significant neurotransmitter imbalances"
+      ]
+    },
+    "mixed_patterns": {
+      "description": "Patient with complex multi-factor ECS dysfunction",
+      "expected_score_range": "Variable",
+      "expected_classification": "Mixed ECS Dysfunction",
+      "key_characteristics": [
+        "Variable endocannabinoid levels",
+        "Mixed inflammatory patterns",
+        "Complex stress hormone patterns",
+        "Inconsistent neurotransmitter levels"
+      ]
+    }
+  },
+  "biomarker_reference_ranges": {
+    "direct_ecs": {
+      "AEA": {"low": 0.5, "high": 2.0, "unit": "ng/mL"},
+      "2-AG": {"low": 1.0, "high": 4.0, "unit": "ng/mL"},
+      "FAAH_Activity": {"low": 0.8, "high": 1.2, "unit": "nmol/min/mg"}
+    },
+    "inflammation": {
+      "CRP": {"low": 0.0, "high": 3.0, "unit": "mg/L"},
+      "ESR": {"low": 0, "high": 20, "unit": "mm/hr"},
+      "IL6": {"low": 0.0, "high": 5.0, "unit": "pg/mL"},
+      "TNF_alpha": {"low": 0.0, "high": 8.1, "unit": "pg/mL"}
+    },
+    "cardiovascular": {
+      "Homocysteine": {"low": 5.0, "high": 15.0, "unit": "μmol/L"},
+      "BUN_Creatinine_Ratio": {"low": 10, "high": 20, "unit": ""},
+      "Omega6_Omega3_Ratio": {"low": 2.0, "high": 4.0, "unit": ""}
+    },
+    "stress": {
+      "Cortisol_Morning": {"low": 6.0, "high": 20.0, "unit": "μg/dL"},
+      "Cortisol_Evening": {"low": 2.0, "high": 10.0, "unit": "μg/dL"},
+      "DHEA_S": {"low": 30, "high": 400, "unit": "μg/dL"}
+    },
+    "neurotransmitters": {
+      "Serotonin": {"low": 50, "high": 200, "unit": "ng/mL"},
+      "GABA": {"low": 50, "high": 150, "unit": "ng/mL"},
+      "Dopamine": {"low": 20, "high": 100, "unit": "ng/mL"}
+    },
+    "cbc": {
+      "Hemoglobin": {"low": 12.0, "high": 16.0, "unit": "g/dL"},
+      "Hematocrit": {"low": 36.0, "high": 46.0, "unit": "%"},
+      "White_Blood_Cells": {"low": 4.5, "high": 11.0, "unit": "K/μL"},
+      "Platelets": {"low": 150, "high": 450, "unit": "K/μL"},
+      "Red_Blood_Cells": {"low": 4.0, "high": 5.5, "unit": "M/μL"},
+      "MCV": {"low": 80, "high": 100, "unit": "fL"},
+      "MCH": {"low": 27, "high": 33, "unit": "pg"},
+      "MCHC": {"low": 32, "high": 36, "unit": "g/dL"}
+    },
+    "metabolic": {
+      "Sodium": {"low": 135, "high": 145, "unit": "mEq/L"},
+      "Potassium": {"low": 3.5, "high": 5.0, "unit": "mEq/L"},
+      "Chloride": {"low": 96, "high": 106, "unit": "mEq/L"},
+      "CO2": {"low": 22, "high": 28, "unit": "mEq/L"},
+      "Calcium": {"low": 8.5, "high": 10.5, "unit": "mg/dL"},
+      "Phosphorus": {"low": 2.5, "high": 4.5, "unit": "mg/dL"},
+      "Albumin": {"low": 3.5, "high": 5.0, "unit": "g/dL"},
+      "Total_Protein": {"low": 6.0, "high": 8.3, "unit": "g/dL"},
+      "Glucose": {"low": 70, "high": 100, "unit": "mg/dL"},
+      "HbA1c": {"low": 4.0, "high": 5.6, "unit": "%"},
+      "BUN": {"low": 7, "high": 20, "unit": "mg/dL"},
+      "Creatinine": {"low": 0.6, "high": 1.2, "unit": "mg/dL"}
+    },
+    "liver": {
+      "ALT": {"low": 7, "high": 55, "unit": "U/L"},
+      "AST": {"low": 8, "high": 48, "unit": "U/L"},
+      "Alkaline_Phosphatase": {"low": 44, "high": 147, "unit": "U/L"},
+      "Total_Bilirubin": {"low": 0.3, "high": 1.2, "unit": "mg/dL"},
+      "Direct_Bilirubin": {"low": 0.0, "high": 0.3, "unit": "mg/dL"},
+      "GGT": {"low": 9, "high": 48, "unit": "U/L"},
+      "LDH": {"low": 100, "high": 190, "unit": "U/L"}
+    },
+    "thyroid": {
+      "TSH": {"low": 0.4, "high": 4.0, "unit": "μIU/mL"},
+      "Free_T4": {"low": 0.8, "high": 1.8, "unit": "ng/dL"},
+      "Free_T3": {"low": 2.3, "high": 4.2, "unit": "pg/mL"},
+      "Total_T4": {"low": 5.0, "high": 12.0, "unit": "μg/dL"},
+      "Total_T3": {"low": 80, "high": 200, "unit": "ng/dL"},
+      "Reverse_T3": {"low": 9, "high": 24, "unit": "ng/dL"}
+    },
+    "male_hormones": {
+      "Testosterone_Total": {"low": 300, "high": 1000, "unit": "ng/dL"},
+      "Testosterone_Free": {"low": 5.0, "high": 21.0, "unit": "pg/mL"},
+      "Testosterone_Bioavailable": {"low": 70, "high": 300, "unit": "ng/dL"},
+      "SHBG": {"low": 10, "high": 50, "unit": "nmol/L"},
+      "DHT": {"low": 30, "high": 85, "unit": "ng/dL"},
+      "Estradiol": {"low": 10, "high": 50, "unit": "pg/mL"}
+    },
+    "female_hormones": {
+      "Estradiol_Female": {"low": 12.5, "high": 166, "unit": "pg/mL"},
+      "Progesterone_Female": {"low": 0.1, "high": 20.0, "unit": "ng/mL"},
+      "Testosterone_Female": {"low": 8, "high": 60, "unit": "ng/dL"},
+      "FSH": {"low": 3.5, "high": 12.5, "unit": "mIU/mL"},
+      "LH": {"low": 2.4, "high": 12.6, "unit": "mIU/mL"},
+      "Prolactin": {"low": 4.8, "high": 23.3, "unit": "ng/mL"},
+      "AMH": {"low": 1.0, "high": 4.0, "unit": "ng/mL"}
+    },
+    "adrenal": {
+      "Cortisol_AM": {"low": 6.0, "high": 20.0, "unit": "μg/dL"},
+      "Cortisol_PM": {"low": 2.0, "high": 10.0, "unit": "μg/dL"},
+      "Cortisol_Midnight": {"low": 0.5, "high": 5.0, "unit": "μg/dL"},
+      "DHEA_S": {"low": 30, "high": 400, "unit": "μg/dL"},
+      "DHEA": {"low": 50, "high": 300, "unit": "ng/mL"},
+      "Aldosterone": {"low": 3, "high": 16, "unit": "ng/dL"},
+      "Renin": {"low": 0.5, "high": 4.0, "unit": "ng/mL/hr"},
+      "17_OH_Progesterone": {"low": 20, "high": 150, "unit": "ng/dL"}
+    },
+    "insulin_metabolism": {
+      "Insulin_Fasting": {"low": 3, "high": 25, "unit": "μIU/mL"},
+      "Insulin_Postprandial": {"low": 10, "high": 100, "unit": "μIU/mL"},
+      "C_Peptide": {"low": 0.8, "high": 4.0, "unit": "ng/mL"},
+      "Glucose_Fasting": {"low": 70, "high": 100, "unit": "mg/dL"},
+      "Glucose_Postprandial": {"low": 70, "high": 140, "unit": "mg/dL"},
+      "HbA1c": {"low": 4.0, "high": 5.6, "unit": "%"},
+      "HOMA_IR": {"low": 0.5, "high": 2.5, "unit": ""},
+      "HOMA_Beta": {"low": 50, "high": 200, "unit": "%"}
+    },
+    "lung_function": {
+      "FEV1": {"low": 2.5, "high": 4.0, "unit": "L"},
+      "FVC": {"low": 3.0, "high": 5.0, "unit": "L"},
+      "FEV1_FVC_Ratio": {"low": 70, "high": 85, "unit": "%"},
+      "Peak_Expiratory_Flow": {"low": 350, "high": 600, "unit": "L/min"},
+      "Forced_Expiratory_Flow_25_75": {"low": 2.5, "high": 5.0, "unit": "L/sec"},
+      "Total_Lung_Capacity": {"low": 5.0, "high": 7.5, "unit": "L"},
+      "Diffusion_Capacity": {"low": 20, "high": 35, "unit": "mL/min/mmHg"}
+    },
+    "micronutrients": {
+      "Vitamin_D": {"low": 30, "high": 100, "unit": "ng/mL"},
+      "B12": {"low": 200, "high": 900, "unit": "pg/mL"},
+      "Folate": {"low": 2.0, "high": 20.0, "unit": "ng/mL"},
+      "Zinc": {"low": 60, "high": 120, "unit": "μg/dL"},
+      "Magnesium": {"low": 1.5, "high": 2.5, "unit": "mg/dL"},
+      "Iron": {"low": 60, "high": 170, "unit": "μg/dL"},
+      "Ferritin": {"low": 20, "high": 250, "unit": "ng/mL"}
+    }
+  },
+  "smart_device_metrics": {
+    "HRV": {"normal_range": "30-100", "unit": "ms"},
+    "Sleep_Quality": {"normal_range": "70-100", "unit": "%"},
+    "Stress_Level": {"normal_range": "0-30", "unit": "%"},
+    "Activity_Minutes": {"normal_range": "30-60", "unit": "min"}
+  },
+  "test_validation_criteria": {
+    "performance": {
+      "report_generation_time": "<10 seconds",
+      "memory_usage": "<100MB",
+      "data_handling": "50+ lab results per patient"
+    },
+    "accuracy": {
+      "scoring_consistency": "Same input produces same output",
+      "classification_logic": "Scores map to correct classifications",
+      "correlation_calculation": "Mathematical accuracy verified"
+    },
+    "functionality": {
+      "chart_generation": "All 5 chart types render correctly",
+      "html_report": "Complete 10-section report generated",
+      "recommendations": "Personalized suggestions based on scores"
+    }
+  }
+} 

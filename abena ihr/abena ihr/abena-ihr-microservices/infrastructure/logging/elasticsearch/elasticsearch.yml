@@ -1,0 +1,295 @@
+# Abena IHR Elasticsearch Configuration
+# Healthcare data logging and search
+
+cluster.name: abena-ihr-cluster
+node.name: ${HOSTNAME}
+node.master: true
+node.data: true
+node.ingest: true
+
+# Network settings
+network.host: 0.0.0.0
+http.port: 9200
+transport.port: 9300
+
+# Discovery settings
+discovery.seed_hosts: ["elasticsearch-0", "elasticsearch-1", "elasticsearch-2"]
+cluster.initial_master_nodes: ["elasticsearch-0", "elasticsearch-1", "elasticsearch-2"]
+
+# Security settings
+xpack.security.enabled: true
+xpack.security.transport.ssl.enabled: true
+xpack.security.transport.ssl.verification_mode: certificate
+xpack.security.transport.ssl.keystore.path: elastic-certificates.p12
+xpack.security.transport.ssl.truststore.path: elastic-certificates.p12
+xpack.security.http.ssl.enabled: true
+xpack.security.http.ssl.keystore.path: elastic-certificates.p12
+xpack.security.http.ssl.truststore.path: elastic-certificates.p12
+
+# Index settings
+action.auto_create_index: false
+action.destructive_requires_name: true
+
+# Memory settings
+bootstrap.memory_lock: true
+indices.memory.index_buffer_size: 30%
+
+# Logging settings
+logger.level: INFO
+logger.org.elasticsearch.transport: DEBUG
+
+# Monitoring settings
+xpack.monitoring.enabled: true
+xpack.monitoring.collection.enabled: true
+
+# Alerting settings
+xpack.watcher.enabled: true
+
+# Machine learning settings
+xpack.ml.enabled: true
+
+# Snapshot settings
+path.repo: ["/usr/share/elasticsearch/data/backups"]
+
+# Index lifecycle management
+xpack.ilm.enabled: true
+
+# Index templates
+index.number_of_shards: 3
+index.number_of_replicas: 1
+index.refresh_interval: 1s
+
+# Health check settings
+cluster.routing.allocation.disk.threshold_enabled: true
+cluster.routing.allocation.disk.watermark.low: 85%
+cluster.routing.allocation.disk.watermark.high: 90%
+cluster.routing.allocation.disk.watermark.flood_stage: 95%
+
+# Snapshot and restore
+repositories.file.allowed_paths: ["/usr/share/elasticsearch/data/backups"]
+
+# Security roles and users
+xpack.security.authc.realms.file.file1.order: 0
+xpack.security.authc.realms.native.native1.order: 1
+
+# Audit logging
+xpack.security.audit.enabled: true
+xpack.security.audit.outputs: ["logfile"]
+xpack.security.audit.logfile.events.include: authentication_granted,authentication_failed,access_granted,access_denied,anonymous_access_denied,run_as_granted,run_as_denied
+
+# Cross-cluster search
+cluster.remote.remote_cluster.seeds: ["remote-elasticsearch:9300"]
+cluster.remote.remote_cluster.skip_unavailable: true
+
+# Snapshot lifecycle management
+xpack.slm.enabled: true
+
+# Transform settings
+xpack.transform.enabled: true
+
+# Data streams
+data_streams.enabled: true
+
+# Search settings
+search.max_buckets: 100000
+search.default_search_timeout: 30s
+
+# Circuit breaker settings
+indices.breaker.total.limit: 70%
+indices.breaker.fielddata.limit: 40%
+indices.breaker.request.limit: 60%
+
+# Recovery settings
+cluster.routing.allocation.node_concurrent_recoveries: 2
+cluster.routing.allocation.node_initial_primaries_recoveries: 4
+cluster.routing.allocation.same_shard.host: true
+
+# Gateway settings
+gateway.recover_after_nodes: 2
+gateway.expected_nodes: 3
+gateway.recover_after_time: 5m
+
+# Thread pool settings
+thread_pool.write.size: 32
+thread_pool.write.queue_size: 1000
+thread_pool.search.size: 32
+thread_pool.search.queue_size: 1000
+thread_pool.get.size: 32
+thread_pool.get.queue_size: 1000
+
+# Cache settings
+indices.queries.cache.size: 10%
+indices.fielddata.cache.size: 20%
+indices.breaker.fielddata.limit: 40%
+
+# Snapshot settings
+snapshot.max_concurrent_operations: 10
+snapshot.max_snapshot_bytes_per_sec: 40mb
+snapshot.max_restore_bytes_per_sec: 40mb
+
+# Recovery settings
+indices.recovery.max_bytes_per_sec: 40mb
+indices.recovery.concurrent_streams: 3
+
+# Translog settings
+index.translog.durability: async
+index.translog.sync_interval: 5s
+index.translog.flush_threshold_size: 512mb
+
+# Merge settings
+indices.memory.index_buffer_size: 30%
+indices.memory.min_index_buffer_size: 96mb
+indices.memory.max_index_buffer_size: 1gb
+
+# Field data settings
+indices.fielddata.cache.size: 20%
+indices.breaker.fielddata.limit: 40%
+
+# Query cache settings
+indices.queries.cache.size: 10%
+indices.queries.cache.all_segments: true
+
+# Request cache settings
+indices.requests.cache.size: 2%
+
+# Bulk settings
+bulk.max_size_mb: 100
+bulk.max_docs_per_request: 10000
+
+# Scroll settings
+search.max_keep_alive: 24h
+
+# Snapshot lifecycle management
+slm.retention_schedule: 0 0 1 * * ?
+slm.snapshot_name_pattern: '<abena-ihr-{now/d}>'
+slm.repository: abena-ihr-backups
+
+# Index lifecycle management policies
+ilm.policy.healthcare_logs:
+  phases:
+    hot:
+      min_age: 0ms
+      actions:
+        rollover:
+          max_size: 50GB
+          max_age: 1d
+    warm:
+      min_age: 1d
+      actions:
+        forcemerge:
+          max_num_segments: 1
+        shrink:
+          number_of_shards: 1
+    cold:
+      min_age: 7d
+      actions:
+        freeze: {}
+    delete:
+      min_age: 30d
+      actions:
+        delete: {}
+
+# Security settings for healthcare data
+xpack.security.authc.realms.ldap.ldap1:
+  order: 0
+  url: "ldaps://ldap.abena-ihr.com:636"
+  bind_dn: "cn=elasticsearch,ou=service-accounts,dc=abena-ihr,dc=com"
+  bind_password: "${LDAP_BIND_PASSWORD}"
+  user_search:
+    base_dn: "ou=users,dc=abena-ihr,dc=com"
+    filter: "(cn={0})"
+  group_search:
+    base_dn: "ou=groups,dc=abena-ihr,dc=com"
+  ssl:
+    verification_mode: certificate
+    certificate_authorities: ["/etc/elasticsearch/certs/ca.crt"]
+
+# Role mapping
+xpack.security.authc.realms.ldap.ldap1.role_mapping:
+  "cn=admins,ou=groups,dc=abena-ihr,dc=com": superuser
+  "cn=developers,ou=groups,dc=abena-ihr,dc=com": ["kibana_admin", "logstash_admin"]
+  "cn=analysts,ou=groups,dc=abena-ihr,dc=com": ["kibana_user", "readonly"]
+  "cn=healthcare_providers,ou=groups,dc=abena-ihr,dc=com": ["healthcare_data_access"]
+  "cn=patients,ou=groups,dc=abena-ihr,dc=com": ["patient_data_access"]
+
+# Custom roles for healthcare
+xpack.security.roles.healthcare_data_access:
+  cluster: ["monitor", "read_ilm"]
+  indices:
+    - names: ["healthcare-*", "patient-*", "clinical-*"]
+      privileges: ["read", "view_index_metadata"]
+      field_security:
+        grant: ["patient_id", "provider_id", "encounter_date", "diagnosis", "medications"]
+        except: ["ssn", "credit_card", "personal_notes"]
+
+xpack.security.roles.patient_data_access:
+  cluster: ["monitor"]
+  indices:
+    - names: ["patient-*"]
+      privileges: ["read"]
+      field_security:
+        grant: ["patient_id", "encounter_date", "diagnosis", "medications"]
+        except: ["ssn", "credit_card", "personal_notes", "provider_notes"]
+
+# Audit logging for healthcare compliance
+xpack.security.audit.logfile.events.include: 
+  - authentication_granted
+  - authentication_failed
+  - access_granted
+  - access_denied
+  - anonymous_access_denied
+  - run_as_granted
+  - run_as_denied
+  - security_config_change
+  - tampered_audit_log
+  - security_health_check
+
+xpack.security.audit.logfile.events.exclude: 
+  - access_granted:action:cluster:monitor/health
+  - access_granted:action:cluster:monitor/state
+  - access_granted:action:cluster:monitor/stats
+
+# Index templates for healthcare data
+index.templates.healthcare_logs:
+  index_patterns: ["healthcare-*"]
+  settings:
+    number_of_shards: 3
+    number_of_replicas: 1
+    refresh_interval: 1s
+    index.lifecycle.name: healthcare_logs
+    index.lifecycle.rollover_alias: healthcare-logs
+  mappings:
+    properties:
+      timestamp:
+        type: date
+      level:
+        type: keyword
+      service:
+        type: keyword
+      patient_id:
+        type: keyword
+      provider_id:
+        type: keyword
+      action:
+        type: keyword
+      resource:
+        type: keyword
+      outcome:
+        type: keyword
+      message:
+        type: text
+      metadata:
+        type: object
+        dynamic: true
+
+# Snapshot repository for healthcare data
+repositories.abena-ihr-backups:
+  type: s3
+  settings:
+    bucket: abena-ihr-backups
+    region: us-east-1
+    access_key: ${AWS_ACCESS_KEY_ID}
+    secret_key: ${AWS_SECRET_ACCESS_KEY}
+    compress: true
+    server_side_encryption: true
+    canned_acl: private 

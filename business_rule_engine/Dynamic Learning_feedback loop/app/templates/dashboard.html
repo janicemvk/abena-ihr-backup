@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abena IHR - Dynamic Learning Platform</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+        }
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(45deg, #4a90e2, #7b68ee);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        .sdk-status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            margin-top: 10px;
+        }
+        .sdk-active { background: #4caf50; }
+        .sdk-unavailable { background: #f44336; }
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 30px;
+        }
+        .metric-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 4px solid #4a90e2;
+            transition: transform 0.3s ease;
+        }
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .metric-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #4a90e2;
+            margin-bottom: 5px;
+        }
+        .metric-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+        .learning-status {
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            color: white;
+            margin: 20px 30px;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .real-time-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: #4caf50;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+            margin-right: 10px;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="header">
+            <h1>🧠 Abena IHR Dynamic Learning Platform</h1>
+            <p>Intelligent Healthcare Research with Adaptive Analytics</p>
+            <div class="sdk-status {{ 'sdk-active' if sdk_status == 'active' else 'sdk-unavailable' }}">
+                SDK Status: {{ sdk_status.title() }}
+            </div>
+        </div>
+        
+        <div class="learning-status">
+            <h3><span class="real-time-indicator"></span>Real-Time Learning Status</h3>
+            <p>Continuous learning algorithms are actively processing feedback and optimizing treatments.</p>
+            <p><strong>Last Updated:</strong> {{ last_updated }}</p>
+        </div>
+        
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-value">{{ metrics.get('total_patients', 'N/A') }}</div>
+                <div class="metric-label">Total Patients</div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-value">{{ metrics.get('active_treatments', 'N/A') }}</div>
+                <div class="metric-label">Active Treatments</div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-value">{{ metrics.get('feedback_submissions_today', 'N/A') }}</div>
+                <div class="metric-label">Feedback Today</div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-value">{{ "%.1f%" % (metrics.get('learning_accuracy', 0) * 100) if metrics.get('learning_accuracy') else 'N/A' }}</div>
+                <div class="metric-label">Learning Accuracy</div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-value">{{ "%.1f%" % (metrics.get('system_performance', {}).get('uptime', 0) * 100) if metrics.get('system_performance') else 'N/A' }}</div>
+                <div class="metric-label">System Uptime</div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-value">{{ metrics.get('insights_generated_today', 'N/A') }}</div>
+                <div class="metric-label">Insights Generated</div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Auto-refresh dashboard every 30 seconds
+        setTimeout(() => {
+            window.location.reload();
+        }, 30000);
+        
+        // Real-time updates via WebSocket (if available)
+        if (typeof WebSocket !== 'undefined') {
+            const ws = new WebSocket('ws://localhost:8000/ws/dashboard');
+            ws.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                updateMetrics(data);
+            };
+        }
+        
+        function updateMetrics(data) {
+            // Update metrics in real-time
+            Object.keys(data).forEach(key => {
+                const element = document.querySelector(`[data-metric="${key}"]`);
+                if (element) {
+                    element.textContent = data[key];
+                }
+            });
+        }
+    </script>
+</body>
+</html> 

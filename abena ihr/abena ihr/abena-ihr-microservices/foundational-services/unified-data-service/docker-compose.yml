@@ -1,0 +1,151 @@
+version: '3.8'
+
+services:
+  # Master PostgreSQL Database
+  unified-postgres:
+    image: postgres:15-alpine
+    container_name: abena-unified-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: abena_unified_db
+      POSTGRES_USER: abena_admin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secure_password_123}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+    volumes:
+      - unified_postgres_data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d
+      - ./database/schemas:/schemas
+    ports:
+      - "5432:5432"
+    networks:
+      - abena-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U abena_admin -d abena_unified_db"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Redis for caching and session management
+  unified-redis:
+    image: redis:7-alpine
+    container_name: abena-unified-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis_password_123}
+    volumes:
+      - unified_redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - abena-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Database migration service
+  db-migrate:
+    image: postgres:15-alpine
+    container_name: abena-db-migrate
+    depends_on:
+      unified-postgres:
+        condition: service_healthy
+    environment:
+      POSTGRES_DB: abena_unified_db
+      POSTGRES_USER: abena_admin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secure_password_123}
+      POSTGRES_HOST: unified-postgres
+    volumes:
+      - ./migrations:/migrations
+      - ./database/schemas:/schemas
+    networks:
+      - abena-network
+    command: >
+      sh -c "
+        echo 'Waiting for database to be ready...' &&
+        until pg_isready -h unified-postgres -U abena_admin -d abena_unified_db; do
+          sleep 2;
+        done &&
+        echo 'Database is ready. Running migrations...' &&
+        for file in /migrations/*.sql; do
+          if [ -f \"$file\" ]; then
+            echo 'Running migration: $file' &&
+            psql -h unified-postgres -U abena_admin -d abena_unified_db -f \"$file\";
+          fi
+        done &&
+        echo 'Migrations completed successfully.'
+      "
+
+  # Database backup service
+  db-backup:
+    image: postgres:15-alpine
+    container_name: abena-db-backup
+    depends_on:
+      unified-postgres:
+        condition: service_healthy
+    environment:
+      POSTGRES_DB: abena_unified_db
+      POSTGRES_USER: abena_admin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secure_password_123}
+      POSTGRES_HOST: unified-postgres
+    volumes:
+      - ./backups:/backups
+    networks:
+      - abena-network
+    command: >
+      sh -c "
+        echo 'Setting up backup schedule...' &&
+        while true; do
+          echo 'Creating backup...' &&
+          pg_dump -h unified-postgres -U abena_admin -d abena_unified_db > /backups/backup_$(date +%Y%m%d_%H%M%S).sql &&
+          echo 'Backup completed at $(date)' &&
+          sleep 86400
+        done
+      "
+
+  # Database monitoring service
+  db-monitor:
+    image: postgres:15-alpine
+    container_name: abena-db-monitor
+    depends_on:
+      unified-postgres:
+        condition: service_healthy
+    environment:
+      POSTGRES_DB: abena_unified_db
+      POSTGRES_USER: abena_admin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secure_password_123}
+      POSTGRES_HOST: unified-postgres
+    volumes:
+      - ./monitoring:/monitoring
+    networks:
+      - abena-network
+    command: >
+      sh -c "
+        echo 'Starting database monitoring...' &&
+        while true; do
+          echo 'Checking database health...' &&
+          psql -h unified-postgres -U abena_admin -d abena_unified_db -c 'SELECT version();' > /dev/null 2>&1 &&
+          if [ $? -eq 0 ]; then
+            echo 'Database is healthy at $(date)' &&
+            echo 'HEALTHY' > /monitoring/status.txt
+          else
+            echo 'Database health check failed at $(date)' &&
+            echo 'UNHEALTHY' > /monitoring/status.txt
+          fi &&
+          sleep 60
+        done
+      "
+
+volumes:
+  unified_postgres_data:
+    driver: local
+  unified_redis_data:
+    driver: local
+
+networks:
+  abena-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16 

@@ -1,0 +1,397 @@
+version: '3.8'
+
+services:
+  # =============================================
+  # FOUNDATIONAL SERVICES
+  # =============================================
+  
+  # Unified Data Service
+  unified-data-service:
+    build:
+      context: ./foundational-services/unified-data-service
+      dockerfile: Dockerfile
+    container_name: abena-unified-data-service
+    ports:
+      - "8003:8003"
+    environment:
+      - DATABASE_URL=postgresql://abena_user:abena_pass@postgres:5432/abena_ihr
+      - REDIS_URL=redis://redis:6379/0
+      - LOG_LEVEL=INFO
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./foundational-services/unified-data-service/database:/app/database
+      - ./foundational-services/unified-data-service/migrations:/app/migrations
+    networks:
+      - abena-network
+    restart: unless-stopped
+
+  # Auth Service
+  auth-service:
+    build:
+      context: ./foundational-services/auth-service
+      dockerfile: Dockerfile
+    container_name: abena-auth-service
+    ports:
+      - "8004:8004"
+    environment:
+      - DATABASE_URL=postgresql://abena_user:abena_pass@postgres:5432/abena_ihr
+      - REDIS_URL=redis://redis:6379/0
+      - JWT_SECRET=${JWT_SECRET:-your_jwt_secret_here}
+      - LOG_LEVEL=INFO
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - abena-network
+    restart: unless-stopped
+
+  # Data Ingestion Service
+  data-ingestion-service:
+    build:
+      context: ./foundational-services/data-ingestion-service
+      dockerfile: Dockerfile
+    container_name: abena-data-ingestion-service
+    ports:
+      - "8001:8001"
+    environment:
+      - POSTGRES_URL=postgresql://abena_user:abena_pass@postgres:5432/abena_ihr
+      - MONGODB_URL=mongodb://mongodb:27017/abena_ihr
+      - REDIS_URL=redis://redis:6379/0
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - LOG_LEVEL=INFO
+    depends_on:
+      - postgres
+      - mongodb
+      - redis
+      - kafka
+    volumes:
+      - ./foundational-services/data-ingestion-service/logs:/app/logs
+      - ./foundational-services/data-ingestion-service/data:/app/data
+    networks:
+      - abena-network
+    restart: unless-stopped
+
+  # Privacy & Security Service
+  privacy-security-service:
+    build:
+      context: ./foundational-services/privacy-security-service
+      dockerfile: Dockerfile
+    container_name: abena-privacy-security-service
+    ports:
+      - "8002:8002"
+    environment:
+      - POSTGRES_URL=postgresql://abena_user:abena_pass@postgres:5432/abena_ihr
+      - REDIS_URL=redis://redis:6379/0
+      - JWT_SECRET=${JWT_SECRET:-your_jwt_secret_here}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY:-your_encryption_key_here}
+      - LOG_LEVEL=INFO
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./foundational-services/privacy-security-service/logs:/app/logs
+      - ./foundational-services/privacy-security-service/keys:/app/keys
+    networks:
+      - abena-network
+    restart: unless-stopped
+
+  # Blockchain Service
+  blockchain-service:
+    build:
+      context: ./foundational-services/blockchain-service
+      dockerfile: Dockerfile
+    container_name: abena-blockchain-service
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://abena_user:abena_pass@postgres:5432/abena_ihr
+      - REDIS_URL=redis://redis:6379/0
+      - BLOCKCHAIN_NETWORK=testnet
+      - BLOCKCHAIN_PROVIDER=ethereum
+      - BLOCKCHAIN_RPC_URL=${BLOCKCHAIN_RPC_URL:-https://sepolia.infura.io/v3/your_project_id}
+      - LOG_LEVEL=INFO
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./foundational-services/blockchain-service/logs:/app/logs
+      - ./foundational-services/blockchain-service/contracts:/app/contracts
+    networks:
+      - abena-network
+    restart: unless-stopped
+
+  # =============================================
+  # APPLICATION SERVICES
+  # =============================================
+
+  # Analytics Engine Service
+  analytics-engine-service:
+    build:
+      context: ./application-services/analytics-engine-service
+      dockerfile: Dockerfile
+    container_name: abena-analytics-engine-service
+    ports:
+      - "8010:8010"
+    environment:
+      - DATABASE_URL=postgresql://abena_user:abena_pass@postgres:5432/abena_ihr
+      - REDIS_URL=redis://redis:6379/0
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - AUTH_SERVICE_URL=http://auth-service:8004
+      - LOG_LEVEL=INFO
+    depends_on:
+      - postgres
+      - redis
+      - kafka
+      - auth-service
+    volumes:
+      - ./application-services/analytics-engine-service/logs:/app/logs
+      - ./application-services/analytics-engine-service/models:/app/models
+    networks:
+      - abena-network
+    restart: unless-stopped
+
+  # Clinical Decision Support Service
+  clinical-decision-support-service:
+    build:
+      context: ./application-services/clinical-decision-support-service
+      dockerfile: Dockerfile
+    container_name: abena-clinical-decision-support-service
+    ports:
+      - "8011:8011"
+    environment:
+      - DATABASE_URL=postgresql://abena_user:abena_pass@postgres:5432/abena_ihr
+      - REDIS_URL=redis://redis:6379/0
+      - AUTH_SERVICE_URL=http://auth-service:8004
+      - ANALYTICS_SERVICE_URL=http://analytics-engine-service:8010
+      - LOG_LEVEL=INFO
+    depends_on:
+      - postgres
+      - redis
+      - auth-service
+      - analytics-engine-service
+    volumes:
+      - ./application-services/clinical-decision-support-service/logs:/app/logs
+    networks:
+      - abena-network
+    restart: unless-stopped
+
+  # =============================================
+  # INFRASTRUCTURE SERVICES
+  # =============================================
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: abena-postgres
+    environment:
+      - POSTGRES_DB=abena_ihr
+      - POSTGRES_USER=abena_user
+      - POSTGRES_PASSWORD=abena_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./foundational-services/unified-data-service/database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - abena-network
+    restart: unless-stopped
+
+  # MongoDB
+  mongodb:
+    image: mongo:6.0
+    container_name: abena-mongodb
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=admin123
+      - MONGO_INITDB_DATABASE=abena_ihr
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - abena-network
+    restart: unless-stopped
+
+  # Redis
+  redis:
+    image: redis:7-alpine
+    container_name: abena-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - abena-network
+    restart: unless-stopped
+
+  # Apache Kafka
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    container_name: abena-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper/data
+      - zookeeper_logs:/var/lib/zookeeper/log
+    networks:
+      - abena-network
+    restart: unless-stopped
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    container_name: abena-kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+      - "9101:9101"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_HOSTNAME: localhost
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    networks:
+      - abena-network
+    restart: unless-stopped
+
+  # =============================================
+  # MONITORING SERVICES
+  # =============================================
+
+  # Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: abena-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./infrastructure/monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - abena-network
+    restart: unless-stopped
+
+  # Grafana
+  grafana:
+    image: grafana/grafana:latest
+    container_name: abena-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./infrastructure/monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./infrastructure/monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+    networks:
+      - abena-network
+    restart: unless-stopped
+
+  # Jaeger
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: abena-jaeger
+    ports:
+      - "16686:16686"
+      - "14268:14268"
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+    networks:
+      - abena-network
+    restart: unless-stopped
+
+  # =============================================
+  # LOGGING SERVICES
+  # =============================================
+
+  # Elasticsearch
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: abena-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - abena-network
+    restart: unless-stopped
+
+  # Kibana
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.0
+    container_name: abena-kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+    networks:
+      - abena-network
+    restart: unless-stopped
+
+  # =============================================
+  # API GATEWAY
+  # =============================================
+
+  # Kong API Gateway
+  kong:
+    image: kong:3.4
+    container_name: abena-kong
+    ports:
+      - "8005:8000"
+      - "8443:8443"
+      - "8006:8001"
+    environment:
+      - KONG_DATABASE=off
+      - KONG_PROXY_ACCESS_LOG=/dev/stdout
+      - KONG_ADMIN_ACCESS_LOG=/dev/stdout
+      - KONG_PROXY_ERROR_LOG=/dev/stderr
+      - KONG_ADMIN_ERROR_LOG=/dev/stderr
+      - KONG_ADMIN_LISTEN=0.0.0.0:8001
+      - KONG_ADMIN_GUI_URL=http://localhost:8002
+    volumes:
+      - ./integration-layer/api-gateway/kong.yml:/usr/local/kong/declarative/kong.yml
+    networks:
+      - abena-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  mongodb_data:
+  redis_data:
+  zookeeper_data:
+  zookeeper_logs:
+  kafka_data:
+  prometheus_data:
+  grafana_data:
+  elasticsearch_data:
+
+networks:
+  abena-network:
+    driver: bridge 

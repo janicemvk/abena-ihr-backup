@@ -1,0 +1,62 @@
+[
+  {
+    "timestamp": "2025-06-06T08:28:38.073233",
+    "data_hash": "abe0158b7b4f8ba93a42335f7d05cf8640c6e5c0dfe86056b9975574c7346de5",
+    "secured_data_hash": "abe0158b7b4f8ba93a42335f7d05cf8640c6e5c0dfe86056b9975574c7346de5",
+    "sensitivity_level": "PUBLIC",
+    "storage_destination": "statistical",
+    "processing_steps": [
+      "validation",
+      "pii_detection",
+      "sensitivity_assessment",
+      "consent_verification",
+      "anonymization",
+      "security_application"
+    ],
+    "compliance_flags": {
+      "hipaa_compliant": true,
+      "gdpr_compliant": true,
+      "consent_documented": true
+    }
+  },
+  {
+    "timestamp": "2025-06-06T08:28:38.201929",
+    "data_hash": "a7eff110cdef9f34fde3bb846062bab226821e46ac11b152cbaa3991d8ce95d7",
+    "secured_data_hash": "9a56f4e4eb580b46f5ceaa49c6cf7b5b6c159f6af4c9faa3ea877e6acae6b8f8",
+    "sensitivity_level": "SENSITIVE",
+    "storage_destination": "identified",
+    "processing_steps": [
+      "validation",
+      "pii_detection",
+      "sensitivity_assessment",
+      "consent_verification",
+      "anonymization",
+      "security_application"
+    ],
+    "compliance_flags": {
+      "hipaa_compliant": true,
+      "gdpr_compliant": true,
+      "consent_documented": true
+    }
+  },
+  {
+    "timestamp": "2025-06-06T08:28:38.202710",
+    "data_hash": "ecd926113205d3ab990eca36058f7b41ffde37db2491c2899ab2c12acb7dc334",
+    "secured_data_hash": "ecd926113205d3ab990eca36058f7b41ffde37db2491c2899ab2c12acb7dc334",
+    "sensitivity_level": "PUBLIC",
+    "storage_destination": "statistical",
+    "processing_steps": [
+      "validation",
+      "pii_detection",
+      "sensitivity_assessment",
+      "consent_verification",
+      "anonymization",
+      "security_application"
+    ],
+    "compliance_flags": {
+      "hipaa_compliant": true,
+      "gdpr_compliant": true,
+      "consent_documented": true
+    }
+  }
+]

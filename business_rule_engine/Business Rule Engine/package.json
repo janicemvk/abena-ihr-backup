@@ -1,0 +1,41 @@
+{
+  "name": "business-rule-engine",
+  "version": "2.0.0",
+  "description": "A comprehensive business rule engine for handling application-specific conflict policies and business logic, built on the Abena SDK",
+  "main": "BusinessRuleEngine.js",
+  "type": "module",
+  "scripts": {
+    "test": "node test.js",
+    "start": "node example.js"
+  },
+  "keywords": [
+    "business-rules",
+    "rule-engine",
+    "conflict-resolution",
+    "healthcare",
+    "clinical-rules",
+    "data-integration",
+    "abena-sdk",
+    "privacy",
+    "blockchain",
+    "audit-trail"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+    "jest": "^29.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/business-rule-engine.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/business-rule-engine/issues"
+  },
+  "homepage": "https://github.com/yourusername/business-rule-engine#readme"
+} 

@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telemedicine UI</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/static/css/telemedicine.css" rel="stylesheet">
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script src="/static/js/telemedicine.js" defer></script>
+</head>
+<body class="bg-gray-100">
+    <!-- Main Container -->
+    <div class="min-h-screen bg-gray-100">
+        <!-- Main Video Interface --> 
+        <div class="flex h-screen">
+            <!-- Video Area -->
+            <div class="flex-1 relative bg-gray-800">
+                <!-- Remote Video (Main) -->
+                <video id="remoteVideo" class="w-full h-full bg-gray-800" autoplay playsinline></video>
+                
+                <!-- Local Video (Picture-in-Picture) -->
+                <div class="absolute top-4 right-4 w-48 h-36 bg-gray-700 rounded-lg overflow-hidden">
+                    <video id="localVideo" autoplay playsinline muted></video>
+                </div>
+                
+                <!-- Video Controls -->
+                <div class="video-controls">
+                    <button id="videoToggle" class="text-white p-3 rounded-full mx-2 transition duration-150 ease-in-out bg-blue-600 hover:bg-blue-700">
+                        <i class="fas fa-video"></i>
+                    </button>
+                    <button id="audioToggle" class="text-white p-3 rounded-full mx-2 transition duration-150 ease-in-out bg-blue-600 hover:bg-blue-700">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button id="screenShare" class="text-white p-3 rounded-full mx-2 transition duration-150 ease-in-out bg-gray-600 hover:bg-gray-700">
+                        <i class="fas fa-desktop"></i>
+                    </button>
+                    <button id="openChat" class="text-white p-3 rounded-full mx-2 transition duration-150 ease-in-out bg-purple-600 hover:bg-purple-700">
+                        <i class="fas fa-comment"></i>
+                    </button>
+                </div>
+                
+                <!-- Connection Status -->
+                <div class="absolute top-4 left-4">
+                    <div id="connectionStatus" class="flex items-center px-3 py-1 rounded-full text-white text-sm bg-green-500">
+                        <div class="w-2 h-2 bg-white rounded-full mr-2 animate-pulse"></div>
+                        <span>connected</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Side Panel - ALWAYS VISIBLE FOR TESTING -->
+            <div id="sidePanel" class="w-80 bg-white shadow-lg border-l border-gray-200" style="display: block !important;">
+                <div class="h-full flex flex-col">
+                    <!-- Panel Header -->
+                    <div class="bg-gray-50 px-4 py-3 border-b flex justify-between items-center">
+                        <h3 class="text-lg font-medium text-gray-900">Session Tools</h3>
+                        <button id="closePanel" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Panel Tabs -->
+                    <div class="border-b">
+                        <nav class="-mb-px flex" aria-label="Tabs">
+                            <button id="chatTab" class="w-1/3 py-2 px-1 text-center border-b-2 font-medium text-sm border-blue-500 text-blue-600">
+                                Chat
+                            </button>
+                            <button id="notesTab" class="w-1/3 py-2 px-1 text-center border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                                Notes
+                            </button>
+                            <button id="patientTab" class="w-1/3 py-2 px-1 text-center border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                                Patient
+                            </button>
+                        </nav>
+                    </div>
+                    
+                    <!-- Panel Content -->
+                    <div class="flex-1 overflow-y-auto">
+                        <!-- Chat Tab -->
+                        <div id="chatContent" class="h-full flex flex-col">
+                            <div class="flex-1 p-4 space-y-3 overflow-y-auto">
+                                <div class="flex">
+                                    <div class="bg-blue-500 text-white p-2 rounded-lg max-w-xs">
+                                        <p class="text-sm">Hello! How are you feeling today?</p>
+                                        <p class="text-xs opacity-75 mt-1">Dr. Smith - 10:15 AM</p>
+                                    </div>
+                                </div>
+                                <div class="flex justify-end">
+                                    <div class="bg-gray-200 p-2 rounded-lg max-w-xs">
+                                        <p class="text-sm">I'm feeling much better, thank you!</p>
+                                        <p class="text-xs text-gray-600 mt-1">You - 10:16 AM</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-4 border-t">
+                                <div class="flex space-x-2">
+                                    <input type="text" id="chatInput" placeholder="Type a message..." class="flex-1 border rounded-md px-3 py-2 text-sm">
+                                    <button id="sendMessage" class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm">Send</button>
+                                </div>
+                                <!-- File Upload Section -->
+                                <div class="mt-4 pt-4 border-t border-gray-200 bg-gray-50 p-3 rounded-lg">
+                                    <h4 class="text-sm font-medium text-gray-700 mb-3 flex items-center">
+                                        <i class="fas fa-file-upload mr-2 text-blue-600"></i>File Sharing
+                                    </h4>
+                                    <div class="flex space-x-2 mb-3">
+                                        <input type="file" id="fileInput" class="flex-1 border rounded-md px-3 py-2 text-sm bg-white">
+                                        <button id="uploadFile" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                                            <i class="fas fa-upload mr-1"></i>Upload
+                                        </button>
+                                    </div>
+                                    <!-- Uploaded Files List -->
+                                    <div id="uploadedFilesList" style="display: none;">
+                                        <h5 class="text-xs font-medium text-gray-600 mb-2">Uploaded Files:</h5>
+                                        <div id="filesList" class="space-y-1 max-h-32 overflow-y-auto">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Notes Tab -->
+                        <div id="notesContent" class="p-4" style="display: none;">
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Session Notes</label>
+                                    <textarea id="sessionNotes" rows="10" class="w-full border rounded-md px-3 py-2 text-sm" placeholder="Enter consultation notes..."></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Quick Actions</label>
+                                    <div class="space-y-2">
+                                        <button class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm">
+                                            <i class="fas fa-prescription-bottle mr-2"></i>Prescribe Medication
+                                        </button>
+                                        <button class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm">
+                                            <i class="fas fa-calendar mr-2"></i>Schedule Follow-up
+                                        </button>
+                                        <button class="w-full bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md text-sm">
+                                            <i class="fas fa-flask mr-2"></i>Order Lab Tests
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Patient Tab -->
+                        <div id="patientContent" class="p-4" style="display: none;">
+                            <div class="space-y-4">
+                                <div class="text-center">
+                                    <div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-2">
+                                        <span class="text-white text-xl font-medium">JD</span>
+                                    </div>
+                                    <h4 class="font-medium text-gray-900">John Doe</h4>
+                                    <p class="text-sm text-gray-600">DOB: 03/15/1985 (Age: 39)</p>
+                                </div>
+                                
+                                <div class="space-y-3">
+                                    <div>
+                                        <h5 class="text-sm font-medium text-gray-700">Current Medications</h5>
+                                        <ul class="text-sm text-gray-600 mt-1">
+                                            <li>• Lisinopril 10mg daily</li>
+                                            <li>• Metformin 500mg twice daily</li>
+                                        </ul>
+                                    </div>
+                                    
+                                    <div>
+                                        <h5 class="text-sm font-medium text-gray-700">Allergies</h5>
+                                        <p class="text-sm text-red-600">Penicillin</p>
+                                    </div>
+                                    
+                                    <div>
+                                        <h5 class="text-sm font-medium text-gray-700">Recent Vitals</h5>
+                                        <div class="text-sm text-gray-600 space-y-1">
+                                            <div class="flex justify-between">
+                                                <span>Blood Pressure:</span>
+                                                <span>120/80 mmHg</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span>Heart Rate:</span>
+                                                <span>72 bpm</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span>Temperature:</span>
+                                                <span>98.6°F</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Side Panel Toggle Button -->
+        <button id="togglePanel" class="fixed top-20 right-4 bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full shadow-lg z-10 transition duration-150 ease-in-out" style="display: none;">
+            <i class="fas fa-tools"></i>
+        </button>
+    </div>
+
+    <script>
+        // Simple JavaScript for basic functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing simple functionality');
+            
+            // Tab switching
+            const chatTab = document.getElementById('chatTab');
+            const notesTab = document.getElementById('notesTab');
+            const patientTab = document.getElementById('patientTab');
+            const chatContent = document.getElementById('chatContent');
+            const notesContent = document.getElementById('notesContent');
+            const patientContent = document.getElementById('patientContent');
+            
+            function switchTab(tabName) {
+                // Hide all content
+                chatContent.style.display = 'none';
+                notesContent.style.display = 'none';
+                patientContent.style.display = 'none';
+                
+                // Remove active class from all tabs
+                chatTab.className = 'w-1/3 py-2 px-1 text-center border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300';
+                notesTab.className = 'w-1/3 py-2 px-1 text-center border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300';
+                patientTab.className = 'w-1/3 py-2 px-1 text-center border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300';
+                
+                // Show selected content and update tab
+                if (tabName === 'chat') {
+                    chatContent.style.display = 'flex';
+                    chatTab.className = 'w-1/3 py-2 px-1 text-center border-b-2 font-medium text-sm border-blue-500 text-blue-600';
+                } else if (tabName === 'notes') {
+                    notesContent.style.display = 'block';
+                    notesTab.className = 'w-1/3 py-2 px-1 text-center border-b-2 font-medium text-sm border-blue-500 text-blue-600';
+                } else if (tabName === 'patient') {
+                    patientContent.style.display = 'block';
+                    patientTab.className = 'w-1/3 py-2 px-1 text-center border-b-2 font-medium text-sm border-blue-500 text-blue-600';
+                }
+                
+                console.log('Switched to tab:', tabName);
+            }
+            
+            // Tab click handlers
+            chatTab.addEventListener('click', () => switchTab('chat'));
+            notesTab.addEventListener('click', () => switchTab('notes'));
+            patientTab.addEventListener('click', () => switchTab('patient'));
+            
+            // Chat functionality
+            const chatInput = document.getElementById('chatInput');
+            const sendMessage = document.getElementById('sendMessage');
+            
+            function sendChatMessage() {
+                const message = chatInput.value.trim();
+                if (message) {
+                    console.log('Sending message:', message);
+                    alert('Message sent: ' + message);
+                    chatInput.value = '';
+                }
+            }
+            
+            sendMessage.addEventListener('click', sendChatMessage);
+            chatInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendChatMessage();
+                }
+            });
+            
+            // File upload
+            const fileInput = document.getElementById('fileInput');
+            const uploadFile = document.getElementById('uploadFile');
+            const uploadedFilesList = document.getElementById('uploadedFilesList');
+            const filesList = document.getElementById('filesList');
+            
+            uploadFile.addEventListener('click', async function() {
+                const file = fileInput.files[0];
+                if (!file) {
+                    alert('Please select a file first');
+                    return;
+                }
+                
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                try {
+                    const response = await fetch('/upload', { method: 'POST', body: formData });
+                    if (response.ok) {
+                        alert('File uploaded successfully!');
+                        fileInput.value = '';
+                        
+                        // Show uploaded files
+                        const fileDiv = document.createElement('div');
+                        fileDiv.className = 'flex items-center justify-between p-2 bg-gray-50 rounded text-xs';
+                        fileDiv.innerHTML = `
+                            <span class="text-gray-700">${file.name}</span>
+                            <a href="/uploads/${file.name}" target="_blank" class="text-blue-600 hover:text-blue-800">
+                                <i class="fas fa-download mr-1"></i>Download
+                            </a>
+                        `;
+                        filesList.appendChild(fileDiv);
+                        uploadedFilesList.style.display = 'block';
+                    } else {
+                        alert('Upload failed. Please try again.');
+                    }
+                } catch (error) {
+                    console.error('Upload error:', error);
+                    alert('Upload failed. Please try again.');
+                }
+            });
+            
+            // Video controls
+            const videoToggle = document.getElementById('videoToggle');
+            const audioToggle = document.getElementById('audioToggle');
+            const screenShare = document.getElementById('screenShare');
+            const openChat = document.getElementById('openChat');
+            
+            let videoEnabled = true;
+            let audioEnabled = true;
+            
+            videoToggle.addEventListener('click', function() {
+                videoEnabled = !videoEnabled;
+                const icon = videoToggle.querySelector('i');
+                if (videoEnabled) {
+                    videoToggle.className = 'text-white p-3 rounded-full mx-2 transition duration-150 ease-in-out bg-blue-600 hover:bg-blue-700';
+                    icon.className = 'fas fa-video';
+                } else {
+                    videoToggle.className = 'text-white p-3 rounded-full mx-2 transition duration-150 ease-in-out bg-red-600 hover:bg-red-700';
+                    icon.className = 'fas fa-video-slash';
+                }
+                console.log('Video toggled:', videoEnabled);
+            });
+            
+            audioToggle.addEventListener('click', function() {
+                audioEnabled = !audioEnabled;
+                const icon = audioToggle.querySelector('i');
+                if (audioEnabled) {
+                    audioToggle.className = 'text-white p-3 rounded-full mx-2 transition duration-150 ease-in-out bg-blue-600 hover:bg-blue-700';
+                    icon.className = 'fas fa-microphone';
+                } else {
+                    audioToggle.className = 'text-white p-3 rounded-full mx-2 transition duration-150 ease-in-out bg-red-600 hover:bg-red-700';
+                    icon.className = 'fas fa-microphone-slash';
+                }
+                console.log('Audio toggled:', audioEnabled);
+            });
+            
+            screenShare.addEventListener('click', function() {
+                alert('Screen sharing feature would be implemented here');
+                console.log('Screen share clicked');
+            });
+            
+            openChat.addEventListener('click', function() {
+                switchTab('chat');
+                console.log('Open chat clicked');
+            });
+            
+            // Panel controls
+            const sidePanel = document.getElementById('sidePanel');
+            const closePanel = document.getElementById('closePanel');
+            const togglePanel = document.getElementById('togglePanel');
+            
+            closePanel.addEventListener('click', function() {
+                sidePanel.style.display = 'none';
+                togglePanel.style.display = 'block';
+                console.log('Panel closed');
+            });
+            
+            togglePanel.addEventListener('click', function() {
+                sidePanel.style.display = 'block';
+                togglePanel.style.display = 'none';
+                console.log('Panel opened');
+            });
+            
+            // Initialize
+            console.log('Simple functionality initialized');
+        });
+    </script>
+</body>
+</html> 

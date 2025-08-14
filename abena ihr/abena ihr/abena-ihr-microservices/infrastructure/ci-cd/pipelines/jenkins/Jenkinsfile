@@ -1,0 +1,495 @@
+#!/usr/bin/env groovy
+// Abena IHR Jenkins Pipeline
+// Comprehensive CI/CD for healthcare microservices
+
+pipeline {
+    agent any
+    
+    environment {
+        // Docker registry
+        DOCKER_REGISTRY = 'registry.abena-ihr.com'
+        DOCKER_CREDENTIALS = credentials('docker-registry-credentials')
+        
+        // Kubernetes
+        KUBECONFIG = credentials('kubeconfig')
+        KUBERNETES_NAMESPACE = 'abena-ihr'
+        
+        // Git
+        GIT_CREDENTIALS = credentials('git-credentials')
+        
+        // Security scanning
+        SONARQUBE_TOKEN = credentials('sonarqube-token')
+        TRIVY_CREDENTIALS = credentials('trivy-credentials')
+        
+        // Testing
+        TEST_DATABASE_URL = 'postgresql://test:test@test-db:5432/abena_ihr_test'
+        TEST_REDIS_URL = 'redis://test-redis:6379'
+        
+        // Monitoring
+        PROMETHEUS_URL = 'http://prometheus:9090'
+        GRAFANA_URL = 'http://grafana:3000'
+        
+        // Notification
+        SLACK_WEBHOOK = credentials('slack-webhook')
+        EMAIL_RECIPIENTS = 'devops@abena-ihr.com,security@abena-ihr.com'
+    }
+    
+    parameters {
+        choice(
+            name: 'SERVICE',
+            choices: [
+                'auth-service',
+                'patient-engagement-service',
+                'provider-workflow-service',
+                'clinical-decision-support-service',
+                'data-ingestion-service',
+                'privacy-security-service',
+                'telemedicine-service',
+                'analytics-engine-service',
+                'science-intelligence-service',
+                'blockchain-service',
+                'unified-data-service'
+            ],
+            description: 'Select the service to build and deploy'
+        )
+        choice(
+            name: 'ENVIRONMENT',
+            choices: ['dev', 'staging', 'production'],
+            description: 'Select the deployment environment'
+        )
+        booleanParam(
+            name: 'RUN_TESTS',
+            defaultValue: true,
+            description: 'Run automated tests'
+        )
+        booleanParam(
+            name: 'SECURITY_SCAN',
+            defaultValue: true,
+            description: 'Run security scans'
+        )
+        booleanParam(
+            name: 'PERFORMANCE_TEST',
+            defaultValue: false,
+            description: 'Run performance tests'
+        )
+        string(
+            name: 'VERSION',
+            defaultValue: '',
+            description: 'Version tag (leave empty for auto-generated)'
+        )
+    }
+    
+    stages {
+        stage('Validate Parameters') {
+            steps {
+                script {
+                    if (params.ENVIRONMENT == 'production' && !isApproved()) {
+                        error 'Production deployment requires approval'
+                    }
+                    
+                    if (params.VERSION == '') {
+                        env.VERSION = generateVersion()
+                    }
+                    
+                    echo "Building ${params.SERVICE} version ${env.VERSION} for ${params.ENVIRONMENT}"
+                }
+            }
+        }
+        
+        stage('Checkout Code') {
+            steps {
+                checkout scm
+                
+                script {
+                    // Validate branch for production
+                    if (params.ENVIRONMENT == 'production' && env.BRANCH_NAME != 'main') {
+                        error 'Production deployments must be from main branch'
+                    }
+                    
+                    // Get commit information
+                    env.COMMIT_SHA = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
+                    env.COMMIT_MESSAGE = sh(script: 'git log -1 --pretty=%B', returnStdout: true).trim()
+                    env.COMMIT_AUTHOR = sh(script: 'git log -1 --pretty=%an', returnStdout: true).trim()
+                }
+            }
+        }
+        
+        stage('Code Quality Analysis') {
+            when {
+                expression { params.RUN_TESTS }
+            }
+            steps {
+                script {
+                    // SonarQube analysis
+                    withSonarQubeEnv('SonarQube') {
+                        sh """
+                            sonar-scanner \
+                                -Dsonar.projectKey=abena-ihr-${params.SERVICE} \
+                                -Dsonar.sources=src \
+                                -Dsonar.host.url=http://sonarqube:9000 \
+                                -Dsonar.login=${SONARQUBE_TOKEN} \
+                                -Dsonar.projectVersion=${env.VERSION}
+                        """
+                    }
+                    
+                    // Code coverage analysis
+                    publishCoverage adapters: [
+                        coberturaAdapter("coverage.xml")
+                    ], sourceFileResolver: sourceFiles('STORE_LAST_BUILD')
+                }
+            }
+        }
+        
+        stage('Security Scan') {
+            when {
+                expression { params.SECURITY_SCAN }
+            }
+            steps {
+                script {
+                    // Trivy vulnerability scan
+                    sh """
+                        trivy image --severity HIGH,CRITICAL \
+                            --format json \
+                            --output trivy-report.json \
+                            ${DOCKER_REGISTRY}/${params.SERVICE}:${env.VERSION}
+                    """
+                    
+                    // OWASP ZAP security scan
+                    sh """
+                        zap-baseline.py \
+                            -t https://${params.SERVICE}.${params.ENVIRONMENT}.abena-ihr.com \
+                            -J zap-report.json
+                    """
+                    
+                    // Dependency vulnerability scan
+                    sh """
+                        npm audit --audit-level high --json > npm-audit.json || true
+                        pip-audit --format json > pip-audit.json || true
+                    """
+                    
+                    // Archive security reports
+                    archiveArtifacts artifacts: '*-report.json,*-audit.json', fingerprint: true
+                }
+            }
+        }
+        
+        stage('Unit Tests') {
+            when {
+                expression { params.RUN_TESTS }
+            }
+            steps {
+                script {
+                    // Run service-specific tests
+                    switch(params.SERVICE) {
+                        case 'auth-service':
+                            sh 'npm test'
+                            break
+                        case 'patient-engagement-service':
+                        case 'provider-workflow-service':
+                        case 'clinical-decision-support-service':
+                        case 'data-ingestion-service':
+                        case 'privacy-security-service':
+                        case 'telemedicine-service':
+                        case 'analytics-engine-service':
+                        case 'science-intelligence-service':
+                        case 'unified-data-service':
+                            sh 'python -m pytest tests/ -v --cov=src --cov-report=xml'
+                            break
+                        case 'blockchain-service':
+                            sh 'go test ./... -v -coverprofile=coverage.out'
+                            sh 'go tool cover -html=coverage.out -o coverage.html'
+                            break
+                    }
+                    
+                    // Publish test results
+                    publishTestResults testResultsPattern: '**/test-results.xml'
+                }
+            }
+        }
+        
+        stage('Integration Tests') {
+            when {
+                expression { params.RUN_TESTS && params.ENVIRONMENT != 'production' }
+            }
+            steps {
+                script {
+                    // Start test infrastructure
+                    sh 'docker-compose -f docker-compose.test.yml up -d'
+                    
+                    // Wait for services to be ready
+                    sh 'sleep 30'
+                    
+                    // Run integration tests
+                    sh 'python -m pytest tests/integration/ -v'
+                    
+                    // Cleanup
+                    sh 'docker-compose -f docker-compose.test.yml down'
+                }
+            }
+        }
+        
+        stage('Performance Tests') {
+            when {
+                expression { params.PERFORMANCE_TEST }
+            }
+            steps {
+                script {
+                    // Run JMeter performance tests
+                    sh """
+                        jmeter -n \
+                            -t tests/performance/${params.SERVICE}-test-plan.jmx \
+                            -l performance-results.jtl \
+                            -e -o performance-report/
+                    """
+                    
+                    // Archive performance results
+                    archiveArtifacts artifacts: 'performance-results.jtl,performance-report/**/*', fingerprint: true
+                }
+            }
+        }
+        
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    // Build Docker image
+                    sh """
+                        docker build \
+                            -t ${DOCKER_REGISTRY}/${params.SERVICE}:${env.VERSION} \
+                            -t ${DOCKER_REGISTRY}/${params.SERVICE}:latest \
+                            -f ${params.SERVICE}/Dockerfile \
+                            .
+                    """
+                    
+                    // Sign image for security
+                    sh """
+                        cosign sign \
+                            --key cosign.key \
+                            ${DOCKER_REGISTRY}/${params.SERVICE}:${env.VERSION}
+                    """
+                }
+            }
+        }
+        
+        stage('Push to Registry') {
+            steps {
+                script {
+                    // Login to registry
+                    sh 'echo $DOCKER_CREDENTIALS_PSW | docker login $DOCKER_REGISTRY -u $DOCKER_CREDENTIALS_USR --password-stdin'
+                    
+                    // Push images
+                    sh """
+                        docker push ${DOCKER_REGISTRY}/${params.SERVICE}:${env.VERSION}
+                        docker push ${DOCKER_REGISTRY}/${params.SERVICE}:latest
+                    """
+                }
+            }
+        }
+        
+        stage('Deploy to Environment') {
+            steps {
+                script {
+                    // Update Kubernetes manifests
+                    sh """
+                        envsubst < k8s/${params.SERVICE}/deployment.yaml > deployment-${params.ENVIRONMENT}.yaml
+                        envsubst < k8s/${params.SERVICE}/service.yaml > service-${params.ENVIRONMENT}.yaml
+                        envsubst < k8s/${params.SERVICE}/ingress.yaml > ingress-${params.ENVIRONMENT}.yaml
+                    """
+                    
+                    // Apply Kubernetes manifests
+                    sh """
+                        kubectl apply -f deployment-${params.ENVIRONMENT}.yaml
+                        kubectl apply -f service-${params.ENVIRONMENT}.yaml
+                        kubectl apply -f ingress-${params.ENVIRONMENT}.yaml
+                    """
+                    
+                    // Wait for deployment to be ready
+                    sh """
+                        kubectl rollout status deployment/${params.SERVICE} \
+                            -n ${KUBERNETES_NAMESPACE} \
+                            --timeout=300s
+                    """
+                }
+            }
+        }
+        
+        stage('Health Check') {
+            steps {
+                script {
+                    // Health check
+                    sh """
+                        for i in {1..30}; do
+                            if curl -f https://${params.SERVICE}.${params.ENVIRONMENT}.abena-ihr.com/health; then
+                                echo "Health check passed"
+                                break
+                            fi
+                            sleep 10
+                        done
+                    """
+                    
+                    // Smoke tests
+                    sh 'python tests/smoke/test_${params.SERVICE}.py'
+                }
+            }
+        }
+        
+        stage('Monitoring Setup') {
+            steps {
+                script {
+                    // Setup monitoring alerts
+                    sh """
+                        kubectl apply -f monitoring/alerts/${params.SERVICE}-alerts.yaml
+                    """
+                    
+                    // Setup logging
+                    sh """
+                        kubectl apply -f logging/fluentd-config/${params.SERVICE}-config.yaml
+                    """
+                }
+            }
+        }
+        
+        stage('Backup') {
+            when {
+                expression { params.ENVIRONMENT == 'production' }
+            }
+            steps {
+                script {
+                    // Create backup before deployment
+                    sh """
+                        kubectl exec -n ${KUBERNETES_NAMESPACE} \
+                            deployment/postgresql -- \
+                            pg_dump -U postgres abena_ihr > backup-${env.VERSION}.sql
+                    """
+                    
+                    // Upload backup to S3
+                    sh """
+                        aws s3 cp backup-${env.VERSION}.sql \
+                            s3://abena-ihr-backups/production/${env.VERSION}/
+                    """
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            // Cleanup
+            sh 'docker system prune -f'
+            sh 'rm -rf deployment-*.yaml service-*.yaml ingress-*.yaml'
+            
+            // Update deployment status
+            script {
+                updateDeploymentStatus()
+            }
+        }
+        
+        success {
+            script {
+                // Send success notification
+                sendNotification('SUCCESS')
+                
+                // Update metrics
+                recordMetrics('SUCCESS')
+            }
+        }
+        
+        failure {
+            script {
+                // Send failure notification
+                sendNotification('FAILURE')
+                
+                // Update metrics
+                recordMetrics('FAILURE')
+                
+                // Rollback if in production
+                if (params.ENVIRONMENT == 'production') {
+                    rollbackDeployment()
+                }
+            }
+        }
+        
+        unstable {
+            script {
+                // Send unstable notification
+                sendNotification('UNSTABLE')
+            }
+        }
+    }
+}
+
+// Helper functions
+def isApproved() {
+    return input(
+        message: 'Approve production deployment?',
+        parameters: [
+            booleanParam(defaultValue: false, description: 'I approve this production deployment', name: 'APPROVE')
+        ]
+    )
+}
+
+def generateVersion() {
+    def timestamp = new Date().format('yyyyMMdd-HHmmss')
+    def branch = env.BRANCH_NAME.replaceAll('/', '-')
+    return "${branch}-${timestamp}"
+}
+
+def sendNotification(status) {
+    def color = status == 'SUCCESS' ? 'good' : status == 'FAILURE' ? 'danger' : 'warning'
+    def message = """
+        *${status}*: ${params.SERVICE} deployment to ${params.ENVIRONMENT}
+        Version: ${env.VERSION}
+        Commit: ${env.COMMIT_SHA}
+        Author: ${env.COMMIT_AUTHOR}
+        Build: ${env.BUILD_URL}
+    """
+    
+    // Slack notification
+    slackSend(
+        channel: '#deployments',
+        color: color,
+        message: message,
+        webhook: SLACK_WEBHOOK
+    )
+    
+    // Email notification
+    emailext(
+        subject: "${status}: ${params.SERVICE} deployment to ${params.ENVIRONMENT}",
+        body: message,
+        to: EMAIL_RECIPIENTS
+    )
+}
+
+def recordMetrics(status) {
+    // Record deployment metrics
+    sh """
+        curl -X POST ${PROMETHEUS_URL}/metrics/job/deployment \
+            -d "deployment_status{service=\"${params.SERVICE}\",environment=\"${params.ENVIRONMENT}\",status=\"${status}\"} 1"
+    """
+}
+
+def updateDeploymentStatus() {
+    // Update deployment status in database
+    sh """
+        curl -X POST https://api.abena-ihr.com/deployments/status \
+            -H "Content-Type: application/json" \
+            -d '{
+                "service": "${params.SERVICE}",
+                "environment": "${params.ENVIRONMENT}",
+                "version": "${env.VERSION}",
+                "status": "${currentBuild.result}",
+                "build_url": "${env.BUILD_URL}",
+                "commit_sha": "${env.COMMIT_SHA}"
+            }'
+    """
+}
+
+def rollbackDeployment() {
+    // Rollback to previous version
+    sh """
+        kubectl rollout undo deployment/${params.SERVICE} -n ${KUBERNETES_NAMESPACE}
+        kubectl rollout status deployment/${params.SERVICE} -n ${KUBERNETES_NAMESPACE}
+    """
+    
+    // Send rollback notification
+    sendNotification('ROLLBACK')
+} 

@@ -1,0 +1,198 @@
+# Abena IHR Kibana Configuration
+# Healthcare log visualization and analysis
+
+server.name: kibana
+server.host: 0.0.0.0
+server.port: 5601
+
+# Elasticsearch connection
+elasticsearch.hosts: ["http://elasticsearch:9200"]
+elasticsearch.username: kibana
+elasticsearch.password: kibana-password
+
+# Security settings
+elasticsearch.ssl.verificationMode: none
+elasticsearch.ssl.certificateAuthorities: ["/usr/share/kibana/config/certs/ca.crt"]
+
+# Monitoring
+monitoring.ui.container.elasticsearch.enabled: true
+monitoring.ui.container.logstash.enabled: true
+
+# Logging
+logging.verbose: false
+logging.dest: stdout
+logging.json: true
+
+# Search settings
+search.includeFrozen: false
+search.maxSessions: 1000
+
+# UI settings
+uiSettings.overrides.useLegacyTableApi: false
+uiSettings.overrides.enableNewDashboardExperience: true
+
+# Healthcare-specific settings
+xpack.security.enabled: true
+xpack.security.encryptionKey: "abena-ihr-encryption-key-32-chars"
+xpack.encryptedSavedObjects.encryptionKey: "abena-ihr-encryption-key-32-chars"
+
+# Alerting
+xpack.alerting.enabled: true
+xpack.alerting.rules.enabled: true
+
+# Machine learning
+xpack.ml.enabled: true
+xpack.ml.maxModelMemoryLimit: "1GB"
+
+# Reporting
+xpack.reporting.enabled: true
+xpack.reporting.kibanaServer.hostname: "kibana.abena-ihr.com"
+xpack.reporting.kibanaServer.port: 5601
+xpack.reporting.kibanaServer.protocol: "https"
+
+# Canvas
+xpack.canvas.enabled: true
+
+# Maps
+xpack.maps.enabled: true
+
+# Graph
+xpack.graph.enabled: true
+
+# Watcher
+xpack.watcher.enabled: true
+
+# Index lifecycle management
+xpack.ilm.enabled: true
+
+# Transform
+xpack.transform.enabled: true
+
+# Data streams
+data_streams.enabled: true
+
+# Cross-cluster search
+elasticsearch.requestTimeout: 30000
+elasticsearch.shardTimeout: 30000
+
+# Health check
+elasticsearch.healthCheck.delay: 10000
+elasticsearch.healthCheck.startupTimeout: 120000
+
+# Performance settings
+optimize.bundleFilter: "!tests"
+optimize.useBundleCache: true
+optimize.bundleDir: "/usr/share/kibana/optimize/bundles"
+
+# Cache settings
+elasticsearch.requestHeadersWhitelist: ["securitytenant"]
+elasticsearch.requestTimeout: 30000
+
+# Session settings
+session.secret: "abena-ihr-session-secret"
+session.name: "abena-ihr-session"
+session.secure: true
+session.sameSite: "strict"
+
+# Custom branding
+uiSettings.overrides.branding: {
+  "title": "Abena IHR Analytics",
+  "logo": "/plugins/kibana/assets/abena-logo.png",
+  "favicon": "/plugins/kibana/assets/abena-favicon.ico"
+}
+
+# Healthcare-specific dashboards
+uiSettings.overrides.defaultRoute: "/app/dashboards#/view/abena-ihr-overview"
+
+# Security headers
+server.ssl.enabled: true
+server.ssl.certificate: "/usr/share/kibana/config/certs/kibana.crt"
+server.ssl.key: "/usr/share/kibana/config/certs/kibana.key"
+
+# CORS settings
+server.cors.enabled: true
+server.cors.allowOrigin: ["https://*.abena-ihr.com"]
+server.cors.allowCredentials: true
+server.cors.allowHeaders: ["kbn-xsrf", "Content-Type", "Authorization"]
+
+# Rate limiting
+server.maxPayloadBytes: 1048576
+
+# Health check endpoint
+server.healthCheck.enabled: true
+server.healthCheck.path: "/api/status"
+
+# Audit logging
+xpack.security.audit.enabled: true
+xpack.security.audit.appender.type: "file"
+xpack.security.audit.appender.fileName: "/var/log/kibana/audit.log"
+xpack.security.audit.appender.layout.type: "json"
+
+# Custom plugins
+plugins.scanDirs: ["/usr/share/kibana/plugins"]
+
+# Development settings (disable in production)
+optimize.enabled: true
+optimize.bundleFilter: "!tests"
+optimize.useBundleCache: true
+
+# Telemetry
+telemetry.enabled: false
+telemetry.allowChangingOptInStatus: false
+
+# News feed
+newsfeed.enabled: false
+
+# Tutorials
+home.disableWelcomeScreen: true
+
+# Default index pattern
+kibana.defaultAppId: "discover"
+kibana.index: ".kibana"
+
+# Search settings
+search.includeFrozen: false
+search.maxSessions: 1000
+search.sessions.enabled: true
+search.sessions.defaultExpiration: "24h"
+
+# Time picker
+timepicker: {
+  "timeDefaults": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "refreshIntervalDefaults": {
+    "pause": false,
+    "value": 30000
+  }
+}
+
+# Healthcare-specific time zones
+dateFormat: "MMM D, YYYY @ HH:mm:ss.SSS"
+dateFormat:tz: "America/New_York"
+
+# Custom navigation
+uiSettings.overrides.navLinks: {
+  "abena-ihr-overview": {
+    "id": "abena-ihr-overview",
+    "title": "System Overview",
+    "url": "/app/dashboards#/view/abena-ihr-overview",
+    "icon": "dashboardApp",
+    "order": 1
+  },
+  "abena-ihr-security": {
+    "id": "abena-ihr-security",
+    "title": "Security Analytics",
+    "url": "/app/dashboards#/view/abena-ihr-security",
+    "icon": "securityApp",
+    "order": 2
+  },
+  "abena-ihr-clinical": {
+    "id": "abena-ihr-clinical",
+    "title": "Clinical Analytics",
+    "url": "/app/dashboards#/view/abena-ihr-clinical",
+    "icon": "healthApp",
+    "order": 3
+  }
+} 

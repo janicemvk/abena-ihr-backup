@@ -1,0 +1,21 @@
+{
+  "name": "abena-clinical-workflow-engine",
+  "version": "1.0.0",
+  "description": "Clinical workflow engine for healthcare process automation using Abena SDK",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "jest",
+    "lint": "eslint src/"
+  },
+  "dependencies": {
+    "@abena/sdk": "^1.0.0"
+  },
+  "devDependencies": {
+    "jest": "^29.5.0",
+    "eslint": "^8.40.0",
+    "@babel/core": "^7.21.8",
+    "@babel/preset-env": "^7.21.5"
+  }
+} 

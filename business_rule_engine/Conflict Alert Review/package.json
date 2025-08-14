@@ -1,0 +1,38 @@
+{
+  "name": "abena-ihr-conflict-alert",
+  "version": "1.0.0",
+  "description": "Conflict Alert/Review Module for Abena IHR System",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "demo": "node src/demo.js",
+    "test": "jest",
+    "lint": "eslint src/**/*.js"
+  },
+  "keywords": [
+    "healthcare",
+    "ihr",
+    "conflict-alert",
+    "patient-safety",
+    "medical-records",
+    "abena-sdk"
+  ],
+  "author": "Abena IHR Team",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "eslint": "^8.55.0",
+    "nodemon": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+} 

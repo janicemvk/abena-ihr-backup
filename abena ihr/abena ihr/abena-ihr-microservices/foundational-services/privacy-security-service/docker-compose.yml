@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  privacy-security-service:
+    build: .
+    ports:
+      - "8002:8002"
+    environment:
+      - DATABASE_URL=postgresql://postgres:password@postgres:5432/abena_ihr_security
+      - REDIS_URL=redis://redis:6379
+      - AUTH_SERVICE_URL=http://auth-service:3001
+      - DATA_SERVICE_URL=http://data-ingestion-service:8001
+      - MASTER_KEY=${MASTER_KEY}
+      - KEY_ROTATION_DAYS=90
+      - K_ANONYMITY_THRESHOLD=5
+      - DIFFERENTIAL_PRIVACY_EPSILON=1.0
+      - AUDIT_RETENTION_DAYS=2555
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+    restart: unless-stopped
+    networks:
+      - abena-network
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=abena_ihr_security
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    restart: unless-stopped
+    networks:
+      - abena-network
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - abena-network
+
+  # Optional: Hardware Security Module (HSM) for production
+  # hsm:
+  #   image: softhsm/softhsm2:latest
+  #   environment:
+  #     - SOFTHSM2_CONF=/etc/softhsm2.conf
+  #   volumes:
+  #     - hsm_data:/var/lib/softhsm
+  #     - ./softhsm2.conf:/etc/softhsm2.conf
+  #   restart: unless-stopped
+  #   networks:
+  #     - abena-network
+
+volumes:
+  postgres_data:
+  redis_data:
+  # hsm_data:
+
+networks:
+  abena-network:
+    driver: bridge 

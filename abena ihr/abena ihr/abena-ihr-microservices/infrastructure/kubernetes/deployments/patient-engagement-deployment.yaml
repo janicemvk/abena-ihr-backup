@@ -1,0 +1,510 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: patient-engagement-service
+  namespace: abena-ihr
+  labels:
+    app: patient-engagement
+    version: v1
+    environment: production
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+    kubernetes.io/change-cause: "Initial deployment of patient engagement service"
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: patient-engagement
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: patient-engagement
+        version: v1
+        environment: production
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: "/metrics"
+        sidecar.istio.io/inject: "true"
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/agent-inject-secret-database: "secret/database/patient-engagement"
+        vault.hashicorp.com/agent-inject-secret-redis: "secret/redis/patient-engagement"
+        vault.hashicorp.com/role: "patient-engagement"
+    spec:
+      serviceAccountName: patient-engagement-sa
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+        capabilities:
+          drop:
+            - ALL
+      containers:
+      - name: patient-engagement
+        image: registry.abena-ihr.com/patient-engagement-service:latest
+        imagePullPolicy: Always
+        ports:
+        - name: http
+          containerPort: 8000
+          protocol: TCP
+        - name: metrics
+          containerPort: 8000
+          protocol: TCP
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: patient-engagement-db-secret
+              key: database-url
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: patient-engagement-redis-secret
+              key: redis-url
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: jwt-secret
+              key: jwt-secret
+        - name: KAFKA_BOOTSTRAP_SERVERS
+          value: "kafka:9092"
+        - name: LOG_LEVEL
+          value: "INFO"
+        - name: ENVIRONMENT
+          value: "production"
+        - name: SERVICE_NAME
+          value: "patient-engagement-service"
+        - name: VERSION
+          value: "v1"
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+          successThreshold: 1
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8000
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+          successThreshold: 1
+        startupProbe:
+          httpGet:
+            path: /health
+            port: 8000
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 30
+          successThreshold: 1
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 1000
+          runAsGroup: 1000
+          capabilities:
+            drop:
+              - ALL
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: logs
+          mountPath: /app/logs
+        - name: config
+          mountPath: /app/config
+          readOnly: true
+        - name: vault-token
+          mountPath: /var/run/secrets/vault
+          readOnly: true
+      - name: vault-agent
+        image: vault:1.15.0
+        command: ["vault", "agent", "-config=/vault/config/vault-agent.hcl"]
+        volumeMounts:
+        - name: vault-config
+          mountPath: /vault/config
+          readOnly: true
+        - name: vault-token
+          mountPath: /var/run/secrets/vault
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          runAsGroup: 1000
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+      - name: istio-proxy
+        image: auto
+        ports:
+        - name: http-proxy
+          containerPort: 15090
+          protocol: TCP
+        env:
+        - name: ISTIO_META_WORKLOAD_NAME
+          value: "patient-engagement"
+        - name: ISTIO_META_OWNER
+          value: "kubernetes://apis/apps/v1/namespaces/abena-ihr/deployments/patient-engagement-service"
+        - name: ISTIO_META_MESH_ID
+          value: "cluster.local"
+        - name: ISTIO_META_CLUSTER_ID
+          value: "Kubernetes"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1337
+          runAsGroup: 1337
+          capabilities:
+            drop:
+              - ALL
+        volumeMounts:
+        - name: istio-envoy
+          mountPath: /etc/istio/proxy
+        - name: istio-certs
+          mountPath: /etc/certs
+          readOnly: true
+        - name: istio-token
+          mountPath: /var/run/secrets/tokens
+          readOnly: true
+      volumes:
+      - name: tmp
+        emptyDir: {}
+      - name: logs
+        emptyDir: {}
+      - name: config
+        configMap:
+          name: patient-engagement-config
+      - name: vault-config
+        configMap:
+          name: vault-agent-config
+      - name: vault-token
+        emptyDir:
+          medium: Memory
+      - name: istio-envoy
+        emptyDir:
+          medium: Memory
+      - name: istio-certs
+        emptyDir:
+          medium: Memory
+      - name: istio-token
+        projected:
+          sources:
+          - serviceAccountToken:
+              path: istio-token
+              expirationSeconds: 43200
+              audience: istio-ca
+      imagePullSecrets:
+      - name: registry-secret
+      nodeSelector:
+        node-type: application
+      tolerations:
+      - key: "node-type"
+        operator: "Equal"
+        value: "application"
+        effect: "NoSchedule"
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - patient-engagement
+              topologyKey: kubernetes.io/hostname
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: node-type
+                operator: In
+                values:
+                - application
+              - key: kubernetes.io/os
+                operator: In
+                values:
+                - linux
+              - key: kubernetes.io/arch
+                operator: In
+                values:
+                - amd64
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: patient-engagement-service
+  namespace: abena-ihr
+  labels:
+    app: patient-engagement
+    version: v1
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8000"
+    prometheus.io/path: "/metrics"
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 8000
+    targetPort: 8000
+    protocol: TCP
+  - name: metrics
+    port: 8000
+    targetPort: 8000
+    protocol: TCP
+  selector:
+    app: patient-engagement
+    version: v1
+  sessionAffinity: None
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 10800
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: patient-engagement-ingress
+  namespace: abena-ihr
+  labels:
+    app: patient-engagement
+    version: v1
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "30"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "30"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "30"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    external-dns.alpha.kubernetes.io/hostname: "patient-engagement.abena-ihr.com"
+spec:
+  tls:
+  - hosts:
+    - patient-engagement.abena-ihr.com
+    secretName: patient-engagement-tls
+  rules:
+  - host: patient-engagement.abena-ihr.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: patient-engagement-service
+            port:
+              number: 8000
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: patient-engagement-config
+  namespace: abena-ihr
+  labels:
+    app: patient-engagement
+    version: v1
+data:
+  config.yaml: |
+    app:
+      name: patient-engagement-service
+      version: v1
+      environment: production
+    
+    server:
+      host: 0.0.0.0
+      port: 8000
+      workers: 4
+      timeout: 30
+    
+    database:
+      pool_size: 20
+      max_overflow: 30
+      pool_timeout: 30
+      pool_recycle: 3600
+    
+    redis:
+      pool_size: 10
+      socket_timeout: 5
+      socket_connect_timeout: 5
+    
+    kafka:
+      consumer_group: patient-engagement-group
+      auto_offset_reset: earliest
+      enable_auto_commit: false
+    
+    logging:
+      level: INFO
+      format: json
+      output: stdout
+    
+    monitoring:
+      metrics_enabled: true
+      health_check_interval: 30
+      readiness_check_interval: 10
+    
+    security:
+      jwt_expiration: 3600
+      refresh_token_expiration: 86400
+      password_min_length: 8
+      max_login_attempts: 5
+      lockout_duration: 900
+    
+    features:
+      appointment_booking: true
+      health_tracking: true
+      medication_reminders: true
+      telemedicine_integration: true
+      document_upload: true
+      notifications: true
+    
+    limits:
+      max_appointments_per_day: 10
+      max_health_entries_per_day: 50
+      max_document_size: 10485760  # 10MB
+      max_documents_per_patient: 100
+    
+    compliance:
+      hipaa_enabled: true
+      gdpr_enabled: true
+      audit_logging: true
+      data_retention_days: 2555  # 7 years
+    
+    notifications:
+      email_enabled: true
+      sms_enabled: true
+      push_enabled: true
+      slack_enabled: false
+    
+    integrations:
+      telemedicine_service_url: "https://telemedicine.abena-ihr.com"
+      analytics_service_url: "https://analytics.abena-ihr.com"
+      blockchain_service_url: "https://blockchain.abena-ihr.com"
+      auth_service_url: "https://auth.abena-ihr.com"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: patient-engagement-db-secret
+  namespace: abena-ihr
+  labels:
+    app: patient-engagement
+type: Opaque
+data:
+  database-url: cG9zdGdyZXNxbDovL3BhdGllbnQtZW5nYWdlbWVudDpwYXNzd29yZEBwb3N0Z3Jlc3FsOjU0MzIvYWJlbmFfaWhy
+  database-password: cGFzc3dvcmQ=
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: patient-engagement-redis-secret
+  namespace: abena-ihr
+  labels:
+    app: patient-engagement
+type: Opaque
+data:
+  redis-url: cmVkaXM6Ly9yZWRpczpwYXNzd29yZEAxMC4wLjAuMTA6NjM3OQ==
+  redis-password: cGFzc3dvcmQ=
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: patient-engagement-sa
+  namespace: abena-ihr
+  labels:
+    app: patient-engagement
+secrets:
+- name: patient-engagement-sa-token
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: patient-engagement-sa-token
+  namespace: abena-ihr
+  annotations:
+    kubernetes.io/service-account.name: patient-engagement-sa
+type: kubernetes.io/service-account-token
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: patient-engagement-role
+  namespace: abena-ihr
+  labels:
+    app: patient-engagement
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services", "endpoints"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "replicasets"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["configmaps", "secrets"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: patient-engagement-rolebinding
+  namespace: abena-ihr
+  labels:
+    app: patient-engagement
+subjects:
+- kind: ServiceAccount
+  name: patient-engagement-sa
+  namespace: abena-ihr
+roleRef:
+  kind: Role
+  name: patient-engagement-role
+  apiGroup: rbac.authorization.k8s.io 
