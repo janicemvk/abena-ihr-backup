@@ -48,18 +48,15 @@ services:
       - NODE_ENV=development
       - PORT=4010
     ports:
-      - "4010:4010"
+      - "4020:4010"
     networks:
       - abena-network
     volumes:
       - ./demo-orchestrator:/app
       - /app/node_modules
     depends_on:
-      - telemedicine-platform
-      - ecdome-intelligence
-      - provider-dashboard
-      - patient-dashboard
-      - abena-ihr
+      - postgres
+      - redis
 
   # Core Services
   auth-service:
