@@ -66,6 +66,9 @@ services:
       - abena-network
     volumes:
       - ./abena_ihr:/app
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
 
   # Business Rule Engine
   business-rules:

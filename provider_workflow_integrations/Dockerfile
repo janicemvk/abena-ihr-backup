@@ -8,8 +8,6 @@ RUN npm install
 
 COPY . .
 
-RUN npm run build
+EXPOSE 4007
 
-EXPOSE 4009
-
-CMD ["npm", "start"] 
+CMD ["npm", "start"]

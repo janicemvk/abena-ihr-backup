@@ -192,67 +192,121 @@ async def get_patient(patient_id: str = Path(..., description="Patient ID")) -> 
         logger.error(f"Error getting patient {patient_id}: {e}")
         raise HTTPException(status_code=500, detail="Failed to get patient")
 
-@router.post("/patients", response_model=PatientResponse)
-async def create_patient(patient_request: PatientRequest) -> PatientResponse:
-    """
-    Create a new patient.
-    
-    Args:
-        patient_request: Patient data
-        
-    Returns:
-        Created patient data
-    """
+@router.post("/patients")
+async def create_patient(patient_data: Dict[str, Any]):
+    """Create a new patient with login credentials"""
     try:
+        import secrets
+        import string
+        
+        # Generate medical record number if not provided
+        if not patient_data.get('medical_record_number'):
+            # Generate a unique MRN: MRN + 8 random digits
+            mrn_prefix = "MRN"
+            random_digits = ''.join(secrets.choice(string.digits) for _ in range(8))
+            medical_record_number = f"{mrn_prefix}{random_digits}"
+        else:
+            medical_record_number = patient_data.get('medical_record_number')
+        
+        # Generate random password for patient login
+        password_length = 12
+        password_chars = string.ascii_letters + string.digits + "!@#$%^&*"
+        generated_password = ''.join(secrets.choice(password_chars) for _ in range(password_length))
+        
+        # Generate username (email if provided, otherwise first_name.last_name)
+        if patient_data.get('email'):
+            username = patient_data.get('email')
+        else:
+            username = f"{patient_data.get('first_name', '').lower()}.{patient_data.get('last_name', '').lower()}@abena.com"
+        
         conn = get_db_connection()
         with conn.cursor() as cur:
+            # First, create user account in users table
+            cur.execute("""
+                INSERT INTO users (
+                    email,
+                    password,
+                    first_name,
+                    last_name,
+                    role,
+                    created_at
+                ) VALUES (%s, %s, %s, %s, %s, %s)
+                RETURNING id
+            """, (
+                username,
+                generated_password,  # In production, hash this password
+                patient_data.get('first_name'),
+                patient_data.get('last_name'),
+                'patient',
+                datetime.now()
+            ))
+            user_id = cur.fetchone()['id']
+            
+            # Convert address to JSON format for jsonb column
+            address_json = None
+            if patient_data.get('address'):
+                address_json = '{"street": "' + patient_data.get('address') + '"}'
+            
+            # Then create patient record with UUID
             cur.execute("""
                 INSERT INTO patients (
-                    first_name,
-                    last_name,
-                    date_of_birth,
-                    gender,
-                    is_active,
-                    created_at,
-                    updated_at
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s)
-                RETURNING 
                     patient_id,
+                    medical_record_number,
                     first_name,
                     last_name,
+                    email,
+                    phone,
                     date_of_birth,
                     gender,
+                    address,
+                    provider_id,
                     is_active,
                     created_at,
                     updated_at
+                ) VALUES (uuid_generate_v4(), %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                RETURNING patient_id
             """, (
-                patient_request.first_name,
-                patient_request.last_name,
-                patient_request.date_of_birth,
-                patient_request.gender,
-                patient_request.status == PatientStatus.ACTIVE,
+                medical_record_number,
+                patient_data.get('first_name'),
+                patient_data.get('last_name'),
+                username,
+                patient_data.get('phone'),
+                patient_data.get('date_of_birth'),
+                patient_data.get('gender'),
+                address_json,
+                patient_data.get('provider_id'),
+                True,
                 datetime.now(),
                 datetime.now()
             ))
-            patient = cur.fetchone()
+            patient_id = cur.fetchone()['patient_id']
             conn.commit()
         conn.close()
         
-        logger.info(f"✅ Patient created in database: {patient['patient_id']}")
+        # Prepare login credentials for email
+        login_credentials = {
+            "username": username,
+            "password": generated_password,
+            "portal_url": "http://localhost:8000/login"
+        }
         
-        return PatientResponse(
-            id=str(patient['patient_id']),
-            patient_id=str(patient['patient_id']),
-            first_name=patient['first_name'],
-            last_name=patient['last_name'],
-            date_of_birth=patient['date_of_birth'],
-            gender=patient['gender'],
-            status=PatientStatus.ACTIVE if patient['is_active'] else PatientStatus.INACTIVE,
-            created_at=patient['created_at'],
-            updated_at=patient['updated_at']
-        )
+        logger.info(f"✅ Patient created successfully: {patient_id}")
+        logger.info(f"📧 Login credentials generated: {username}")
+        
+        # TODO: Send email with login credentials
+        # For now, we'll return the credentials in the response
+        # In production, send email and don't return password in response
+        
+        return {
+            "success": True,
+            "patient_id": str(patient_id),
+            "medical_record_number": medical_record_number,
+            "message": "Patient created successfully",
+            "login_credentials": login_credentials,
+            "email_sent": False  # TODO: Implement email sending
+        }
     except Exception as e:
-        logger.error(f"Error creating patient: {e}")
+        logger.error(f"❌ Database error creating patient: {e}")
         raise HTTPException(status_code=500, detail="Failed to create patient")
 
 @router.put("/patients/{patient_id}", response_model=PatientResponse)

@@ -15,4 +15,4 @@ COPY . .
 EXPOSE 4001
 
 # Start the health server
-CMD ["node", "health-server.cjs"] 
+CMD ["npm", "start"] 

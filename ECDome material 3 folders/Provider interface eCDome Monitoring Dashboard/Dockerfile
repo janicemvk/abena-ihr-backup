@@ -1,13 +1,15 @@
-FROM nginx:alpine
+FROM node:18-alpine
 
-# Copy the built React app
-COPY build/ /usr/share/nginx/html/
+WORKDIR /app
 
-# Copy custom nginx config
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY package*.json ./
 
-# Expose port
+RUN npm install
+
+COPY . .
+
+RUN npm run build
+
 EXPOSE 4008
 
-# Start nginx
-CMD ["nginx", "-g", "daemon off;"] 
+CMD ["npm", "start"] 

@@ -15,4 +15,4 @@ COPY . .
 EXPOSE 4003
 
 # Start the main application
-CMD ["node", "BusinessRuleEngine.js"] 
+CMD ["npm", "start"] 

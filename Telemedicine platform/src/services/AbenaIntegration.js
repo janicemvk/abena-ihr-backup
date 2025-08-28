@@ -13,12 +13,13 @@ class RealAbenaSDK {
   }
 
   // Authentication methods - NOW USING REAL AUTHENTICATION
-  async authenticateProvider(credentials) {
+  async authenticate(credentials) {
     try {
       console.log('🔐 AbenaSDK: Starting authentication for:', credentials.email);
       console.log('🔐 AbenaSDK: API URL:', `${this.ihrApiUrl}/api/v1/auth/login`);
       
       // Call real authentication API using Abena IHR service
+      // The backend determines the role from the users table
       const response = await fetch(`${this.ihrApiUrl}/api/v1/auth/login`, {
         method: 'POST',
         headers: {
@@ -26,8 +27,7 @@ class RealAbenaSDK {
         },
         body: JSON.stringify({
           email: credentials.email,
-          password: credentials.password,
-          userType: credentials.userType || 'doctor'
+          password: credentials.password
         })
       });
 
@@ -42,29 +42,39 @@ class RealAbenaSDK {
 
       const authData = await response.json();
       console.log('🔐 AbenaSDK: Authentication successful:', authData);
-      
+    
       this.isAuthenticated = true;
       this.authToken = authData.token;
       this.currentUser = {
         id: authData.userId,
         name: authData.userName,
-        type: authData.userType
+        type: authData.userType,
+        role: authData.userRole // Added role
       };
       
       // Store token in localStorage for persistence
       localStorage.setItem('abena_token', this.authToken);
       localStorage.setItem('abena_user', JSON.stringify(this.currentUser));
-      
+    
       return {
-        providerId: authData.userId,
+        userId: authData.userId, // Changed from providerId to userId
         token: authData.token,
         expiresAt: authData.expiresAt,
-        user: this.currentUser
+        user: this.currentUser,
+        userType: authData.userType, // Add userType at top level for frontend compatibility
+        success: authData.success,
+        message: authData.message
       };
     } catch (error) {
       console.error('🔐 AbenaSDK: Authentication error:', error);
       throw new Error(error.message || 'Authentication failed');
     }
+  }
+
+  // Backward compatibility method
+  async authenticateProvider(credentials) {
+    console.log('🔐 AbenaSDK: Using authenticateProvider (deprecated) - calling authenticate instead');
+    return await this.authenticate(credentials);
   }
 
   // Patient data methods - Get real patient data from database
@@ -85,7 +95,7 @@ class RealAbenaSDK {
       }
       
       const patientData = await response.json();
-      return {
+    return {
         id: patientData.id,
         name: patientData.name,
         age: patientData.age,
@@ -95,13 +105,13 @@ class RealAbenaSDK {
         status: patientData.status,
         riskLevel: patientData.riskLevel,
         ecdomeScore: patientData.ecdomeScore,
-        vitalSigns: {
-          bloodPressure: '120/80',
-          heartRate: '72',
-          temperature: '98.6',
-          oxygenSaturation: '98%'
-        }
-      };
+      vitalSigns: {
+        bloodPressure: '120/80',
+        heartRate: '72',
+        temperature: '98.6',
+        oxygenSaturation: '98%'
+      }
+    };
     } catch (error) {
       console.error('Failed to fetch patient data:', error);
       throw new Error('Failed to fetch patient data from database');
@@ -145,11 +155,18 @@ class RealAbenaSDK {
   }
 
   // Get appointments from database
-  async getAppointments(patientId = null) {
+  async getAppointments(userId = null, userType = 'patient') {
     try {
-      const url = patientId
-        ? `${this.ihrApiUrl}/api/v1/appointments?patient_id=${patientId}`
-        : `${this.ihrApiUrl}/api/v1/appointments`;
+      let url;
+      if (userType === 'provider') {
+        url = userId
+          ? `${this.ihrApiUrl}/api/v1/appointments?provider_id=${userId}`
+          : `${this.ihrApiUrl}/api/v1/appointments`;
+      } else {
+        url = userId
+          ? `${this.ihrApiUrl}/api/v1/appointments?patient_id=${userId}`
+          : `${this.ihrApiUrl}/api/v1/appointments`;
+      }
       
       const response = await fetch(url, {
         headers: {
@@ -180,8 +197,8 @@ class RealAbenaSDK {
           'Authorization': `Bearer ${this.authToken}`
         },
         body: JSON.stringify({
-          patientId,
-          providerId,
+      patientId,
+      providerId,
           ...prescriptionData
         })
       });
@@ -237,8 +254,8 @@ class RealAbenaSDK {
           'Authorization': `Bearer ${this.authToken}`
         },
         body: JSON.stringify({
-          patientId,
-          providerId,
+      patientId,
+      providerId,
           ...labRequestData
         })
       });
