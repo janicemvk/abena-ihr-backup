@@ -38,6 +38,29 @@ services:
       - abena-network
     command: redis-server --appendonly yes
 
+  # Demo Orchestrator
+  demo-orchestrator:
+    build:
+      context: ./demo-orchestrator
+      dockerfile: Dockerfile
+    container_name: abena-demo-orchestrator
+    environment:
+      - NODE_ENV=development
+      - PORT=4010
+    ports:
+      - "4010:4010"
+    networks:
+      - abena-network
+    volumes:
+      - ./demo-orchestrator:/app
+      - /app/node_modules
+    depends_on:
+      - telemedicine-platform
+      - ecdome-intelligence
+      - provider-dashboard
+      - patient-dashboard
+      - abena-ihr
+
   # Core Services
   auth-service:
     build:
