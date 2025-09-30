@@ -86,15 +86,25 @@
         <section class="mb-8">
             <h2 class="text-2xl font-bold text-gray-800 mb-6">🎮 Demo Controls</h2>
             <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Interactive Demo Mode</h3>
+                    <p class="text-gray-600 text-sm mb-4">
+                        This demo will automatically open the relevant service UIs in new tabs/windows to show how they work together.
+                        Each step will open the appropriate service and demonstrate the data flow between systems.
+                    </p>
+                </div>
                 <div class="flex flex-wrap gap-4">
                     <button id="startDemo" class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-medium transition-colors">
-                        ▶️ Start Demo
+                        ▶️ Start Interactive Demo
                     </button>
                     <button id="stopDemo" class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-medium transition-colors hidden">
                         ⏹️ Stop Demo
                     </button>
                     <button id="openAllServices" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium transition-colors">
                         🔗 Open All Services
+                    </button>
+                    <button onclick="console.log('Test button clicked'); selectScenario('data-analysis-flow');" class="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+                        🧪 Test Selection
                     </button>
                 </div>
             </div>
@@ -122,12 +132,17 @@
     </footer>
 
     <script>
+        console.log('Script starting...');
+        
         // Initialize Socket.IO
         const socket = io();
         let currentDemo = null;
         let scenarios = {};
+        
+        console.log('Variables initialized');
 
         // DOM Elements
+        console.log('Getting DOM elements...');
         const demoScenariosEl = document.getElementById('demoScenarios');
         const demoProgressEl = document.getElementById('demoProgress');
         const progressBarEl = document.getElementById('progressBar');
@@ -138,12 +153,20 @@
         const startDemoBtn = document.getElementById('startDemo');
         const stopDemoBtn = document.getElementById('stopDemo');
         const openAllServicesBtn = document.getElementById('openAllServices');
+        
+        console.log('DOM elements found:', {
+            demoScenariosEl: !!demoScenariosEl,
+            demoProgressEl: !!demoProgressEl,
+            startDemoBtn: !!startDemoBtn
+        });
 
         // Load demo scenarios
         async function loadScenarios() {
             try {
+                console.log('Loading scenarios...');
                 const response = await fetch('/api/demo/scenarios');
                 scenarios = await response.json();
+                console.log('Scenarios loaded:', scenarios);
                 renderScenarios();
             } catch (error) {
                 console.error('Error loading scenarios:', error);
@@ -152,8 +175,14 @@
 
         // Render demo scenarios
         function renderScenarios() {
+            console.log('Rendering scenarios...', scenarios);
+            if (!scenarios || Object.keys(scenarios).length === 0) {
+                console.error('No scenarios available');
+                demoScenariosEl.innerHTML = '<div class="text-red-500">No scenarios loaded</div>';
+                return;
+            }
             demoScenariosEl.innerHTML = Object.entries(scenarios).map(([id, scenario]) => `
-                <div class="service-card bg-white rounded-lg shadow-md p-6 cursor-pointer" onclick="selectScenario('${id}')">
+                <div class="service-card bg-white rounded-lg shadow-md p-6 cursor-pointer" onclick="console.log('Card clicked:', '${id}'); selectScenario('${id}');" data-scenario-id="${id}">
                     <div class="flex items-center mb-4">
                         <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
                             <span class="text-2xl">🎯</span>
@@ -178,6 +207,7 @@
 
         // Select scenario
         function selectScenario(scenarioId) {
+            console.log('selectScenario called with:', scenarioId);
             currentDemo = scenarioId;
             startDemoBtn.disabled = false;
             startDemoBtn.textContent = `▶️ Start: ${scenarios[scenarioId].name}`;
@@ -186,7 +216,12 @@
             document.querySelectorAll('.service-card').forEach(card => {
                 card.classList.remove('ring-2', 'ring-blue-500');
             });
-            event.currentTarget.classList.add('ring-2', 'ring-blue-500');
+            // Find the clicked card and add selection styling
+            const clickedCard = document.querySelector(`[data-scenario-id="${scenarioId}"]`);
+            if (clickedCard) {
+                clickedCard.classList.add('ring-2', 'ring-blue-500');
+            }
+            console.log('Scenario selected:', scenarioId);
         }
 
         // Load service status
@@ -324,15 +359,51 @@
         socket.on('patient-dashboard', (data) => addDataToFeed('Patient Dashboard', data));
         socket.on('patient-education', (data) => addDataToFeed('Patient Education', data));
         socket.on('gamification', (data) => addDataToFeed('Gamification', data));
+        
+        // Service opening events
+        socket.on('open-service', (data) => {
+            addDataToFeed('Opening Service', data);
+            // Open the service in a new tab
+            window.open(data.url, `service-${data.service}`, 'width=1200,height=800');
+            
+            // Update the current step with service info
+            const currentStepEl = document.getElementById('currentStep');
+            if (currentStepEl) {
+                currentStepEl.innerHTML = `
+                    <div class="demo-step active rounded-lg p-4">
+                        <h3 class="font-semibold">${data.service.toUpperCase()} Service Opened</h3>
+                        <p class="text-sm opacity-90">${data.message}</p>
+                        <p class="text-xs opacity-75 mt-2">URL: ${data.url}</p>
+                        <div class="mt-3">
+                            <button onclick="window.open('${data.url}', '_blank')" 
+                                    class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-sm">
+                                🔗 Open Service
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+        });
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded, initializing...');
             loadScenarios();
             loadServiceStatus();
             
             // Update session info
             document.getElementById('sessionInfo').textContent = `Session: ${Date.now()}`;
         });
+
+        // Also try loading immediately if DOM is already loaded
+        if (document.readyState === 'loading') {
+            console.log('DOM still loading...');
+        } else {
+            console.log('DOM already loaded, initializing immediately...');
+            loadScenarios();
+            loadServiceStatus();
+            document.getElementById('sessionInfo').textContent = `Session: ${Date.now()}`;
+        }
     </script>
 </body>
 </html>

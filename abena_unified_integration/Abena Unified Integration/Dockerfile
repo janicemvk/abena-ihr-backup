@@ -7,7 +7,7 @@ COPY build/ /usr/share/nginx/html/
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Expose port
-EXPOSE 4007
+EXPOSE 4008
 
 # Start nginx
 CMD ["nginx", "-g", "daemon off;"] 

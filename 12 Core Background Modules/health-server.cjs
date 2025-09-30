@@ -365,6 +365,55 @@ app.get('/realtime', (req, res) => {
 });
 
 // Patient-specific endpoints for Provider Dashboard - TEMPORARILY USING MOCK DATA
+app.get('/patients/:patientId/data', (req, res) => {
+    const { patientId } = req.params;
+    
+    res.json({
+        success: true,
+        data: {
+            patientInfo: {
+                id: patientId,
+                name: 'John Doe',
+                age: 40,
+                gender: 'Male',
+                lastVisit: new Date().toISOString(),
+                provider: 'Dr. Martinez',
+                status: 'active',
+                riskLevel: 'medium',
+                ecdomeScore: 0.75,
+                vitalSigns: {
+                    heartRate: 72,
+                    bloodPressure: '120/80',
+                    temperature: 98.6,
+                    oxygenSaturation: 98
+                },
+                medications: [
+                    { name: 'Metformin', dosage: '500mg', frequency: 'Twice daily' },
+                    { name: 'Lisinopril', dosage: '10mg', frequency: 'Once daily' }
+                ],
+                allergies: ['Penicillin', 'Shellfish'],
+                conditions: ['Type 2 Diabetes', 'Hypertension'],
+                lastLabResults: {
+                    glucose: 95,
+                    hba1c: 6.2,
+                    cholesterol: 180
+                }
+            },
+            ecdomeProfile: {
+                score: 0.75,
+                status: 'Good',
+                components: {
+                    endocannabinoid: { status: 'active', reading: 0.80 },
+                    metabolic: { status: 'active', reading: 0.75 },
+                    immune: { status: 'active', reading: 0.70 },
+                    hormonal: { status: 'active', reading: 0.80 }
+                }
+            },
+            timestamp: new Date().toISOString()
+        }
+    });
+});
+
 app.get('/patients/:patientId/ecdome', (req, res) => {
     const { patientId } = req.params;
     const { scope } = req.query;

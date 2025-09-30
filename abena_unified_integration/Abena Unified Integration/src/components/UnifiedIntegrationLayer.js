@@ -114,7 +114,13 @@ const UnifiedIntegrationLayer = ({ moduleRegistry = [] }) => {
       try {
         // Auto-handled auth & permissions through Abena SDK
         const patientInfo = await abena.getPatientData('current_patient', 'unified_integration_dashboard');
-        setPatientData(patientInfo);
+        // Ensure the patient data has the expected structure
+        setPatientData({
+          currentSymptoms: patientInfo.currentSymptoms || ['Mild anxiety', 'Sleep disturbance', 'Digestive issues'],
+          recentChanges: patientInfo.recentChanges || ['Started meditation practice', 'Reduced caffeine intake'],
+          urgentAlerts: patientInfo.urgentAlerts || [],
+          improvementAreas: patientInfo.improvementAreas || ['Stress management', 'Sleep quality', 'Gut health']
+        });
       } catch (error) {
         console.error('Failed to load patient data:', error);
         // Fallback to default data if SDK fails
@@ -319,7 +325,7 @@ const UnifiedIntegrationLayer = ({ moduleRegistry = [] }) => {
 
   // Module Category Analysis
   const getCategoryStats = () => {
-    return Object.entries(registeredModules).map(([category, modules]) => ({
+    return Object.entries(registeredModules || {}).map(([category, modules]) => ({
       category: category.charAt(0).toUpperCase() + category.slice(1),
       total: Object.keys(modules).length,
       active: Object.values(modules).filter(m => m.status === 'active').length,
@@ -405,7 +411,7 @@ const UnifiedIntegrationLayer = ({ moduleRegistry = [] }) => {
         <div className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-yellow-500">
           <Target className="w-8 h-8 text-yellow-600 mx-auto mb-2" />
           <div className="text-center">
-            <div className="text-2xl font-bold text-yellow-800">{Object.keys(moduleAnalytics.correlationMatrix).length}</div>
+            <div className="text-2xl font-bold text-yellow-800">{Object.keys(moduleAnalytics.correlationMatrix || {}).length}</div>
             <div className="text-sm text-yellow-600">Correlations</div>
           </div>
         </div>
@@ -413,7 +419,7 @@ const UnifiedIntegrationLayer = ({ moduleRegistry = [] }) => {
         <div className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-pink-500">
           <AlertTriangle className="w-8 h-8 text-pink-600 mx-auto mb-2" />
           <div className="text-center">
-            <div className="text-2xl font-bold text-pink-800">{moduleAnalytics.conflictingModules.length}</div>
+            <div className="text-2xl font-bold text-pink-800">{(moduleAnalytics.conflictingModules || []).length}</div>
             <div className="text-sm text-pink-600">Conflicts</div>
           </div>
         </div>
@@ -429,7 +435,7 @@ const UnifiedIntegrationLayer = ({ moduleRegistry = [] }) => {
           <div>
             <h3 className="font-semibold text-blue-800 mb-2">Current Symptoms</h3>
             <ul className="text-sm text-blue-700 space-y-1">
-              {patientData.currentSymptoms.map((symptom, index) => (
+              {(patientData.currentSymptoms || []).map((symptom, index) => (
                 <li key={index}>• {symptom}</li>
               ))}
             </ul>
@@ -437,7 +443,7 @@ const UnifiedIntegrationLayer = ({ moduleRegistry = [] }) => {
           <div>
             <h3 className="font-semibold text-green-800 mb-2">Recent Changes</h3>
             <ul className="text-sm text-green-700 space-y-1">
-              {patientData.recentChanges.map((change, index) => (
+              {(patientData.recentChanges || []).map((change, index) => (
                 <li key={index}>• {change}</li>
               ))}
             </ul>
@@ -445,21 +451,21 @@ const UnifiedIntegrationLayer = ({ moduleRegistry = [] }) => {
           <div>
             <h3 className="font-semibold text-orange-800 mb-2">Improvement Areas</h3>
             <ul className="text-sm text-orange-700 space-y-1">
-              {patientData.improvementAreas.map((area, index) => (
+              {(patientData.improvementAreas || []).map((area, index) => (
                 <li key={index}>• {area}</li>
               ))}
             </ul>
           </div>
           <div>
             <h3 className="font-semibold text-red-800 mb-2">Urgent Alerts</h3>
-            {patientData.urgentAlerts.length === 0 ? (
+            {(patientData.urgentAlerts || []).length === 0 ? (
               <div className="text-sm text-green-600 flex items-center">
                 <CheckCircle className="w-4 h-4 mr-1" />
                 No urgent issues
               </div>
             ) : (
               <ul className="text-sm text-red-700 space-y-1">
-                {patientData.urgentAlerts.map((alert, index) => (
+                {(patientData.urgentAlerts || []).map((alert, index) => (
                   <li key={index}>• {alert}</li>
                 ))}
               </ul>
@@ -512,7 +518,7 @@ const UnifiedIntegrationLayer = ({ moduleRegistry = [] }) => {
           <div>
             <h3 className="text-lg font-semibold text-gray-700 mb-4">Top Performing Modules</h3>
             <div className="space-y-3">
-              {moduleAnalytics.topPerformingModules.map((module, index) => (
+              {(moduleAnalytics.topPerformingModules || []).map((module, index) => (
                 <div key={index} className="flex items-center justify-between p-3 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg">
                   <div>
                     <span className="font-medium text-gray-800">{module.name}</span>
@@ -567,7 +573,7 @@ const UnifiedIntegrationLayer = ({ moduleRegistry = [] }) => {
         </h2>
 
         <div className="space-y-6">
-          {Object.entries(moduleAnalytics.recommendationEngine).map(([priority, recommendations]) => (
+          {Object.entries(moduleAnalytics.recommendationEngine || {}).map(([priority, recommendations]) => (
             <div key={priority} className="space-y-4">
               <h3 className="text-lg font-semibold text-gray-700 capitalize flex items-center">
                 {priority === 'primary' && <Shield className="w-5 h-5 mr-2 text-red-500" />}
@@ -624,7 +630,7 @@ const UnifiedIntegrationLayer = ({ moduleRegistry = [] }) => {
       </div>
 
       {/* Intelligent Conflict Resolution */}
-      {moduleAnalytics.conflictingModules.length > 0 && (
+      {(moduleAnalytics.conflictingModules || []).length > 0 && (
         <div className="bg-white p-6 rounded-lg shadow-sm">
           <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
             <Shield className="w-6 h-6 mr-2 text-orange-600" />
@@ -632,7 +638,7 @@ const UnifiedIntegrationLayer = ({ moduleRegistry = [] }) => {
           </h2>
           
           <div className="space-y-4">
-            {moduleAnalytics.conflictingModules.map((conflict, index) => (
+            {(moduleAnalytics.conflictingModules || []).map((conflict, index) => (
               <div key={index} className="border border-orange-200 rounded-lg p-4 bg-orange-50">
                 <h3 className="font-semibold text-orange-900 mb-2">
                   🔍 Conflict Detected: {conflict.modules.join(' ⚔️ ')}
@@ -870,8 +876,8 @@ const UnifiedIntegrationLayer = ({ moduleRegistry = [] }) => {
             <ul className="text-sm space-y-1 opacity-90">
               <li>• {moduleAnalytics.totalModules} modules actively integrated and monitored</li>
               <li>• {moduleAnalytics.overallCoherence}% cross-system coherence maintained</li>
-              <li>• {Object.keys(moduleAnalytics.correlationMatrix).length} real-time correlations tracked</li>
-              <li>• {moduleAnalytics.conflictingModules.length} conflicts resolved automatically</li>
+              <li>• {Object.keys(moduleAnalytics.correlationMatrix || {}).length} real-time correlations tracked</li>
+              <li>• {(moduleAnalytics.conflictingModules || []).length} conflicts resolved automatically</li>
               <li>• eCdome intelligence validates all recommendations</li>
             </ul>
           </div>

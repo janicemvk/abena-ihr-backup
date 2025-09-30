@@ -100,7 +100,7 @@ const ClinicalDashboard = () => {
         <div className="text-center">
           <Activity className="h-12 w-12 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">No patient selected</h3>
-          <p className="text-gray-600">Please select a patient to view their data</p>
+          <p className="text-gray-600">Please select a patient to view their clinical dashboard.</p>
         </div>
       </div>
     );
@@ -108,143 +108,129 @@ const ClinicalDashboard = () => {
 
   return (
     <ErrorBoundary>
-      <div className="flex-1 p-6 space-y-6">
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="space-y-6"
-        >
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="p-6 bg-clinical-bg"
+      >
+        <div className="max-w-7xl mx-auto">
+          {/* Dashboard Header */}
+          <motion.div variants={itemVariants} className="mb-8">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">Clinical Dashboard</h1>
+                <p className="text-gray-600 mt-1">Real-time patient monitoring and eCDome analysis</p>
+              </div>
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  <span className="text-sm text-gray-600">Live Monitoring</span>
+                </div>
+                <button className="p-2 text-gray-400 hover:text-gray-600">
+                  <Eye className="h-5 w-5" />
+                </button>
+                <button className="p-2 text-gray-400 hover:text-gray-600">
+                  <Settings className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+          </motion.div>
+
           {/* Dashboard Controls */}
-          <motion.div variants={itemVariants}>
+          <motion.div variants={itemVariants} className="mb-6">
             <DashboardControls
+              timeRange={timeRange}
+              setTimeRange={dashboardActions.setTimeRange}
               viewMode={viewMode}
               setViewMode={setViewMode}
-              timeRange={timeRange}
-              onTimeRangeChange={dashboardActions.setTimeRange}
               selectedModules={selectedModules}
               setSelectedModules={setSelectedModules}
             />
           </motion.div>
 
-          {/* Patient Selector */}
-          <motion.div variants={itemVariants}>
-            <PatientSelector
-              selectedPatient={selectedPatient}
-              onPatientSelect={patientActions.selectPatient}
-            />
-          </motion.div>
-
-          {/* Patient Overview */}
-          <motion.div variants={itemVariants}>
-            <PatientOverview
-              patientData={patientData}
-              realtimeData={realtimeData}
-            />
-          </motion.div>
-
-          {/* Critical Alerts */}
-          {alerts.length > 0 && (
+          {/* Main Dashboard - Row-based Layout */}
+          <motion.div 
+            variants={containerVariants}
+            className="space-y-6"
+          >
+            {/* Row 1: Patient Selection */}
             <motion.div variants={itemVariants}>
-              <PredictiveAlerts
-                alerts={alerts}
-                patientData={patientData}
-                onAlertDismiss={dashboardActions.removeAlert}
+              <PatientSelector
+                selectedPatient={selectedPatient}
+                onPatientSelect={patientActions.selectPatient}
               />
             </motion.div>
-          )}
 
-          {/* Main Content Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Left Column - Charts and Analysis */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* eCDome Timeline */}
-              <motion.div variants={itemVariants}>
-                <EcdomeTimeline
-                  timelineData={patientData.timelineData}
-                  timeRange={timeRange}
-                  viewMode={viewMode}
-                />
-              </motion.div>
+            {/* Row 2: Patient Overview - Full Width */}
+            <motion.div variants={itemVariants}>
+              <PatientOverview 
+                patientData={patientData} 
+                realtimeData={realtimeData}
+              />
+            </motion.div>
 
-              {/* Module Analysis */}
-              <motion.div variants={itemVariants}>
-                <ModuleAnalysis
-                  moduleData={patientData.moduleData}
-                  selectedModules={selectedModules}
-                  viewMode={viewMode}
-                  onModuleSelect={setSelectedModules}
-                />
-              </motion.div>
+            {/* Row 3: Real-time Monitoring - Full Width */}
+            <motion.div variants={itemVariants}>
+              <RealtimeMonitoring
+                patientId={selectedPatient}
+                realtimeData={realtimeData}
+              />
+            </motion.div>
 
-              {/* eCDome Components */}
-              <motion.div variants={itemVariants}>
-                <EcdomeComponents
-                  ecdomeProfile={patientData.ecdomeProfile}
-                  realtimeData={realtimeData}
-                />
-              </motion.div>
-            </div>
+            {/* Row 4: eCDome Components - Full Width */}
+            <motion.div variants={itemVariants}>
+              <EcdomeComponents
+                patientData={patientData}
+                realtimeData={realtimeData}
+              />
+            </motion.div>
 
-            {/* Right Column - Monitoring and Actions */}
-            <div className="space-y-6">
-              {/* Real-time Monitoring */}
-              <motion.div variants={itemVariants}>
-                <RealtimeMonitoring
-                  realtimeData={realtimeData}
-                  patientData={patientData}
-                />
-              </motion.div>
+            {/* Row 5: eCDome Timeline - Full Width */}
+            <motion.div variants={itemVariants}>
+              <EcdomeTimeline 
+                patientId={selectedPatient}
+                timeRange={timeRange}
+              />
+            </motion.div>
 
-              {/* Clinical Recommendations */}
-              <motion.div variants={itemVariants}>
-                <ClinicalRecommendations
-                  recommendations={patientData.recommendations}
-                  patientData={patientData}
-                />
-              </motion.div>
+            {/* Row 6: Module Analysis - Full Width */}
+            <motion.div variants={itemVariants}>
+              <ModuleAnalysis
+                patientId={selectedPatient}
+                selectedModules={selectedModules}
+                timeRange={timeRange}
+              />
+            </motion.div>
 
-              {/* Quick Actions */}
-              <motion.div variants={itemVariants}>
-                <QuickActions
-                  patientId={selectedPatient}
-                  patientData={patientData}
-                />
-              </motion.div>
-            </div>
-          </div>
+            {/* Row 7: Predictive Alerts - Full Width */}
+            <motion.div variants={itemVariants}>
+              <PredictiveAlerts
+                patientId={selectedPatient}
+                alerts={alerts}
+              />
+            </motion.div>
 
-          {/* Performance Metrics Footer */}
-          <motion.div variants={itemVariants} className="mt-8">
-            <div className="dashboard-card">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-6">
-                  <div className="flex items-center space-x-2">
-                    <TrendingUp className="h-4 w-4 text-green-500" />
-                    <span className="text-sm text-gray-600">Dashboard Performance</span>
-                  </div>
-                  <div className="text-sm text-gray-600">
-                    Data refresh: {realtimeData.timestamp ? 
-                      new Date(realtimeData.timestamp).toLocaleTimeString() : 
-                      'Loading...'
-                    }
-                  </div>
-                </div>
-                <div className="flex items-center space-x-4 text-sm text-gray-600">
-                  <span>Latency: ~200ms</span>
-                  <span>Uptime: 99.98%</span>
-                  <div className="flex items-center space-x-1">
-                    <Eye className="h-4 w-4" />
-                    <span>Live</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+            {/* Row 8: Clinical Recommendations - Full Width */}
+            <motion.div variants={itemVariants}>
+              <ClinicalRecommendations
+                patientData={patientData}
+                realtimeData={realtimeData}
+              />
+            </motion.div>
+
+            {/* Row 9: Quick Actions - Full Width */}
+            <motion.div variants={itemVariants}>
+              <QuickActions
+                patientId={selectedPatient}
+                patientData={patientData}
+              />
+            </motion.div>
           </motion.div>
-        </motion.div>
-      </div>
+        </div>
+      </motion.div>
     </ErrorBoundary>
   );
 };
 
-export default ClinicalDashboard; 
+export default ClinicalDashboard;

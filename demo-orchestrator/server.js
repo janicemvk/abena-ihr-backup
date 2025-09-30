@@ -16,7 +16,22 @@ const io = socketIo(server, {
 });
 
 // Middleware
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.tailwindcss.com", "https://cdn.socket.io"],
+      scriptSrcAttr: ["'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.tailwindcss.com"],
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'", "ws:", "wss:"],
+      fontSrc: ["'self'", "https:"],
+      objectSrc: ["'none'"],
+      mediaSrc: ["'self'"],
+      frameSrc: ["'none'"],
+    },
+  },
+}));
 app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
@@ -205,33 +220,93 @@ class DemoOrchestrator {
     switch (step.action) {
       case 'show-data-ingestion':
         await this.showDataIngestion(socket);
+        // Open telemedicine platform to show data coming in
+        socket.emit('open-service', { 
+          service: 'telemedicine', 
+          url: 'http://localhost:8000',
+          message: 'Opening Telemedicine Platform to show data ingestion...'
+        });
         break;
       case 'show-analysis':
         await this.showECdomeAnalysis(socket);
+        // Open eCDome intelligence system
+        socket.emit('open-service', { 
+          service: 'ecdome', 
+          url: 'http://localhost:4005',
+          message: 'Opening eCDome Intelligence System for analysis...'
+        });
         break;
       case 'show-recommendations':
         await this.showClinicalRecommendations(socket);
+        // Open provider dashboard
+        socket.emit('open-service', { 
+          service: 'provider', 
+          url: 'http://localhost:4008',
+          message: 'Opening Provider Dashboard for clinical recommendations...'
+        });
         break;
       case 'show-blockchain':
         await this.showBlockchainStorage(socket);
+        // Show blockchain visualization
+        socket.emit('open-service', { 
+          service: 'blockchain', 
+          url: 'http://localhost:4002',
+          message: 'Opening ABENA IHR for blockchain storage...'
+        });
         break;
       case 'show-provider-login':
         await this.showProviderLogin(socket);
+        // Open provider dashboard with login
+        socket.emit('open-service', { 
+          service: 'provider', 
+          url: 'http://localhost:4008',
+          message: 'Opening Provider Dashboard for authentication...'
+        });
         break;
       case 'show-chatbot':
         await this.showECdomeChatbot(socket);
+        // Open eCDome with chatbot
+        socket.emit('open-service', { 
+          service: 'ecdome', 
+          url: 'http://localhost:4005/chatbot',
+          message: 'Opening eCDome Chatbot for provider education...'
+        });
         break;
       case 'show-decision-support':
         await this.showDecisionSupport(socket);
+        // Open provider dashboard with alerts
+        socket.emit('open-service', { 
+          service: 'provider', 
+          url: 'http://localhost:4008',
+          message: 'Opening Provider Dashboard for decision support...'
+        });
         break;
       case 'show-patient-dashboard':
         await this.showPatientDashboard(socket);
+        // Open patient dashboard
+        socket.emit('open-service', { 
+          service: 'patient', 
+          url: 'http://localhost:4009',
+          message: 'Opening Patient Dashboard for health records...'
+        });
         break;
       case 'show-education':
         await this.showPatientEducation(socket);
+        // Open patient dashboard with education
+        socket.emit('open-service', { 
+          service: 'patient', 
+          url: 'http://localhost:4009',
+          message: 'Opening Patient Dashboard for health education...'
+        });
         break;
       case 'show-gamification':
         await this.showGamification(socket);
+        // Open gamification system
+        socket.emit('open-service', { 
+          service: 'gamification', 
+          url: 'http://localhost:4006',
+          message: 'Opening Gamification System for patient engagement...'
+        });
         break;
     }
   }

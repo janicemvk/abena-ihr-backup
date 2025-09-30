@@ -15,9 +15,86 @@ import {
 } from 'lucide-react';
 
 const PatientOverview = ({ patientData, realtimeData }) => {
-  if (!patientData) return null;
+  // Mock data for immediate display
+  const mockPatientData = {
+    patientInfo: {
+      id: 'PAT-001',
+      name: 'John Doe',
+      age: 40,
+      gender: 'Male',
+      lastVisit: new Date().toISOString(),
+      provider: 'Dr. Martinez',
+      status: 'active',
+      riskLevel: 'medium',
+      ecdomeScore: 0.75,
+      vitalSigns: {
+        heartRate: 72,
+        bloodPressure: '120/80',
+        temperature: 98.6,
+        oxygenSaturation: 98
+      },
+      medications: [
+        { name: 'Metformin', dosage: '500mg', frequency: 'Twice daily' },
+        { name: 'Lisinopril', dosage: '10mg', frequency: 'Once daily' }
+      ],
+      allergies: ['Penicillin', 'Shellfish'],
+      conditions: ['Type 2 Diabetes', 'Hypertension'],
+      lastLabResults: {
+        glucose: 95,
+        hba1c: 6.2,
+        cholesterol: 180
+      }
+    },
+    ecdomeProfile: {
+      score: 0.75,
+      status: 'Good',
+      components: {
+        endocannabinoid: { status: 'active', reading: 0.80 },
+        metabolic: { status: 'active', reading: 0.75 },
+        immune: { status: 'active', reading: 0.70 },
+        hormonal: { status: 'active', reading: 0.80 }
+      }
+    }
+  };
 
-  const { patientInfo, ecdomeProfile } = patientData;
+  // Use mock data if no real data provided
+  const data = patientData || mockPatientData;
+  
+  // Handle different data structures
+  let patientInfo, ecdomeProfile;
+  if (data && data.data) {
+    // API response structure: { success: true, data: { patientInfo: {...}, ecdomeProfile: {...} } }
+    patientInfo = data.data.patientInfo;
+    ecdomeProfile = data.data.ecdomeProfile;
+  } else if (data && data.patientInfo) {
+    // Direct structure: { patientInfo: {...}, ecdomeProfile: {...} }
+    patientInfo = data.patientInfo;
+    ecdomeProfile = data.ecdomeProfile;
+  } else {
+    // Fallback to mock data
+    patientInfo = mockPatientData.patientInfo;
+    ecdomeProfile = mockPatientData.ecdomeProfile;
+  }
+  
+  // Ensure we have valid data
+  if (!patientInfo) {
+    patientInfo = mockPatientData.patientInfo;
+  }
+  if (!ecdomeProfile) {
+    ecdomeProfile = mockPatientData.ecdomeProfile;
+  }
+  
+  // Safety check - don't render if we still don't have valid data
+  if (!patientInfo || !patientInfo.name) {
+    console.error('PatientOverview: No valid patient data available');
+    return (
+      <div className="p-6 bg-white rounded-lg shadow-sm border border-gray-200">
+        <div className="text-center text-gray-500">
+          <p>Loading patient data...</p>
+        </div>
+      </div>
+    );
+  }
 
   const getHealthScoreColor = (score) => {
     if (score >= 0.8) return 'text-green-600 bg-green-100';
@@ -110,15 +187,15 @@ const PatientOverview = ({ patientData, realtimeData }) => {
         <div className="lg:col-span-3">
           <div className="text-center">
             <div className="flex items-center justify-center space-x-2 mb-2">
-              {getHealthScoreIcon(ecdomeProfile.overallScore)}
+              {getHealthScoreIcon(ecdomeProfile.score || ecdomeProfile.overallScore || 0)}
               <span className="text-sm font-medium text-gray-700">eCDome Health Score</span>
             </div>
             <div className="relative">
               <div className="text-4xl font-bold text-gray-900">
-                {Math.round(ecdomeProfile.overallScore * 100)}%
+                {Math.round((ecdomeProfile.score || ecdomeProfile.overallScore || 0) * 100)}%
               </div>
-              <div className={`inline-block px-3 py-1 rounded-full text-sm font-medium mt-2 ${getHealthScoreColor(ecdomeProfile.overallScore)}`}>
-                {getHealthScoreText(ecdomeProfile.overallScore)}
+              <div className={`inline-block px-3 py-1 rounded-full text-sm font-medium mt-2 ${getHealthScoreColor(ecdomeProfile.score || ecdomeProfile.overallScore || 0)}`}>
+                {getHealthScoreText(ecdomeProfile.score || ecdomeProfile.overallScore || 0)}
               </div>
             </div>
           </div>

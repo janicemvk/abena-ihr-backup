@@ -159,30 +159,36 @@ const validateDataPoint = (dataPoint) => {
   const errors = [];
   
   // Check endocannabinoid levels
-  Object.entries(dataPoint.metrics.endocannabinoidLevels).forEach(([key, value]) => {
-    const constraint = BIOLOGICAL_CONSTRAINTS.endocannabinoidLevels[key];
-    if (value < constraint.min || value > constraint.max) {
-      errors.push(`${key} level (${value}) outside biological range [${constraint.min}-${constraint.max}]`);
-    }
-  });
+  if (dataPoint.metrics && dataPoint.metrics.endocannabinoidLevels && typeof dataPoint.metrics.endocannabinoidLevels === 'object') {
+    Object.entries(dataPoint.metrics.endocannabinoidLevels).forEach(([key, value]) => {
+      const constraint = BIOLOGICAL_CONSTRAINTS.endocannabinoidLevels?.[key];
+      if (constraint && (value < constraint.min || value > constraint.max)) {
+        errors.push(`${key} level (${value}) outside biological range [${constraint.min}-${constraint.max}]`);
+      }
+    });
+  }
   
   // Check receptor activity
-  Object.entries(dataPoint.metrics.receptorActivity).forEach(([key, value]) => {
-    const constraint = BIOLOGICAL_CONSTRAINTS.receptorActivity[key];
-    if (value < constraint.min || value > constraint.max) {
-      errors.push(`${key} activity (${value}) outside biological range [${constraint.min}-${constraint.max}]`);
-    }
-  });
+  if (dataPoint.metrics && dataPoint.metrics.receptorActivity && typeof dataPoint.metrics.receptorActivity === 'object') {
+    Object.entries(dataPoint.metrics.receptorActivity).forEach(([key, value]) => {
+      const constraint = BIOLOGICAL_CONSTRAINTS.receptorActivity?.[key];
+      if (constraint && (value < constraint.min || value > constraint.max)) {
+        errors.push(`${key} activity (${value}) outside biological range [${constraint.min}-${constraint.max}]`);
+      }
+    });
+  }
   
   // Check other metrics
-  Object.entries(dataPoint.metrics).forEach(([key, value]) => {
-    if (key !== 'endocannabinoidLevels' && key !== 'receptorActivity') {
-      const constraint = BIOLOGICAL_CONSTRAINTS[key];
-      if (value < constraint.min || value > constraint.max) {
-        errors.push(`${key} (${value}) outside biological range [${constraint.min}-${constraint.max}]`);
+  if (dataPoint.metrics && typeof dataPoint.metrics === 'object') {
+    Object.entries(dataPoint.metrics).forEach(([key, value]) => {
+      if (key !== 'endocannabinoidLevels' && key !== 'receptorActivity') {
+        const constraint = BIOLOGICAL_CONSTRAINTS[key];
+        if (constraint && (value < constraint.min || value > constraint.max)) {
+          errors.push(`${key} (${value}) outside biological range [${constraint.min}-${constraint.max}]`);
+        }
       }
-    }
-  });
+    });
+  }
   
   return errors;
 };
@@ -221,21 +227,25 @@ const detectAnomalies = (data) => {
     const current = data[i];
     
     // Check endocannabinoid levels
-    Object.entries(current.metrics.endocannabinoidLevels).forEach(([key, value]) => {
-      const windowValues = window.map(d => d.metrics.endocannabinoidLevels[key]);
-      const avg = windowValues.reduce((a, b) => a + b, 0) / windowValues.length;
-      const std = Math.sqrt(windowValues.reduce((sq, n) => sq + Math.pow(n - avg, 2), 0) / windowValues.length);
-      
-      if (Math.abs(value - avg) > 2 * std) {
-        anomalies.push({
-          timestamp: current.timestamp,
-          metric: `endocannabinoidLevels.${key}`,
-          value,
-          expected: avg,
-          deviation: Math.abs(value - avg) / std
-        });
-      }
-    });
+    if (current.metrics && current.metrics.endocannabinoidLevels && typeof current.metrics.endocannabinoidLevels === 'object') {
+      Object.entries(current.metrics.endocannabinoidLevels).forEach(([key, value]) => {
+        const windowValues = window.map(d => d.metrics?.endocannabinoidLevels?.[key]).filter(v => v !== undefined);
+        if (windowValues.length > 0) {
+          const avg = windowValues.reduce((a, b) => a + b, 0) / windowValues.length;
+          const std = Math.sqrt(windowValues.reduce((sq, n) => sq + Math.pow(n - avg, 2), 0) / windowValues.length);
+          
+          if (Math.abs(value - avg) > 2 * std) {
+            anomalies.push({
+              timestamp: current.timestamp,
+              metric: `endocannabinoidLevels.${key}`,
+              value,
+              expected: avg,
+              deviation: Math.abs(value - avg) / std
+            });
+          }
+        }
+      });
+    }
   }
   
   return anomalies;
@@ -347,7 +357,7 @@ const calculateRiskScore = (data) => {
   return {
     score: totalRisk,
     level: totalRisk > 0.7 ? 'high' : totalRisk > 0.4 ? 'medium' : 'low',
-    factors: Object.entries(riskFactors).filter(([_, value]) => value > 0),
+    factors: riskFactors && typeof riskFactors === 'object' ? Object.entries(riskFactors).filter(([_, value]) => value > 0) : [],
     recommendations: generateRiskMitigationRecommendations(riskFactors)
   };
 };

@@ -20,7 +20,7 @@ import { useDashboard } from '../../contexts/DashboardContext';
 import { usePatient } from '../../contexts/PatientContext';
 
 const Layout = ({ children }) => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true); // Start with sidebar open for desktop
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const location = useLocation();
   const { systemStatus, alerts, lastUpdated } = useDashboard();
@@ -48,7 +48,7 @@ const Layout = ({ children }) => {
   };
 
   return (
-    <div className="min-h-screen bg-clinical-bg">
+    <div className="h-screen bg-clinical-bg flex overflow-hidden">
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <motion.div
@@ -60,11 +60,11 @@ const Layout = ({ children }) => {
         />
       )}
 
-      {/* Sidebar */}
+      {/* Sidebar - Fixed */}
       <motion.div
         variants={sidebarVariants}
         animate={sidebarOpen ? 'open' : 'closed'}
-        className="fixed inset-y-0 left-0 z-50 w-80 bg-white shadow-xl md:static md:translate-x-0 md:z-auto"
+        className="fixed inset-y-0 left-0 z-50 w-80 bg-white shadow-xl md:relative md:translate-x-0 md:z-auto md:flex-shrink-0"
       >
         <div className="flex flex-col h-full">
           {/* Logo and brand */}
@@ -162,10 +162,10 @@ const Layout = ({ children }) => {
         </div>
       </motion.div>
 
-      {/* Main content */}
-      <div className="md:ml-80">
-        {/* Top header */}
-        <header className="bg-white shadow-sm border-b border-clinical-border sticky top-0 z-30">
+      {/* Main content - Scrollable */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Top header - Fixed */}
+        <header className="bg-white shadow-sm border-b border-clinical-border flex-shrink-0 z-30">
           <div className="px-6 py-4">
             <div className="flex items-center justify-between">
               {/* Mobile menu button */}
@@ -255,8 +255,8 @@ const Layout = ({ children }) => {
           </div>
         </header>
 
-        {/* Main content area */}
-        <main className="min-h-screen">
+        {/* Main content area - Scrollable */}
+        <main className="flex-1 overflow-y-auto">
           {children}
         </main>
       </div>

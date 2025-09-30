@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
-import { dashboardService } from '../services/dashboardService';
+// import { dashboardService } from '../services/dashboardService'; // DISABLED - Using pure mock data
 import toast from 'react-hot-toast';
 
 // Initial state
@@ -163,16 +163,38 @@ export const DashboardProvider = ({ children }) => {
     }
   };
 
-  // Real-time data updates
+  // Real-time data updates - PURE MOCK DATA
   useEffect(() => {
     if (state.refreshInterval > 0) {
       const interval = setInterval(async () => {
         try {
-          const realtimeData = await dashboardService.getRealtimeData();
-          actions.updateRealtimeData(realtimeData);
+          // Pure mock real-time data - no API calls
+          const mockRealtimeData = {
+            success: true,
+            data: {
+              patientId: 'PAT-001',
+              timestamp: new Date().toISOString(),
+              vitalSigns: {
+                heartRate: Math.floor(Math.random() * 20) + 60, // 60-80
+                bloodPressure: `${Math.floor(Math.random() * 20) + 110}/${Math.floor(Math.random() * 10) + 70}`,
+                temperature: (Math.random() * 2 + 97).toFixed(1), // 97-99
+                oxygenSaturation: Math.floor(Math.random() * 5) + 95 // 95-99
+              },
+              ecdomeReadings: {
+                endocannabinoid: (Math.random() * 0.4 + 0.6).toFixed(2), // 0.6-1.0
+                metabolic: (Math.random() * 0.4 + 0.6).toFixed(2),
+                immune: (Math.random() * 0.4 + 0.6).toFixed(2),
+                hormonal: (Math.random() * 0.4 + 0.6).toFixed(2)
+              },
+              alerts: [],
+              status: 'stable'
+            }
+          };
+          console.log('✅ Mock real-time data updated');
+          actions.updateRealtimeData(mockRealtimeData);
           actions.setSystemStatus('online');
         } catch (error) {
-          console.error('Failed to fetch real-time data:', error);
+          console.error('Failed to generate mock real-time data:', error);
           actions.setSystemStatus('offline');
         }
       }, state.refreshInterval);

@@ -36,51 +36,164 @@ api.interceptors.response.use(
   }
 );
 
-// Patient service methods using REAL API calls
+// Patient service methods using MOCK DATA for immediate display
 export const patientService = {
-  // Get all patients - USE REAL API
+  // Get all patients - USE MOCK DATA
   getPatients: async () => {
     try {
-      const response = await api.get('/patients');
-      console.log('✅ Real patient data loaded:', response.data.length, 'patients');
-      return response.data;
+      // Mock patient list
+      const mockPatients = [
+        {
+          id: 'PAT-001',
+          name: 'John Doe',
+          age: 40,
+          gender: 'Male',
+          status: 'active',
+          riskLevel: 'medium',
+          lastVisit: new Date().toISOString(),
+          provider: 'Dr. Martinez'
+        },
+        {
+          id: 'PAT-002',
+          name: 'Jane Smith',
+          age: 35,
+          gender: 'Female',
+          status: 'active',
+          riskLevel: 'low',
+          lastVisit: new Date().toISOString(),
+          provider: 'Dr. Johnson'
+        },
+        {
+          id: 'PAT-003',
+          name: 'Mike Wilson',
+          age: 55,
+          gender: 'Male',
+          status: 'active',
+          riskLevel: 'high',
+          lastVisit: new Date().toISOString(),
+          provider: 'Dr. Martinez'
+        }
+      ];
+      
+      console.log('✅ Mock patient data loaded:', mockPatients.length, 'patients');
+      return mockPatients;
     } catch (error) {
-      console.error('❌ Failed to fetch patients from real API:', error);
-      throw new Error('Failed to fetch patients from database');
+      console.error('❌ Failed to load mock patients:', error);
+      throw new Error('Failed to load patient data');
     }
   },
 
-  // Get patient by ID - USE REAL API
+  // Get patient by ID - USE MOCK DATA
   getPatient: async (patientId) => {
     try {
-      const response = await api.get(`/patients/${patientId}`);
-      return response.data;
+      // Mock patient data
+      const mockPatient = {
+        id: patientId,
+        name: 'John Doe',
+        age: 40,
+        gender: 'Male',
+        status: 'active',
+        riskLevel: 'medium',
+        lastVisit: new Date().toISOString(),
+        provider: 'Dr. Martinez'
+      };
+      
+      console.log('✅ Mock patient data loaded for:', patientId);
+      return mockPatient;
     } catch (error) {
-      console.error('❌ Failed to fetch patient:', error);
-      throw new Error('Failed to fetch patient from database');
+      console.error('❌ Failed to load mock patient:', error);
+      throw new Error('Failed to load patient data');
     }
   },
 
-  // Get detailed patient data - USE REAL API
+  // Get detailed patient data - USE MOCK DATA
   getPatientData: async (patientId) => {
     try {
-      const response = await api.get(`/patients/${patientId}/data`);
-      console.log('✅ Real patient data loaded for:', patientId);
-      return response.data;
+      // Mock detailed patient data
+      const mockPatientData = {
+        success: true,
+        data: {
+          patientInfo: {
+            id: patientId,
+            name: 'John Doe',
+            age: 40,
+            gender: 'Male',
+            lastVisit: new Date().toISOString(),
+            provider: 'Dr. Martinez',
+            status: 'active',
+            riskLevel: 'medium',
+            ecdomeScore: 0.75,
+            vitalSigns: {
+              heartRate: 72,
+              bloodPressure: '120/80',
+              temperature: 98.6,
+              oxygenSaturation: 98
+            },
+            medications: [
+              { name: 'Metformin', dosage: '500mg', frequency: 'Twice daily' },
+              { name: 'Lisinopril', dosage: '10mg', frequency: 'Once daily' }
+            ],
+            allergies: ['Penicillin', 'Shellfish'],
+            conditions: ['Type 2 Diabetes', 'Hypertension'],
+            lastLabResults: {
+              glucose: 95,
+              hba1c: 6.2,
+              cholesterol: 180
+            }
+          },
+          ecdomeProfile: {
+            score: 0.75,
+            status: 'Good',
+            components: {
+              endocannabinoid: { status: 'active', reading: 0.80 },
+              metabolic: { status: 'active', reading: 0.75 },
+              immune: { status: 'active', reading: 0.70 },
+              hormonal: { status: 'active', reading: 0.80 }
+            }
+          },
+          timestamp: new Date().toISOString()
+        }
+      };
+      
+      console.log('✅ Mock patient data loaded for:', patientId);
+      return mockPatientData;
     } catch (error) {
-      console.error('❌ Failed to fetch patient data:', error);
-      throw new Error('Failed to fetch patient data from database');
+      console.error('❌ Failed to load mock patient data:', error);
+      throw new Error('Failed to load patient data');
     }
   },
 
-  // Get real-time patient data - USE REAL API
+  // Get real-time patient data - USE MOCK DATA
   getRealtimeData: async (patientId) => {
     try {
-      const response = await api.get(`/patients/${patientId}/realtime`);
-      return response.data;
+      // Mock real-time data
+      const mockRealtimeData = {
+        success: true,
+        data: {
+          patientId: patientId,
+          timestamp: new Date().toISOString(),
+          vitalSigns: {
+            heartRate: Math.floor(Math.random() * 20) + 60, // 60-80
+            bloodPressure: `${Math.floor(Math.random() * 20) + 110}/${Math.floor(Math.random() * 10) + 70}`,
+            temperature: (Math.random() * 2 + 97).toFixed(1), // 97-99
+            oxygenSaturation: Math.floor(Math.random() * 5) + 95 // 95-99
+          },
+          ecdomeReadings: {
+            endocannabinoid: (Math.random() * 0.4 + 0.6).toFixed(2), // 0.6-1.0
+            metabolic: (Math.random() * 0.4 + 0.6).toFixed(2),
+            immune: (Math.random() * 0.4 + 0.6).toFixed(2),
+            hormonal: (Math.random() * 0.4 + 0.6).toFixed(2)
+          },
+          alerts: [],
+          status: 'stable'
+        }
+      };
+      
+      console.log('✅ Mock real-time data loaded for:', patientId);
+      return mockRealtimeData;
     } catch (error) {
-      console.error('❌ Failed to fetch real-time data:', error);
-      throw new Error('Failed to fetch real-time data from database');
+      console.error('❌ Failed to load mock real-time data:', error);
+      throw new Error('Failed to load real-time data');
     }
   },
 

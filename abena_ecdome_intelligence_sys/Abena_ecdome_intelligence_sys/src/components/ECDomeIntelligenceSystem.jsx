@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, BarChart, Bar, ScatterChart, Scatter, AreaChart, Area } from 'recharts';
 import { FileText, MessageCircle, TrendingUp, AlertTriangle, Activity, Download, Settings, Play, Square, BarChart3, Brain, Heart, Leaf, Zap, Shield, CheckCircle, Target, Clock, TrendingDown, ActivitySquare, Gauge, BarChart4 } from 'lucide-react';
-import AbenaSDK from '@abena/sdk';
+import AbenaSDK from '../services/AbenaSDK';
 import ECDomeCorrelationEngine from '../services/ECDomeCorrelationEngine';
 import unifiedIntegrationLayer from '../services/unifiedIntegrationLayer';
 
@@ -20,6 +20,170 @@ const abena = new AbenaSDK({
 
 // Initialize ECDome Correlation Engine as the core processing engine
 const ecdomeEngine = new ECDomeCorrelationEngine();
+
+// Mock data for development - comprehensive dataset
+const MOCK_DATA = {
+  // Real-time metrics data
+  realTimeMetrics: {
+    endocannabinoidLevels: {
+      anandamide: 0.75,
+      '2-AG': 0.68,
+      PEA: 0.82,
+      OEA: 0.71
+    },
+    receptorActivity: {
+      CB1: 0.73,
+      CB2: 0.69,
+      TRPV1: 0.65,
+      GPR55: 0.71
+    },
+    systemHealth: 0.78,
+    inflammationMarkers: 0.32,
+    stressResponse: 0.45,
+    microbiomeHealth: 0.85,
+    sleepQuality: 0.82,
+    exerciseResponse: 0.76,
+    nutritionStatus: 0.79
+  },
+  
+  // Historical data for trends
+  historicalData: [
+    { timestamp: '2024-01-01T00:00:00Z', metrics: { endocannabinoidLevels: { anandamide: 0.72, '2-AG': 0.65 }, receptorActivity: { CB1: 0.70, CB2: 0.66 }, systemHealth: 0.75, inflammationMarkers: 0.35, stressResponse: 0.48 } },
+    { timestamp: '2024-01-02T00:00:00Z', metrics: { endocannabinoidLevels: { anandamide: 0.74, '2-AG': 0.67 }, receptorActivity: { CB1: 0.71, CB2: 0.67 }, systemHealth: 0.76, inflammationMarkers: 0.33, stressResponse: 0.46 } },
+    { timestamp: '2024-01-03T00:00:00Z', metrics: { endocannabinoidLevels: { anandamide: 0.76, '2-AG': 0.69 }, receptorActivity: { CB1: 0.72, CB2: 0.68 }, systemHealth: 0.77, inflammationMarkers: 0.31, stressResponse: 0.44 } },
+    { timestamp: '2024-01-04T00:00:00Z', metrics: { endocannabinoidLevels: { anandamide: 0.75, '2-AG': 0.68 }, receptorActivity: { CB1: 0.73, CB2: 0.69 }, systemHealth: 0.78, inflammationMarkers: 0.32, stressResponse: 0.45 } }
+  ],
+  
+  // Cross-system interactions
+  crossSystemInteractions: {
+    'Immune System': {
+      correlation: 0.85,
+      'CB2 Activity': 0.72,
+      'Inflammation Markers': 0.68,
+      'Stress Response': 0.74
+    },
+    'Nervous System': {
+      correlation: 0.91,
+      'CB1 Activity': 0.88,
+      'Anandamide Levels': 0.85,
+      'Sleep Quality': 0.82
+    },
+    'Metabolic System': {
+      correlation: 0.78,
+      '2-AG Levels': 0.75,
+      'Exercise Response': 0.71,
+      'Nutrition Status': 0.69
+    }
+  },
+  
+  // Temporal patterns
+  temporalPatterns: {
+    circadian: {
+      morning: { time: '06:00-12:00', patterns: ['anandamide_peak', 'cb1_activation', 'stress_reduction'] },
+      afternoon: { time: '12:00-18:00', patterns: ['2ag_peak', 'cb2_activation', 'immune_boost'] },
+      evening: { time: '18:00-24:00', patterns: ['receptor_sensitivity', 'sleep_preparation', 'recovery_mode'] }
+    },
+    weekly: {
+      monday: { patterns: ['stress_adaptation', 'work_rhythm', 'social_interaction'] },
+      tuesday: { patterns: ['peak_performance', 'cognitive_enhancement', 'focus_optimization'] },
+      wednesday: { patterns: ['midweek_balance', 'energy_management', 'stress_regulation'] },
+      thursday: { patterns: ['productivity_sustained', 'immune_optimization', 'recovery_focus'] },
+      friday: { patterns: ['weekend_preparation', 'social_engagement', 'stress_release'] }
+    }
+  },
+  
+  // Causal analysis
+  causalAnalysis: {
+    interventions: {
+      'CBD Supplementation': { effect: 'moderate_improvement', impact: 0.15, duration: '2_weeks' },
+      'Meditation Practice': { effect: 'significant_improvement', impact: 0.25, duration: '4_weeks' },
+      'Exercise Routine': { effect: 'strong_improvement', impact: 0.30, duration: '6_weeks' }
+    },
+    lifestyle: {
+      'Sleep Quality': { 'anandamide_synthesis': 'enhanced', 'stress_reduction': 'significant', 'immune_function': 'improved' },
+      'Nutrition': { 'endocannabinoid_production': 'optimized', 'inflammation_control': 'effective', 'metabolic_balance': 'achieved' },
+      'Stress Management': { 'receptor_sensitivity': 'increased', 'system_resilience': 'strengthened', 'recovery_rate': 'accelerated' }
+    }
+  },
+  
+  // ML model status
+  mlModelStatus: {
+    healthOutcomePrediction: { confidence: 0.87, lastUpdated: new Date().toISOString() },
+    interventionOptimization: { confidence: 0.82, lastUpdated: new Date().toISOString() },
+    riskAssessment: { confidence: 0.91, lastUpdated: new Date().toISOString() },
+    personalizedDosing: { confidence: 0.79, lastUpdated: new Date().toISOString() }
+  },
+  
+  // Data streams
+  dataStreams: {
+    'Wearable Devices': { 'heart_rate': 72, 'sleep_duration': 7.5, 'activity_level': 0.65 },
+    'Lab Results': { 'inflammation_markers': 0.32, 'stress_hormones': 0.45, 'immune_cells': 0.78 },
+    'Behavioral Data': { 'meditation_time': 20, 'exercise_frequency': 4, 'social_interaction': 0.82 }
+  },
+  
+  // Genetic profile
+  geneticProfile: {
+    personalizedTraits: {
+      'CB1 Sensitivity': 'high',
+      'CB2 Expression': 'moderate',
+      'Endocannabinoid Production': 'high',
+      'Stress Response': 'moderate'
+    }
+  },
+  
+  // Personalized dosing
+  personalizedDosing: {
+    supplements: {
+      'CBD Oil': { dose: '25mg', timing: 'morning', rationale: 'Optimize CB2 receptor activity' },
+      'Omega-3': { dose: '1000mg', timing: 'evening', rationale: 'Support endocannabinoid synthesis' },
+      'Magnesium': { dose: '400mg', timing: 'bedtime', rationale: 'Enhance receptor sensitivity' }
+    }
+  },
+  
+  // Treatment protocol
+  treatmentProtocol: {
+    phases: {
+      'Initial Assessment': { duration: '2_weeks', focus: 'baseline_establishment', interventions: ['comprehensive_testing', 'lifestyle_analysis'], monitoring: ['daily_metrics', 'weekly_assessments'] },
+      'Optimization Phase': { duration: '4_weeks', focus: 'system_enhancement', interventions: ['targeted_supplementation', 'lifestyle_modifications'], monitoring: ['bi_weekly_tests', 'progress_tracking'] },
+      'Maintenance Phase': { duration: 'ongoing', focus: 'sustained_health', interventions: ['personalized_protocol', 'continuous_monitoring'], monitoring: ['monthly_reviews', 'adaptive_adjustments'] }
+    }
+  },
+  
+  // Health type distribution
+  health: {
+    typeDistribution: {
+      'Optimal': 12,
+      'Good': 8,
+      'Moderate': 5,
+      'Needs Attention': 3
+    }
+  },
+  
+  // Analysis history
+  analysisHistory: [
+    {
+      timestamp: '2024-01-15T10:30:00Z',
+      type: 'comprehensive_analysis',
+      status: 'completed',
+      insights: ['System optimization potential identified', 'CB2 receptor activity below optimal'],
+      improvements: {
+        'anandamide_levels': 15.2,
+        'cb2_activity': 8.7,
+        'stress_response': 12.3
+      }
+    },
+    {
+      timestamp: '2024-01-14T14:20:00Z',
+      type: 'risk_assessment',
+      status: 'completed',
+      insights: ['Low risk profile maintained', 'Inflammation markers within normal range'],
+      improvements: {
+        'inflammation_markers': -5.1,
+        'immune_function': 3.2
+      }
+    }
+  ]
+};
 
 // Advanced Analytics & Predictive Modeling System
 const AdvancedAnalytics = {
@@ -166,31 +330,42 @@ const BIOLOGICAL_CONSTRAINTS = {
 const validateDataPoint = (dataPoint) => {
   const errors = [];
   
+  // Guard against null/undefined data
+  if (!dataPoint || !dataPoint.metrics) {
+    return errors;
+  }
+  
   // Check endocannabinoid levels
-  Object.entries(dataPoint.metrics.endocannabinoidLevels).forEach(([key, value]) => {
-    const constraint = BIOLOGICAL_CONSTRAINTS.endocannabinoidLevels[key];
-    if (value < constraint.min || value > constraint.max) {
-      errors.push(`${key} level (${value}) outside biological range [${constraint.min}-${constraint.max}]`);
-    }
-  });
+  if (dataPoint.metrics.endocannabinoidLevels && typeof dataPoint.metrics.endocannabinoidLevels === 'object') {
+    Object.entries(dataPoint.metrics.endocannabinoidLevels).forEach(([key, value]) => {
+      const constraint = BIOLOGICAL_CONSTRAINTS.endocannabinoidLevels[key];
+      if (constraint && (value < constraint.min || value > constraint.max)) {
+        errors.push(`${key} level (${value}) outside biological range [${constraint.min}-${constraint.max}]`);
+      }
+    });
+  }
   
   // Check receptor activity
-  Object.entries(dataPoint.metrics.receptorActivity).forEach(([key, value]) => {
-    const constraint = BIOLOGICAL_CONSTRAINTS.receptorActivity[key];
-    if (value < constraint.min || value > constraint.max) {
-      errors.push(`${key} activity (${value}) outside biological range [${constraint.min}-${constraint.max}]`);
-    }
-  });
+  if (dataPoint.metrics.receptorActivity && typeof dataPoint.metrics.receptorActivity === 'object') {
+    Object.entries(dataPoint.metrics.receptorActivity).forEach(([key, value]) => {
+      const constraint = BIOLOGICAL_CONSTRAINTS.receptorActivity[key];
+      if (constraint && (value < constraint.min || value > constraint.max)) {
+        errors.push(`${key} activity (${value}) outside biological range [${constraint.min}-${constraint.max}]`);
+      }
+    });
+  }
   
   // Check other metrics
-  Object.entries(dataPoint.metrics).forEach(([key, value]) => {
-    if (key !== 'endocannabinoidLevels' && key !== 'receptorActivity') {
-      const constraint = BIOLOGICAL_CONSTRAINTS[key];
-      if (value < constraint.min || value > constraint.max) {
-        errors.push(`${key} (${value}) outside biological range [${constraint.min}-${constraint.max}]`);
+  if (dataPoint.metrics && typeof dataPoint.metrics === 'object') {
+    Object.entries(dataPoint.metrics).forEach(([key, value]) => {
+      if (key !== 'endocannabinoidLevels' && key !== 'receptorActivity') {
+        const constraint = BIOLOGICAL_CONSTRAINTS[key];
+        if (constraint && (value < constraint.min || value > constraint.max)) {
+          errors.push(`${key} (${value}) outside biological range [${constraint.min}-${constraint.max}]`);
+        }
       }
-    }
-  });
+    });
+  }
   
   return errors;
 };
@@ -222,15 +397,27 @@ const calculateTrends = (data, metricPath) => {
 const detectAnomalies = (data) => {
   const anomalies = [];
   
+  // Guard against null/undefined data
+  if (!data || !Array.isArray(data) || data.length === 0) {
+    return anomalies;
+  }
+  
   // Calculate moving averages and standard deviations
   const windowSize = 5;
   for (let i = windowSize; i < data.length; i++) {
     const window = data.slice(i - windowSize, i);
     const current = data[i];
     
+    // Guard against null/undefined current data
+    if (!current || !current.metrics || !current.metrics.endocannabinoidLevels) {
+      continue;
+    }
+    
     // Check endocannabinoid levels
     Object.entries(current.metrics.endocannabinoidLevels).forEach(([key, value]) => {
-      const windowValues = window.map(d => d.metrics.endocannabinoidLevels[key]);
+      const windowValues = window.map(d => d?.metrics?.endocannabinoidLevels?.[key]).filter(v => v !== undefined);
+      if (windowValues.length === 0) return;
+      
       const avg = windowValues.reduce((a, b) => a + b, 0) / windowValues.length;
       const std = Math.sqrt(windowValues.reduce((sq, n) => sq + Math.pow(n - avg, 2), 0) / windowValues.length);
       
@@ -341,13 +528,25 @@ const runPredictiveAnalytics = async (data, timeframe = 'shortTerm') => {
 };
 
 const calculateRiskScore = (data) => {
+  // Guard against null/undefined data
+  if (!data || !data.metrics) {
+    return {
+      score: 0,
+      level: 'low',
+      factors: [],
+      recommendations: []
+    };
+  }
+
   // Advanced risk assessment algorithm
   const riskFactors = {
-    inflammation: data.metrics.inflammationMarkers > 0.5 ? 0.3 : 0,
-    stress: data.metrics.stressResponse > 0.6 ? 0.25 : 0,
-    microbiome: data.metrics.microbiomeHealth < 0.7 ? 0.2 : 0,
-    receptorImbalance: Math.abs(data.metrics.receptorActivity.CB1 - data.metrics.receptorActivity.CB2) > 0.2 ? 0.15 : 0,
-    endocannabinoidDeficiency: data.metrics.endocannabinoidLevels.anandamide < 0.4 ? 0.1 : 0
+    inflammation: (data.metrics.inflammationMarkers || 0) > 0.5 ? 0.3 : 0,
+    stress: (data.metrics.stressResponse || 0) > 0.6 ? 0.25 : 0,
+    microbiome: (data.metrics.microbiomeHealth || 1) < 0.7 ? 0.2 : 0,
+    receptorImbalance: data.metrics.receptorActivity && 
+      Math.abs((data.metrics.receptorActivity.CB1 || 0) - (data.metrics.receptorActivity.CB2 || 0)) > 0.2 ? 0.15 : 0,
+    endocannabinoidDeficiency: data.metrics.endocannabinoidLevels && 
+      (data.metrics.endocannabinoidLevels.anandamide || 1) < 0.4 ? 0.1 : 0
   };
 
   const totalRisk = Object.values(riskFactors).reduce((sum, risk) => sum + risk, 0);
@@ -355,7 +554,7 @@ const calculateRiskScore = (data) => {
   return {
     score: totalRisk,
     level: totalRisk > 0.7 ? 'high' : totalRisk > 0.4 ? 'medium' : 'low',
-    factors: Object.entries(riskFactors).filter(([_, value]) => value > 0),
+    factors: riskFactors && typeof riskFactors === 'object' ? Object.entries(riskFactors).filter(([_, value]) => value > 0) : [],
     recommendations: generateRiskMitigationRecommendations(riskFactors)
   };
 };
@@ -840,7 +1039,7 @@ const analyzeGeneticRiskFactors = (geneticProfile) => {
 
 // Main Component
 const ECDomeIntelligenceSystem = () => {
-  const [analysisHistory, setAnalysisHistory] = useState([]);
+  const [analysisHistory, setAnalysisHistory] = useState(MOCK_DATA.analysisHistory);
   const [currentAnalysis, setCurrentAnalysis] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
   const [insights, setInsights] = useState([]);
@@ -850,11 +1049,11 @@ const ECDomeIntelligenceSystem = () => {
     lastValidation: null
   });
   const [errors, setErrors] = useState([]);
-  const [correlationData, setCorrelationData] = useState(null);
+  const [correlationData, setCorrelationData] = useState(MOCK_DATA.crossSystemInteractions);
   const [correlationInsights, setCorrelationInsights] = useState([]);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [loading, setLoading] = useState(false);
-  const [patientData, setPatientData] = useState(null);
+  const [patientData, setPatientData] = useState(MOCK_DATA.realTimeMetrics);
 
   // Advanced Analytics State
   const [predictiveAnalytics, setPredictiveAnalytics] = useState({
@@ -868,19 +1067,14 @@ const ECDomeIntelligenceSystem = () => {
     factors: [],
     recommendations: []
   });
-  const [crossSystemInteractions, setCrossSystemInteractions] = useState(null);
-  const [temporalPatterns, setTemporalPatterns] = useState(null);
-  const [causalAnalysis, setCausalAnalysis] = useState(null);
-  const [mlModelStatus, setMlModelStatus] = useState({
-    healthOutcomePrediction: { confidence: 0, lastUpdated: null },
-    interventionOptimization: { confidence: 0, lastUpdated: null },
-    riskAssessment: { confidence: 0, lastUpdated: null },
-    personalizedDosing: { confidence: 0, lastUpdated: null }
-  });
+  const [crossSystemInteractions, setCrossSystemInteractions] = useState(MOCK_DATA.crossSystemInteractions);
+  const [temporalPatterns, setTemporalPatterns] = useState(MOCK_DATA.temporalPatterns);
+  const [causalAnalysis, setCausalAnalysis] = useState(MOCK_DATA.causalAnalysis);
+  const [mlModelStatus, setMlModelStatus] = useState(MOCK_DATA.mlModelStatus);
 
   // Real-time Monitoring State
   const [realTimeAlerts, setRealTimeAlerts] = useState([]);
-  const [dataStreams, setDataStreams] = useState(null);
+  const [dataStreams, setDataStreams] = useState(MOCK_DATA.dataStreams);
   const [interventionHistory, setInterventionHistory] = useState([]);
   const [monitoringStatus, setMonitoringStatus] = useState({
     active: false,
@@ -890,9 +1084,9 @@ const ECDomeIntelligenceSystem = () => {
   });
 
   // Personalized Medicine State
-  const [geneticProfile, setGeneticProfile] = useState(PersonalizedMedicine.geneticProfiling);
-  const [personalizedDosing, setPersonalizedDosing] = useState(null);
-  const [treatmentProtocol, setTreatmentProtocol] = useState(null);
+  const [geneticProfile, setGeneticProfile] = useState(MOCK_DATA.geneticProfile);
+  const [personalizedDosing, setPersonalizedDosing] = useState(MOCK_DATA.personalizedDosing);
+  const [treatmentProtocol, setTreatmentProtocol] = useState(MOCK_DATA.treatmentProtocol);
   const [geneticRiskAnalysis, setGeneticRiskAnalysis] = useState(null);
 
   // Load patient data using Abena SDK
@@ -900,26 +1094,55 @@ const ECDomeIntelligenceSystem = () => {
     const loadPatientData = async () => {
       try {
         setLoading(true);
-        // Auto-handled auth & permissions through Abena SDK
-        const patient = await abena.getPatientData('current_patient', 'ecdome_analysis');
-        setPatientData(patient);
         
-        // Initialize ECBome Correlation Engine for this patient
-        await ecdomeEngine.initializePatientProfile(patient.patientId);
-        
-        // Load eCDome intelligence data through ECBome engine
-        const intelligenceData = await ecdomeEngine.processMultiModuleAnalysis(
-          patient.patientId,
-          'current_user'
-        );
-        setCurrentAnalysis(intelligenceData);
-        
-        // Load historical analysis data
-        const history = await abena.getHistoricalData('ecdome_analysis', 'current_patient', {
-          timeRange: '30d',
-          dataType: 'metrics'
-        });
-        setAnalysisHistory(history);
+        // Try to load real patient data first
+        try {
+          // Auto-handled auth & permissions through Abena SDK
+          const patient = await abena.getPatientData('current_patient', 'ecdome_analysis');
+          setPatientData(patient);
+          
+          // Initialize ECBome Correlation Engine for this patient
+          await ecdomeEngine.initializePatientProfile(patient.patientId);
+          
+          // Load eCDome intelligence data through ECBome engine
+          const intelligenceData = await ecdomeEngine.processMultiModuleAnalysis(
+            patient.patientId,
+            'current_user'
+          );
+          setCurrentAnalysis(intelligenceData);
+          
+          // Load historical analysis data
+          const history = await abena.getHistoricalData('ecdome_analysis', 'current_patient', {
+            timeRange: '30d',
+            dataType: 'metrics'
+          });
+          setAnalysisHistory(history);
+        } catch (apiError) {
+          console.warn('API data loading failed, using test data:', apiError);
+          
+          // Fallback to test data
+          const { testIntelligenceData } = await import('../data/testData.js');
+          
+          // Transform test data to match expected format
+          const transformedData = testIntelligenceData.map(item => ({
+            timestamp: item.timestamp,
+            metrics: {
+              endocannabinoidLevels: item.endocannabinoidLevels,
+              receptorActivity: item.receptorActivity,
+              microbiomeHealth: item.microbiomeHealth,
+              inflammationMarkers: item.inflammationMarkers,
+              stressResponse: item.stressResponse
+            }
+          }));
+          
+          setAnalysisHistory(transformedData);
+          setCurrentAnalysis(transformedData[transformedData.length - 1]);
+          setPatientData({
+            patientId: 'TEST123',
+            name: 'Test Patient',
+            status: 'demo'
+          });
+        }
         
       } catch (error) {
         console.error('Error loading patient data:', error);
@@ -1334,9 +1557,10 @@ const ECDomeIntelligenceSystem = () => {
           type: 'system_health',
           severity: 'high',
           message: `System correlation health is degraded (score: ${health.score.toFixed(2)})`,
-          details: Object.entries(health.typeDistribution).map(([type, count]) => 
-            `${type}: ${count} correlations`
-          )
+          details: health.typeDistribution && typeof health.typeDistribution === 'object' ? 
+            Object.entries(health.typeDistribution).map(([type, count]) => 
+              `${type}: ${count} correlations`
+            ) : []
         });
       }
     }
@@ -2310,7 +2534,7 @@ const ECDomeIntelligenceSystem = () => {
               Machine Learning Model Status
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {Object.entries(mlModelStatus).map(([model, status]) => (
+              {mlModelStatus && typeof mlModelStatus === 'object' ? Object.entries(mlModelStatus).map(([model, status]) => (
                 <div key={model} className="p-4 bg-gradient-to-br from-purple-50 to-indigo-50 rounded-lg border border-purple-200">
                   <div className="flex items-center justify-between mb-2">
                     <h4 className="font-semibold text-purple-900 capitalize">
@@ -2331,7 +2555,7 @@ const ECDomeIntelligenceSystem = () => {
                     </div>
                   )}
                 </div>
-              ))}
+              )) : null}
             </div>
           </div>
 
@@ -2503,11 +2727,11 @@ const ECDomeIntelligenceSystem = () => {
                 Cross-System Interactions
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {Object.entries(crossSystemInteractions).map(([system, data]) => (
+                {crossSystemInteractions && typeof crossSystemInteractions === 'object' ? Object.entries(crossSystemInteractions).map(([system, data]) => (
                   <div key={system} className="p-4 bg-indigo-50 rounded-lg">
                     <h4 className="font-semibold text-indigo-900 capitalize mb-3">{system}</h4>
                     <div className="space-y-2">
-                      {Object.entries(data).map(([metric, value]) => (
+                      {data && typeof data === 'object' ? Object.entries(data).map(([metric, value]) => (
                         <div key={metric} className="flex justify-between items-center">
                           <span className="text-sm text-indigo-700 capitalize">
                             {metric.replace(/([A-Z])/g, ' $1').trim()}
@@ -2516,13 +2740,13 @@ const ECDomeIntelligenceSystem = () => {
                             {typeof value === 'number' ? value.toFixed(2) : value}
                           </span>
                         </div>
-                      ))}
+                      )) : null}
                     </div>
                     <div className="mt-3 text-xs text-indigo-600">
                       Correlation: {(data.correlation * 100).toFixed(0)}%
                     </div>
                   </div>
-                ))}
+                )) : null}
               </div>
             </div>
           )}
@@ -2539,7 +2763,7 @@ const ECDomeIntelligenceSystem = () => {
                 <div>
                   <h4 className="font-semibold text-green-800 mb-3">Circadian Patterns</h4>
                   <div className="space-y-3">
-                    {Object.entries(temporalPatterns.circadian).map(([period, data]) => (
+                    {temporalPatterns.circadian && typeof temporalPatterns.circadian === 'object' ? Object.entries(temporalPatterns.circadian).map(([period, data]) => (
                       <div key={period} className="p-3 bg-green-50 rounded-lg">
                         <div className="font-medium text-green-900 capitalize mb-1">{period}</div>
                         <div className="text-sm text-green-700 mb-1">{data.time}</div>
@@ -2557,7 +2781,7 @@ const ECDomeIntelligenceSystem = () => {
                 <div>
                   <h4 className="font-semibold text-blue-800 mb-3">Weekly Patterns</h4>
                   <div className="space-y-3">
-                    {Object.entries(temporalPatterns.weekly).map(([day, data]) => (
+                    {temporalPatterns.weekly && typeof temporalPatterns.weekly === 'object' ? Object.entries(temporalPatterns.weekly).map(([day, data]) => (
                       <div key={day} className="p-3 bg-blue-50 rounded-lg">
                         <div className="font-medium text-blue-900 capitalize mb-1">{day}</div>
                         <ul className="text-xs text-blue-600">
@@ -2585,7 +2809,7 @@ const ECDomeIntelligenceSystem = () => {
                 <div>
                   <h4 className="font-semibold text-purple-800 mb-3">Intervention Effects</h4>
                   <div className="space-y-3">
-                    {Object.entries(causalAnalysis.interventions).map(([intervention, data]) => (
+                    {causalAnalysis.interventions && typeof causalAnalysis.interventions === 'object' ? Object.entries(causalAnalysis.interventions).map(([intervention, data]) => (
                       <div key={intervention} className="p-3 bg-purple-50 rounded-lg">
                         <div className="font-medium text-purple-900 capitalize mb-1">
                           {intervention.replace(/([A-Z])/g, ' $1').trim()}
@@ -2607,16 +2831,16 @@ const ECDomeIntelligenceSystem = () => {
                 <div>
                   <h4 className="font-semibold text-indigo-800 mb-3">Lifestyle Factors</h4>
                   <div className="space-y-3">
-                    {Object.entries(causalAnalysis.lifestyle).map(([factor, effects]) => (
+                    {causalAnalysis.lifestyle && typeof causalAnalysis.lifestyle === 'object' ? Object.entries(causalAnalysis.lifestyle).map(([factor, effects]) => (
                       <div key={factor} className="p-3 bg-indigo-50 rounded-lg">
                         <div className="font-medium text-indigo-900 capitalize mb-1">{factor}</div>
                         <ul className="text-xs text-indigo-600">
-                          {Object.entries(effects).map(([type, effect]) => (
+                          {effects && typeof effects === 'object' ? Object.entries(effects).map(([type, effect]) => (
                             <li key={type}>• {type.replace(/([A-Z])/g, ' $1').trim()}: {effect.replace(/_/g, ' ')}</li>
-                          ))}
+                          )) : null}
                         </ul>
                       </div>
-                    ))}
+                    )) : null}
                   </div>
                 </div>
               </div>
@@ -2687,19 +2911,19 @@ const ECDomeIntelligenceSystem = () => {
               Data Streams
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {Object.entries(dataStreams).map(([stream, data]) => (
+              {dataStreams && typeof dataStreams === 'object' ? Object.entries(dataStreams).map(([stream, data]) => (
                 <div key={stream} className="p-4 bg-blue-50 rounded-lg">
                   <h4 className="font-semibold text-blue-900">{stream}</h4>
                   <div className="space-y-2">
-                    {Object.entries(data).map(([metric, value]) => (
+                    {data && typeof data === 'object' ? Object.entries(data).map(([metric, value]) => (
                       <div key={metric} className="flex justify-between items-center">
                         <span className="text-sm text-blue-700 capitalize">{metric}</span>
                         <span className="text-sm font-medium text-blue-800">{typeof value === 'number' ? value.toFixed(2) : value}</span>
                       </div>
-                    ))}
+                    )) : null}
                   </div>
                 </div>
-              ))}
+              )) : null}
             </div>
           </div>
           {/* Intervention History */}
@@ -2717,9 +2941,9 @@ const ECDomeIntelligenceSystem = () => {
                       <p className="text-sm text-pink-700">{historyItem.timestamp}</p>
                     </div>
                     <div className="text-sm font-medium text-pink-600">
-                      <strong>Improvements:</strong> {Object.entries(historyItem.improvements).map(([metric, improvement]) => (
+                      <strong>Improvements:</strong> {historyItem.improvements && typeof historyItem.improvements === 'object' ? Object.entries(historyItem.improvements).map(([metric, improvement]) => (
                         <p key={metric} className="mt-1">{metric}: {improvement.toFixed(2)}%</p>
-                      ))}
+                      )) : null}
                     </div>
                     <div className="text-sm font-medium text-pink-600">
                       <strong>Side Effects:</strong> {historyItem.sideEffects.join(', ')}
@@ -2772,7 +2996,7 @@ const ECDomeIntelligenceSystem = () => {
                 <div className="p-4 bg-blue-50 rounded-lg">
                   <h4 className="font-semibold text-blue-800 mb-3">Personalized Traits</h4>
                   <div className="space-y-2">
-                    {Object.entries(geneticProfile.personalizedTraits).map(([trait, value]) => (
+                    {geneticProfile.personalizedTraits && typeof geneticProfile.personalizedTraits === 'object' ? Object.entries(geneticProfile.personalizedTraits).map(([trait, value]) => (
                       <div key={trait} className="flex justify-between items-center">
                         <span className="text-sm text-blue-700 capitalize">
                           {trait.replace(/([A-Z])/g, ' $1').trim()}
@@ -2785,7 +3009,7 @@ const ECDomeIntelligenceSystem = () => {
                           {value}
                         </span>
                       </div>
-                    ))}
+                    )) : null}
                   </div>
                 </div>
               </div>
@@ -2882,7 +3106,7 @@ const ECDomeIntelligenceSystem = () => {
                 <div className="md:col-span-2 p-4 bg-blue-50 rounded-lg">
                   <h4 className="font-semibold text-blue-800 mb-3">Supplement Recommendations</h4>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {Object.entries(personalizedDosing.supplements).map(([supplement, details]) => (
+                    {personalizedDosing.supplements && typeof personalizedDosing.supplements === 'object' ? Object.entries(personalizedDosing.supplements).map(([supplement, details]) => (
                       <div key={supplement} className="p-3 bg-white rounded border">
                         <h5 className="font-semibold text-blue-900 capitalize mb-2">{supplement}</h5>
                         <div className="text-sm text-blue-700 space-y-1">
@@ -2891,7 +3115,7 @@ const ECDomeIntelligenceSystem = () => {
                           <div className="text-xs text-blue-600">{details.rationale}</div>
                         </div>
                       </div>
-                    ))}
+                    )) : null}
                   </div>
                 </div>
               </div>
@@ -2938,7 +3162,7 @@ const ECDomeIntelligenceSystem = () => {
                 <div>
                   <h4 className="font-semibold text-gray-800 mb-3">Treatment Phases</h4>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {Object.entries(treatmentProtocol.phases).map(([phase, details]) => (
+                    {treatmentProtocol.phases && typeof treatmentProtocol.phases === 'object' ? Object.entries(treatmentProtocol.phases).map(([phase, details]) => (
                       <div key={phase} className="p-4 bg-gray-50 rounded-lg">
                         <h5 className="font-semibold text-gray-800 capitalize mb-2">{phase.replace(/([A-Z])/g, ' $1').trim()}</h5>
                         <div className="text-sm text-gray-700 space-y-2">
@@ -2962,7 +3186,7 @@ const ECDomeIntelligenceSystem = () => {
                           </div>
                         </div>
                       </div>
-                    ))}
+                    )) : null}
                   </div>
                 </div>
               </div>

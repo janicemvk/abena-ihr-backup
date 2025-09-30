@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
+const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 4005;
@@ -9,6 +10,9 @@ const PORT = process.env.PORT || 4005;
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
+
+// Serve static files from React build
+app.use(express.static(path.join(__dirname, 'Abena_ecdome_intelligence_sys/build')));
 
 // Health check
 app.get('/health', (req, res) => {
@@ -42,6 +46,11 @@ app.post('/ecdome/analyze', (req, res) => {
     message: 'eCDome analysis endpoint',
     timestamp: new Date().toISOString()
   });
+});
+
+// Serve React app for all other routes
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'Abena_ecdome_intelligence_sys/build/index.html'));
 });
 
 // Start server
