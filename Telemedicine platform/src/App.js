@@ -91,8 +91,8 @@ const LoginPage = ({ onLogin }) => {
     try {
       // Use real Abena SDK authentication
       const abenaSDK = new RealAbenaSDK({
-        authServiceUrl: 'http://localhost:4002',
-        dataServiceUrl: 'http://localhost:4001'
+        authServiceUrl: 'http://138.68.24.154:4002',
+        dataServiceUrl: 'http://138.68.24.154:4001'
       });
 
       console.log('📡 Calling authentication API...');

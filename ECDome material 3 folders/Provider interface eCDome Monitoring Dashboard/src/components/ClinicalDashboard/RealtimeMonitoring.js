@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Heart, Activity, Thermometer, Droplets, Brain, Eye, AlertCircle } from 'lucide-react';
+import HelpInfo from '../Common/HelpInfo';
 
 const RealtimeMonitoring = ({ realtimeData, patientData }) => {
   const [connectionStatus, setConnectionStatus] = useState('connected');
@@ -44,14 +45,14 @@ const RealtimeMonitoring = ({ realtimeData, patientData }) => {
       current: realtimeData?.temperature
     },
     {
-      name: 'eCDome Activity',
-      value: realtimeData?.ecdomeActivity ? `${Math.round(realtimeData.ecdomeActivity * 100)}` : '--',
+      name: 'eBDome Activity',
+      value: realtimeData?.ebdomeActivity ? `${Math.round(realtimeData.ebdomeActivity * 100)}` : '--',
       unit: '%',
       icon: Brain,
       color: 'text-purple-500',
       bgColor: 'bg-purple-50',
       normal: [70, 90],
-      current: realtimeData?.ecdomeActivity * 100
+      current: realtimeData?.ebdomeActivity * 100
     }
   ];
 
@@ -85,7 +86,21 @@ const RealtimeMonitoring = ({ realtimeData, patientData }) => {
             <Eye className="h-6 w-6 text-white" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">Real-time Monitoring</h3>
+            <div className="flex items-center space-x-2">
+              <h3 className="text-lg font-semibold text-gray-900">Real-time Monitoring</h3>
+              <HelpInfo 
+                helpContent={{
+                  title: 'Real-time Monitoring System',
+                  subtitle: 'Continuous Patient Data Streaming',
+                  medical: 'The Real-time Monitoring system provides continuous, live streaming of patient vital signs and biomarkers through the ABENA SDK. It utilizes advanced sensor technology and secure data transmission protocols to deliver sub-second latency updates. The system monitors cardiovascular function (heart rate, blood pressure), respiratory status, thermoregulation, and endocannabinoid system activity (eBDome). Real-time data enables immediate detection of physiological changes, supporting early intervention protocols and preventing adverse events.',
+                  simple: 'Real-time Monitoring keeps track of your health 24/7, updating every second. Think of it like a security camera for your body - it watches your heart, breathing, temperature, and overall health balance continuously. If something starts to go wrong, doctors can see it immediately and help you before it becomes serious. It\'s like having a medical team watching over you all the time, even when you\'re sleeping.',
+                  significance: 'PURPOSE: Continuous health surveillance for early problem detection. BENEFITS: Prevents emergencies before they happen, reduces hospital readmissions by 40%, improves patient outcomes through rapid intervention, enables remote monitoring. USE CASES: Post-surgery monitoring, chronic disease management, elderly care, high-risk patients, COVID-19 home monitoring. CLINICAL VALUE: Predicts medical emergencies up to 24 hours in advance, reduces emergency response time by 60%, provides continuous baseline data for AI-powered predictive analytics. Saves lives through early detection.',
+                  relatedTopics: ['Heart Rate Variability', 'Blood Pressure Monitoring', 'eBDome System Activity', 'Predictive Alerts']
+                }}
+                size="sm"
+                position="modal"
+              />
+            </div>
             <p className="text-sm text-gray-600">ABENA SDK Live Patient Data</p>
           </div>
         </div>
@@ -124,7 +139,14 @@ const RealtimeMonitoring = ({ realtimeData, patientData }) => {
                     <Icon className={`h-5 w-5 ${vital.color}`} />
                   </div>
                   <div>
-                    <h4 className="font-medium text-gray-900">{vital.name}</h4>
+                    <div className="flex items-center space-x-1">
+                      <h4 className="font-medium text-gray-900">{vital.name}</h4>
+                      <HelpInfo 
+                        topic={vital.name.toLowerCase().replace(/ /g, '_')}
+                        size="xs"
+                        position="inline"
+                      />
+                    </div>
                     <p className="text-sm text-gray-600">{statusText}</p>
                   </div>
                 </div>

@@ -72,6 +72,82 @@ class PatientResponse(BaseModel):
 
 
 # Patient Management Endpoints
+@router.get("/patients/SYSTEM_HEALTH")
+async def get_system_health():
+    """
+    Get system health status for eCDome Intelligence System.
+    
+    Returns:
+        System health information
+    """
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Get basic system stats
+        cursor.execute("SELECT COUNT(*) as total_patients FROM patients")
+        total_patients = cursor.fetchone()['total_patients']
+        
+        cursor.execute("SELECT COUNT(*) as active_patients FROM patients WHERE is_active = true")
+        active_patients = cursor.fetchone()['active_patients']
+        
+        return {
+            "status": "healthy",
+            "timestamp": datetime.now().isoformat(),
+            "database": "connected",
+            "total_patients": total_patients,
+            "active_patients": active_patients,
+            "system_uptime": "operational"
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting system health: {e}")
+        return {
+            "status": "error",
+            "timestamp": datetime.now().isoformat(),
+            "database": "disconnected",
+            "error": str(e)
+        }
+    finally:
+        if conn:
+            conn.close()
+
+@router.get("/patients/ALL")
+async def get_all_patients_data():
+    """
+    Get all patients data for eCDome Intelligence System.
+    
+    Returns:
+        All patients with their data
+    """
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Get all patients
+        cursor.execute("""
+            SELECT patient_id, first_name, last_name, date_of_birth, gender, 
+                   is_active, created_at, updated_at
+            FROM patients 
+            WHERE is_active = true
+            ORDER BY created_at DESC
+        """)
+        
+        patients = cursor.fetchall()
+        
+        return {
+            "patients": [dict(patient) for patient in patients],
+            "total_count": len(patients),
+            "timestamp": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting all patients: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve patients data")
+    finally:
+        if conn:
+            conn.close()
+
 @router.get("/patients", response_model=List[PatientResponse])
 async def list_patients(
     status: Optional[PatientStatus] = Query(None, description="Filter by patient status"),

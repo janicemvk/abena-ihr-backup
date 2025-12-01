@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Socket.IO Test</title>
+</head>
+<body>
+    <h1>Socket.IO Test Page</h1>
+    <div id="status">Connecting...</div>
+    <div id="messages"></div>
+    
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        console.log('Starting Socket.IO test...');
+        
+        const socket = io();
+        const statusDiv = document.getElementById('status');
+        const messagesDiv = document.getElementById('messages');
+        
+        socket.on('connect', () => {
+            console.log('Connected to server!');
+            statusDiv.textContent = 'Connected to server!';
+            statusDiv.style.color = 'green';
+        });
+        
+        socket.on('disconnect', () => {
+            console.log('Disconnected from server');
+            statusDiv.textContent = 'Disconnected from server';
+            statusDiv.style.color = 'red';
+        });
+        
+        socket.on('connect_error', (error) => {
+            console.error('Connection error:', error);
+            statusDiv.textContent = 'Connection error: ' + error.message;
+            statusDiv.style.color = 'red';
+        });
+        
+        // Test sending a message
+        setTimeout(() => {
+            if (socket.connected) {
+                socket.emit('test-message', { message: 'Hello from test page!' });
+                messagesDiv.innerHTML += '<p>Sent test message</p>';
+            }
+        }, 2000);
+    </script>
+</body>
+</html>

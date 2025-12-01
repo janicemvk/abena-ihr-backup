@@ -18,6 +18,16 @@ dist/
 .env.production.local
 
 # IDE files
+
+# Database exports and backups (transfer via SCP, not git)
+# Note: Only exclude dumps in database_exports/, not original SQL schema files
+database_exports/
+backup_*.sql
+backup_*.sql.gz
+
+# Temporary files
+/tmp/
+*.log
 .vscode/
 .idea/
 *.swp
@@ -90,3 +100,13 @@ venv.bak/
 # Temporary files
 *.tmp
 *.temp 
+# Database exports and backups
+database_exports/
+*.sql
+*.sql.gz
+backup_*.sql.gz
+
+# Temporary files
+/tmp/
+*.log
+

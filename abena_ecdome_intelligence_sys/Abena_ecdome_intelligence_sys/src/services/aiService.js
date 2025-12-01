@@ -2,7 +2,7 @@ import axios from 'axios';
 import { API_CONFIG } from '../config/api.config';
 
 const API_CONFIG_AI = {
-  baseURL: process.env.REACT_APP_AI_API_URL || 'http://localhost:8000/api',
+  baseURL: process.env.REACT_APP_AI_API_URL || 'http://138.68.24.154:4002/api/v1',
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
@@ -13,7 +13,7 @@ const API_CONFIG_AI = {
 const aiService = {
   async analyzeMetrics(metrics) {
     try {
-      const response = await axios.post(`${API_CONFIG_AI.baseURL}/analyze`, {
+      const response = await axios.post(`${API_CONFIG_AI.baseURL}/outcomes`, {
         metrics,
         context: 'endocannabinoid_system'
       });
@@ -26,7 +26,7 @@ const aiService = {
 
   async searchLiterature(query) {
     try {
-      const response = await axios.post(`${API_CONFIG_AI.baseURL}/search-literature`, {
+      const response = await axios.post(`${API_CONFIG_AI.baseURL}/outcomes`, {
         query,
         filters: {
           dateRange: 'last_5_years',
@@ -43,7 +43,7 @@ const aiService = {
 
   async generateExplanation(metric, value) {
     try {
-      const response = await axios.post(`${API_CONFIG_AI.baseURL}/generate-explanation`, {
+      const response = await axios.post(`${API_CONFIG_AI.baseURL}/outcomes`, {
         metric,
         value,
         context: 'endocannabinoid_system'
@@ -57,7 +57,7 @@ const aiService = {
 
   async predictTrends(historicalData) {
     try {
-      const response = await axios.post(`${API_CONFIG_AI.baseURL}/predict-trends`, {
+      const response = await axios.post(`${API_CONFIG_AI.baseURL}/predictions`, {
         historicalData,
         predictionPeriod: '30_days'
       });

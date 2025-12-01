@@ -4,17 +4,19 @@ import { usePatient } from '../../contexts/PatientContext';
 import { useDashboard } from '../../contexts/DashboardContext';
 import PatientSelector from './PatientSelector';
 import PatientOverview from './PatientOverview';
-import EcdomeTimeline from './EcdomeTimeline';
+import EbdomeTimeline from './EcdomeTimeline';
 import ModuleAnalysis from './ModuleAnalysis';
-import EcdomeComponents from './EcdomeComponents';
+import EbdomeComponents from './EcdomeComponents';
 import RealtimeMonitoring from './RealtimeMonitoring';
 import PredictiveAlerts from './PredictiveAlerts';
 import ClinicalRecommendations from './ClinicalRecommendations';
 import QuickActions from './QuickActions';
 import DashboardControls from './DashboardControls';
+import MedicalHistory from './MedicalHistory';
 import LoadingSpinner from '../Common/LoadingSpinner';
 import ErrorBoundary from '../Common/ErrorBoundary';
 import { Activity, AlertTriangle, TrendingUp, Eye, Settings } from 'lucide-react';
+import { generateEcdomeTimeline } from '../../services/mockPatientData';
 
 const ClinicalDashboard = () => {
   const { 
@@ -35,6 +37,8 @@ const ClinicalDashboard = () => {
 
   const [viewMode, setViewMode] = useState('overview'); // overview, detailed, comparison
   const [selectedModules, setSelectedModules] = useState([]);
+  const [timelineData, setTimelineData] = useState([]);
+  const [moduleData, setModuleData] = useState(null);
 
   // Initialize with default patient if none selected
   useEffect(() => {
@@ -42,6 +46,35 @@ const ClinicalDashboard = () => {
       patientActions.selectPatient('PAT-001');
     }
   }, [selectedPatient, patientActions]);
+
+  // Generate timeline data when patient or timeRange changes
+  useEffect(() => {
+    if (selectedPatient) {
+      const hours = timeRange === '24h' ? 24 : timeRange === '7d' ? 168 : timeRange === '30d' ? 720 : 24;
+      const timeline = generateEcdomeTimeline(selectedPatient, Math.min(hours, 48)); // Limit to 48 hours for performance
+      setTimelineData(timeline);
+      console.log(`✅ Generated ${timeline.length} timeline data points for ${selectedPatient}`);
+    }
+  }, [selectedPatient, timeRange]);
+
+  // Extract 12-module data from patient data
+  useEffect(() => {
+    if (patientData && patientData.data && patientData.data.ebdomeProfile) {
+      const components = patientData.data.ebdomeProfile.components;
+      if (components) {
+        // Transform data structure: "reading" field to "score" field
+        const transformedData = {};
+        Object.keys(components).forEach(key => {
+          transformedData[key] = {
+            ...components[key],
+            score: components[key].reading || 0.5 // Map "reading" to "score"
+          };
+        });
+        setModuleData(transformedData);
+        console.log(`✅ Loaded 12-module data for ${selectedPatient}:`, Object.keys(transformedData).length, 'modules');
+      }
+    }
+  }, [patientData, selectedPatient]);
 
   // Container animation variants
   const containerVariants = {
@@ -120,7 +153,7 @@ const ClinicalDashboard = () => {
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">Clinical Dashboard</h1>
-                <p className="text-gray-600 mt-1">Real-time patient monitoring and eCDome analysis</p>
+                <p className="text-gray-600 mt-1">Real-time patient monitoring and eBDome analysis</p>
               </div>
               <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-2">
@@ -170,7 +203,14 @@ const ClinicalDashboard = () => {
               />
             </motion.div>
 
-            {/* Row 3: Real-time Monitoring - Full Width */}
+            {/* Row 3: Medical History & Records - Full Width */}
+            <motion.div variants={itemVariants}>
+              <MedicalHistory
+                patientData={patientData}
+              />
+            </motion.div>
+
+            {/* Row 4: Real-time Monitoring - Full Width */}
             <motion.div variants={itemVariants}>
               <RealtimeMonitoring
                 patientId={selectedPatient}
@@ -178,36 +218,41 @@ const ClinicalDashboard = () => {
               />
             </motion.div>
 
-            {/* Row 4: eCDome Components - Full Width */}
+            {/* Row 5: eBDome Components - Full Width */}
             <motion.div variants={itemVariants}>
-              <EcdomeComponents
+              <EbdomeComponents
                 patientData={patientData}
                 realtimeData={realtimeData}
               />
             </motion.div>
 
-            {/* Row 5: eCDome Timeline - Full Width */}
+            {/* Row 6: eBDome Timeline - Full Width */}
             <motion.div variants={itemVariants}>
-              <EcdomeTimeline 
+              <EbdomeTimeline 
                 patientId={selectedPatient}
                 timeRange={timeRange}
+                timelineData={timelineData}
+                viewMode={viewMode}
               />
             </motion.div>
 
-            {/* Row 6: Module Analysis - Full Width */}
+            {/* Row 7: Module Analysis - Full Width */}
             <motion.div variants={itemVariants}>
               <ModuleAnalysis
                 patientId={selectedPatient}
+                moduleData={moduleData}
                 selectedModules={selectedModules}
+                viewMode={viewMode}
+                onModuleSelect={setSelectedModules}
                 timeRange={timeRange}
               />
             </motion.div>
 
-            {/* Row 7: Predictive Alerts - Full Width */}
+            {/* Row 8: Predictive Alerts - Full Width */}
             <motion.div variants={itemVariants}>
               <PredictiveAlerts
                 patientId={selectedPatient}
-                alerts={alerts}
+                alerts={patientData?.data?.alerts || alerts}
               />
             </motion.div>
 
@@ -215,6 +260,7 @@ const ClinicalDashboard = () => {
             <motion.div variants={itemVariants}>
               <ClinicalRecommendations
                 patientData={patientData}
+                recommendations={patientData?.data?.recommendations || []}
                 realtimeData={realtimeData}
               />
             </motion.div>

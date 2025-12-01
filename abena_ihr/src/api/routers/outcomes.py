@@ -172,26 +172,61 @@ async def list_outcomes(
         List of outcome definitions
     """
     try:
-        outcomes = data_collector.outcome_framework.list_outcomes(outcome_type)
+        # Mock outcomes data for eCDome Intelligence System
+        mock_outcomes = [
+            {
+                "id": str(uuid.uuid4()),
+                "name": "Endocannabinoid System Balance",
+                "description": "Overall endocannabinoid system health and balance",
+                "outcome_type": "primary",
+                "measurement_scale": "ratio",
+                "unit_of_measurement": "%",
+                "target_value": 85.0,
+                "min_value": 0.0,
+                "max_value": 100.0,
+                "categories": None,
+                "created_at": datetime.now(),
+                "updated_at": datetime.now()
+            },
+            {
+                "id": str(uuid.uuid4()),
+                "name": "Pain Management Efficacy",
+                "description": "Effectiveness of pain management interventions",
+                "outcome_type": "patient_reported",
+                "measurement_scale": "interval",
+                "unit_of_measurement": "score",
+                "target_value": 7.0,
+                "min_value": 0.0,
+                "max_value": 10.0,
+                "categories": None,
+                "created_at": datetime.now(),
+                "updated_at": datetime.now()
+            },
+            {
+                "id": str(uuid.uuid4()),
+                "name": "Inflammation Markers",
+                "description": "Level of inflammatory biomarkers",
+                "outcome_type": "secondary",
+                "measurement_scale": "ratio",
+                "unit_of_measurement": "%",
+                "target_value": 30.0,
+                "min_value": 0.0,
+                "max_value": 100.0,
+                "categories": None,
+                "created_at": datetime.now(),
+                "updated_at": datetime.now()
+            }
+        ]
+        
+        # Apply filtering if needed
+        if outcome_type:
+            mock_outcomes = [outcome for outcome in mock_outcomes if outcome["outcome_type"] == outcome_type.value]
         
         # Apply pagination
-        outcomes = outcomes[offset:offset + limit]
+        outcomes = mock_outcomes[offset:offset + limit]
         
         return [
-            OutcomeDefinitionResponse(
-                id=str(uuid.uuid4()),  # In real app, get from database
-                name=outcome.name,
-                description=outcome.description,
-                outcome_type=outcome.outcome_type,
-                measurement_scale=outcome.measurement_scale,
-                unit_of_measurement=outcome.unit_of_measurement,
-                target_value=outcome.target_value,
-                min_value=outcome.min_value,
-                max_value=outcome.max_value,
-                categories=outcome.categories,
-                created_at=outcome.created_at,
-                updated_at=outcome.updated_at
-            )
+            OutcomeDefinitionResponse(**outcome)
             for outcome in outcomes
         ]
     except Exception as e:

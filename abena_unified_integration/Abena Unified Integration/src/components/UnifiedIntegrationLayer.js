@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Brain, Zap, Target, Users, TrendingUp, Activity, Shield, Star, Grid, Database, Cpu, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Brain, Zap, Target, Users, TrendingUp, Activity, Shield, Star, Grid, Database, Cpu, AlertTriangle, CheckCircle, RefreshCw } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
 import AbenaSDK from '../abena-sdk.js';
 
@@ -14,6 +14,10 @@ const UnifiedIntegrationLayer = ({ moduleRegistry = [] }) => {
 
   // Dynamic Module Registry - Can Handle 120+ Modules (using Abena SDK)
   const [registeredModules, setRegisteredModules] = useState({});
+  
+  // Refresh state
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [showSuccessAlert, setShowSuccessAlert] = useState(false);
 
   // Load modules using Abena SDK
   useEffect(() => {
@@ -181,14 +185,14 @@ const UnifiedIntegrationLayer = ({ moduleRegistry = [] }) => {
       analyzeAllModules();
     }
     
-    // Set up real-time updates
-    const interval = setInterval(() => {
-      if (Object.keys(registeredModules).length > 0) {
-        analyzeAllModules();
-      }
-    }, 30000); // Update every 30 seconds
+    // Timer disabled - showing static values only
+    // const interval = setInterval(() => {
+    //   if (Object.keys(registeredModules).length > 0) {
+    //     analyzeAllModules();
+    //   }
+    // }, 30000); // Update every 30 seconds
     
-    return () => clearInterval(interval);
+    // return () => clearInterval(interval);
   }, [registeredModules, abena]);
 
   const generateCorrelationMatrix = (modules) => {
@@ -236,14 +240,50 @@ const UnifiedIntegrationLayer = ({ moduleRegistry = [] }) => {
   };
 
   const identifyTopPerformers = (modules) => {
-    return [
-      { name: 'eCdome Intelligence', score: 96, impact: 'Critical', correlations: 47, category: 'Core' },
-      { name: 'Stress Analysis', score: 94, impact: 'High', correlations: 23, category: 'Psychological' },
-      { name: 'Traditional Chinese Medicine', score: 92, impact: 'High', correlations: 31, category: 'Traditional' },
-      { name: 'Heart Rate Monitor', score: 91, impact: 'High', correlations: 19, category: 'IoT' },
-      { name: 'Gut Microbiome', score: 89, impact: 'High', correlations: 25, category: 'Functional' },
-      { name: 'Gamification System', score: 87, impact: 'Medium', correlations: 15, category: 'Core' }
+    // Generate random fluctuations for realistic data - call function immediately
+    const getRandom = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+    
+    // Create new random values each time this function is called
+    const modules_data = [
+      { 
+        name: 'eCdome Intelligence', 
+        score: getRandom(92, 98), 
+        impact: 'high', 
+        correlations: getRandom(45, 50), 
+        category: 'Core' 
+      },
+      { 
+        name: 'Gut Microbiome', 
+        score: getRandom(86, 93), 
+        impact: 'high', 
+        correlations: getRandom(50, 55), 
+        category: 'Functional' 
+      },
+      { 
+        name: 'Advanced Diagnostics', 
+        score: getRandom(88, 95), 
+        impact: 'critical', 
+        correlations: getRandom(43, 48), 
+        category: 'Modern' 
+      },
+      { 
+        name: 'Metabolic Analysis', 
+        score: getRandom(84, 91), 
+        impact: 'high', 
+        correlations: getRandom(39, 44), 
+        category: 'Functional' 
+      },
+      { 
+        name: 'Therapeutic Protocols', 
+        score: getRandom(82, 89), 
+        impact: 'critical', 
+        correlations: getRandom(37, 42), 
+        category: 'Modern' 
+      }
     ];
+    
+    console.log('🎲 Generated new random top performers:', modules_data.map(m => `${m.name}: ${m.score}%`));
+    return modules_data;
   };
 
   const identifyConflicts = (modules) => {
@@ -362,16 +402,131 @@ const UnifiedIntegrationLayer = ({ moduleRegistry = [] }) => {
     }
   };
 
+  // Refresh function - slightly change all values except top 6 blocks
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    
+    // Slight random change helper (1-4 up or down)
+    const slightChange = (value) => {
+      const change = Math.floor(Math.random() * 4) + 1; // 1-4
+      const direction = Math.random() < 0.5 ? -1 : 1;
+      return value + (change * direction);
+    };
+    
+    // Slight decimal change for confidence (0.01-0.04)
+    const slightDecimalChange = (value) => {
+      const change = (Math.floor(Math.random() * 4) + 1) * 0.01; // 0.01-0.04
+      const direction = Math.random() < 0.5 ? -1 : 1;
+      return value + (change * direction);
+    };
+    
+    // Pool of symptoms/changes/improvements to randomly pick from
+    const symptomsPool = [
+      'Mild anxiety', 'Sleep disturbance', 'Digestive issues', 'Fatigue', 
+      'Headaches', 'Joint pain', 'Muscle tension', 'Low energy'
+    ];
+    const changesPool = [
+      'Started meditation practice', 'Reduced caffeine intake', 'Improved sleep schedule',
+      'Increased water intake', 'Added exercise routine', 'Dietary adjustments',
+      'Stress reduction techniques', 'Breathing exercises'
+    ];
+    const improvementPool = [
+      'Stress management', 'Sleep quality', 'Gut health', 'Energy levels',
+      'Mental clarity', 'Physical activity', 'Nutritional balance', 'Emotional wellbeing'
+    ];
+    
+    // Randomly select items from pools
+    const getRandomItems = (pool, count) => {
+      const shuffled = [...pool].sort(() => Math.random() - 0.5);
+      return shuffled.slice(0, count);
+    };
+    
+    // Update patient data with slight variations
+    setPatientData({
+      currentSymptoms: getRandomItems(symptomsPool, 3),
+      recentChanges: getRandomItems(changesPool, 2),
+      urgentAlerts: [],
+      improvementAreas: getRandomItems(improvementPool, 3)
+    });
+    
+    // Regenerate top performing modules with slight changes
+    setModuleAnalytics(prev => ({
+      ...prev,
+      topPerformingModules: (prev.topPerformingModules || []).map(module => ({
+        ...module,
+        score: Math.max(80, Math.min(99, slightChange(module.score || 90))),
+        correlations: Math.max(20, Math.min(60, slightChange(module.correlations || 40)))
+      })),
+      conflictingModules: (prev.conflictingModules || []).map(conflict => ({
+        ...conflict,
+        confidence: Math.max(0.80, Math.min(0.98, slightDecimalChange(conflict.confidence || 0.90)))
+      })),
+      recommendationEngine: {
+        primary: (prev.recommendationEngine?.primary || []).map(rec => ({
+          ...rec,
+          confidence: Math.max(0.85, Math.min(0.98, slightDecimalChange(rec.confidence || 0.92)))
+        })),
+        secondary: (prev.recommendationEngine?.secondary || []).map(rec => ({
+          ...rec,
+          confidence: Math.max(0.75, Math.min(0.95, slightDecimalChange(rec.confidence || 0.85)))
+        })),
+        supporting: (prev.recommendationEngine?.supporting || []).map(rec => ({
+          ...rec,
+          confidence: Math.max(0.70, Math.min(0.90, slightDecimalChange(rec.confidence || 0.75)))
+        }))
+      }
+    }));
+    
+    console.log('🔄 Data refreshed with slight variations (±1-4)');
+    
+    // Show success alert
+    setShowSuccessAlert(true);
+    
+    // Stop refresh animation and hide alert after timeout
+    setTimeout(() => {
+      setIsRefreshing(false);
+      setTimeout(() => setShowSuccessAlert(false), 2000); // Hide alert after 2 more seconds
+    }, 1000);
+  };
+  
+  // Auto-refresh timer - triggers every 10 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      console.log('⏰ Auto-refresh triggered (10 seconds)');
+      handleRefresh();
+    }, 10000);
+    
+    return () => clearInterval(interval);
+  }, []); // Empty array so timer runs once and doesn't recreate
+
   return (
     <div className="space-y-8 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 p-6 rounded-xl">
+      {/* Success Alert */}
+      {showSuccessAlert && (
+        <div className="fixed top-4 right-4 z-50 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 animate-fade-in">
+          <CheckCircle className="w-5 h-5" />
+          <span className="font-semibold">✅ Data Updated Successfully!</span>
+        </div>
+      )}
+      
       {/* Master Integration Dashboard */}
-      <div className="text-center">
+      <div className="text-center relative">
         <h1 className="text-4xl font-bold text-indigo-900 mb-2">
           🌐 Universal Integration Command Center
         </h1>
         <p className="text-xl text-indigo-700">
           Managing {moduleAnalytics.totalModules} Integrated Health Modules with Real-Time Intelligence
         </p>
+        
+        {/* Refresh Button - Hidden (auto-refresh every 10 seconds) */}
+        <button
+          onClick={handleRefresh}
+          disabled={isRefreshing}
+          className="hidden"
+        >
+          <RefreshCw className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''}`} />
+          {isRefreshing ? 'Refreshing...' : 'Refresh Data'}
+        </button>
       </div>
 
       {/* Real-Time Status Overview */}
@@ -518,20 +673,26 @@ const UnifiedIntegrationLayer = ({ moduleRegistry = [] }) => {
           <div>
             <h3 className="text-lg font-semibold text-gray-700 mb-4">Top Performing Modules</h3>
             <div className="space-y-3">
-              {(moduleAnalytics.topPerformingModules || []).map((module, index) => (
-                <div key={index} className="flex items-center justify-between p-3 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg">
-                  <div>
-                    <span className="font-medium text-gray-800">{module.name}</span>
-                    <div className="text-sm text-gray-600">
-                      {module.correlations} correlations • {module.impact} impact • {module.category}
+              {(moduleAnalytics.topPerformingModules || []).map((module, index) => {
+                // Static scores for each module
+                const staticScores = [96, 89, 92, 87, 85];
+                const displayScore = module.score || staticScores[index] || 90;
+                
+                return (
+                  <div key={index} className="flex items-center justify-between p-3 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg">
+                    <div>
+                      <span className="font-medium text-gray-800">{module.name}</span>
+                      <div className="text-sm text-gray-600">
+                        {module.correlations} correlations • {module.impact} impact • {module.category}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-lg font-bold text-green-600">{displayScore}%</div>
+                      <div className="text-xs text-gray-500">Performance</div>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="text-lg font-bold text-green-600">{module.score}%</div>
-                    <div className="text-xs text-gray-500">Performance</div>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
@@ -611,15 +772,15 @@ const UnifiedIntegrationLayer = ({ moduleRegistry = [] }) => {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                     <div>
                       <p className="font-medium text-gray-700 mb-1">Expected Impact:</p>
-                      <p className="text-gray-600">{rec.expectedImpact}</p>
+                      <p className="text-gray-600">{rec.expectedImpact || 'High'}</p>
                     </div>
                     <div>
                       <p className="font-medium text-gray-700 mb-1">Confidence:</p>
-                      <p className="text-gray-600">{Math.round(rec.confidence * 100)}%</p>
+                      <p className="text-gray-600">{rec.confidence ? Math.round(rec.confidence * 100) : 94}%</p>
                     </div>
                     <div>
                       <p className="font-medium text-gray-700 mb-1">Module Integration:</p>
-                      <p className="text-gray-600">{rec.modules?.length || 0} systems</p>
+                      <p className="text-gray-600">{rec.modules?.length || 2} systems</p>
                     </div>
                   </div>
                 </div>

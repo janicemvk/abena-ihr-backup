@@ -24,12 +24,21 @@ import {
 import { usePatient } from '../../contexts/PatientContext';
 import { useDashboard } from '../../contexts/DashboardContext';
 import toast from 'react-hot-toast';
+import VideoCallModal from './VideoCallModal';
+import MessageModal from './MessageModal';
+import { generateReport, downloadReport, printReport, ReportTypes } from '../../utils/reportGenerator';
 
 const QuickActions = ({ onActionComplete }) => {
   const { selectedPatient, patientData } = usePatient();
   const { realtimeData } = useDashboard();
   const [activeAction, setActiveAction] = useState(null);
   const [showInterventionForm, setShowInterventionForm] = useState(false);
+  const [showVideoCall, setShowVideoCall] = useState(false);
+  const [showMessageModal, setShowMessageModal] = useState(false);
+  const [showEmergencyAlert, setShowEmergencyAlert] = useState(false);
+  const [showMedicationAdjust, setShowMedicationAdjust] = useState(false);
+  const [showReportGenerator, setShowReportGenerator] = useState(false);
+  const [showNotesEditor, setShowNotesEditor] = useState(false);
 
   // Quick action categories
   const actionCategories = {
@@ -157,8 +166,8 @@ const QuickActions = ({ onActionComplete }) => {
   // Intervention options
   const interventionOptions = [
     {
-      id: 'ecdome_optimization',
-      title: 'eCDome Optimization',
+      id: 'ebdome_optimization',
+      title: 'eBDome Optimization',
       icon: Brain,
       description: 'Targeted endocannabinoid system support',
       protocols: [
@@ -212,43 +221,75 @@ const QuickActions = ({ onActionComplete }) => {
     try {
       switch (actionId) {
         case 'send_message':
-          toast.success('Message sent successfully');
+          // Open secure message modal
+          setShowMessageModal(true);
+          setActiveAction(null);
           break;
         case 'schedule_call':
-          toast.success('Call scheduled for tomorrow at 2:00 PM');
+          // Open video call modal
+          setShowVideoCall(true);
+          setActiveAction(null);
           break;
         case 'send_email':
-          toast.success('Email notification sent');
+          // Open message modal for email
+          setShowMessageModal(true);
+          setActiveAction(null);
           break;
         case 'emergency_alert':
-          toast.error('Emergency alert triggered! Response team notified.');
+          setShowEmergencyAlert(true);
+          setActiveAction(null);
           break;
         case 'intervention':
           setShowInterventionForm(true);
+          setActiveAction(null);
           break;
         case 'medication_adjust':
-          toast.success('Medication adjustment logged');
+          setShowMedicationAdjust(true);
+          setActiveAction(null);
           break;
         case 'schedule_appointment':
-          toast.success('Appointment scheduled for next week');
+          toast.success(`📅 Appointment scheduled for ${patientInfo.name}`, {
+            duration: 3000,
+            icon: '📅'
+          });
+          setActiveAction(null);
           break;
         case 'increase_monitoring':
-          toast.success('Monitoring frequency increased to every 5 minutes');
+          toast.success('⏱️ Monitoring frequency increased to every 5 minutes', {
+            duration: 3000
+          });
+          setActiveAction(null);
           break;
         case 'request_data':
-          toast.success('Data request sent to patient');
+          toast.success(`📊 Data request sent to ${patientInfo.name}`, {
+            duration: 2000
+          });
+          setActiveAction(null);
           break;
         case 'set_alert':
-          toast.success('Custom alert configured');
+          toast.success('🔔 Custom alert configured and activated', {
+            duration: 2000
+          });
+          setActiveAction(null);
           break;
         case 'generate_report':
-          toast.success('Report generated successfully');
+          setShowReportGenerator(true);
+          setActiveAction(null);
           break;
         case 'update_notes':
-          toast.success('Clinical notes updated');
+          setShowNotesEditor(true);
+          setActiveAction(null);
           break;
         case 'export_data':
-          toast.success('Data export initiated');
+          toast.promise(
+            exportPatientData(patientData, patientInfo),
+            {
+              loading: '📦 Preparing data export...',
+              success: '✅ Patient data exported successfully!',
+              error: 'Failed to export data',
+            }
+          );
+          setActiveAction(null);
           break;
         default:
           toast.success('Action completed');
@@ -390,7 +431,221 @@ const QuickActions = ({ onActionComplete }) => {
     );
   };
 
+  // Export patient data as JSON
+  const exportPatientData = async (data, patientInfo) => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const exportData = {
+          exportDate: new Date().toISOString(),
+          exportedBy: patientInfo.provider || 'Provider',
+          patientData: data?.data || data,
+          realtimeData: realtimeData?.data || null
+        };
+
+        const dataStr = JSON.stringify(exportData, null, 2);
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `ABENA_Patient_Data_${patientInfo.id}_${Date.now()}.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        resolve();
+      }, 1000);
+    });
+  };
+
+  // Get patient info safely
+  const patientInfo = patientData?.data?.patientInfo || { name: 'Patient', id: selectedPatient };
+
+  // Report Generator Modal Component
+  const ReportGeneratorModal = () => {
+    const [selectedReportType, setSelectedReportType] = useState(ReportTypes.COMPREHENSIVE);
+    const [isGenerating, setIsGenerating] = useState(false);
+
+    const reportOptions = [
+      { 
+        id: ReportTypes.COMPREHENSIVE, 
+        name: 'Comprehensive Health Report',
+        description: 'Complete patient overview with all health data',
+        icon: FileText
+      },
+      { 
+        id: ReportTypes.ECDOME_ANALYSIS, 
+        name: 'eBDome Analysis Report',
+        description: 'Detailed endocannabinoid system analysis',
+        icon: Brain
+      },
+      { 
+        id: ReportTypes.MODULE_ASSESSMENT, 
+        name: '12-Module Assessment',
+        description: 'Complete breakdown of all 12 eBDome modules',
+        icon: Activity
+      },
+      { 
+        id: ReportTypes.TREATMENT_PROGRESS, 
+        name: 'Treatment Progress Report',
+        description: 'Current treatments and recommendations',
+        icon: Heart
+      },
+      { 
+        id: ReportTypes.LAB_RESULTS, 
+        name: 'Lab Results Summary',
+        description: 'Latest laboratory test results',
+        icon: CheckCircle
+      }
+    ];
+
+    const handleGenerateReport = async () => {
+      setIsGenerating(true);
+      
+      try {
+        // Generate the report
+        const reportData = await generateReport(selectedReportType, patientData, realtimeData);
+        
+        // Show success message
+        toast.success('✅ Report generated successfully!', { duration: 2000 });
+        
+        // Download the report
+        downloadReport(reportData);
+        
+        // Optional: Also open print dialog
+        // printReport(reportData.content);
+        
+        // Close modal after a brief delay
+        setTimeout(() => {
+          setShowReportGenerator(false);
+          setIsGenerating(false);
+        }, 500);
+        
+      } catch (error) {
+        console.error('Report generation error:', error);
+        toast.error('Failed to generate report. Please try again.');
+        setIsGenerating(false);
+      }
+    };
+
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => !isGenerating && setShowReportGenerator(false)} />
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="relative bg-white rounded-2xl shadow-2xl p-6 w-full max-w-2xl"
+        >
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-green-100 rounded-lg">
+                <FileText className="h-6 w-6 text-green-600" />
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold text-gray-900">Generate Clinical Report</h3>
+                <p className="text-sm text-gray-600">Patient: {patientInfo.name} ({patientInfo.id})</p>
+              </div>
+            </div>
+            <button 
+              onClick={() => !isGenerating && setShowReportGenerator(false)} 
+              className="text-gray-400 hover:text-gray-600"
+              disabled={isGenerating}
+            >
+              <Plus className="h-6 w-6 rotate-45" />
+            </button>
+          </div>
+          
+          <div className="space-y-3 mb-6">
+            <p className="text-sm text-gray-600 mb-3">Select report type:</p>
+            {reportOptions.map((option) => {
+              const OptionIcon = option.icon;
+              const isSelected = selectedReportType === option.id;
+              
+              return (
+                <label 
+                  key={option.id} 
+                  className={`flex items-start p-4 border rounded-lg cursor-pointer transition-all ${
+                    isSelected 
+                      ? 'border-green-500 bg-green-50' 
+                      : 'border-gray-200 hover:bg-gray-50'
+                  }`}
+                >
+                  <input 
+                    type="radio" 
+                    name="reportType" 
+                    checked={isSelected}
+                    onChange={() => setSelectedReportType(option.id)}
+                    className="mt-1 mr-3"
+                    disabled={isGenerating}
+                  />
+                  <div className="flex items-start space-x-3 flex-1">
+                    <div className={`p-2 rounded-lg ${isSelected ? 'bg-green-100' : 'bg-gray-100'}`}>
+                      <OptionIcon className={`w-5 h-5 ${isSelected ? 'text-green-600' : 'text-gray-600'}`} />
+                    </div>
+                    <div>
+                      <span className="text-gray-900 font-medium block">{option.name}</span>
+                      <span className="text-sm text-gray-600">{option.description}</span>
+                    </div>
+                  </div>
+                </label>
+              );
+            })}
+          </div>
+          
+          <div className="flex justify-between items-center space-x-3 pt-4 border-t">
+            <div className="text-sm text-gray-500">
+              <Download className="w-4 h-4 inline mr-1" />
+              Report will be downloaded as HTML (printable to PDF)
+            </div>
+            <div className="flex space-x-3">
+              <button
+                onClick={() => setShowReportGenerator(false)}
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                disabled={isGenerating}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleGenerateReport}
+                disabled={isGenerating}
+                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+              >
+                {isGenerating ? (
+                  <>
+                    <div className="loading-spinner" />
+                    <span>Generating...</span>
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-4 h-4" />
+                    <span>Generate & Download</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    );
+  };
+
   return (
+    <>
+      {/* Video Call Modal */}
+      <VideoCallModal
+        isOpen={showVideoCall}
+        onClose={() => setShowVideoCall(false)}
+        patientData={patientInfo}
+      />
+
+      {/* Message Modal */}
+      <MessageModal
+        isOpen={showMessageModal}
+        onClose={() => setShowMessageModal(false)}
+        patientData={patientInfo}
+      />
+
+      {/* Quick Actions Card */}
     <div className="dashboard-card">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-3">
@@ -515,9 +770,9 @@ const QuickActions = ({ onActionComplete }) => {
           </div>
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <span className="text-blue-700">eCDome Score:</span>
+              <span className="text-blue-700">eBDome Score:</span>
               <span className="font-medium text-blue-900 ml-2">
-                {patientData.ecdomeScore || 'N/A'}
+                {patientData.ebdomeScore || 'N/A'}
               </span>
             </div>
             <div>
@@ -533,6 +788,196 @@ const QuickActions = ({ onActionComplete }) => {
       {/* Intervention Form Modal */}
       {showInterventionForm && <InterventionForm />}
     </div>
+
+      {/* Emergency Alert Modal */}
+      {showEmergencyAlert && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => setShowEmergencyAlert(false)} />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="relative bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md"
+          >
+            <div className="text-center">
+              <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4">
+                <AlertTriangle className="h-10 w-10 text-red-600" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Emergency Alert</h3>
+              <p className="text-gray-600 mb-6">
+                Trigger emergency response protocol for <span className="font-semibold">{patientInfo.name}</span>?
+                This will notify the emergency response team immediately.
+              </p>
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => setShowEmergencyAlert(false)}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    toast.error(`🚨 Emergency alert triggered for ${patientInfo.name}! Response team notified.`, {
+                      duration: 5000
+                    });
+                    setShowEmergencyAlert(false);
+                  }}
+                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                >
+                  Trigger Alert
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Medication Adjustment Modal */}
+      {showMedicationAdjust && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => setShowMedicationAdjust(false)} />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="relative bg-white rounded-2xl shadow-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+          >
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-purple-100 rounded-lg">
+                  <Pill className="h-6 w-6 text-purple-600" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900">Adjust Medication</h3>
+              </div>
+              <button onClick={() => setShowMedicationAdjust(false)} className="text-gray-400 hover:text-gray-600">
+                <Plus className="h-6 w-6 rotate-45" />
+              </button>
+            </div>
+            
+            <div className="mb-4">
+              <h4 className="font-medium text-gray-900 mb-3">Current Medications for {patientInfo.name}:</h4>
+              <div className="space-y-2">
+                {patientData?.data?.patientInfo?.medications?.map((med, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div>
+                      <p className="font-medium text-gray-900">{med.name}</p>
+                      <p className="text-sm text-gray-600">{med.dosage} - {med.frequency}</p>
+                    </div>
+                    <button className="px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 rounded">
+                      Modify
+                    </button>
+                  </div>
+                )) || <p className="text-gray-500">No medications on file</p>}
+              </div>
+            </div>
+            
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Add New Medication</label>
+              <input
+                type="text"
+                placeholder="Medication name..."
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-2"
+              />
+              <div className="grid grid-cols-2 gap-2">
+                <input type="text" placeholder="Dosage..." className="px-4 py-2 border border-gray-300 rounded-lg" />
+                <input type="text" placeholder="Frequency..." className="px-4 py-2 border border-gray-300 rounded-lg" />
+              </div>
+            </div>
+            
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => setShowMedicationAdjust(false)}
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  toast.success(`💊 Medication protocol updated for ${patientInfo.name}`, {
+                    duration: 3000
+                  });
+                  setShowMedicationAdjust(false);
+                }}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              >
+                Save Changes
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Report Generator Modal */}
+      {showReportGenerator && <ReportGeneratorModal />}
+
+      {/* Clinical Notes Editor Modal */}
+      {showNotesEditor && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => setShowNotesEditor(false)} />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="relative bg-white rounded-2xl shadow-2xl p-6 w-full max-w-3xl"
+          >
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-blue-100 rounded-lg">
+                  <FileText className="h-6 w-6 text-blue-600" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold text-gray-900">Clinical Notes</h3>
+                  <p className="text-sm text-gray-600">Patient: {patientInfo.name} ({patientInfo.id})</p>
+                </div>
+              </div>
+              <button onClick={() => setShowNotesEditor(false)} className="text-gray-400 hover:text-gray-600">
+                <Plus className="h-6 w-6 rotate-45" />
+              </button>
+            </div>
+            
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Note Type</label>
+              <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 mb-4">
+                <option>Progress Note</option>
+                <option>SOAP Note</option>
+                <option>Consultation Note</option>
+                <option>Follow-up Note</option>
+              </select>
+              
+              <label className="block text-sm font-medium text-gray-700 mb-2">Clinical Notes</label>
+              <textarea
+                placeholder="Enter clinical notes..."
+                rows={10}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                defaultValue={`Chief Complaint: \n\nHistory of Present Illness:\n\nAssessment:\n\nPlan:\n`}
+              />
+            </div>
+            
+            <div className="flex justify-between">
+              <button
+                onClick={() => setShowNotesEditor(false)}
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <div className="flex space-x-2">
+                <button className="px-4 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50">
+                  Save Draft
+                </button>
+                <button
+                  onClick={() => {
+                    toast.success(`📝 Clinical notes saved for ${patientInfo.name}`, {
+                      duration: 3000
+                    });
+                    setShowNotesEditor(false);
+                  }}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  Save & Sign
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </>
   );
 };
 

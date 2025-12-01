@@ -1,8 +1,8 @@
 /**
  * ABENA SDK - Advanced Biological & Environmental Network Analysis
- * Provider Interface for eCDome Data - Clinical Monitoring Dashboard
+ * Provider Interface for eBDome Data - Clinical Monitoring Dashboard
  * 
- * This SDK provides standardized access to the endocannabinoid system (eCDome)
+ * This SDK provides standardized access to the endocannabinoid system (eBDome)
  * monitoring data and the 12 core biological modules.
  */
 
@@ -35,8 +35,8 @@ const ABENA_MODULES = {
   HORMONAL: 'hormonal'
 };
 
-// ABENA eCDome Components
-const ECDOME_COMPONENTS = {
+// ABENA eBDome Components
+const EBDOME_COMPONENTS = {
   ANANDAMIDE: 'anandamide',
   TWO_AG: 'twoAG',
   CB1_RECEPTOR: 'cb1',
@@ -142,11 +142,11 @@ class ABENAClient {
   }
 
   /**
-   * Get patient data with eCDome analysis
+   * Get patient data with eBDome analysis
    */
   async getPatientData(patientId, moduleScope = 'clinical-dashboard') {
     try {
-      const response = await this.httpClient.get(`/patients/${patientId}/ecdome`, {
+      const response = await this.httpClient.get(`/patients/${patientId}/ebdome`, {
         params: { scope: moduleScope }
       });
       
@@ -158,7 +158,7 @@ class ABENAClient {
   }
 
   /**
-   * Get real-time eCDome monitoring data
+   * Get real-time eBDome monitoring data
    */
   async getRealtimeData(patientId) {
     try {
@@ -189,17 +189,17 @@ class ABENAClient {
   }
 
   /**
-   * Get eCDome component levels
+   * Get eBDome component levels
    */
   async getEcdomeComponents(patientId, timeRange = '24h') {
     try {
-      const response = await this.httpClient.get(`/patients/${patientId}/ecdome/components`, {
+      const response = await this.httpClient.get(`/patients/${patientId}/ebdome/components`, {
         params: { timeRange }
       });
       
       return response.data;
     } catch (error) {
-      console.error('Failed to fetch eCDome components:', error);
+      console.error('Failed to fetch eBDome components:', error);
       return this.getMockEcdomeComponents();
     }
   }
@@ -323,7 +323,7 @@ class ABENAClient {
   formatPatientData(rawData) {
     return {
       patientInfo: rawData.patient,
-      ecdomeProfile: rawData.ecdome_profile,
+      ebdomeProfile: rawData.ebdome_profile,
       moduleData: rawData.modules,
       timelineData: rawData.timeline,
       predictiveAlerts: rawData.alerts || [],
@@ -336,7 +336,7 @@ class ABENAClient {
       timestamp: rawData.timestamp,
       heartRate: rawData.vitals?.heart_rate,
       bloodPressure: rawData.vitals?.blood_pressure,
-      ecdomeActivity: rawData.ecdome?.activity_level,
+      ebdomeActivity: rawData.ebdome?.activity_level,
       ...rawData
     };
   }
@@ -353,7 +353,7 @@ class ABENAClient {
         lastVisit: new Date().toISOString().split('T')[0],
         provider: 'Dr. Martinez'
       },
-      ecdomeProfile: {
+      ebdomeProfile: {
         overallScore: 0.78 + Math.random() * 0.15,
         anandamideLevels: 0.65 + Math.random() * 0.2,
         twoAGLevels: 0.58 + Math.random() * 0.25,
@@ -376,7 +376,7 @@ class ABENAClient {
         systolic: 115 + Math.random() * 10,
         diastolic: 72 + Math.random() * 8
       },
-      ecdomeActivity: 0.78 + Math.random() * 0.15,
+      ebdomeActivity: 0.78 + Math.random() * 0.15,
       temperature: 98.2 + Math.random() * 1.2,
       oxygenSaturation: 97 + Math.random() * 2,
       stressLevel: Math.random() * 100,
@@ -413,7 +413,7 @@ class ABENAClient {
         severity: 'high',
         timeframe: '3-weeks',
         confidence: 0.94,
-        message: 'Elevated stress markers detected in eCDome analysis'
+        message: 'Elevated stress markers detected in eBDome analysis'
       },
       {
         type: 'metabolic-disruption',
@@ -429,7 +429,7 @@ class ABENAClient {
     return [
       {
         priority: 'high',
-        category: 'eCDome',
+        category: 'eBDome',
         action: 'Optimize endocannabinoid synthesis with targeted nutrition',
         estimatedImprovement: '15-20%'
       },
@@ -451,7 +451,7 @@ class ABENAClient {
 export const abena = new ABENAClient();
 
 // Export constants for use in components
-export { ABENA_MODULES, ECDOME_COMPONENTS, ALERT_TYPES };
+export { ABENA_MODULES, EBDOME_COMPONENTS, ALERT_TYPES };
 
 // Export types for TypeScript users
 export default abena; 

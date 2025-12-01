@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { useDashboard } from '../../contexts/DashboardContext';
 import { usePatient } from '../../contexts/PatientContext';
+import HelpInfo from '../Common/HelpInfo';
 
 const Layout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true); // Start with sidebar open for desktop
@@ -94,7 +95,7 @@ const Layout = ({ children }) => {
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600">eCDome Intelligence</span>
+                <span className="text-gray-600">eBDome Intelligence</span>
                 <span className="text-green-600 font-medium">Online</span>
               </div>
               <div className="flex items-center justify-between text-sm">
@@ -122,10 +123,15 @@ const Layout = ({ children }) => {
                   <Link
                     key={item.name}
                     to={item.href}
-                    onClick={() => setSidebarOpen(false)}
+                    onClick={() => {
+                      // Only close sidebar on mobile (screen width < 768px)
+                      if (window.innerWidth < 768) {
+                        setSidebarOpen(false);
+                      }
+                    }}
                     className={`flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                       item.current
-                        ? 'bg-ecdome-primary text-white'
+                        ? 'bg-ebdome-primary text-white'
                         : 'text-gray-700 hover:bg-gray-100'
                     }`}
                   >
@@ -139,10 +145,22 @@ const Layout = ({ children }) => {
 
           {/* Quick Stats */}
           <div className="p-6 border-t border-clinical-border">
-            <h3 className="text-sm font-medium text-gray-900 mb-3">Quick Stats</h3>
+            <div className="flex items-center space-x-2 mb-3">
+              <h3 className="text-sm font-medium text-gray-900">Quick Stats</h3>
+              <HelpInfo 
+                helpContent={{
+                  title: 'Quick Stats',
+                  medical: 'Real-time system metrics and patient population statistics. These values update dynamically to reflect current operational status, patient load, and system performance indicators.',
+                  simple: 'Quick Stats shows you important numbers at a glance: how many patients are active, how well the system is running, any alerts that need attention, and how much health data is being tracked.',
+                  significance: 'These metrics help monitor system health and identify potential issues requiring attention.'
+                }}
+                size="xs"
+                position="inline"
+              />
+            </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="text-center">
-                <div className="text-2xl font-bold text-ecdome-primary">247</div>
+                <div className="text-2xl font-bold text-ebdome-primary">247</div>
                 <div className="text-xs text-gray-600">Active Patients</div>
               </div>
               <div className="text-center">
@@ -179,9 +197,9 @@ const Layout = ({ children }) => {
               {/* Page title and breadcrumbs */}
               <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-2">
-                  <Shield className="h-5 w-5 text-ecdome-primary" />
+                  <Shield className="h-5 w-5 text-ebdome-primary" />
                   <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
-                    eCDome Intelligence
+                    eBDome Intelligence
                   </span>
                 </div>
                 {loading && (

@@ -58,7 +58,7 @@ const PatientSelector = ({ selectedPatient, onPatientSelect }) => {
       >
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-            <Users className="h-5 w-5 mr-2 text-ecdome-primary" />
+            <Users className="h-5 w-5 mr-2 text-ebdome-primary" />
             Patient Selection
           </h3>
           <div className="text-sm text-gray-500">
@@ -91,10 +91,10 @@ const PatientSelector = ({ selectedPatient, onPatientSelect }) => {
                 <span className={`status-badge ${getStatusColor(selectedPatientData.status)}`}>
                   {selectedPatientData.status}
                 </span>
-                {selectedPatientData.ecdomeScore && (
+                {selectedPatientData.ebdomeScore && (
                   <div className="flex items-center space-x-1 text-sm">
-                    <Activity className="h-4 w-4 text-ecdome-primary" />
-                    <span className="font-medium">{Math.round(selectedPatientData.ecdomeScore * 100)}%</span>
+                    <Activity className="h-4 w-4 text-ebdome-primary" />
+                    <span className="font-medium">{Math.round(selectedPatientData.ebdomeScore * 100)}%</span>
                   </div>
                 )}
               </div>
@@ -106,7 +106,7 @@ const PatientSelector = ({ selectedPatient, onPatientSelect }) => {
         <div className="relative">
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="w-full flex items-center justify-between p-3 border border-gray-300 rounded-lg hover:border-ecdome-primary focus:outline-none focus:ring-2 focus:ring-ecdome-primary focus:border-transparent transition-colors"
+            className="w-full flex items-center justify-between p-3 border border-gray-300 rounded-lg hover:border-ebdome-primary focus:outline-none focus:ring-2 focus:ring-ebdome-primary focus:border-transparent transition-colors"
           >
             <div className="flex items-center space-x-2">
               <Search className="h-4 w-4 text-gray-400" />
@@ -133,7 +133,7 @@ const PatientSelector = ({ selectedPatient, onPatientSelect }) => {
                     placeholder="Search patients..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ecdome-primary focus:border-transparent"
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ebdome-primary focus:border-transparent"
                   />
                 </div>
               </div>
@@ -189,10 +189,10 @@ const PatientSelector = ({ selectedPatient, onPatientSelect }) => {
                           <span className={`status-badge ${getStatusColor(patient.status)}`}>
                             {patient.status}
                           </span>
-                          {patient.ecdomeScore && (
+                          {patient.ebdomeScore && (
                             <div className="flex items-center space-x-1 text-sm">
-                              <Activity className="h-4 w-4 text-ecdome-primary" />
-                              <span className="font-medium">{Math.round(patient.ecdomeScore * 100)}%</span>
+                              <Activity className="h-4 w-4 text-ebdome-primary" />
+                              <span className="font-medium">{Math.round(patient.ebdomeScore * 100)}%</span>
                             </div>
                           )}
                         </div>
@@ -208,7 +208,7 @@ const PatientSelector = ({ selectedPatient, onPatientSelect }) => {
         {/* Quick Stats */}
         <div className="mt-4 grid grid-cols-3 gap-4">
           <div className="text-center">
-            <div className="text-2xl font-bold text-ecdome-primary">{patients.length}</div>
+            <div className="text-2xl font-bold text-ebdome-primary">{patients.length}</div>
             <div className="text-sm text-gray-600">Total Patients</div>
           </div>
           <div className="text-center">

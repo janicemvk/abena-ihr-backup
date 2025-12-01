@@ -9,9 +9,14 @@ RUN npm install
 # Copy server files (including the updated server.js)
 COPY server.js ./
 
-# Copy React app with pre-built build folder
+# Copy React app
 COPY Abena_ecdome_intelligence_sys/ ./Abena_ecdome_intelligence_sys/
+
+# Install React app dependencies and start development server
+WORKDIR /app/Abena_ecdome_intelligence_sys
+RUN npm install
 
 EXPOSE 4005
 
+# Start the React development server
 CMD ["npm", "start"]
