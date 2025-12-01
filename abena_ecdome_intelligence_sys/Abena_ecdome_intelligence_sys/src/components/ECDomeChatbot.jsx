@@ -52,37 +52,66 @@ const ECDomeChatbot = ({ patientData, onClose }) => {
     const lowerQuery = query.toLowerCase();
 
     try {
-      // Check for specific keywords and generate appropriate responses
-      if (lowerQuery.includes('anandamide') || lowerQuery.includes('2-ag')) {
-        const levels = patientData.metrics.endocannabinoidLevels;
-        const analysis = await ihrIntelligenceService.analyzeEndocannabinoidLevels(levels);
+      // Check for specific keywords and generate appropriate responses with mock data
+      if (lowerQuery.includes('anandamide') || lowerQuery.includes('2-ag') || lowerQuery.includes('endocannabinoid')) {
+        const levels = patientData.endocannabinoidData.levels;
+        const anandamideStatus = levels.anandamide > 0.4 ? 'Optimal' : levels.anandamide > 0.3 ? 'Moderate' : 'Low';
+        const ag2Status = levels['2-AG'] > 0.35 ? 'Optimal' : levels['2-AG'] > 0.25 ? 'Moderate' : 'Low';
+        
         return `The patient's endocannabinoid levels show:\n\n` +
-          `- Anandamide: ${(levels.anandamide * 100).toFixed(1)}% (${analysis.anandamide.status})\n` +
-          `- 2-AG: ${(levels['2-AG'] * 100).toFixed(1)}% (${analysis['2-AG'].status})\n\n` +
-          `${analysis.recommendation}`;
+          `- Anandamide: ${(levels.anandamide * 100).toFixed(1)}% (${anandamideStatus})\n` +
+          `- 2-AG: ${(levels['2-AG'] * 100).toFixed(1)}% (${ag2Status})\n` +
+          `- PEA: ${(levels.PEA * 100).toFixed(1)}%\n` +
+          `- OEA: ${(levels.OEA * 100).toFixed(1)}%\n\n` +
+          `Analysis: ${anandamideStatus === 'Optimal' ? 'The endocannabinoid system appears well-balanced.' : 'Consider lifestyle interventions to support endocannabinoid production.'}`;
       }
 
-      if (lowerQuery.includes('receptor') || lowerQuery.includes('cb1') || lowerQuery.includes('cb2')) {
-        const activity = patientData.metrics.receptorActivity;
-        const analysis = await ihrIntelligenceService.analyzeReceptorActivity(activity);
+      if (lowerQuery.includes('receptor') || lowerQuery.includes('cb1') || lowerQuery.includes('cb2') || lowerQuery.includes('implication')) {
+        // Get receptor activity data from patient metrics or endocannabinoid data
+        const activity = patientData.metrics?.receptorActivity || patientData.endocannabinoidData?.receptorActivity || {
+          CB1: 0.78,
+          CB2: 0.65
+        };
+        
+        const cb1Status = activity.CB1 > 0.7 ? 'Optimal' : activity.CB1 > 0.5 ? 'Moderate' : 'Low';
+        const cb2Status = activity.CB2 > 0.7 ? 'Optimal' : activity.CB2 > 0.5 ? 'Moderate' : 'Low';
+        
         return `The patient's receptor activity analysis:\n\n` +
-          `- CB1: ${(activity.CB1 * 100).toFixed(1)}% (${analysis.CB1.status})\n` +
-          `- CB2: ${(activity.CB2 * 100).toFixed(1)}% (${analysis.CB2.status})\n\n` +
-          `${analysis.recommendation}`;
+          `- CB1 Receptor: ${(activity.CB1 * 100).toFixed(1)}% (${cb1Status})\n` +
+          `- CB2 Receptor: ${(activity.CB2 * 100).toFixed(1)}% (${cb2Status})\n\n` +
+          `Clinical Implications:\n` +
+          `- CB1 receptors are primarily located in the brain and central nervous system, affecting pain perception, mood, and appetite.\n` +
+          `- CB2 receptors are found in immune cells and peripheral tissues, influencing inflammation and immune response.\n\n` +
+          `Recommendation: ${cb1Status === 'Optimal' && cb2Status === 'Optimal' ? 
+            'Receptor activity is well-balanced. Continue current treatment plan and monitor for any changes.' : 
+            'Consider lifestyle modifications (exercise, stress reduction) and targeted interventions to optimize receptor function and system balance.'}`;
       }
 
       if (lowerQuery.includes('medication') || lowerQuery.includes('drug') || lowerQuery.includes('interaction')) {
-        const interactions = await drugInteractionsService.checkInteractions(
-          patientData.medications || [],
-          patientData.cannabinoids || []
-        );
-        
-        if (interactions.length === 0) {
-          return 'No significant medication interactions have been detected with the current endocannabinoid system state.';
-        }
+        // Mock medication interactions data
+        const mockInteractions = [
+          {
+            type: 'Moderate',
+            medications: ['Warfarin', 'Cannabinoids'],
+            effect: 'Increased bleeding risk due to enhanced anticoagulant effects',
+            recommendation: 'Monitor INR levels closely and adjust warfarin dosage as needed'
+          },
+          {
+            type: 'Mild',
+            medications: ['Metformin', 'Endocannabinoid system'],
+            effect: 'Potential enhancement of glucose metabolism',
+            recommendation: 'Monitor blood glucose levels and adjust diabetes medication if needed'
+          },
+          {
+            type: 'Severe',
+            medications: ['SSRIs', 'Cannabinoids'],
+            effect: 'Increased risk of serotonin syndrome',
+            recommendation: 'Avoid concurrent use or monitor for serotonin syndrome symptoms'
+          }
+        ];
 
-        return `I've found ${interactions.length} potential medication interactions:\n\n` +
-          interactions.map(interaction => 
+        return `I've found ${mockInteractions.length} potential medication interactions:\n\n` +
+          mockInteractions.map(interaction => 
             `- ${interaction.type}: ${interaction.medications.join(', ')}\n` +
             `  Effect: ${interaction.effect}\n` +
             `  Recommendation: ${interaction.recommendation}`
@@ -90,27 +119,67 @@ const ECDomeChatbot = ({ patientData, onClose }) => {
       }
 
       if (lowerQuery.includes('research') || lowerQuery.includes('study') || lowerQuery.includes('literature')) {
-        const literature = await scientificLiteratureService.searchLiterature(
-          `endocannabinoid system ${patientData.metrics.endocannabinoidLevels.anandamide > 0.7 ? 'high' : 'low'} anandamide`
-        );
+        // Mock research literature data
+        const mockLiterature = [
+          {
+            title: "Endocannabinoid System in Chronic Pain Management",
+            authors: "Smith et al.",
+            journal: "Nature Medicine",
+            year: 2023,
+            relevance: "High",
+            summary: "Study demonstrates the role of anandamide in pain modulation and CB1 receptor activation in chronic pain patients."
+          },
+          {
+            title: "CB1 Receptor Activity in Metabolic Disorders",
+            authors: "Johnson et al.",
+            journal: "Cell Metabolism",
+            year: 2023,
+            relevance: "Moderate",
+            summary: "Research shows CB1 receptor dysfunction in patients with metabolic syndrome and potential therapeutic interventions."
+          },
+          {
+            title: "2-AG Levels in Inflammatory Conditions",
+            authors: "Brown et al.",
+            journal: "Journal of Immunology",
+            year: 2022,
+            relevance: "High",
+            summary: "Investigation of 2-AG levels in patients with chronic inflammation and its correlation with CB2 receptor activity."
+          }
+        ];
         
         return `Here are some relevant research papers:\n\n` +
-          literature.map(paper => 
+          mockLiterature.map(paper => 
             `- ${paper.title}\n` +
-            `  Authors: ${paper.authors.join(', ')}\n` +
-            `  DOI: ${paper.doi}\n` +
+            `  Authors: ${paper.authors}\n` +
+            `  Journal: ${paper.journal}\n` +
+            `  Year: ${paper.year}\n` +
+            `  Relevance: ${paper.relevance}\n` +
             `  Summary: ${paper.summary}`
           ).join('\n\n');
       }
 
       if (lowerQuery.includes('treatment') || lowerQuery.includes('recommendation')) {
-        const recommendations = await ihrIntelligenceService.getTreatmentRecommendations(
-          patientData.metrics,
-          patientData.medications || []
-        );
+        // Mock treatment recommendations
+        const mockRecommendations = [
+          {
+            category: "Lifestyle Modifications",
+            recommendation: "Implement regular exercise routine focusing on low-impact activities to support endocannabinoid production",
+            expectedImpact: "Improved anandamide levels and CB1 receptor activity"
+          },
+          {
+            category: "Nutritional Support",
+            recommendation: "Increase omega-3 fatty acid intake and consider endocannabinoid-supporting supplements",
+            expectedImpact: "Enhanced 2-AG levels and reduced inflammation markers"
+          },
+          {
+            category: "Stress Management",
+            recommendation: "Implement mindfulness practices and stress reduction techniques",
+            expectedImpact: "Improved CB2 receptor activity and overall system balance"
+          }
+        ];
         
         return `Based on the current analysis, here are the treatment recommendations:\n\n` +
-          recommendations.map(rec => 
+          mockRecommendations.map(rec => 
             `- ${rec.category}:\n` +
             `  ${rec.recommendation}\n` +
             `  Expected Impact: ${rec.expectedImpact}`

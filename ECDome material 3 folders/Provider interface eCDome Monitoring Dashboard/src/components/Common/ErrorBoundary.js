@@ -128,7 +128,7 @@ class ErrorBoundary extends React.Component {
                 className={`w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
                   isRetrying 
                     ? 'bg-gray-400 cursor-not-allowed' 
-                    : 'bg-ecdome-primary hover:bg-blue-700'
+                    : 'bg-ebdome-primary hover:bg-blue-700'
                 } transition-colors`}
               >
                 {isRetrying ? (
@@ -158,7 +158,7 @@ class ErrorBoundary extends React.Component {
                 If this problem persists, please contact support at{' '}
                 <a 
                   href="mailto:support@abena.com" 
-                  className="text-ecdome-primary hover:underline"
+                  className="text-ebdome-primary hover:underline"
                 >
                   support@abena.com
                 </a>

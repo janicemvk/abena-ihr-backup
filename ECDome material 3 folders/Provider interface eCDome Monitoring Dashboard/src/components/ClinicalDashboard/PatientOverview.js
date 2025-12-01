@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
   User, 
@@ -13,8 +13,13 @@ import {
   Phone,
   Mail
 } from 'lucide-react';
+import VideoCallModal from './VideoCallModal';
+import MessageModal from './MessageModal';
 
 const PatientOverview = ({ patientData, realtimeData }) => {
+  const [showVideoCall, setShowVideoCall] = useState(false);
+  const [showMessageModal, setShowMessageModal] = useState(false);
+
   // Mock data for immediate display
   const mockPatientData = {
     patientInfo: {
@@ -26,7 +31,7 @@ const PatientOverview = ({ patientData, realtimeData }) => {
       provider: 'Dr. Martinez',
       status: 'active',
       riskLevel: 'medium',
-      ecdomeScore: 0.75,
+      ebdomeScore: 0.75,
       vitalSigns: {
         heartRate: 72,
         bloodPressure: '120/80',
@@ -45,7 +50,7 @@ const PatientOverview = ({ patientData, realtimeData }) => {
         cholesterol: 180
       }
     },
-    ecdomeProfile: {
+    ebdomeProfile: {
       score: 0.75,
       status: 'Good',
       components: {
@@ -61,27 +66,27 @@ const PatientOverview = ({ patientData, realtimeData }) => {
   const data = patientData || mockPatientData;
   
   // Handle different data structures
-  let patientInfo, ecdomeProfile;
+  let patientInfo, ebdomeProfile;
   if (data && data.data) {
-    // API response structure: { success: true, data: { patientInfo: {...}, ecdomeProfile: {...} } }
+    // API response structure: { success: true, data: { patientInfo: {...}, ebdomeProfile: {...} } }
     patientInfo = data.data.patientInfo;
-    ecdomeProfile = data.data.ecdomeProfile;
+    ebdomeProfile = data.data.ebdomeProfile;
   } else if (data && data.patientInfo) {
-    // Direct structure: { patientInfo: {...}, ecdomeProfile: {...} }
+    // Direct structure: { patientInfo: {...}, ebdomeProfile: {...} }
     patientInfo = data.patientInfo;
-    ecdomeProfile = data.ecdomeProfile;
+    ebdomeProfile = data.ebdomeProfile;
   } else {
     // Fallback to mock data
     patientInfo = mockPatientData.patientInfo;
-    ecdomeProfile = mockPatientData.ecdomeProfile;
+    ebdomeProfile = mockPatientData.ebdomeProfile;
   }
   
   // Ensure we have valid data
   if (!patientInfo) {
     patientInfo = mockPatientData.patientInfo;
   }
-  if (!ecdomeProfile) {
-    ecdomeProfile = mockPatientData.ecdomeProfile;
+  if (!ebdomeProfile) {
+    ebdomeProfile = mockPatientData.ebdomeProfile;
   }
   
   // Safety check - don't render if we still don't have valid data
@@ -130,12 +135,12 @@ const PatientOverview = ({ patientData, realtimeData }) => {
       trend: 'stable'
     },
     {
-      label: 'eCDome Activity',
-      value: realtimeData?.ecdomeActivity ? 
-        `${Math.round(realtimeData.ecdomeActivity * 100)}%` : 
+      label: 'eBDome Activity',
+      value: realtimeData?.ebdomeActivity ? 
+        `${Math.round(realtimeData.ebdomeActivity * 100)}%` : 
         '--%',
       icon: <Activity className="h-5 w-5 text-purple-500" />,
-      trend: realtimeData?.ecdomeActivity > 0.8 ? 'up' : 'stable'
+      trend: realtimeData?.ebdomeActivity > 0.8 ? 'up' : 'stable'
     }
   ];
 
@@ -146,6 +151,22 @@ const PatientOverview = ({ patientData, realtimeData }) => {
   };
 
   return (
+    <>
+      {/* Video Call Modal */}
+      <VideoCallModal
+        isOpen={showVideoCall}
+        onClose={() => setShowVideoCall(false)}
+        patientData={patientInfo}
+      />
+
+      {/* Message Modal */}
+      <MessageModal
+        isOpen={showMessageModal}
+        onClose={() => setShowMessageModal(false)}
+        patientData={patientInfo}
+      />
+
+      {/* Main Patient Overview Card */}
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -183,19 +204,19 @@ const PatientOverview = ({ patientData, realtimeData }) => {
           </div>
         </div>
 
-        {/* eCDome Health Score */}
+        {/* eBDome Health Score */}
         <div className="lg:col-span-3">
           <div className="text-center">
             <div className="flex items-center justify-center space-x-2 mb-2">
-              {getHealthScoreIcon(ecdomeProfile.score || ecdomeProfile.overallScore || 0)}
-              <span className="text-sm font-medium text-gray-700">eCDome Health Score</span>
+              {getHealthScoreIcon(ebdomeProfile.score || ebdomeProfile.overallScore || 0)}
+              <span className="text-sm font-medium text-gray-700">eBDome Health Score</span>
             </div>
             <div className="relative">
               <div className="text-4xl font-bold text-gray-900">
-                {Math.round((ecdomeProfile.score || ecdomeProfile.overallScore || 0) * 100)}%
+                {Math.round((ebdomeProfile.score || ebdomeProfile.overallScore || 0) * 100)}%
               </div>
-              <div className={`inline-block px-3 py-1 rounded-full text-sm font-medium mt-2 ${getHealthScoreColor(ecdomeProfile.score || ecdomeProfile.overallScore || 0)}`}>
-                {getHealthScoreText(ecdomeProfile.score || ecdomeProfile.overallScore || 0)}
+              <div className={`inline-block px-3 py-1 rounded-full text-sm font-medium mt-2 ${getHealthScoreColor(ebdomeProfile.score || ebdomeProfile.overallScore || 0)}`}>
+                {getHealthScoreText(ebdomeProfile.score || ebdomeProfile.overallScore || 0)}
               </div>
             </div>
           </div>
@@ -204,11 +225,17 @@ const PatientOverview = ({ patientData, realtimeData }) => {
         {/* Quick Actions */}
         <div className="lg:col-span-2">
           <div className="space-y-2">
-            <button className="w-full flex items-center justify-center space-x-2 px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+            <button 
+              onClick={() => setShowVideoCall(true)}
+              className="w-full flex items-center justify-center space-x-2 px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+            >
               <Phone className="h-4 w-4" />
               <span>Call Patient</span>
             </button>
-            <button className="w-full flex items-center justify-center space-x-2 px-3 py-2 text-sm font-medium text-green-600 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">
+            <button 
+              onClick={() => setShowMessageModal(true)}
+              className="w-full flex items-center justify-center space-x-2 px-3 py-2 text-sm font-medium text-green-600 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
+            >
               <Mail className="h-4 w-4" />
               <span>Send Message</span>
             </button>
@@ -260,6 +287,7 @@ const PatientOverview = ({ patientData, realtimeData }) => {
         </div>
       </div>
     </motion.div>
+    </>
   );
 };
 

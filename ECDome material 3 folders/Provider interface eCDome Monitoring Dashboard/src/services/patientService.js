@@ -1,5 +1,12 @@
 import axios from 'axios';
 import abena from './abenaSDK';
+import { 
+  mockPatients, 
+  mockPatientDetails, 
+  generateRealtimeVitals, 
+  generateEcdomeTimeline,
+  getPatientStats 
+} from './mockPatientData';
 
 // Base API configuration - Point to our local API Gateway
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:4001';
@@ -36,44 +43,13 @@ api.interceptors.response.use(
   }
 );
 
-// Patient service methods using MOCK DATA for immediate display
+// Patient service methods using COMPREHENSIVE MOCK DATA
 export const patientService = {
-  // Get all patients - USE MOCK DATA
+  // Get all patients - USE COMPREHENSIVE MOCK DATA
   getPatients: async () => {
     try {
-      // Mock patient list
-      const mockPatients = [
-        {
-          id: 'PAT-001',
-          name: 'John Doe',
-          age: 40,
-          gender: 'Male',
-          status: 'active',
-          riskLevel: 'medium',
-          lastVisit: new Date().toISOString(),
-          provider: 'Dr. Martinez'
-        },
-        {
-          id: 'PAT-002',
-          name: 'Jane Smith',
-          age: 35,
-          gender: 'Female',
-          status: 'active',
-          riskLevel: 'low',
-          lastVisit: new Date().toISOString(),
-          provider: 'Dr. Johnson'
-        },
-        {
-          id: 'PAT-003',
-          name: 'Mike Wilson',
-          age: 55,
-          gender: 'Male',
-          status: 'active',
-          riskLevel: 'high',
-          lastVisit: new Date().toISOString(),
-          provider: 'Dr. Martinez'
-        }
-      ];
+      // Simulate network delay for realism
+      await new Promise(resolve => setTimeout(resolve, 300));
       
       console.log('✅ Mock patient data loaded:', mockPatients.length, 'patients');
       return mockPatients;
@@ -83,109 +59,92 @@ export const patientService = {
     }
   },
 
-  // Get patient by ID - USE MOCK DATA
+  // Get patient by ID - USE COMPREHENSIVE MOCK DATA
   getPatient: async (patientId) => {
     try {
-      // Mock patient data
-      const mockPatient = {
-        id: patientId,
-        name: 'John Doe',
-        age: 40,
-        gender: 'Male',
-        status: 'active',
-        riskLevel: 'medium',
-        lastVisit: new Date().toISOString(),
-        provider: 'Dr. Martinez'
-      };
+      // Simulate network delay for realism
+      await new Promise(resolve => setTimeout(resolve, 200));
+      
+      const patient = mockPatients.find(p => p.id === patientId);
+      if (!patient) {
+        throw new Error(`Patient ${patientId} not found`);
+      }
       
       console.log('✅ Mock patient data loaded for:', patientId);
-      return mockPatient;
+      return patient;
     } catch (error) {
       console.error('❌ Failed to load mock patient:', error);
       throw new Error('Failed to load patient data');
     }
   },
 
-  // Get detailed patient data - USE MOCK DATA
+  // Get detailed patient data - USE COMPREHENSIVE MOCK DATA
   getPatientData: async (patientId) => {
     try {
-      // Mock detailed patient data
-      const mockPatientData = {
-        success: true,
-        data: {
-          patientInfo: {
-            id: patientId,
-            name: 'John Doe',
-            age: 40,
-            gender: 'Male',
-            lastVisit: new Date().toISOString(),
-            provider: 'Dr. Martinez',
-            status: 'active',
-            riskLevel: 'medium',
-            ecdomeScore: 0.75,
-            vitalSigns: {
-              heartRate: 72,
-              bloodPressure: '120/80',
-              temperature: 98.6,
-              oxygenSaturation: 98
-            },
-            medications: [
-              { name: 'Metformin', dosage: '500mg', frequency: 'Twice daily' },
-              { name: 'Lisinopril', dosage: '10mg', frequency: 'Once daily' }
-            ],
-            allergies: ['Penicillin', 'Shellfish'],
-            conditions: ['Type 2 Diabetes', 'Hypertension'],
-            lastLabResults: {
-              glucose: 95,
-              hba1c: 6.2,
-              cholesterol: 180
-            }
-          },
-          ecdomeProfile: {
-            score: 0.75,
-            status: 'Good',
-            components: {
-              endocannabinoid: { status: 'active', reading: 0.80 },
-              metabolic: { status: 'active', reading: 0.75 },
-              immune: { status: 'active', reading: 0.70 },
-              hormonal: { status: 'active', reading: 0.80 }
-            }
-          },
-          timestamp: new Date().toISOString()
-        }
-      };
+      // Simulate network delay for realism
+      await new Promise(resolve => setTimeout(resolve, 400));
       
-      console.log('✅ Mock patient data loaded for:', patientId);
-      return mockPatientData;
+      const patientDetails = mockPatientDetails[patientId];
+      if (!patientDetails) {
+        // Fallback to basic patient info if detailed data not available
+        const patient = mockPatients.find(p => p.id === patientId);
+        if (!patient) {
+          throw new Error(`Patient ${patientId} not found`);
+        }
+        return {
+          success: true,
+          data: {
+            patientInfo: patient,
+            ebdomeProfile: {
+              score: patient.ebdomeScore,
+              status: 'Unknown',
+              components: {}
+            },
+            timestamp: new Date().toISOString()
+          }
+        };
+      }
+      
+      console.log('✅ Comprehensive mock patient data loaded for:', patientId);
+      return {
+        success: true,
+        data: patientDetails
+      };
     } catch (error) {
       console.error('❌ Failed to load mock patient data:', error);
       throw new Error('Failed to load patient data');
     }
   },
 
-  // Get real-time patient data - USE MOCK DATA
+  // Get real-time patient data - USE COMPREHENSIVE MOCK DATA
   getRealtimeData: async (patientId) => {
     try {
-      // Mock real-time data
+      // Simulate network delay for realism
+      await new Promise(resolve => setTimeout(resolve, 150));
+      
+      const patientDetails = mockPatientDetails[patientId];
+      if (!patientDetails) {
+        throw new Error(`Patient ${patientId} not found`);
+      }
+
+      // Generate dynamic vital signs with some variation
+      const vitals = generateRealtimeVitals(patientId);
+      
       const mockRealtimeData = {
         success: true,
         data: {
           patientId: patientId,
           timestamp: new Date().toISOString(),
-          vitalSigns: {
-            heartRate: Math.floor(Math.random() * 20) + 60, // 60-80
-            bloodPressure: `${Math.floor(Math.random() * 20) + 110}/${Math.floor(Math.random() * 10) + 70}`,
-            temperature: (Math.random() * 2 + 97).toFixed(1), // 97-99
-            oxygenSaturation: Math.floor(Math.random() * 5) + 95 // 95-99
-          },
-          ecdomeReadings: {
-            endocannabinoid: (Math.random() * 0.4 + 0.6).toFixed(2), // 0.6-1.0
-            metabolic: (Math.random() * 0.4 + 0.6).toFixed(2),
-            immune: (Math.random() * 0.4 + 0.6).toFixed(2),
-            hormonal: (Math.random() * 0.4 + 0.6).toFixed(2)
-          },
-          alerts: [],
-          status: 'stable'
+          vitalSigns: vitals,
+          ebdomeReadings: Object.keys(patientDetails.ebdomeProfile.components).reduce((acc, key) => {
+            const component = patientDetails.ebdomeProfile.components[key];
+            // Add slight variation to readings
+            const variation = (Math.random() * 0.06) - 0.03; // ±3% variation
+            acc[key] = Math.max(0, Math.min(1, component.reading + variation)).toFixed(2);
+            return acc;
+          }, {}),
+          alerts: patientDetails.alerts || [],
+          status: patientDetails.patientInfo.status
         }
       };
       
@@ -197,51 +156,149 @@ export const patientService = {
     }
   },
 
-  // Get module analysis - USE REAL API
+  // Get module analysis - USE COMPREHENSIVE MOCK DATA
   getModuleAnalysis: async (patientId, modules) => {
     try {
-      const response = await api.get(`/patients/${patientId}/modules`, {
-        params: { modules: modules.join(',') }
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      const patientDetails = mockPatientDetails[patientId];
+      if (!patientDetails) {
+        throw new Error(`Patient ${patientId} not found`);
+      }
+
+      const moduleAnalysis = {
+        success: true,
+        data: {
+          patientId,
+          modules: {},
+          timestamp: new Date().toISOString()
+        }
+      };
+
+      // Return analysis for requested modules (or all if none specified)
+      const requestedModules = modules && modules.length > 0 ? modules : Object.keys(patientDetails.ebdomeProfile.components);
+      
+      requestedModules.forEach(moduleName => {
+        const component = patientDetails.ebdomeProfile.components[moduleName];
+        if (component) {
+          moduleAnalysis.data.modules[moduleName] = {
+            name: moduleName,
+            status: component.status,
+            reading: component.reading,
+            trend: component.trend,
+            analysis: `${moduleName} system is ${component.status} with current reading at ${(component.reading * 100).toFixed(0)}%`
+          };
+        }
       });
-      return response.data;
+
+      console.log('✅ Module analysis loaded for:', patientId);
+      return moduleAnalysis;
     } catch (error) {
       console.error('❌ Failed to fetch module analysis:', error);
-      throw new Error('Failed to fetch module analysis from database');
+      throw new Error('Failed to fetch module analysis');
     }
   },
 
-  // Get eCDome components - USE REAL API
+  // Get eBDome components - USE COMPREHENSIVE MOCK DATA
   getEcdomeComponents: async (patientId, timeRange = '24h') => {
     try {
-      const response = await api.get(`/patients/${patientId}/ecdome`, {
-        params: { timeRange }
-      });
-      return response.data;
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 250));
+      
+      const patientDetails = mockPatientDetails[patientId];
+      if (!patientDetails) {
+        throw new Error(`Patient ${patientId} not found`);
+      }
+
+      // Parse timeRange to get hours
+      const hours = timeRange === '24h' ? 24 : timeRange === '7d' ? 168 : timeRange === '30d' ? 720 : 24;
+
+      const ebdomeData = {
+        success: true,
+        data: {
+          patientId,
+          timeRange,
+          components: patientDetails.ebdomeProfile.components,
+          timeline: generateEcdomeTimeline(patientId, Math.min(hours, 24)), // Limit to 24 hours for performance
+          overallScore: patientDetails.ebdomeProfile.score,
+          status: patientDetails.ebdomeProfile.status,
+          timestamp: new Date().toISOString()
+        }
+      };
+
+      console.log('✅ eBDome components loaded for:', patientId);
+      return ebdomeData;
     } catch (error) {
-      console.error('❌ Failed to fetch eCDome components:', error);
-      throw new Error('Failed to fetch eCDome components from database');
+      console.error('❌ Failed to fetch eBDome components:', error);
+      throw new Error('Failed to fetch eBDome components');
     }
   },
 
-  // Get predictive alerts - USE REAL API
+  // Get predictive alerts - USE COMPREHENSIVE MOCK DATA
   getPredictiveAlerts: async (patientId) => {
     try {
-      const response = await api.get(`/patients/${patientId}/alerts`);
-      return response.data;
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 200));
+      
+      const patientDetails = mockPatientDetails[patientId];
+      if (!patientDetails) {
+        throw new Error(`Patient ${patientId} not found`);
+      }
+
+      const alertsData = {
+        success: true,
+        data: {
+          patientId,
+          alerts: patientDetails.alerts || [],
+          alertCount: {
+            critical: patientDetails.alerts?.filter(a => a.type === 'critical').length || 0,
+            warning: patientDetails.alerts?.filter(a => a.type === 'warning').length || 0,
+            info: patientDetails.alerts?.filter(a => a.type === 'info').length || 0
+          },
+          timestamp: new Date().toISOString()
+        }
+      };
+
+      console.log('✅ Predictive alerts loaded for:', patientId);
+      return alertsData;
     } catch (error) {
       console.error('❌ Failed to fetch predictive alerts:', error);
-      throw new Error('Failed to fetch predictive alerts from database');
+      throw new Error('Failed to fetch predictive alerts');
     }
   },
 
-  // Get clinical recommendations - USE REAL API
+  // Get clinical recommendations - USE COMPREHENSIVE MOCK DATA
   getClinicalRecommendations: async (patientId) => {
     try {
-      const response = await api.get(`/patients/${patientId}/recommendations`);
-      return response.data;
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 250));
+      
+      const patientDetails = mockPatientDetails[patientId];
+      if (!patientDetails) {
+        throw new Error(`Patient ${patientId} not found`);
+      }
+
+      const recommendationsData = {
+        success: true,
+        data: {
+          patientId,
+          recommendations: patientDetails.recommendations || [],
+          recommendationCount: {
+            high: patientDetails.recommendations?.filter(r => r.priority === 'high').length || 0,
+            medium: patientDetails.recommendations?.filter(r => r.priority === 'medium').length || 0,
+            low: patientDetails.recommendations?.filter(r => r.priority === 'low').length || 0,
+            critical: patientDetails.recommendations?.filter(r => r.priority === 'critical').length || 0
+          },
+          timestamp: new Date().toISOString()
+        }
+      };
+
+      console.log('✅ Clinical recommendations loaded for:', patientId);
+      return recommendationsData;
     } catch (error) {
       console.error('❌ Failed to fetch clinical recommendations:', error);
-      throw new Error('Failed to fetch clinical recommendations from database');
+      throw new Error('Failed to fetch clinical recommendations');
     }
   },
 
@@ -319,16 +376,68 @@ export const patientService = {
     }
   },
 
-  // Get patient history - USE REAL API
+  // Get patient history - USE COMPREHENSIVE MOCK DATA
   getPatientHistory: async (patientId, timeRange = '30d') => {
     try {
-      const response = await api.get(`/patients/${patientId}/history`, {
-        params: { range: timeRange }
-      });
-      return response.data;
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 400));
+      
+      const patientDetails = mockPatientDetails[patientId];
+      if (!patientDetails) {
+        throw new Error(`Patient ${patientId} not found`);
+      }
+
+      // Generate historical data points
+      const days = timeRange === '7d' ? 7 : timeRange === '30d' ? 30 : timeRange === '90d' ? 90 : 30;
+      const historyPoints = [];
+
+      for (let i = days; i >= 0; i--) {
+        historyPoints.push({
+          date: new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString(),
+          ebdomeScore: Math.max(0.3, Math.min(1, patientDetails.ebdomeProfile.score + (Math.random() * 0.1 - 0.05))),
+          vitalSigns: generateRealtimeVitals(patientId),
+          status: patientDetails.patientInfo.status
+        });
+      }
+
+      const historyData = {
+        success: true,
+        data: {
+          patientId,
+          timeRange,
+          history: historyPoints,
+          trends: {
+            ebdomeScore: patientDetails.ebdomeProfile.components.endocannabinoid.trend,
+            overallHealth: 'stable'
+          },
+          timestamp: new Date().toISOString()
+        }
+      };
+
+      console.log('✅ Patient history loaded for:', patientId);
+      return historyData;
     } catch (error) {
       console.error('❌ Failed to fetch patient history:', error);
-      throw new Error('Failed to fetch patient history from database');
+      throw new Error('Failed to fetch patient history');
+    }
+  },
+
+  // Get system statistics - USE COMPREHENSIVE MOCK DATA
+  getSystemStats: async () => {
+    try {
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 150));
+      
+      const stats = getPatientStats();
+      
+      console.log('✅ System statistics loaded');
+      return {
+        success: true,
+        data: stats
+      };
+    } catch (error) {
+      console.error('❌ Failed to fetch system stats:', error);
+      throw new Error('Failed to fetch system statistics');
     }
   },
 

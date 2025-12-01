@@ -1,0 +1,3492 @@
+import React, { useState, useEffect, useContext } from 'react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, BarChart, Bar, ScatterChart, Scatter, AreaChart, Area } from 'recharts';
+import { FileText, MessageCircle, TrendingUp, AlertTriangle, Activity, Download, Settings, Play, Square, BarChart3, Brain, Heart, Leaf, Zap, Shield, CheckCircle, Target, Clock, TrendingDown, ActivitySquare, Gauge, BarChart4 } from 'lucide-react';
+import AbenaSDK from '../services/AbenaSDK';
+import ECDomeCorrelationEngine from '../services/ECDomeCorrelationEngine';
+import unifiedIntegrationLayer from '../services/unifiedIntegrationLayer';
+
+// Initialize Abena SDK with extended configuration for ECBome integration
+const abena = new AbenaSDK({
+  authServiceUrl: 'http://localhost:3001',
+  dataServiceUrl: 'http://localhost:8001',
+  privacyServiceUrl: 'http://localhost:8002',
+  blockchainServiceUrl: 'http://localhost:8003',
+  // ECBome-specific services (integrated from ECBomeCorrelationEngine)
+  ecdomeServiceUrl: 'http://localhost:8004',
+  correlationEngineUrl: 'http://localhost:8005',
+  patternRecognitionUrl: 'http://localhost:8006',
+  predictiveModelingUrl: 'http://localhost:8007'
+});
+
+// Initialize ECDome Correlation Engine as the core processing engine
+const ecdomeEngine = new ECDomeCorrelationEngine();
+
+// Mock data for development - comprehensive dataset
+const MOCK_DATA = {
+  // Real-time metrics data
+  realTimeMetrics: {
+    endocannabinoidLevels: {
+      anandamide: 0.75,
+      '2-AG': 0.68,
+      PEA: 0.82,
+      OEA: 0.71
+    },
+    receptorActivity: {
+      CB1: 0.73,
+      CB2: 0.69,
+      TRPV1: 0.65,
+      GPR55: 0.71
+    },
+    systemHealth: 0.78,
+    inflammationMarkers: 0.32,
+    stressResponse: 0.45,
+    microbiomeHealth: 0.85,
+    sleepQuality: 0.82,
+    exerciseResponse: 0.76,
+    nutritionStatus: 0.79
+  },
+  
+  // Historical data for trends
+  historicalData: [
+    { timestamp: '2024-01-01T00:00:00Z', metrics: { endocannabinoidLevels: { anandamide: 0.72, '2-AG': 0.65 }, receptorActivity: { CB1: 0.70, CB2: 0.66 }, systemHealth: 0.75, inflammationMarkers: 0.35, stressResponse: 0.48 } },
+    { timestamp: '2024-01-02T00:00:00Z', metrics: { endocannabinoidLevels: { anandamide: 0.74, '2-AG': 0.67 }, receptorActivity: { CB1: 0.71, CB2: 0.67 }, systemHealth: 0.76, inflammationMarkers: 0.33, stressResponse: 0.46 } },
+    { timestamp: '2024-01-03T00:00:00Z', metrics: { endocannabinoidLevels: { anandamide: 0.76, '2-AG': 0.69 }, receptorActivity: { CB1: 0.72, CB2: 0.68 }, systemHealth: 0.77, inflammationMarkers: 0.31, stressResponse: 0.44 } },
+    { timestamp: '2024-01-04T00:00:00Z', metrics: { endocannabinoidLevels: { anandamide: 0.75, '2-AG': 0.68 }, receptorActivity: { CB1: 0.73, CB2: 0.69 }, systemHealth: 0.78, inflammationMarkers: 0.32, stressResponse: 0.45 } }
+  ],
+  
+  // Cross-system interactions
+  crossSystemInteractions: {
+    'Immune System': {
+      correlation: 0.85,
+      'CB2 Activity': 0.72,
+      'Inflammation Markers': 0.68,
+      'Stress Response': 0.74
+    },
+    'Nervous System': {
+      correlation: 0.91,
+      'CB1 Activity': 0.88,
+      'Anandamide Levels': 0.85,
+      'Sleep Quality': 0.82
+    },
+    'Metabolic System': {
+      correlation: 0.78,
+      '2-AG Levels': 0.75,
+      'Exercise Response': 0.71,
+      'Nutrition Status': 0.69
+    }
+  },
+  
+  // Temporal patterns
+  temporalPatterns: {
+    circadian: {
+      morning: { time: '06:00-12:00', patterns: ['anandamide_peak', 'cb1_activation', 'stress_reduction'] },
+      afternoon: { time: '12:00-18:00', patterns: ['2ag_peak', 'cb2_activation', 'immune_boost'] },
+      evening: { time: '18:00-24:00', patterns: ['receptor_sensitivity', 'sleep_preparation', 'recovery_mode'] }
+    },
+    weekly: {
+      monday: { patterns: ['stress_adaptation', 'work_rhythm', 'social_interaction'] },
+      tuesday: { patterns: ['peak_performance', 'cognitive_enhancement', 'focus_optimization'] },
+      wednesday: { patterns: ['midweek_balance', 'energy_management', 'stress_regulation'] },
+      thursday: { patterns: ['productivity_sustained', 'immune_optimization', 'recovery_focus'] },
+      friday: { patterns: ['weekend_preparation', 'social_engagement', 'stress_release'] }
+    }
+  },
+  
+  // Causal analysis
+  causalAnalysis: {
+    interventions: {
+      'CBD Supplementation': { effect: 'moderate_improvement', impact: 0.15, duration: '2_weeks' },
+      'Meditation Practice': { effect: 'significant_improvement', impact: 0.25, duration: '4_weeks' },
+      'Exercise Routine': { effect: 'strong_improvement', impact: 0.30, duration: '6_weeks' }
+    },
+    lifestyle: {
+      'Sleep Quality': { 'anandamide_synthesis': 'enhanced', 'stress_reduction': 'significant', 'immune_function': 'improved' },
+      'Nutrition': { 'endocannabinoid_production': 'optimized', 'inflammation_control': 'effective', 'metabolic_balance': 'achieved' },
+      'Stress Management': { 'receptor_sensitivity': 'increased', 'system_resilience': 'strengthened', 'recovery_rate': 'accelerated' }
+    }
+  },
+  
+  // ML model status
+  mlModelStatus: {
+    healthOutcomePrediction: { confidence: 0.87, lastUpdated: new Date().toISOString() },
+    interventionOptimization: { confidence: 0.82, lastUpdated: new Date().toISOString() },
+    riskAssessment: { confidence: 0.91, lastUpdated: new Date().toISOString() },
+    personalizedDosing: { confidence: 0.79, lastUpdated: new Date().toISOString() }
+  },
+  
+  // Data streams
+  dataStreams: {
+    'Wearable Devices': { 'heart_rate': 72, 'sleep_duration': 7.5, 'activity_level': 0.65 },
+    'Lab Results': { 'inflammation_markers': 0.32, 'stress_hormones': 0.45, 'immune_cells': 0.78 },
+    'Behavioral Data': { 'meditation_time': 20, 'exercise_frequency': 4, 'social_interaction': 0.82 }
+  },
+  
+  // Genetic profile
+  geneticProfile: {
+    personalizedTraits: {
+      'CB1 Sensitivity': 'high',
+      'CB2 Expression': 'moderate',
+      'Endocannabinoid Production': 'high',
+      'Stress Response': 'moderate'
+    }
+  },
+  
+  // Personalized dosing
+  personalizedDosing: {
+    supplements: {
+      'CBD Oil': { dose: '25mg', timing: 'morning', rationale: 'Optimize CB2 receptor activity' },
+      'Omega-3': { dose: '1000mg', timing: 'evening', rationale: 'Support endocannabinoid synthesis' },
+      'Magnesium': { dose: '400mg', timing: 'bedtime', rationale: 'Enhance receptor sensitivity' }
+    }
+  },
+  
+  // Treatment protocol
+  treatmentProtocol: {
+    phases: {
+      'Initial Assessment': { duration: '2_weeks', focus: 'baseline_establishment', interventions: ['comprehensive_testing', 'lifestyle_analysis'], monitoring: ['daily_metrics', 'weekly_assessments'] },
+      'Optimization Phase': { duration: '4_weeks', focus: 'system_enhancement', interventions: ['targeted_supplementation', 'lifestyle_modifications'], monitoring: ['bi_weekly_tests', 'progress_tracking'] },
+      'Maintenance Phase': { duration: 'ongoing', focus: 'sustained_health', interventions: ['personalized_protocol', 'continuous_monitoring'], monitoring: ['monthly_reviews', 'adaptive_adjustments'] }
+    }
+  },
+  
+  // Health type distribution
+  health: {
+    typeDistribution: {
+      'Optimal': 12,
+      'Good': 8,
+      'Moderate': 5,
+      'Needs Attention': 3
+    }
+  },
+  
+  // Analysis history
+  analysisHistory: [
+    {
+      timestamp: '2024-01-15T10:30:00Z',
+      type: 'comprehensive_analysis',
+      status: 'completed',
+      insights: ['System optimization potential identified', 'CB2 receptor activity below optimal'],
+      improvements: {
+        'anandamide_levels': 15.2,
+        'cb2_activity': 8.7,
+        'stress_response': 12.3
+      }
+    },
+    {
+      timestamp: '2024-01-14T14:20:00Z',
+      type: 'risk_assessment',
+      status: 'completed',
+      insights: ['Low risk profile maintained', 'Inflammation markers within normal range'],
+      improvements: {
+        'inflammation_markers': -5.1,
+        'immune_function': 3.2
+      }
+    }
+  ]
+};
+
+// Advanced Analytics & Predictive Modeling System
+const AdvancedAnalytics = {
+  // Machine Learning Models
+  models: {
+    healthOutcomePrediction: {
+      type: 'neural_network',
+      inputs: ['ecdome_metrics', 'biomarkers', 'environmental_factors', 'behavioral_data'],
+      outputs: ['health_risk_score', 'optimization_potential', 'intervention_effectiveness'],
+      confidence: 0.0,
+      lastUpdated: null
+    },
+    interventionOptimization: {
+      type: 'reinforcement_learning',
+      inputs: ['current_state', 'intervention_history', 'outcomes'],
+      outputs: ['optimal_intervention', 'timing', 'dosage'],
+      confidence: 0.0,
+      lastUpdated: null
+    },
+    riskAssessment: {
+      type: 'gradient_boosting',
+      inputs: ['all_metrics', 'trends', 'anomalies'],
+      outputs: ['risk_score', 'risk_factors', 'mitigation_strategies'],
+      confidence: 0.0,
+      lastUpdated: null
+    },
+    personalizedDosing: {
+      type: 'bayesian_optimization',
+      inputs: ['genetic_profile', 'current_metrics', 'response_history'],
+      outputs: ['optimal_dose', 'dose_range', 'adjustment_frequency'],
+      confidence: 0.0,
+      lastUpdated: null
+    }
+  },
+
+  // Predictive Analytics Engine
+  predictiveEngine: {
+    shortTerm: {
+      timeframe: '24h',
+      predictions: ['next_optimization_window', 'immediate_interventions', 'risk_alerts'],
+      accuracy: 0.0
+    },
+    mediumTerm: {
+      timeframe: '7d',
+      predictions: ['weekly_trends', 'treatment_adjustments', 'lifestyle_recommendations'],
+      accuracy: 0.0
+    },
+    longTerm: {
+      timeframe: '30d',
+      predictions: ['chronic_condition_progression', 'preventive_measures', 'outcome_projections'],
+      accuracy: 0.0
+    }
+  },
+
+  // Advanced Correlation Analysis
+  correlationAnalysis: {
+    crossSystemInteractions: {
+      cardiovascular: ['heart_rate', 'blood_pressure', 'cb1_activity'],
+      endocrine: ['cortisol', 'insulin', 'ecdome_balance'],
+      immune: ['inflammation_markers', 'cb2_activity', 'immune_response'],
+      nervous: ['stress_response', 'neurotransmitters', 'receptor_activity']
+    },
+    temporalPatterns: {
+      circadian: ['daily_rhythms', 'sleep_cycles', 'hormonal_peaks'],
+      weekly: ['stress_patterns', 'recovery_cycles', 'activity_variations'],
+      monthly: ['hormonal_cycles', 'long_term_trends', 'seasonal_effects']
+    },
+    causalInference: {
+      interventions: ['cause_effect_analysis', 'intervention_impact', 'side_effects'],
+      lifestyle: ['diet_impact', 'exercise_effects', 'stress_management'],
+      environmental: ['weather_effects', 'social_factors', 'environmental_toxins']
+    }
+  },
+
+  // Real-time Pattern Recognition
+  patternRecognition: {
+    receptorInteractionML: {
+      model: 'tensorflow.js',
+      features: ['temporal_patterns', 'cross_receptor_correlations', 'circadian_rhythms'],
+      predictions: ['optimal_timing', 'intervention_effectiveness', 'side_effect_risk'],
+      confidence: 0.0
+    },
+    outcomePrediction: {
+      shortTerm: ['next_24h_optimization', 'immediate_interventions'],
+      mediumTerm: ['weekly_trends', 'treatment_adjustments'],
+      longTerm: ['chronic_condition_progression', 'preventive_measures'],
+      confidence: 0.0
+    }
+  }
+};
+
+// Biological constraints for realistic data generation
+const BIOLOGICAL_CONSTRAINTS = {
+  endocannabinoidLevels: {
+    anandamide: { min: 0.1, max: 0.9, normal: 0.6 },
+    '2-AG': { min: 0.2, max: 0.8, normal: 0.5 },
+    PEA: { min: 0.15, max: 0.85, normal: 0.55 },
+    OEA: { min: 0.1, max: 0.8, normal: 0.45 }
+  },
+  receptorActivity: {
+    // Endocannabinoid receptors
+    CB1: { min: 0.2, max: 0.9, normal: 0.7 },
+    CB2: { min: 0.15, max: 0.8, normal: 0.6 },
+    TRPV1: { min: 0.1, max: 0.7, normal: 0.5 },
+    GPR18: { min: 0.05, max: 0.6, normal: 0.4 },
+    
+    // PPAR receptors
+    PPARα: { min: 0.2, max: 0.8, normal: 0.6 },
+    PPARγ: { min: 0.15, max: 0.75, normal: 0.55 },
+    PPARδ: { min: 0.1, max: 0.7, normal: 0.5 },
+    
+    // 5-HT receptors
+    '5-HT1A': { min: 0.2, max: 0.8, normal: 0.6 },
+    '5-HT2A': { min: 0.15, max: 0.75, normal: 0.55 },
+    '5-HT3': { min: 0.1, max: 0.6, normal: 0.4 },
+    '5-HT4': { min: 0.15, max: 0.7, normal: 0.5 },
+    '5-HT6': { min: 0.1, max: 0.65, normal: 0.45 },
+    '5-HT7': { min: 0.1, max: 0.6, normal: 0.4 },
+    
+    // Dopamine receptors
+    'D1': { min: 0.2, max: 0.8, normal: 0.6 },
+    'D2': { min: 0.15, max: 0.75, normal: 0.55 },
+    'D3': { min: 0.1, max: 0.7, normal: 0.5 },
+    'D4': { min: 0.1, max: 0.65, normal: 0.45 },
+    'D5': { min: 0.15, max: 0.7, normal: 0.5 },
+    
+    // Adrenergic receptors
+    'α1A': { min: 0.15, max: 0.75, normal: 0.55 },
+    'α1B': { min: 0.1, max: 0.7, normal: 0.5 },
+    'α1D': { min: 0.1, max: 0.65, normal: 0.45 },
+    'α2A': { min: 0.2, max: 0.8, normal: 0.6 },
+    'α2B': { min: 0.15, max: 0.75, normal: 0.55 },
+    'α2C': { min: 0.1, max: 0.7, normal: 0.5 },
+    'β1': { min: 0.2, max: 0.8, normal: 0.6 },
+    'β2': { min: 0.15, max: 0.75, normal: 0.55 },
+    'β3': { min: 0.1, max: 0.7, normal: 0.5 }
+  },
+  microbiomeHealth: { min: 0.3, max: 0.95, normal: 0.8 },
+  inflammationMarkers: { min: 0.05, max: 0.8, normal: 0.3 },
+  stressResponse: { min: 0.1, max: 0.9, normal: 0.4 }
+};
+
+// Data validation function
+const validateDataPoint = (dataPoint) => {
+  const errors = [];
+  
+  // Guard against null/undefined data
+  if (!dataPoint || !dataPoint.metrics) {
+    return errors;
+  }
+  
+  // Check endocannabinoid levels
+  if (dataPoint.metrics.endocannabinoidLevels && typeof dataPoint.metrics.endocannabinoidLevels === 'object') {
+    Object.entries(dataPoint.metrics.endocannabinoidLevels).forEach(([key, value]) => {
+      const constraint = BIOLOGICAL_CONSTRAINTS.endocannabinoidLevels[key];
+      if (constraint && (value < constraint.min || value > constraint.max)) {
+        errors.push(`${key} level (${value}) outside biological range [${constraint.min}-${constraint.max}]`);
+      }
+    });
+  }
+  
+  // Check receptor activity
+  if (dataPoint.metrics.receptorActivity && typeof dataPoint.metrics.receptorActivity === 'object') {
+    Object.entries(dataPoint.metrics.receptorActivity).forEach(([key, value]) => {
+      const constraint = BIOLOGICAL_CONSTRAINTS.receptorActivity[key];
+      if (constraint && (value < constraint.min || value > constraint.max)) {
+        errors.push(`${key} activity (${value}) outside biological range [${constraint.min}-${constraint.max}]`);
+      }
+    });
+  }
+  
+  // Check other metrics
+  if (dataPoint.metrics && typeof dataPoint.metrics === 'object') {
+    Object.entries(dataPoint.metrics).forEach(([key, value]) => {
+      if (key !== 'endocannabinoidLevels' && key !== 'receptorActivity') {
+        const constraint = BIOLOGICAL_CONSTRAINTS[key];
+        if (constraint && (value < constraint.min || value > constraint.max)) {
+          errors.push(`${key} (${value}) outside biological range [${constraint.min}-${constraint.max}]`);
+        }
+      }
+    });
+  }
+  
+  return errors;
+};
+
+// Advanced analytics functions
+const calculateTrends = (data, metricPath) => {
+  if (data.length < 2) return { trend: 'stable', change: 0, direction: 'none' };
+  
+  const values = data.map(d => {
+    const path = metricPath.split('.');
+    return path.reduce((obj, key) => obj[key], d.metrics);
+  });
+  
+  const recent = values.slice(-5);
+  const older = values.slice(-10, -5);
+  
+  const recentAvg = recent.reduce((a, b) => a + b, 0) / recent.length;
+  const olderAvg = older.reduce((a, b) => a + b, 0) / older.length;
+  
+  const change = ((recentAvg - olderAvg) / olderAvg) * 100;
+  
+  return {
+    trend: Math.abs(change) < 5 ? 'stable' : change > 0 ? 'increasing' : 'decreasing',
+    change: Math.abs(change),
+    direction: change > 0 ? 'up' : change < 0 ? 'down' : 'none'
+  };
+};
+
+const detectAnomalies = (data) => {
+  const anomalies = [];
+  
+  // Guard against null/undefined data
+  if (!data || !Array.isArray(data) || data.length === 0) {
+    return anomalies;
+  }
+  
+  // Calculate moving averages and standard deviations
+  const windowSize = 5;
+  for (let i = windowSize; i < data.length; i++) {
+    const window = data.slice(i - windowSize, i);
+    const current = data[i];
+    
+    // Guard against null/undefined current data
+    if (!current || !current.metrics || !current.metrics.endocannabinoidLevels) {
+      continue;
+    }
+    
+    // Check endocannabinoid levels
+    Object.entries(current.metrics.endocannabinoidLevels).forEach(([key, value]) => {
+      const windowValues = window.map(d => d?.metrics?.endocannabinoidLevels?.[key]).filter(v => v !== undefined);
+      if (windowValues.length === 0) return;
+      
+      const avg = windowValues.reduce((a, b) => a + b, 0) / windowValues.length;
+      const std = Math.sqrt(windowValues.reduce((sq, n) => sq + Math.pow(n - avg, 2), 0) / windowValues.length);
+      
+      if (Math.abs(value - avg) > 2 * std) {
+        anomalies.push({
+          timestamp: current.timestamp,
+          metric: `endocannabinoidLevels.${key}`,
+          value,
+          expected: avg,
+          deviation: Math.abs(value - avg) / std
+        });
+      }
+    });
+  }
+  
+  return anomalies;
+};
+
+const generateInsights = (analysisHistory) => {
+  if (analysisHistory.length < 5) return [];
+  
+  const insights = [];
+  
+  // Trend analysis for key metrics
+  const keyMetrics = [
+    { path: 'endocannabinoidLevels.anandamide', name: 'Anandamide' },
+    { path: 'receptorActivity.CB1', name: 'CB1' },
+    { path: 'receptorActivity.PPARα', name: 'PPARα' },
+    { path: 'receptorActivity.5-HT1A', name: '5-HT1A' },
+    { path: 'receptorActivity.D1', name: 'D1' },
+    { path: 'receptorActivity.β1', name: 'β1' },
+    { path: 'inflammationMarkers', name: 'Inflammation' },
+    { path: 'stressResponse', name: 'Stress Response' }
+  ];
+  
+  keyMetrics.forEach(metric => {
+    const trend = calculateTrends(analysisHistory, metric.path);
+    if (trend.trend !== 'stable' && trend.change > 10) {
+      insights.push({
+        type: 'trend',
+        severity: trend.change > 20 ? 'high' : 'medium',
+        message: `${metric.name} levels are ${trend.trend} by ${trend.change.toFixed(1)}%`,
+        metric: metric.name.toLowerCase()
+      });
+    }
+  });
+  
+  // Anomaly detection
+  const anomalies = detectAnomalies(analysisHistory);
+  if (anomalies.length > 0) {
+    insights.push({
+      type: 'anomaly',
+      severity: 'high',
+      message: `${anomalies.length} data anomalies detected in recent measurements`,
+      metric: 'anomaly',
+      details: anomalies.slice(-3)
+    });
+  }
+  
+  // System health assessment
+  const latestData = analysisHistory[analysisHistory.length - 1];
+  if (latestData) {
+    const validationErrors = validateDataPoint(latestData);
+    if (validationErrors.length > 0) {
+      insights.push({
+        type: 'validation',
+        severity: 'high',
+        message: `${validationErrors.length} data validation issues detected`,
+        metric: 'validation',
+        details: validationErrors
+      });
+    }
+  }
+  
+  return insights;
+};
+
+// Advanced Analytics Functions
+const runPredictiveAnalytics = async (data, timeframe = 'shortTerm') => {
+  try {
+    // Simulate ML model predictions
+    const predictions = {
+      shortTerm: {
+        nextOptimizationWindow: new Date(Date.now() + 2 * 60 * 60 * 1000), // 2 hours from now
+        immediateInterventions: ['meditation', 'cold_exposure', 'breathing_exercise'],
+        riskAlerts: data.metrics.stressResponse > 0.7 ? ['high_stress_detected'] : [],
+        confidence: 0.85
+      },
+      mediumTerm: {
+        weeklyTrends: ['improving_sleep', 'reducing_inflammation', 'enhancing_mood'],
+        treatmentAdjustments: ['increase_cbd_dosage', 'add_magnesium_supplement'],
+        lifestyleRecommendations: ['morning_exercise', 'evening_meditation'],
+        confidence: 0.78
+      },
+      longTerm: {
+        chronicConditionProgression: 'stable_with_improvement',
+        preventiveMeasures: ['regular_exercise', 'stress_management', 'nutrition_optimization'],
+        outcomeProjections: 'significant_improvement_expected',
+        confidence: 0.72
+      }
+    };
+
+    return predictions[timeframe];
+  } catch (error) {
+    console.error('Error running predictive analytics:', error);
+    return null;
+  }
+};
+
+const calculateRiskScore = (data) => {
+  // Guard against null/undefined data
+  if (!data || !data.metrics) {
+    return {
+      score: 0,
+      level: 'low',
+      factors: [],
+      recommendations: []
+    };
+  }
+
+  // Advanced risk assessment algorithm
+  const riskFactors = {
+    inflammation: (data.metrics.inflammationMarkers || 0) > 0.5 ? 0.3 : 0,
+    stress: (data.metrics.stressResponse || 0) > 0.6 ? 0.25 : 0,
+    microbiome: (data.metrics.microbiomeHealth || 1) < 0.7 ? 0.2 : 0,
+    receptorImbalance: data.metrics.receptorActivity && 
+      Math.abs((data.metrics.receptorActivity.CB1 || 0) - (data.metrics.receptorActivity.CB2 || 0)) > 0.2 ? 0.15 : 0,
+    endocannabinoidDeficiency: data.metrics.endocannabinoidLevels && 
+      (data.metrics.endocannabinoidLevels.anandamide || 1) < 0.4 ? 0.1 : 0
+  };
+
+  const totalRisk = Object.values(riskFactors).reduce((sum, risk) => sum + risk, 0);
+  
+  return {
+    score: totalRisk,
+    level: totalRisk > 0.7 ? 'high' : totalRisk > 0.4 ? 'medium' : 'low',
+    factors: riskFactors && typeof riskFactors === 'object' ? Object.entries(riskFactors).filter(([_, value]) => value > 0) : [],
+    recommendations: generateRiskMitigationRecommendations(riskFactors)
+  };
+};
+
+const generateRiskMitigationRecommendations = (riskFactors) => {
+  const recommendations = [];
+  
+  if (riskFactors.inflammation > 0) {
+    recommendations.push('Anti-inflammatory diet, omega-3 supplementation');
+  }
+  if (riskFactors.stress > 0) {
+    recommendations.push('Stress reduction techniques, meditation, breathwork');
+  }
+  if (riskFactors.microbiome > 0) {
+    recommendations.push('Probiotic supplementation, prebiotic fiber');
+  }
+  if (riskFactors.receptorImbalance > 0) {
+    recommendations.push('Balanced cannabinoid therapy, receptor-specific interventions');
+  }
+  if (riskFactors.endocannabinoidDeficiency > 0) {
+    recommendations.push('Cannabimimetic practices, FAAH inhibition');
+  }
+  
+  return recommendations;
+};
+
+const analyzeCrossSystemInteractions = (data) => {
+  const interactions = {
+    cardiovascular: {
+      heartRate: data.metrics.receptorActivity.CB1 * 0.8 + data.metrics.stressResponse * 0.2,
+      bloodPressure: data.metrics.receptorActivity.CB2 * 0.6 + data.metrics.inflammationMarkers * 0.4,
+      correlation: 0.75
+    },
+    endocrine: {
+      cortisol: data.metrics.stressResponse * 0.9,
+      insulin: data.metrics.receptorActivity.PPARγ * 0.7,
+      correlation: 0.68
+    },
+    immune: {
+      inflammation: data.metrics.inflammationMarkers * 0.8 + data.metrics.receptorActivity.CB2 * 0.2,
+      immuneResponse: data.metrics.microbiomeHealth * 0.6 + data.metrics.receptorActivity.CB2 * 0.4,
+      correlation: 0.82
+    },
+    nervous: {
+      stressResponse: data.metrics.stressResponse * 0.9,
+      neurotransmitterBalance: data.metrics.receptorActivity['5-HT1A'] * 0.5 + data.metrics.receptorActivity.D1 * 0.5,
+      correlation: 0.71
+    }
+  };
+
+  return interactions;
+};
+
+const detectTemporalPatterns = (analysisHistory) => {
+  if (analysisHistory.length < 24) return null;
+
+  const patterns = {
+    circadian: {
+      morning: { time: '06:00-12:00', patterns: ['low_aea', 'high_cortisol', 'increasing_activity'] },
+      afternoon: { time: '12:00-18:00', patterns: ['peak_2ag', 'moderate_stress', 'optimal_performance'] },
+      evening: { time: '18:00-24:00', patterns: ['peak_aea', 'low_cortisol', 'relaxation_phase'] },
+      night: { time: '00:00-06:00', patterns: ['low_activity', 'recovery_phase', 'sleep_optimization'] }
+    },
+    weekly: {
+      monday: { patterns: ['stress_peak', 'low_motivation', 'recovery_needed'] },
+      wednesday: { patterns: ['optimal_performance', 'balanced_metrics', 'peak_wellness'] },
+      friday: { patterns: ['stress_reduction', 'social_engagement', 'weekend_preparation'] },
+      weekend: { patterns: ['relaxation', 'recovery', 'recreation'] }
+    }
+  };
+
+  return patterns;
+};
+
+const performCausalInference = (data, interventions) => {
+  const causalAnalysis = {
+    interventions: {
+      meditation: {
+        effect: 'increases_aea',
+        magnitude: 0.15,
+        duration: '2-4_hours',
+        confidence: 0.85
+      },
+      exercise: {
+        effect: 'increases_2ag',
+        magnitude: 0.25,
+        duration: '4-6_hours',
+        confidence: 0.90
+      },
+      coldExposure: {
+        effect: 'enhances_receptor_sensitivity',
+        magnitude: 0.20,
+        duration: '1-2_hours',
+        confidence: 0.78
+      }
+    },
+    lifestyle: {
+      diet: {
+        antiInflammatory: 'reduces_inflammation_markers',
+        omega3: 'supports_endocannabinoid_synthesis',
+        fiber: 'enhances_microbiome_health'
+      },
+      sleep: {
+        quality: 'optimizes_receptor_expression',
+        duration: 'affects_circadian_rhythms',
+        timing: 'influences_hormonal_balance'
+      }
+    }
+  };
+
+  return causalAnalysis;
+};
+
+// Real-time Monitoring & Alerting System
+const RealTimeMonitoring = {
+  // Continuous Monitoring Engine
+  monitoringEngine: {
+    dataStreams: {
+      biometrics: ['heart_rate', 'blood_pressure', 'temperature', 'respiratory_rate'],
+      activity: ['steps', 'sleep_quality', 'exercise_intensity', 'stress_levels'],
+      environmental: ['temperature', 'humidity', 'air_quality', 'light_exposure'],
+      behavioral: ['mood', 'energy_levels', 'social_interactions', 'cognitive_performance']
+    },
+    samplingRate: '5_seconds',
+    dataRetention: '30_days',
+    compression: 'adaptive'
+  },
+
+  // Smart Alert System
+  alertSystem: {
+    thresholds: {
+      critical: { response: 'immediate', notification: 'urgent' },
+      warning: { response: 'within_5_minutes', notification: 'high_priority' },
+      info: { response: 'within_30_minutes', notification: 'normal' }
+    },
+    escalation: {
+      level1: 'system_alert',
+      level2: 'provider_notification',
+      level3: 'emergency_contact'
+    },
+    personalization: {
+      userPreferences: ['quiet_hours', 'notification_channels', 'alert_frequency'],
+      learning: ['alert_sensitivity', 'false_positive_reduction', 'context_awareness']
+    }
+  },
+
+  // Intervention Tracking
+  interventionTracking: {
+    types: {
+      lifestyle: ['exercise', 'meditation', 'diet_changes', 'sleep_optimization'],
+      therapeutic: ['cannabis_use', 'supplementation', 'medication_adjustments'],
+      environmental: ['stress_reduction', 'social_engagement', 'workplace_optimization']
+    },
+    effectiveness: {
+      metrics: ['compliance_rate', 'outcome_improvement', 'side_effects', 'user_satisfaction'],
+      analysis: ['correlation_with_metrics', 'temporal_relationships', 'dose_response']
+    }
+  }
+};
+
+// Real-time Monitoring Functions
+const generateSmartAlerts = (data, thresholds) => {
+  const alerts = [];
+  
+  // Check critical thresholds
+  if (data.metrics.stressResponse > 0.8) {
+    alerts.push({
+      level: 'critical',
+      type: 'high_stress',
+      message: 'Critical stress levels detected - immediate intervention recommended',
+      timestamp: new Date().toISOString(),
+      action: 'immediate_stress_reduction'
+    });
+  }
+  
+  if (data.metrics.inflammationMarkers > 0.7) {
+    alerts.push({
+      level: 'warning',
+      type: 'high_inflammation',
+      message: 'Elevated inflammation markers detected',
+      timestamp: new Date().toISOString(),
+      action: 'anti_inflammatory_intervention'
+    });
+  }
+  
+  if (data.metrics.endocannabinoidLevels.anandamide < 0.3) {
+    alerts.push({
+      level: 'info',
+      type: 'low_anandamide',
+      message: 'Anandamide levels below optimal range',
+      timestamp: new Date().toISOString(),
+      action: 'cannabimimetic_activities'
+    });
+  }
+  
+  // Check receptor imbalances
+  const cb1Cb2Ratio = data.metrics.receptorActivity.CB1 / data.metrics.receptorActivity.CB2;
+  if (cb1Cb2Ratio > 1.5 || cb1Cb2Ratio < 0.7) {
+    alerts.push({
+      level: 'warning',
+      type: 'receptor_imbalance',
+      message: 'CB1/CB2 receptor imbalance detected',
+      timestamp: new Date().toISOString(),
+      action: 'balanced_cannabinoid_therapy'
+    });
+  }
+  
+  return alerts;
+};
+
+const trackInterventionEffectiveness = (intervention, beforeMetrics, afterMetrics) => {
+  const effectiveness = {
+    intervention: intervention,
+    beforeMetrics: beforeMetrics,
+    afterMetrics: afterMetrics,
+    improvements: {},
+    sideEffects: [],
+    compliance: 0,
+    satisfaction: 0
+  };
+  
+  // Calculate improvements
+  Object.keys(afterMetrics).forEach(metric => {
+    if (beforeMetrics[metric] && afterMetrics[metric]) {
+      const improvement = ((afterMetrics[metric] - beforeMetrics[metric]) / beforeMetrics[metric]) * 100;
+      effectiveness.improvements[metric] = improvement;
+    }
+  });
+  
+  return effectiveness;
+};
+
+const monitorDataStreams = (data) => {
+  const streams = {
+    biometrics: {
+      heartRate: 60 + Math.random() * 40, // 60-100 BPM
+      bloodPressure: { systolic: 110 + Math.random() * 30, diastolic: 70 + Math.random() * 20 },
+      temperature: 36.5 + Math.random() * 1.5, // 36.5-38°C
+      respiratoryRate: 12 + Math.random() * 8 // 12-20 breaths/min
+    },
+    activity: {
+      steps: Math.floor(Math.random() * 10000),
+      sleepQuality: 0.5 + Math.random() * 0.5, // 0.5-1.0
+      exerciseIntensity: Math.random(), // 0-1
+      stressLevels: data.metrics.stressResponse
+    },
+    environmental: {
+      temperature: 20 + Math.random() * 10, // 20-30°C
+      humidity: 40 + Math.random() * 40, // 40-80%
+      airQuality: 0.7 + Math.random() * 0.3, // 0.7-1.0
+      lightExposure: Math.random() // 0-1
+    },
+    behavioral: {
+      mood: 0.5 + Math.random() * 0.5, // 0.5-1.0
+      energyLevels: data.metrics.receptorActivity.D1 * 0.8 + data.metrics.receptorActivity['5-HT1A'] * 0.2,
+      socialInteractions: Math.random(), // 0-1
+      cognitivePerformance: 0.6 + Math.random() * 0.4 // 0.6-1.0
+    }
+  };
+  
+  return streams;
+};
+
+// Personalized Medicine & Treatment Optimization System
+const PersonalizedMedicine = {
+  // Genetic Profiling Engine
+  geneticProfiling: {
+    polymorphisms: {
+      CNR1: { rs1049353: 'AG', rs806368: 'TT', rs806380: 'CC' }, // CB1 receptor
+      CNR2: { rs2501432: 'GG', rs41311993: 'AA' }, // CB2 receptor
+      FAAH: { rs324420: 'AC', rs2295633: 'GG' }, // Fatty acid amide hydrolase
+      COMT: { rs4680: 'AG', rs165599: 'AA' }, // Catechol-O-methyltransferase
+      CYP2C9: { rs1799853: 'CC', rs1057910: 'AA' }, // Cytochrome P450
+      CYP2C19: { rs4244285: 'GG', rs4986893: 'AA' } // Cytochrome P450
+    },
+    riskFactors: {
+      endocannabinoidDeficiency: 0.3,
+      stressResponse: 0.4,
+      inflammation: 0.25,
+      metabolism: 0.35
+    },
+    personalizedTraits: {
+      cannabisSensitivity: 'high',
+      stressResilience: 'moderate',
+      inflammationTendency: 'low',
+      metabolicEfficiency: 'high'
+    }
+  },
+
+  // Personalized Dosing Engine
+  dosingEngine: {
+    algorithms: {
+      cbdDosing: {
+        factors: ['body_weight', 'metabolism', 'genetic_profile', 'current_condition'],
+        formula: 'base_dose * weight_factor * metabolism_factor * genetic_factor',
+        titration: 'gradual_increase_weekly'
+      },
+      thcDosing: {
+        factors: ['tolerance', 'genetic_sensitivity', 'desired_effect', 'side_effects'],
+        formula: 'minimal_effective_dose * tolerance_factor * sensitivity_factor',
+        titration: 'slow_titration_with_monitoring'
+      },
+      supplementDosing: {
+        factors: ['deficiencies', 'interactions', 'absorption', 'metabolism'],
+        formula: 'deficiency_based * absorption_factor * interaction_factor',
+        titration: 'individualized_based_on_response'
+      }
+    },
+    monitoring: {
+      effectiveness: ['symptom_relief', 'side_effects', 'biomarker_changes'],
+      adjustment: ['weekly_review', 'biomarker_guided', 'patient_feedback'],
+      optimization: ['continuous_learning', 'outcome_tracking', 'protocol_refinement']
+    }
+  },
+
+  // Treatment Protocol Optimization
+  treatmentProtocols: {
+    protocols: {
+      stressManagement: {
+        primary: ['meditation', 'breathwork', 'exercise'],
+        secondary: ['cbd_therapy', 'adaptogens', 'lifestyle_modifications'],
+        monitoring: ['cortisol_levels', 'heart_rate_variability', 'sleep_quality']
+      },
+      inflammationReduction: {
+        primary: ['anti_inflammatory_diet', 'omega3_supplementation', 'exercise'],
+        secondary: ['cbd_therapy', 'curcumin', 'probiotics'],
+        monitoring: ['inflammatory_markers', 'pain_levels', 'mobility']
+      },
+      sleepOptimization: {
+        primary: ['sleep_hygiene', 'circadian_rhythm_optimization', 'stress_reduction'],
+        secondary: ['cbd_therapy', 'magnesium', 'melatonin'],
+        monitoring: ['sleep_quality', 'sleep_duration', 'daytime_energy']
+      },
+      moodEnhancement: {
+        primary: ['therapy', 'social_engagement', 'physical_activity'],
+        secondary: ['cannabis_therapy', 'supplementation', 'mindfulness'],
+        monitoring: ['mood_scores', 'energy_levels', 'social_functioning']
+      }
+    },
+    personalization: {
+      geneticFactors: ['receptor_sensitivity', 'metabolism_rate', 'side_effect_risk'],
+      lifestyleFactors: ['activity_level', 'diet_preferences', 'stress_levels'],
+      environmentalFactors: ['work_schedule', 'social_support', 'access_to_care']
+    }
+  }
+};
+
+// Personalized Medicine Functions
+const calculatePersonalizedDosing = (patientData, geneticProfile, currentMetrics) => {
+  const dosing = {
+    cbd: {
+      baseDose: 10, // mg
+      weightFactor: patientData.weight / 70, // normalized to 70kg
+      metabolismFactor: geneticProfile.polymorphisms.CYP2C9.rs1799853 === 'CC' ? 1.2 : 1.0,
+      geneticFactor: geneticProfile.personalizedTraits.cannabisSensitivity === 'high' ? 0.8 : 1.0,
+      recommendedDose: 0,
+      titration: 'Start with 5mg twice daily, increase by 5mg weekly'
+    },
+    thc: {
+      baseDose: 2.5, // mg
+      toleranceFactor: 1.0, // will be updated based on usage history
+      sensitivityFactor: geneticProfile.personalizedTraits.cannabisSensitivity === 'high' ? 0.5 : 1.0,
+      recommendedDose: 0,
+      titration: 'Start with 1mg, increase slowly based on response'
+    },
+    supplements: {
+      omega3: {
+        dose: 2000, // mg EPA/DHA
+        rationale: 'Anti-inflammatory support based on elevated inflammation markers',
+        timing: 'With meals'
+      },
+      magnesium: {
+        dose: 400, // mg
+        rationale: 'Stress reduction and sleep support',
+        timing: 'Before bed'
+      },
+      vitaminD: {
+        dose: 2000, // IU
+        rationale: 'Immune support and mood enhancement',
+        timing: 'Morning with fat'
+      }
+    }
+  };
+
+  // Calculate recommended doses
+  dosing.cbd.recommendedDose = Math.round(
+    dosing.cbd.baseDose * 
+    dosing.cbd.weightFactor * 
+    dosing.cbd.metabolismFactor * 
+    dosing.cbd.geneticFactor
+  );
+
+  dosing.thc.recommendedDose = Math.round(
+    dosing.thc.baseDose * 
+    dosing.thc.toleranceFactor * 
+    dosing.thc.sensitivityFactor * 10
+  ) / 10;
+
+  return dosing;
+};
+
+const generateTreatmentProtocol = (patientData, geneticProfile, currentMetrics, goals) => {
+  const protocol = {
+    primaryGoals: goals,
+    timeline: '12_weeks',
+    phases: {
+      phase1: {
+        duration: '4_weeks',
+        focus: 'stabilization',
+        interventions: [],
+        monitoring: []
+      },
+      phase2: {
+        duration: '4_weeks',
+        focus: 'optimization',
+        interventions: [],
+        monitoring: []
+      },
+      phase3: {
+        duration: '4_weeks',
+        focus: 'maintenance',
+        interventions: [],
+        monitoring: []
+      }
+    },
+    personalization: {
+      geneticFactors: [],
+      lifestyleFactors: [],
+      environmentalFactors: []
+    }
+  };
+
+  // Determine primary interventions based on current metrics and goals
+  if (currentMetrics.stressResponse > 0.6) {
+    protocol.phases.phase1.interventions.push(...PersonalizedMedicine.treatmentProtocols.protocols.stressManagement.primary);
+    protocol.phases.phase1.monitoring.push(...PersonalizedMedicine.treatmentProtocols.protocols.stressManagement.monitoring);
+  }
+
+  if (currentMetrics.inflammationMarkers > 0.5) {
+    protocol.phases.phase1.interventions.push(...PersonalizedMedicine.treatmentProtocols.protocols.inflammationReduction.primary);
+    protocol.phases.phase1.monitoring.push(...PersonalizedMedicine.treatmentProtocols.protocols.inflammationReduction.monitoring);
+  }
+
+  // Add personalized factors
+  protocol.personalization.geneticFactors = PersonalizedMedicine.treatmentProtocols.personalization.geneticFactors;
+  protocol.personalization.lifestyleFactors = PersonalizedMedicine.treatmentProtocols.personalization.lifestyleFactors;
+  protocol.personalization.environmentalFactors = PersonalizedMedicine.treatmentProtocols.personalization.environmentalFactors;
+
+  return protocol;
+};
+
+const analyzeGeneticRiskFactors = (geneticProfile) => {
+  const riskAnalysis = {
+    overallRisk: 0,
+    riskFactors: [],
+    recommendations: [],
+    monitoring: []
+  };
+
+  // Calculate overall risk based on genetic factors
+  const riskFactors = geneticProfile.riskFactors;
+  riskAnalysis.overallRisk = Object.values(riskFactors).reduce((sum, risk) => sum + risk, 0) / Object.keys(riskFactors).length;
+
+  // Generate specific recommendations
+  if (riskFactors.endocannabinoidDeficiency > 0.3) {
+    riskAnalysis.recommendations.push('Consider FAAH inhibitor therapy');
+    riskAnalysis.monitoring.push('Regular AEA level monitoring');
+  }
+
+  if (riskFactors.stressResponse > 0.4) {
+    riskAnalysis.recommendations.push('Enhanced stress management protocols');
+    riskAnalysis.monitoring.push('Cortisol rhythm monitoring');
+  }
+
+  if (riskFactors.inflammation > 0.25) {
+    riskAnalysis.recommendations.push('Anti-inflammatory diet and supplementation');
+    riskAnalysis.monitoring.push('Inflammatory marker tracking');
+  }
+
+  return riskAnalysis;
+};
+
+// Main Component
+const ECDomeIntelligenceSystem = () => {
+  const [analysisHistory, setAnalysisHistory] = useState(MOCK_DATA.analysisHistory);
+  const [currentAnalysis, setCurrentAnalysis] = useState(null);
+  const [isRunning, setIsRunning] = useState(false);
+  const [insights, setInsights] = useState([]);
+  const [systemHealth, setSystemHealth] = useState({
+    status: 'healthy',
+    dataQuality: 100,
+    lastValidation: null
+  });
+  const [errors, setErrors] = useState([]);
+  const [correlationData, setCorrelationData] = useState(MOCK_DATA.crossSystemInteractions);
+  const [correlationInsights, setCorrelationInsights] = useState([]);
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [loading, setLoading] = useState(false);
+  const [patientData, setPatientData] = useState(MOCK_DATA.realTimeMetrics);
+
+  // Advanced Analytics State
+  const [predictiveAnalytics, setPredictiveAnalytics] = useState({
+    shortTerm: null,
+    mediumTerm: null,
+    longTerm: null
+  });
+  const [riskAssessment, setRiskAssessment] = useState({
+    score: 0,
+    level: 'low',
+    factors: [],
+    recommendations: []
+  });
+  const [crossSystemInteractions, setCrossSystemInteractions] = useState(MOCK_DATA.crossSystemInteractions);
+  const [temporalPatterns, setTemporalPatterns] = useState(MOCK_DATA.temporalPatterns);
+  const [causalAnalysis, setCausalAnalysis] = useState(MOCK_DATA.causalAnalysis);
+  const [mlModelStatus, setMlModelStatus] = useState(MOCK_DATA.mlModelStatus);
+
+  // Real-time Monitoring State
+  const [realTimeAlerts, setRealTimeAlerts] = useState([]);
+  const [dataStreams, setDataStreams] = useState(MOCK_DATA.dataStreams);
+  const [interventionHistory, setInterventionHistory] = useState([]);
+  const [monitoringStatus, setMonitoringStatus] = useState({
+    active: false,
+    lastUpdate: null,
+    dataPoints: 0,
+    alertCount: 0
+  });
+
+  // Personalized Medicine State
+  const [geneticProfile, setGeneticProfile] = useState(MOCK_DATA.geneticProfile);
+  const [personalizedDosing, setPersonalizedDosing] = useState(MOCK_DATA.personalizedDosing);
+  const [treatmentProtocol, setTreatmentProtocol] = useState(MOCK_DATA.treatmentProtocol);
+  const [geneticRiskAnalysis, setGeneticRiskAnalysis] = useState(null);
+
+  // Load patient data using Abena SDK
+  useEffect(() => {
+    const loadPatientData = async () => {
+      try {
+        setLoading(true);
+        
+        // Try to load real patient data first
+        try {
+          // Auto-handled auth & permissions through Abena SDK
+          const patient = await abena.getPatientData('current_patient', 'ecdome_analysis');
+          setPatientData(patient);
+          
+          // Initialize ECBome Correlation Engine for this patient
+          await ecdomeEngine.initializePatientProfile(patient.patientId);
+          
+          // Load eCDome intelligence data through ECBome engine
+          const intelligenceData = await ecdomeEngine.processMultiModuleAnalysis(
+            patient.patientId,
+            'current_user'
+          );
+          setCurrentAnalysis(intelligenceData);
+          
+          // Load historical analysis data
+          const history = await abena.getHistoricalData('ecdome_analysis', 'current_patient', {
+            timeRange: '30d',
+            dataType: 'metrics'
+          });
+          setAnalysisHistory(history);
+        } catch (apiError) {
+          console.warn('API data loading failed, using test data:', apiError);
+          
+          // Fallback to test data
+          const { testIntelligenceData } = await import('../data/testData.js');
+          
+          // Transform test data to match expected format
+          const transformedData = testIntelligenceData.map(item => ({
+            timestamp: item.timestamp,
+            metrics: {
+              endocannabinoidLevels: item.endocannabinoidLevels,
+              receptorActivity: item.receptorActivity,
+              microbiomeHealth: item.microbiomeHealth,
+              inflammationMarkers: item.inflammationMarkers,
+              stressResponse: item.stressResponse
+            }
+          }));
+          
+          setAnalysisHistory(transformedData);
+          setCurrentAnalysis(transformedData[transformedData.length - 1]);
+          setPatientData({
+            patientId: 'TEST123',
+            name: 'Test Patient',
+            status: 'demo'
+          });
+        }
+        
+      } catch (error) {
+        console.error('Error loading patient data:', error);
+        setErrors(prev => [...prev, `Failed to load patient data: ${error.message}`]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadPatientData();
+  }, []);
+
+  // Save analysis data to Abena services
+  const saveAnalysisData = async (dataPoint) => {
+    try {
+      await abena.saveModuleData('ecdome_analysis', {
+        patientId: 'current_patient',
+        userId: 'current_user',
+        data: dataPoint,
+        dataType: 'metrics',
+        timestamp: new Date().toISOString(),
+        encryption: true,
+        audit: true
+      });
+    } catch (error) {
+      console.error('Error saving analysis data:', error);
+      setErrors(prev => [...prev, `Failed to save analysis data: ${error.message}`]);
+    }
+  };
+
+  // Update analysis history when new intelligence data arrives
+  useEffect(() => {
+    if (currentAnalysis) {
+      const newDataPoint = {
+        timestamp: new Date().toISOString(),
+        metrics: currentAnalysis.moduleResults || currentAnalysis.metrics,
+        ecdomeCorrelations: currentAnalysis.ecdomeCorrelations,
+        patterns: currentAnalysis.patterns,
+        predictions: currentAnalysis.predictions,
+        clinicalInsights: currentAnalysis.clinicalInsights
+      };
+      
+      setAnalysisHistory(prev => [...prev, newDataPoint]);
+      
+      // Save to Abena services
+      saveAnalysisData(newDataPoint);
+      
+      // ECDome engine handles its own correlation processing
+      // Just get the latest correlation data
+      const correlationResult = currentAnalysis.ecdomeCorrelations;
+      setCorrelationData(correlationResult);
+      
+      // Feed correlation data to unified integration layer
+      unifiedIntegrationLayer.addRealTimeCorrelations({
+        source: 'ECDomeCorrelationEngine',
+        data: correlationResult,
+        confidence: currentAnalysis.confidenceScore,
+        patterns: currentAnalysis.patterns
+      });
+      
+      // Generate correlation insights from ECDome analysis
+      const newCorrelationInsights = generateCorrelationInsights(correlationResult);
+      setCorrelationInsights(newCorrelationInsights);
+      
+      // Generate insights from ECDome clinical intelligence
+      const newInsights = currentAnalysis.clinicalInsights?.recommendations || 
+                          generateInsights([...analysisHistory, newDataPoint]);
+      setInsights(newInsights);
+      
+      // Update system health based on ECDome analysis
+      setSystemHealth({
+        status: currentAnalysis.systemStatus?.overall || 'healthy',
+        dataQuality: currentAnalysis.confidenceScore ? Math.round(currentAnalysis.confidenceScore * 100) : 100,
+        lastValidation: new Date().toISOString()
+      });
+
+      // Run Advanced Analytics with ECDome integration
+      const runAdvancedAnalytics = async () => {
+        try {
+          // Use ECDome predictive insights instead of local predictions
+          if (currentAnalysis.predictions) {
+            setPredictiveAnalytics({
+              shortTerm: currentAnalysis.predictions.shortTerm || await runPredictiveAnalytics(newDataPoint, 'shortTerm'),
+              mediumTerm: currentAnalysis.predictions.mediumTerm || await runPredictiveAnalytics(newDataPoint, 'mediumTerm'),
+              longTerm: currentAnalysis.predictions.longTerm || await runPredictiveAnalytics(newDataPoint, 'longTerm')
+            });
+          }
+
+          // Use ECDome risk assessment
+          const riskScore = currentAnalysis.clinicalInsights?.riskProfile || calculateRiskScore(newDataPoint);
+          setRiskAssessment(riskScore);
+
+          // Use ECDome cross-system interactions
+          const interactions = currentAnalysis.patterns?.systemInteractions || analyzeCrossSystemInteractions(newDataPoint);
+          setCrossSystemInteractions(interactions);
+
+          // Use ECDome temporal patterns
+          const patterns = currentAnalysis.patterns?.temporalPatterns || detectTemporalPatterns([...analysisHistory, newDataPoint]);
+          setTemporalPatterns(patterns);
+
+          // Use ECDome causal analysis
+          const causal = currentAnalysis.clinicalInsights?.causalAnalysis || performCausalInference(newDataPoint, []);
+          setCausalAnalysis(causal);
+
+          // Update ML model status based on ECDome confidence
+          setMlModelStatus(prev => ({
+            healthOutcomePrediction: { 
+              confidence: currentAnalysis.confidenceScore || 0.85, 
+              lastUpdated: new Date().toISOString() 
+            },
+            interventionOptimization: { 
+              confidence: currentAnalysis.confidenceScore || 0.78, 
+              lastUpdated: new Date().toISOString() 
+            },
+            riskAssessment: { 
+              confidence: currentAnalysis.confidenceScore || 0.92, 
+              lastUpdated: new Date().toISOString() 
+            },
+            personalizedDosing: { 
+              confidence: currentAnalysis.confidenceScore || 0.80, 
+              lastUpdated: new Date().toISOString() 
+            }
+          }));
+
+          // Generate alerts from ECDome provider alerts
+          const alerts = currentAnalysis.clinicalInsights?.providerAlerts || 
+                         generateSmartAlerts(newDataPoint, RealTimeMonitoring.alertSystem.thresholds);
+          setRealTimeAlerts(prev => [...prev, ...alerts]);
+
+          // Use ECDome intervention tracking
+          const interventionHistoryItem = currentAnalysis.clinicalInsights?.interventionHistory || 
+                                         trackInterventionEffectiveness('baseline', newDataPoint.metrics, newDataPoint.metrics);
+          setInterventionHistory(prev => [...prev, interventionHistoryItem]);
+
+          // Monitor data streams with ECDome integration
+          const dataStreams = monitorDataStreams(newDataPoint);
+          setDataStreams(dataStreams);
+
+          // Update monitoring status
+          setMonitoringStatus(prev => ({
+            active: true,
+            lastUpdate: new Date().toISOString(),
+            dataPoints: prev.dataPoints + 1,
+            alertCount: prev.alertCount + (Array.isArray(alerts) ? alerts.length : 0)
+          }));
+
+          // Calculate personalized medicine recommendations with ECDome integration
+          if (patientData && currentAnalysis) {
+            const dosing = currentAnalysis.clinicalInsights?.personalizedDosing || 
+                          calculatePersonalizedDosing(patientData, geneticProfile, newDataPoint.metrics);
+            setPersonalizedDosing(dosing);
+
+            const protocol = currentAnalysis.clinicalInsights?.treatmentProtocol || 
+                            generateTreatmentProtocol(
+                              patientData, 
+                              geneticProfile, 
+                              newDataPoint.metrics, 
+                              ['stress_reduction', 'inflammation_control', 'sleep_optimization']
+                            );
+            setTreatmentProtocol(protocol);
+
+            const riskAnalysis = currentAnalysis.clinicalInsights?.geneticRiskAnalysis || 
+                               analyzeGeneticRiskFactors(geneticProfile);
+            setGeneticRiskAnalysis(riskAnalysis);
+          }
+
+        } catch (error) {
+          console.error('Error running advanced analytics:', error);
+          setErrors(prev => [...prev, `Advanced analytics error: ${error.message}`]);
+        }
+      };
+
+      runAdvancedAnalytics();
+    }
+  }, [currentAnalysis, analysisHistory]);
+
+  // Start/Stop analysis using ECDome engine
+  const toggleAnalysis = async () => {
+    try {
+      if (!isRunning) {
+        setIsRunning(true);
+        // Start ECDome continuous analysis
+        await ecdomeEngine.startContinuousAnalysis('current_patient');
+        
+        // Also start Abena SDK monitoring
+        await abena.startModuleService('ecdome_analysis', {
+          patientId: 'current_patient',
+          userId: 'current_user',
+          serviceType: 'continuous_monitoring',
+          parameters: {
+            updateInterval: 900000, // 15 minutes (aligned with ECDome intervals)
+            dataTypes: ['multi_module_analysis', 'ecdome_correlations', 'predictive_insights']
+          }
+        });
+        
+        // Set up periodic ECDome analysis updates
+        const analysisInterval = setInterval(async () => {
+          try {
+            const analysisResult = await ecdomeEngine.processMultiModuleAnalysis(
+              'current_patient',
+              'current_user'
+            );
+            setCurrentAnalysis(analysisResult);
+          } catch (error) {
+            console.error('Error in periodic ECDome analysis:', error);
+          }
+        }, 900000); // 15 minutes
+        
+        // Store interval for cleanup
+        window.ecdomeAnalysisInterval = analysisInterval;
+        
+      } else {
+        setIsRunning(false);
+        // Stop ECDome continuous analysis
+        await ecdomeEngine.stopContinuousAnalysis();
+        
+        // Stop Abena SDK monitoring
+        await abena.stopModuleService('ecdome_analysis');
+        
+        // Clear interval
+        if (window.ecdomeAnalysisInterval) {
+          clearInterval(window.ecdomeAnalysisInterval);
+          delete window.ecdomeAnalysisInterval;
+        }
+      }
+    } catch (error) {
+      console.error('Error toggling analysis:', error);
+      setErrors(prev => [...prev, `Failed to ${isRunning ? 'stop' : 'start'} analysis: ${error.message}`]);
+    }
+  };
+
+  // Export functionality using Abena SDK
+  const exportData = async (format = 'json') => {
+    try {
+      setLoading(true);
+      
+      const exportData = {
+        analysisHistory: analysisHistory,
+        insights: insights,
+        systemHealth: systemHealth,
+        patient: patientData,
+        exportTimestamp: new Date().toISOString()
+      };
+
+      // Use Abena SDK for secure data export with audit logging
+      const exportResult = await abena.exportData('ecdome_analysis', {
+        patientId: 'current_patient',
+        userId: 'current_user',
+        format: format,
+        data: exportData,
+        purpose: 'clinical_analysis',
+        encryption: true
+      });
+
+      // Download the exported file
+      const blob = new Blob([exportResult.data], { type: exportResult.mimeType });
+      downloadFile(blob, exportResult.filename);
+
+    } catch (error) {
+      console.error('Error exporting data:', error);
+      setErrors(prev => [...prev, `Failed to export data: ${error.message}`]);
+      
+      // Fallback to local export
+      const exportData = {
+        analysisHistory: analysisHistory,
+        insights: insights,
+        systemHealth: systemHealth,
+        patient: patientData,
+        exportTimestamp: new Date().toISOString()
+      };
+
+      switch (format) {
+        case 'json':
+          const jsonBlob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+          downloadFile(jsonBlob, `ecdome-analysis-${new Date().toISOString().split('T')[0]}.json`);
+          break;
+        
+        case 'csv':
+          const csvContent = generateCSV(exportData);
+          const csvBlob = new Blob([csvContent], { type: 'text/csv' });
+          downloadFile(csvBlob, `ecdome-analysis-${new Date().toISOString().split('T')[0]}.csv`);
+          break;
+        
+        default:
+          console.warn('Unsupported export format:', format);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Generate HTML Report using Abena SDK
+  const generateHTMLReport = async () => {
+    try {
+      setLoading(true);
+      
+      const reportData = {
+        patientInfo: {
+          name: patientData?.name || 'Patient',
+          id: patientData?.id || 'P001',
+          date: new Date().toLocaleDateString(),
+          provider: 'Dr. Smith'
+        },
+        analysisResults: {
+          overallScore: systemHealth.dataQuality ? Math.round(systemHealth.dataQuality) : 72,
+          receptorStatus: [
+            { name: 'CB1', score: chartData.length ? chartData[chartData.length-1].CB1 : 85, status: 'Good' },
+            { name: 'CB2', score: chartData.length ? chartData[chartData.length-1].CB2 : 70, status: 'Moderate' },
+            { name: 'Dopamine', score: chartData.length ? chartData[chartData.length-1].D1 : 68, status: 'Moderate' },
+            { name: 'Serotonin', score: chartData.length ? chartData[chartData.length-1]['5-HT1A'] : 65, status: 'Low' },
+            { name: 'Hormonal', score: 55, status: 'Low' }
+          ],
+          biomarkers: [
+            { name: 'Anandamide', value: chartData.length ? chartData[chartData.length-1].anandamide : 0.35, unit: 'pmol/mL', status: 'Normal', range: '0.1-0.5' },
+            { name: '2-AG', value: chartData.length ? chartData[chartData.length-1]['2-AG'] : 28, unit: 'pmol/mL', status: 'Normal', range: '5-50' },
+            { name: 'Testosterone', value: 450, unit: 'ng/dL', status: 'Normal', range: '300-1000' },
+            { name: 'Estradiol', value: 25, unit: 'pg/mL', status: 'Low', range: '30-400' },
+            { name: 'Cortisol', value: 18, unit: 'μg/dL', status: 'High', range: '6-23' }
+          ]
+        }
+      };
+
+      // Use Abena SDK for secure report generation with audit logging
+      const reportResult = await abena.generateReport('ecdome_analysis', {
+        patientId: 'current_patient',
+        userId: 'current_user',
+        reportType: 'html',
+        data: reportData,
+        template: 'ecdome_comprehensive',
+        encryption: true,
+        watermark: true
+      });
+
+      // Download the generated report
+      const blob = new Blob([reportResult.data], { type: 'text/html' });
+      downloadFile(blob, reportResult.filename);
+
+    } catch (error) {
+      console.error('Error generating HTML report:', error);
+      setErrors(prev => [...prev, `Failed to generate report: ${error.message}`]);
+      
+      // Fallback to local report generation
+      const htmlContent = generateLocalHTMLReport();
+      const blob = new Blob([htmlContent], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `eCDome-Report-${patientData?.name || 'Patient'}-${new Date().toISOString().split('T')[0]}.html`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Generate insights from correlation data
+  const generateCorrelationInsights = (correlationData) => {
+    if (!correlationData || !correlationData.correlations) return [];
+    
+    const insights = [];
+    
+    // Strong correlations
+    const strongCorrelations = correlationData.correlations.filter(c => 
+      Math.abs(c.correlation) > 0.8 && c.confidence > 0.8
+    );
+    
+    if (strongCorrelations.length > 0) {
+      insights.push({
+        type: 'strong_correlation',
+        severity: 'high',
+        message: `${strongCorrelations.length} strong correlations detected between receptor systems`,
+        details: strongCorrelations.slice(0, 3).map(c => 
+          `${c.metric1} ↔ ${c.metric2} (r=${c.correlation.toFixed(3)})`
+        )
+      });
+    }
+    
+    // Pattern insights
+    const patterns = correlationData.correlations.filter(c => c.pattern && c.pattern.type === 'correlation_pattern');
+    const synchronousPatterns = patterns.filter(p => p.pattern.synchronous);
+    const laggedPatterns = patterns.filter(p => p.pattern.lagged);
+    
+    if (synchronousPatterns.length > 0) {
+      insights.push({
+        type: 'synchronous_pattern',
+        severity: 'medium',
+        message: `${synchronousPatterns.length} synchronous patterns detected`,
+        details: synchronousPatterns.slice(0, 2).map(p => 
+          `${p.metric1} and ${p.metric2} move together`
+        )
+      });
+    }
+    
+    if (laggedPatterns.length > 0) {
+      insights.push({
+        type: 'lagged_pattern',
+        severity: 'medium',
+        message: `${laggedPatterns.length} lagged relationships detected`,
+        details: laggedPatterns.slice(0, 2).map(p => 
+          `${p.metric1} leads ${p.metric2} by ${p.pattern.lagged.lag} periods`
+        )
+      });
+    }
+    
+    // System health insights
+    if (correlationData.summary && correlationData.summary.systemHealth) {
+      const health = correlationData.summary.systemHealth;
+      if (health.status === 'degraded') {
+        insights.push({
+          type: 'system_health',
+          severity: 'high',
+          message: `System correlation health is degraded (score: ${health.score.toFixed(2)})`,
+          details: health.typeDistribution && typeof health.typeDistribution === 'object' ? 
+            Object.entries(health.typeDistribution).map(([type, count]) => 
+              `${type}: ${count} correlations`
+            ) : []
+        });
+      }
+    }
+    
+    return insights;
+  };
+
+  // Format chart data
+  const formatChartData = (data) => {
+    if (!data || data.length === 0) return [];
+    return data.map(d => ({
+      date: new Date(d.timestamp).toLocaleDateString(),
+      // Endocannabinoid levels
+      anandamide: d.metrics.endocannabinoidLevels.anandamide * 100,
+      '2-AG': d.metrics.endocannabinoidLevels['2-AG'] * 100,
+      PEA: d.metrics.endocannabinoidLevels.PEA * 100,
+      OEA: d.metrics.endocannabinoidLevels.OEA * 100,
+      // Endocannabinoid receptors
+      CB1: d.metrics.receptorActivity.CB1 * 100,
+      CB2: d.metrics.receptorActivity.CB2 * 100,
+      TRPV1: d.metrics.receptorActivity.TRPV1 * 100,
+      GPR18: d.metrics.receptorActivity.GPR18 * 100,
+      // PPAR receptors
+      PPARα: d.metrics.receptorActivity.PPARα * 100,
+      PPARγ: d.metrics.receptorActivity.PPARγ * 100,
+      PPARδ: d.metrics.receptorActivity.PPARδ * 100,
+      // 5-HT receptors
+      '5-HT1A': d.metrics.receptorActivity['5-HT1A'] * 100,
+      '5-HT2A': d.metrics.receptorActivity['5-HT2A'] * 100,
+      '5-HT3': d.metrics.receptorActivity['5-HT3'] * 100,
+      '5-HT4': d.metrics.receptorActivity['5-HT4'] * 100,
+      '5-HT6': d.metrics.receptorActivity['5-HT6'] * 100,
+      '5-HT7': d.metrics.receptorActivity['5-HT7'] * 100,
+      // Dopamine receptors
+      D1: d.metrics.receptorActivity.D1 * 100,
+      D2: d.metrics.receptorActivity.D2 * 100,
+      D3: d.metrics.receptorActivity.D3 * 100,
+      D4: d.metrics.receptorActivity.D4 * 100,
+      D5: d.metrics.receptorActivity.D5 * 100,
+      // Adrenergic receptors
+      'α1A': d.metrics.receptorActivity['α1A'] * 100,
+      'α1B': d.metrics.receptorActivity['α1B'] * 100,
+      'α1D': d.metrics.receptorActivity['α1D'] * 100,
+      'α2A': d.metrics.receptorActivity['α2A'] * 100,
+      'α2B': d.metrics.receptorActivity['α2B'] * 100,
+      'α2C': d.metrics.receptorActivity['α2C'] * 100,
+      'β1': d.metrics.receptorActivity['β1'] * 100,
+      'β2': d.metrics.receptorActivity['β2'] * 100,
+      'β3': d.metrics.receptorActivity['β3'] * 100,
+      // Other metrics
+      microbiomeHealth: d.metrics.microbiomeHealth * 100,
+      inflammationMarkers: d.metrics.inflammationMarkers * 100,
+      stressResponse: d.metrics.stressResponse * 100
+    }));
+  };
+
+  const chartData = formatChartData(analysisHistory);
+
+  const generateCSV = (data) => {
+    const headers = [
+      'Timestamp', 'Anandamide', '2-AG', 'PEA', 'OEA', 
+      'CB1', 'CB2', 'TRPV1', 'GPR18',
+      'PPARα', 'PPARγ', 'PPARδ',
+      '5-HT1A', '5-HT2A', '5-HT3', '5-HT4', '5-HT6', '5-HT7',
+      'D1', 'D2', 'D3', 'D4', 'D5',
+      'α1A', 'α1B', 'α1D', 'α2A', 'α2B', 'α2C', 'β1', 'β2', 'β3',
+      'Microbiome', 'Inflammation', 'Stress'
+    ];
+    const rows = data.analysisHistory.map(result => [
+      new Date(result.timestamp).toISOString(),
+      result.metrics.endocannabinoidLevels.anandamide,
+      result.metrics.endocannabinoidLevels['2-AG'],
+      result.metrics.endocannabinoidLevels.PEA,
+      result.metrics.endocannabinoidLevels.OEA,
+      result.metrics.receptorActivity.CB1,
+      result.metrics.receptorActivity.CB2,
+      result.metrics.receptorActivity.TRPV1,
+      result.metrics.receptorActivity.GPR18,
+      result.metrics.receptorActivity.PPARα,
+      result.metrics.receptorActivity.PPARγ,
+      result.metrics.receptorActivity.PPARδ,
+      result.metrics.receptorActivity['5-HT1A'],
+      result.metrics.receptorActivity['5-HT2A'],
+      result.metrics.receptorActivity['5-HT3'],
+      result.metrics.receptorActivity['5-HT4'],
+      result.metrics.receptorActivity['5-HT6'],
+      result.metrics.receptorActivity['5-HT7'],
+      result.metrics.receptorActivity.D1,
+      result.metrics.receptorActivity.D2,
+      result.metrics.receptorActivity.D3,
+      result.metrics.receptorActivity.D4,
+      result.metrics.receptorActivity.D5,
+      result.metrics.receptorActivity['α1A'],
+      result.metrics.receptorActivity['α1B'],
+      result.metrics.receptorActivity['α1D'],
+      result.metrics.receptorActivity['α2A'],
+      result.metrics.receptorActivity['α2B'],
+      result.metrics.receptorActivity['α2C'],
+      result.metrics.receptorActivity['β1'],
+      result.metrics.receptorActivity['β2'],
+      result.metrics.receptorActivity['β3'],
+      result.metrics.microbiomeHealth,
+      result.metrics.inflammationMarkers,
+      result.metrics.stressResponse
+    ]);
+    
+    return [headers, ...rows].map(row => row.join(',')).join('\n');
+  };
+
+  const downloadFile = (blob, filename) => {
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  };
+
+  // HTML Report Generation Function
+  const generateLocalHTMLReport = () => {
+    const reportData = {
+      patientInfo: {
+        name: patientData?.name || 'Patient',
+        id: patientData?.id || 'P001',
+        date: new Date().toLocaleDateString(),
+        provider: 'Dr. Smith'
+      },
+      analysisResults: {
+        overallScore: systemHealth.dataQuality ? Math.round(systemHealth.dataQuality) : 72,
+        receptorStatus: [
+          { name: 'CB1', score: chartData.length ? chartData[chartData.length-1].CB1 : 85, status: 'Good' },
+          { name: 'CB2', score: chartData.length ? chartData[chartData.length-1].CB2 : 70, status: 'Moderate' },
+          { name: 'Dopamine', score: chartData.length ? chartData[chartData.length-1].D1 : 68, status: 'Moderate' },
+          { name: 'Serotonin', score: chartData.length ? chartData[chartData.length-1]['5-HT1A'] : 65, status: 'Low' },
+          { name: 'Hormonal', score: 55, status: 'Low' }
+        ],
+        biomarkers: [
+          { name: 'Anandamide', value: chartData.length ? chartData[chartData.length-1].anandamide : 0.35, unit: 'pmol/mL', status: 'Normal', range: '0.1-0.5' },
+          { name: '2-AG', value: chartData.length ? chartData[chartData.length-1]['2-AG'] : 28, unit: 'pmol/mL', status: 'Normal', range: '5-50' },
+          { name: 'Testosterone', value: 450, unit: 'ng/dL', status: 'Normal', range: '300-1000' },
+          { name: 'Estradiol', value: 25, unit: 'pg/mL', status: 'Low', range: '30-400' },
+          { name: 'Cortisol', value: 18, unit: 'μg/dL', status: 'High', range: '6-23' }
+        ]
+      }
+    };
+
+    const htmlContent = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eCDome Intelligence Report - ${reportData.patientInfo.name}</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+      /* ... (same styles as in AbenaECBomeAnalyzer) ... */
+    </style>
+</head>
+<body>
+    <div class="report-container">
+        <!-- Header -->
+        <div class="header">
+            <h1>eCDome Intelligence Report</h1>
+            <h2>Comprehensive Endocannabinoidome Analysis</h2>
+        </div>
+        <!-- Patient Information -->
+        <div class="patient-info">
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">Patient Name</div>
+                    <div class="info-value">${reportData.patientInfo.name}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Patient ID</div>
+                    <div class="info-value">${reportData.patientInfo.id}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Report Date</div>
+                    <div class="info-value">${reportData.patientInfo.date}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Healthcare Provider</div>
+                    <div class="info-value">${reportData.patientInfo.provider}</div>
+                </div>
+            </div>
+        </div>
+        <!-- Overall Analysis -->
+        <div class="section">
+            <h3>Overall eCBome Analysis</h3>
+            <div class="overall-score">
+                <div class="score-circle">
+                    <div class="score-inner">
+                        <div class="score-number">${reportData.analysisResults.overallScore}%</div>
+                        <div class="score-label">eCBome Balance</div>
+                    </div>
+                </div>
+                <p>Your endocannabinoidome shows <strong>moderate dysregulation</strong> with significant opportunities for optimization through targeted interventions.</p>
+            </div>
+            <!-- Receptor Status Chart -->
+            <div class="chart-container">
+                <h4>Receptor System Status</h4>
+                <canvas id="receptorChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+        <!-- Biomarker Analysis -->
+        <div class="section">
+            <h3>Biomarker Analysis</h3>
+            <div class="biomarker-grid">
+                ${reportData.analysisResults.biomarkers.map(biomarker => `
+                    <div class="biomarker-card ${biomarker.status.toLowerCase()}">
+                        <div class="biomarker-name">${biomarker.name}</div>
+                        <div class="biomarker-value">${biomarker.value} ${biomarker.unit}</div>
+                        <div class="biomarker-range">Normal: ${biomarker.range} ${biomarker.unit}</div>
+                        <div class="biomarker-status">Status: ${biomarker.status}</div>
+                    </div>
+                `).join('')}
+            </div>
+            <!-- Circadian Pattern Chart -->
+            <div class="chart-container">
+                <h4>Circadian eCBome Patterns</h4>
+                <canvas id="circadianChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+        <!-- Sexual Health Integration -->
+        <div class="section">
+            <h3>Sexual Health & Hormonal Integration</h3>
+            <div class="chart-container">
+                <canvas id="hormonalChart" width="400" height="200"></canvas>
+            </div>
+            <p><strong>Key Findings:</strong> Testosterone levels are optimal, supporting healthy eCBome function. Estradiol levels are below optimal range, which may impact CB1 receptor sensitivity and sexual response. Cortisol elevation suggests chronic stress affecting the eCBome.</p>
+        </div>
+        <!-- Therapeutic Recommendations -->
+        <div class="section recommendations">
+            <h3>Personalized Therapeutic Recommendations</h3>
+            <div class="rec-category">
+                <div class="rec-title">🧘 Immediate Cannabimimetic Interventions (0-2 weeks)</div>
+                <ul class="rec-list">
+                    <li>Begin daily 15-minute meditation practice to naturally boost AEA production</li>
+                    <li>Implement cold exposure therapy (2-3 minutes daily) to enhance eCBome signaling</li>
+                    <li>Start breathwork sessions (4-7-8 breathing) to reduce cortisol and support CB1 function</li>
+                    <li>Eliminate inflammatory foods (processed sugars, trans fats) for 2 weeks</li>
+                </ul>
+            </div>
+            <div class="rec-category">
+                <div class="rec-title">🌿 Phytocannabinoid Therapy (2-8 weeks)</div>
+                <ul class="rec-list">
+                    <li>Consider CBD therapy: Start with 10mg daily, increase to 25mg based on response</li>
+                    <li>Evening cannabis use (indica-dominant) may support natural AEA peak and sexual health</li>
+                    <li>CBG supplementation (5-10mg) for CB2 receptor support and inflammation reduction</li>
+                    <li>Terpene therapy: Linalool and myrcene for stress reduction and sleep optimization</li>
+                </ul>
+            </div>
+            <div class="rec-category">
+                <div class="rec-title">💊 Nutritional & Supplement Support</div>
+                <ul class="rec-list">
+                    <li>Omega-3 fatty acids: 2000mg EPA/DHA daily to support endocannabinoid synthesis</li>
+                    <li>Magnesium glycinate: 400mg before bed for GABA-eCBome interaction</li>
+                    <li>Adaptogenic herbs: Ashwagandha (300mg) to reduce cortisol and support hormonal balance</li>
+                    <li>Probiotic supplementation: Focus on Lactobacillus strains for gut-eCBome axis</li>
+                </ul>
+            </div>
+            <div class="rec-category">
+                <div class="rec-title">💑 Sexual Health Optimization</div>
+                <ul class="rec-list">
+                    <li>Coordinate intimacy with evening AEA peak (7-9 PM) for enhanced experience</li>
+                    <li>Consider bioidentical hormone consultation for estradiol optimization</li>
+                    <li>Stress reduction specifically before intimate moments to optimize eCBome function</li>
+                    <li>Partner meditation or breathwork to synchronize eCBome states</li>
+                </ul>
+            </div>
+            <div class="rec-category">
+                <div class="rec-title">🧬 Personalized Medicine Considerations</div>
+                <ul class="rec-list">
+                    <li>Genetic testing recommended: COMT, FAAH, CNR1 polymorphisms for personalized dosing</li>
+                    <li>Microbiome analysis to optimize gut-eCBome axis interventions</li>
+                    <li>Regular eCBome biomarker monitoring every 3 months</li>
+                    <li>Consider psychedelic-assisted therapy consultation for trauma-informed eCBome healing</li>
+                </ul>
+            </div>
+        </div>
+        <!-- Drug Interactions & Safety -->
+        <div class="section">
+            <h3>Pharmaceutical Interactions & Safety</h3>
+            <div class="disclaimer">
+                <h4>⚠️ Important Safety Information</h4>
+                <p>Current medications may interact with cannabinoid therapy. Monitor closely for enhanced sedative effects with benzodiazepines, potential changes in antidepressant effectiveness, and altered pain medication requirements. Always consult with your healthcare provider before making changes to medication regimens.</p>
+            </div>
+        </div>
+        <!-- Footer -->
+        <div class="footer">
+            <p><strong>eCDome Intelligent Integrative Health Record</strong></p>
+            <p>This report represents a comprehensive analysis of your endocannabinoidome system and should be used in conjunction with professional medical advice.</p>
+            <p>Generated on ${new Date().toLocaleString()}</p>
+        </div>
+    </div>
+    <script>
+        // Receptor Status Chart
+        const receptorCtx = document.getElementById('receptorChart').getContext('2d');
+        new Chart(receptorCtx, {
+            type: 'radar',
+            data: {
+                labels: ${JSON.stringify(reportData.analysisResults.receptorStatus.map(r => r.name))},
+                datasets: [{
+                    label: 'Current Function',
+                    data: ${JSON.stringify(reportData.analysisResults.receptorStatus.map(r => r.score))},
+                    backgroundColor: 'rgba(79, 70, 229, 0.2)',
+                    borderColor: 'rgba(79, 70, 229, 1)',
+                    borderWidth: 2
+                }, {
+                    label: 'Optimal Range',
+                    data: [100, 100, 100, 100, 100],
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    borderColor: 'rgba(16, 185, 129, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+        // Circadian Pattern Chart
+        const circadianCtx = document.getElementById('circadianChart').getContext('2d');
+        new Chart(circadianCtx, {
+            type: 'line',
+            data: {
+                labels: ['06:00', '09:00', '12:00', '15:00', '18:00', '21:00', '00:00'],
+                datasets: [{
+                    label: 'AEA Levels',
+                    data: [20, 30, 45, 60, 85, 95, 70],
+                    borderColor: 'rgba(79, 70, 229, 1)',
+                    backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                    tension: 0.4
+                }, {
+                    label: '2-AG Levels',
+                    data: [40, 55, 75, 85, 70, 60, 45],
+                    borderColor: 'rgba(16, 185, 129, 1)',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    tension: 0.4
+                }, {
+                    label: 'Cortisol',
+                    data: [90, 70, 50, 40, 35, 25, 20],
+                    borderColor: 'rgba(245, 158, 11, 1)',
+                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Daily eCBome & Stress Hormone Patterns'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Relative Levels (%)'
+                        }
+                    }
+                }
+            }
+        });
+        // Hormonal Chart
+        const hormonalCtx = document.getElementById('hormonalChart').getContext('2d');
+        new Chart(hormonalCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Testosterone', 'Estradiol', 'Cortisol', 'CB1 Expression', 'CB2 Expression'],
+                datasets: [{
+                    label: 'Current Levels (%)',
+                    data: [90, 60, 120, 85, 70],
+                    backgroundColor: [
+                        'rgba(79, 70, 229, 0.8)',
+                        'rgba(236, 72, 153, 0.8)',
+                        'rgba(245, 158, 11, 0.8)',
+                        'rgba(16, 185, 129, 0.8)',
+                        'rgba(139, 92, 246, 0.8)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Hormonal & Receptor Status (% of Optimal)'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 150,
+                        title: {
+                            display: true,
+                            text: 'Percentage of Optimal Range'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>`;
+
+    return htmlContent;
+  };
+
+  return (
+    <div className="p-6 space-y-6">
+      {/* Loading State */}
+      {loading && !currentAnalysis && (
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-lg font-medium text-gray-700">Loading eCDome Intelligence System...</p>
+            <p className="text-sm text-gray-500 mt-2">Connecting to Abena services</p>
+          </div>
+        </div>
+      )}
+
+      {/* Tab Navigation */}
+      <div className="flex space-x-4 mb-6">
+        <button
+          className={`px-4 py-2 rounded-t-lg font-semibold focus:outline-none ${activeTab === 'dashboard' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700'}`}
+          onClick={() => setActiveTab('dashboard')}
+        >
+          eCDome Dashboard
+        </button>
+        <button
+          className={`px-4 py-2 rounded-t-lg font-semibold focus:outline-none ${activeTab === 'advanced' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700'}`}
+          onClick={() => setActiveTab('advanced')}
+        >
+          Advanced Analytics
+        </button>
+        <button
+          className={`px-4 py-2 rounded-t-lg font-semibold focus:outline-none ${activeTab === 'monitoring' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700'}`}
+          onClick={() => setActiveTab('monitoring')}
+        >
+          Real-time Monitoring
+        </button>
+        <button
+          className={`px-4 py-2 rounded-t-lg font-semibold focus:outline-none ${activeTab === 'personalized' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700'}`}
+          onClick={() => setActiveTab('personalized')}
+        >
+          Personalized Medicine
+        </button>
+        <button
+          className={`px-4 py-2 rounded-t-lg font-semibold focus:outline-none ${activeTab === 'comprehensive' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700'}`}
+          onClick={() => setActiveTab('comprehensive')}
+        >
+          Comprehensive eCDome Analysis
+        </button>
+      </div>
+
+      {/* Tab Content */}
+      {activeTab === 'dashboard' && (
+        <>
+          {/* Header */}
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">eCDome Intelligence System</h1>
+                <p className="text-gray-600 mt-2">Comprehensive Endocannabinoidome Analysis & Monitoring</p>
+                <div className="flex items-center mt-2">
+                  <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                    currentAnalysis 
+                      ? 'bg-green-100 text-green-800' 
+                      : 'bg-yellow-100 text-yellow-800'
+                  }`}>
+                    <div className={`w-2 h-2 rounded-full mr-1 ${
+                      currentAnalysis 
+                        ? 'bg-green-500' 
+                        : 'bg-yellow-500'
+                    }`}></div>
+                    {currentAnalysis 
+                      ? 'Connected to Abena Services' 
+                      : 'Connecting to Abena Services...'}
+                  </div>
+                </div>
+              </div>
+              <div className="flex space-x-2">
+                <button
+                  onClick={toggleAnalysis}
+                  disabled={loading}
+                  className={`px-4 py-2 rounded-lg font-medium flex items-center space-x-2 ${
+                    isRunning 
+                      ? 'bg-red-500 text-white hover:bg-red-600' 
+                      : 'bg-green-500 text-white hover:bg-green-600'
+                  } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  {loading ? (
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : isRunning ? (
+                    <Square className="w-4 h-4" />
+                  ) : (
+                    <Play className="w-4 h-4" />
+                  )}
+                  <span>{loading ? 'Loading...' : isRunning ? 'Stop' : 'Start'} Analysis</span>
+                </button>
+                <button
+                  onClick={() => exportData('json')}
+                  disabled={loading}
+                  className={`px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 flex items-center space-x-2 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  {loading ? (
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <Download className="w-4 h-4" />
+                  )}
+                  <span>Export JSON</span>
+                </button>
+                <button
+                  onClick={() => exportData('csv')}
+                  disabled={loading}
+                  className={`px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 flex items-center space-x-2 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  {loading ? (
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <Download className="w-4 h-4" />
+                  )}
+                  <span>Export CSV</span>
+                </button>
+                <button
+                  onClick={generateHTMLReport}
+                  disabled={loading}
+                  className={`px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 flex items-center space-x-2 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  {loading ? (
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <FileText className="w-4 h-4" />
+                  )}
+                  <span>Export HTML Report</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Error Display */}
+          {errors.length > 0 && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-red-800 flex items-center">
+                  <AlertTriangle className="w-5 h-5 mr-2" />
+                  System Errors
+                </h3>
+                <button
+                  onClick={() => setErrors([])}
+                  className="text-red-600 hover:text-red-800"
+                >
+                  Clear
+                </button>
+              </div>
+              <div className="mt-2 space-y-1">
+                {errors.slice(-3).map((error, index) => (
+                  <div key={index} className="text-sm text-red-700 bg-red-100 p-2 rounded">
+                    {error}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* System Health & Insights Dashboard */}
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">System Intelligence Dashboard</h3>
+              <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                systemHealth.status === 'healthy' ? 'bg-green-100 text-green-800' :
+                systemHealth.status === 'degraded' ? 'bg-yellow-100 text-yellow-800' :
+                'bg-red-100 text-red-800'
+              }`}>
+                <div className={`w-2 h-2 rounded-full mr-2 ${
+                  systemHealth.status === 'healthy' ? 'bg-green-500' :
+                  systemHealth.status === 'degraded' ? 'bg-yellow-500' :
+                  'bg-red-500'
+                }`}></div>
+                System Status: {systemHealth.status.charAt(0).toUpperCase() + systemHealth.status.slice(1)}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              <div className="bg-gray-50 p-3 rounded-lg">
+                <div className="flex items-center">
+                  <Activity className="w-5 h-5 text-blue-500 mr-2" />
+                  <span className="text-sm font-medium text-gray-700">Data Quality</span>
+                </div>
+                <p className="text-2xl font-bold text-blue-600">{systemHealth.dataQuality.toFixed(1)}%</p>
+              </div>
+              
+              <div className="bg-gray-50 p-3 rounded-lg">
+                <div className="flex items-center">
+                  <TrendingUp className="w-5 h-5 text-green-500 mr-2" />
+                  <span className="text-sm font-medium text-gray-700">Data Points</span>
+                </div>
+                <p className="text-2xl font-bold text-green-600">{analysisHistory.length}</p>
+              </div>
+              
+              <div className="bg-gray-50 p-3 rounded-lg">
+                <div className="flex items-center">
+                  <AlertTriangle className="w-5 h-5 text-orange-500 mr-2" />
+                  <span className="text-sm font-medium text-gray-700">Insights</span>
+                </div>
+                <p className="text-2xl font-bold text-orange-600">{insights.length}</p>
+              </div>
+            </div>
+
+            {/* Insights Display */}
+            {insights.length > 0 && (
+              <div className="border-t pt-4">
+                <h4 className="text-md font-semibold mb-3">Recent Insights</h4>
+                <div className="space-y-2">
+                  {insights.slice(-3).map((insight, index) => (
+                    <div key={index} className={`p-3 rounded-lg border-l-4 ${
+                      insight.severity === 'high' ? 'bg-red-50 border-red-400' :
+                      insight.severity === 'medium' ? 'bg-yellow-50 border-yellow-400' :
+                      'bg-blue-50 border-blue-400'
+                    }`}>
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center mb-1">
+                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium mr-2 ${
+                              insight.type === 'trend' ? 'bg-blue-100 text-blue-800' :
+                              insight.type === 'anomaly' ? 'bg-red-100 text-red-800' :
+                              'bg-yellow-100 text-yellow-800'
+                            }`}>
+                              {insight.type.charAt(0).toUpperCase() + insight.type.slice(1)}
+                            </span>
+                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                              insight.severity === 'high' ? 'bg-red-100 text-red-800' :
+                              insight.severity === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                              'bg-green-100 text-green-800'
+                            }`}>
+                              {insight.severity.charAt(0).toUpperCase() + insight.severity.slice(1)}
+                            </span>
+                          </div>
+                          <p className="text-sm font-medium text-gray-800">{insight.message}</p>
+                          {insight.details && (
+                            <div className="mt-2 text-xs text-gray-600">
+                              {insight.details.slice(0, 2).map((detail, i) => (
+                                <p key={i} className="ml-2">
+                                  {typeof detail === 'string' ? detail : 
+                                   `${detail.metric}: ${detail.value.toFixed(3)} (expected: ${detail.expected.toFixed(3)})`}
+                                </p>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Correlation Dashboard */}
+            {correlationData && (
+              <div className="border-t pt-4">
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-md font-semibold flex items-center">
+                    <BarChart3 className="w-4 h-4 mr-2 text-purple-500" />
+                    Real-Time Correlation Analysis
+                  </h4>
+                  <div className="text-xs text-gray-500">
+                    {correlationData.summary && (
+                      <span>
+                        {correlationData.summary.totalCorrelations} correlations | 
+                        {correlationData.summary.strongCorrelations} strong | 
+                        {correlationData.summary.highConfidence} high confidence
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Correlation Summary Cards */}
+                {correlationData.summary && (
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
+                    <div className="bg-purple-50 p-3 rounded-lg border border-purple-200">
+                      <div className="text-xs font-medium text-purple-700">Total Correlations</div>
+                      <div className="text-lg font-bold text-purple-800">{correlationData.summary.totalCorrelations}</div>
+                    </div>
+                    <div className="bg-green-50 p-3 rounded-lg border border-green-200">
+                      <div className="text-xs font-medium text-green-700">Strong (r &gt; 0.8)</div>
+                      <div className="text-lg font-bold text-green-800">{correlationData.summary.strongCorrelations}</div>
+                    </div>
+                    <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+                      <div className="text-xs font-medium text-blue-700">High Confidence</div>
+                      <div className="text-lg font-bold text-blue-800">{correlationData.summary.highConfidence}</div>
+                    </div>
+                    <div className={`p-3 rounded-lg border ${
+                      correlationData.summary.systemHealth?.status === 'healthy' 
+                        ? 'bg-green-50 border-green-200' 
+                        : 'bg-red-50 border-red-200'
+                    }`}>
+                      <div className={`text-xs font-medium ${
+                        correlationData.summary.systemHealth?.status === 'healthy' 
+                          ? 'text-green-700' 
+                          : 'text-red-700'
+                      }`}>System Health</div>
+                      <div className={`text-lg font-bold ${
+                        correlationData.summary.systemHealth?.status === 'healthy' 
+                          ? 'text-green-800' 
+                          : 'text-red-800'
+                      }`}>
+                        {correlationData.summary.systemHealth?.score ? 
+                          (correlationData.summary.systemHealth.score * 100).toFixed(0) + '%' : 'N/A'}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Top Correlations */}
+                {correlationData.correlations && correlationData.correlations.length > 0 && (
+                  <div className="mb-4">
+                    <h5 className="text-sm font-semibold mb-2 text-gray-700">Top Correlations</h5>
+                    <div className="space-y-2">
+                      {correlationData.correlations
+                        .sort((a, b) => Math.abs(b.correlation) - Math.abs(a.correlation))
+                        .slice(0, 5)
+                        .map((corr, index) => (
+                          <div key={index} className="bg-gray-50 p-3 rounded-lg">
+                            <div className="flex items-center justify-between">
+                              <div className="flex-1">
+                                <div className="text-sm font-medium text-gray-800">
+                                  {corr.metric1} ↔ {corr.metric2}
+                                </div>
+                                <div className="text-xs text-gray-600">
+                                  Type: {corr.type.replace(/_/g, ' ')} | 
+                                  Confidence: {(corr.confidence * 100).toFixed(0)}%
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <div className={`text-sm font-bold ${
+                                  Math.abs(corr.correlation) > 0.8 ? 'text-green-600' :
+                                  Math.abs(corr.correlation) > 0.6 ? 'text-yellow-600' : 'text-gray-600'
+                                }`}>
+                                  r = {corr.correlation.toFixed(3)}
+                                </div>
+                                <div className="text-xs text-gray-500">
+                                  {corr.significance.replace(/_/g, ' ')}
+                                </div>
+                              </div>
+                            </div>
+                            {corr.pattern && corr.pattern.type === 'correlation_pattern' && (
+                              <div className="mt-2 text-xs text-gray-600">
+                                <span className="font-medium">Pattern: </span>
+                                {corr.pattern.synchronous && 'Synchronous '}
+                                {corr.pattern.lagged && `Lagged (${corr.pattern.lagged.lag} periods) `}
+                                {corr.pattern.trend1 !== 'stable' && `${corr.metric1}: ${corr.pattern.trend1} `}
+                                {corr.pattern.trend2 !== 'stable' && `${corr.metric2}: ${corr.pattern.trend2}`}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Correlation Insights */}
+                {correlationInsights.length > 0 && (
+                  <div>
+                    <h5 className="text-sm font-semibold mb-2 text-gray-700">Correlation Insights</h5>
+                    <div className="space-y-2">
+                      {correlationInsights.slice(-3).map((insight, index) => (
+                        <div key={index} className={`p-3 rounded-lg border-l-4 ${
+                          insight.severity === 'high' ? 'bg-purple-50 border-purple-400' :
+                          insight.severity === 'medium' ? 'bg-indigo-50 border-indigo-400' :
+                          'bg-blue-50 border-blue-400'
+                        }`}>
+                          <div className="flex items-center mb-1">
+                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium mr-2 ${
+                              insight.type === 'strong_correlation' ? 'bg-purple-100 text-purple-800' :
+                              insight.type === 'synchronous_pattern' ? 'bg-indigo-100 text-indigo-800' :
+                              insight.type === 'lagged_pattern' ? 'bg-blue-100 text-blue-800' :
+                              'bg-green-100 text-green-800'
+                            }`}>
+                              {insight.type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                            </span>
+                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                              insight.severity === 'high' ? 'bg-red-100 text-red-800' :
+                              insight.severity === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                              'bg-green-100 text-green-800'
+                            }`}>
+                              {insight.severity.charAt(0).toUpperCase() + insight.severity.slice(1)}
+                            </span>
+                          </div>
+                          <p className="text-sm font-medium text-gray-800">{insight.message}</p>
+                          {insight.details && (
+                            <div className="mt-2 text-xs text-gray-600">
+                              {insight.details.map((detail, i) => (
+                                <p key={i} className="ml-2">• {detail}</p>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Charts Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-white p-6 rounded-lg shadow">
+              <h3 className="text-lg font-semibold mb-4">Endocannabinoid Levels</h3>
+              <div className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={chartData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" />
+                    <YAxis domain={[0, 100]} />
+                    <Tooltip />
+                    <Legend />
+                    <Line type="monotone" dataKey="anandamide" stroke="#4BC0C0" name="Anandamide" />
+                    <Line type="monotone" dataKey="2-AG" stroke="#FF6384" name="2-AG" />
+                    <Line type="monotone" dataKey="PEA" stroke="#36A2EB" name="PEA" />
+                    <Line type="monotone" dataKey="OEA" stroke="#9966FF" name="OEA" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            <div className="bg-white p-6 rounded-lg shadow">
+              <h3 className="text-lg font-semibold mb-4">Endocannabinoid Receptors</h3>
+              <div className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={chartData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" />
+                    <YAxis domain={[0, 100]} />
+                    <Tooltip />
+                    <Legend />
+                    <Line type="monotone" dataKey="CB1" stroke="#FF9F40" name="CB1" />
+                    <Line type="monotone" dataKey="CB2" stroke="#4BC0C0" name="CB2" />
+                    <Line type="monotone" dataKey="TRPV1" stroke="#36A2EB" name="TRPV1" />
+                    <Line type="monotone" dataKey="GPR18" stroke="#9966FF" name="GPR18" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            <div className="bg-white p-6 rounded-lg shadow">
+              <h3 className="text-lg font-semibold mb-4">PPAR Receptors</h3>
+              <div className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={chartData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" />
+                    <YAxis domain={[0, 100]} />
+                    <Tooltip />
+                    <Legend />
+                    <Line type="monotone" dataKey="PPARα" stroke="#FF6384" name="PPARα" />
+                    <Line type="monotone" dataKey="PPARγ" stroke="#36A2EB" name="PPARγ" />
+                    <Line type="monotone" dataKey="PPARδ" stroke="#9966FF" name="PPARδ" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            <div className="bg-white p-6 rounded-lg shadow">
+              <h3 className="text-lg font-semibold mb-4">Serotonin (5-HT) Receptors</h3>
+              <div className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={chartData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" />
+                    <YAxis domain={[0, 100]} />
+                    <Tooltip />
+                    <Legend />
+                    <Line type="monotone" dataKey="5-HT1A" stroke="#FF9F40" name="5-HT1A" />
+                    <Line type="monotone" dataKey="5-HT2A" stroke="#4BC0C0" name="5-HT2A" />
+                    <Line type="monotone" dataKey="5-HT3" stroke="#36A2EB" name="5-HT3" />
+                    <Line type="monotone" dataKey="5-HT4" stroke="#9966FF" name="5-HT4" />
+                    <Line type="monotone" dataKey="5-HT6" stroke="#FF6384" name="5-HT6" />
+                    <Line type="monotone" dataKey="5-HT7" stroke="#C9CBCF" name="5-HT7" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            <div className="bg-white p-6 rounded-lg shadow">
+              <h3 className="text-lg font-semibold mb-4">Dopamine Receptors</h3>
+              <div className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={chartData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" />
+                    <YAxis domain={[0, 100]} />
+                    <Tooltip />
+                    <Legend />
+                    <Line type="monotone" dataKey="D1" stroke="#FF9F40" name="D1" />
+                    <Line type="monotone" dataKey="D2" stroke="#4BC0C0" name="D2" />
+                    <Line type="monotone" dataKey="D3" stroke="#36A2EB" name="D3" />
+                    <Line type="monotone" dataKey="D4" stroke="#9966FF" name="D4" />
+                    <Line type="monotone" dataKey="D5" stroke="#FF6384" name="D5" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            <div className="bg-white p-6 rounded-lg shadow">
+              <h3 className="text-lg font-semibold mb-4">Adrenergic Receptors</h3>
+              <div className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={chartData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" />
+                    <YAxis domain={[0, 100]} />
+                    <Tooltip />
+                    <Legend />
+                    <Line type="monotone" dataKey="α1A" stroke="#FF9F40" name="α1A" />
+                    <Line type="monotone" dataKey="α2A" stroke="#4BC0C0" name="α2A" />
+                    <Line type="monotone" dataKey="β1" stroke="#36A2EB" name="β1" />
+                    <Line type="monotone" dataKey="β2" stroke="#9966FF" name="β2" />
+                    <Line type="monotone" dataKey="β3" stroke="#FF6384" name="β3" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            <div className="bg-white p-6 rounded-lg shadow">
+              <h3 className="text-lg font-semibold mb-4">System Health Metrics</h3>
+              <div className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={chartData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" />
+                    <YAxis domain={[0, 100]} />
+                    <Tooltip />
+                    <Legend />
+                    <Line type="monotone" dataKey="microbiomeHealth" stroke="#4BC0C0" name="Microbiome" />
+                    <Line type="monotone" dataKey="inflammationMarkers" stroke="#FF6384" name="Inflammation" />
+                    <Line type="monotone" dataKey="stressResponse" stroke="#36A2EB" name="Stress" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+      {activeTab === 'advanced' && (
+        <div className="space-y-8 bg-gradient-to-br from-purple-50 to-indigo-50 p-6 rounded-xl">
+          {/* Advanced Analytics Header */}
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-indigo-900 mb-2">
+              Advanced Analytics & Predictive Modeling
+            </h1>
+            <p className="text-lg text-indigo-700">
+              AI-Powered eCDome Intelligence with Real-time Predictions & Risk Assessment
+            </p>
+          </div>
+
+          {/* ML Model Status Dashboard */}
+          <div className="bg-white p-6 rounded-lg shadow-sm">
+            <h3 className="text-xl font-semibold mb-4 flex items-center">
+              <Brain className="w-6 h-6 mr-2 text-purple-600" />
+              Machine Learning Model Status
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {mlModelStatus && typeof mlModelStatus === 'object' ? Object.entries(mlModelStatus).map(([model, status]) => (
+                <div key={model} className="p-4 bg-gradient-to-br from-purple-50 to-indigo-50 rounded-lg border border-purple-200">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-semibold text-purple-900 capitalize">
+                      {model.replace(/([A-Z])/g, ' $1').trim()}
+                    </h4>
+                    <div className={`w-3 h-3 rounded-full ${
+                      status.confidence > 0.8 ? 'bg-green-500' :
+                      status.confidence > 0.6 ? 'bg-yellow-500' : 'bg-red-500'
+                    }`}></div>
+                  </div>
+                  <div className="text-2xl font-bold text-purple-800 mb-1">
+                    {(status.confidence * 100).toFixed(0)}%
+                  </div>
+                  <div className="text-sm text-purple-600">Confidence</div>
+                  {status.lastUpdated && (
+                    <div className="text-xs text-purple-500 mt-2">
+                      Updated: {new Date(status.lastUpdated).toLocaleTimeString()}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Predictive Analytics Dashboard */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Short-term Predictions */}
+            <div className="bg-white p-6 rounded-lg shadow-sm">
+              <h3 className="text-lg font-semibold mb-4 flex items-center">
+                <Clock className="w-5 h-5 mr-2 text-blue-600" />
+                Short-term (24h)
+              </h3>
+              {predictiveAnalytics.shortTerm ? (
+                <div className="space-y-3">
+                  <div className="p-3 bg-blue-50 rounded-lg">
+                    <div className="text-sm font-medium text-blue-800">Next Optimization Window</div>
+                    <div className="text-lg font-bold text-blue-900">
+                      {new Date(predictiveAnalytics.shortTerm.nextOptimizationWindow).toLocaleTimeString()}
+                    </div>
+                  </div>
+                  <div className="p-3 bg-green-50 rounded-lg">
+                    <div className="text-sm font-medium text-green-800">Immediate Interventions</div>
+                    <ul className="text-sm text-green-700 mt-1">
+                      {predictiveAnalytics.shortTerm.immediateInterventions.map((intervention, index) => (
+                        <li key={index}>• {intervention.replace(/_/g, ' ')}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  {predictiveAnalytics.shortTerm.riskAlerts.length > 0 && (
+                    <div className="p-3 bg-red-50 rounded-lg">
+                      <div className="text-sm font-medium text-red-800">Risk Alerts</div>
+                      <ul className="text-sm text-red-700 mt-1">
+                        {predictiveAnalytics.shortTerm.riskAlerts.map((alert, index) => (
+                          <li key={index}>• {alert.replace(/_/g, ' ')}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  <div className="text-xs text-gray-500">
+                    Confidence: {(predictiveAnalytics.shortTerm.confidence * 100).toFixed(0)}%
+                  </div>
+                </div>
+              ) : (
+                <div className="text-gray-500">Loading predictions...</div>
+              )}
+            </div>
+
+            {/* Medium-term Predictions */}
+            <div className="bg-white p-6 rounded-lg shadow-sm">
+              <h3 className="text-lg font-semibold mb-4 flex items-center">
+                <TrendingUp className="w-5 h-5 mr-2 text-green-600" />
+                Medium-term (7d)
+              </h3>
+              {predictiveAnalytics.mediumTerm ? (
+                <div className="space-y-3">
+                  <div className="p-3 bg-green-50 rounded-lg">
+                    <div className="text-sm font-medium text-green-800">Weekly Trends</div>
+                    <ul className="text-sm text-green-700 mt-1">
+                      {predictiveAnalytics.mediumTerm.weeklyTrends.map((trend, index) => (
+                        <li key={index}>• {trend.replace(/_/g, ' ')}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="p-3 bg-blue-50 rounded-lg">
+                    <div className="text-sm font-medium text-blue-800">Treatment Adjustments</div>
+                    <ul className="text-sm text-blue-700 mt-1">
+                      {predictiveAnalytics.mediumTerm.treatmentAdjustments.map((adjustment, index) => (
+                        <li key={index}>• {adjustment.replace(/_/g, ' ')}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    Confidence: {(predictiveAnalytics.mediumTerm.confidence * 100).toFixed(0)}%
+                  </div>
+                </div>
+              ) : (
+                <div className="text-gray-500">Loading predictions...</div>
+              )}
+            </div>
+
+            {/* Long-term Predictions */}
+            <div className="bg-white p-6 rounded-lg shadow-sm">
+              <h3 className="text-lg font-semibold mb-4 flex items-center">
+                <Target className="w-5 h-5 mr-2 text-purple-600" />
+                Long-term (30d)
+              </h3>
+              {predictiveAnalytics.longTerm ? (
+                <div className="space-y-3">
+                  <div className="p-3 bg-purple-50 rounded-lg">
+                    <div className="text-sm font-medium text-purple-800">Condition Progression</div>
+                    <div className="text-sm text-purple-700 mt-1">
+                      {predictiveAnalytics.longTerm.chronicConditionProgression.replace(/_/g, ' ')}
+                    </div>
+                  </div>
+                  <div className="p-3 bg-indigo-50 rounded-lg">
+                    <div className="text-sm font-medium text-indigo-800">Preventive Measures</div>
+                    <ul className="text-sm text-indigo-700 mt-1">
+                      {predictiveAnalytics.longTerm.preventiveMeasures.map((measure, index) => (
+                        <li key={index}>• {measure.replace(/_/g, ' ')}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    Confidence: {(predictiveAnalytics.longTerm.confidence * 100).toFixed(0)}%
+                  </div>
+                </div>
+              ) : (
+                <div className="text-gray-500">Loading predictions...</div>
+              )}
+            </div>
+          </div>
+
+          {/* Risk Assessment Dashboard */}
+          <div className="bg-white p-6 rounded-lg shadow-sm">
+            <h3 className="text-xl font-semibold mb-4 flex items-center">
+              <AlertTriangle className="w-6 h-6 mr-2 text-orange-600" />
+              Real-time Risk Assessment
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Risk Score */}
+              <div className="p-4 bg-gradient-to-br from-orange-50 to-red-50 rounded-lg border border-orange-200">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-orange-800 mb-2">
+                    {(riskAssessment.score * 100).toFixed(0)}%
+                  </div>
+                  <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                    riskAssessment.level === 'high' ? 'bg-red-100 text-red-800' :
+                    riskAssessment.level === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                    'bg-green-100 text-green-800'
+                  }`}>
+                    {riskAssessment.level.toUpperCase()} RISK
+                  </div>
+                </div>
+              </div>
+
+              {/* Risk Factors */}
+              <div className="p-4 bg-gray-50 rounded-lg">
+                <h4 className="font-semibold text-gray-800 mb-3">Risk Factors</h4>
+                <div className="space-y-2">
+                  {riskAssessment.factors.map(([factor, value], index) => (
+                    <div key={index} className="flex justify-between items-center">
+                      <span className="text-sm text-gray-700 capitalize">
+                        {factor.replace(/([A-Z])/g, ' $1').trim()}
+                      </span>
+                      <span className="text-sm font-medium text-red-600">
+                        {(value * 100).toFixed(0)}%
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Recommendations */}
+              <div className="p-4 bg-blue-50 rounded-lg">
+                <h4 className="font-semibold text-blue-800 mb-3">Mitigation Strategies</h4>
+                <ul className="text-sm text-blue-700 space-y-1">
+                  {riskAssessment.recommendations.map((rec, index) => (
+                    <li key={index}>• {rec}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* Cross-System Interactions */}
+          {crossSystemInteractions && (
+            <div className="bg-white p-6 rounded-lg shadow-sm">
+              <h3 className="text-xl font-semibold mb-4 flex items-center">
+                <ActivitySquare className="w-6 h-6 mr-2 text-indigo-600" />
+                Cross-System Interactions
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {crossSystemInteractions && typeof crossSystemInteractions === 'object' ? Object.entries(crossSystemInteractions).map(([system, data]) => (
+                  <div key={system} className="p-4 bg-indigo-50 rounded-lg">
+                    <h4 className="font-semibold text-indigo-900 capitalize mb-3">{system}</h4>
+                    <div className="space-y-2">
+                      {data && typeof data === 'object' ? Object.entries(data).map(([metric, value]) => (
+                        <div key={metric} className="flex justify-between items-center">
+                          <span className="text-sm text-indigo-700 capitalize">
+                            {metric.replace(/([A-Z])/g, ' $1').trim()}
+                          </span>
+                          <span className="text-sm font-medium text-indigo-800">
+                            {typeof value === 'number' ? value.toFixed(2) : value}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-3 text-xs text-indigo-600">
+                      Correlation: {(data.correlation * 100).toFixed(0)}%
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Temporal Patterns */}
+          {temporalPatterns && (
+            <div className="bg-white p-6 rounded-lg shadow-sm">
+              <h3 className="text-xl font-semibold mb-4 flex items-center">
+                <Gauge className="w-6 h-6 mr-2 text-green-600" />
+                Temporal Pattern Analysis
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Circadian Patterns */}
+                <div>
+                  <h4 className="font-semibold text-green-800 mb-3">Circadian Patterns</h4>
+                  <div className="space-y-3">
+                    {temporalPatterns.circadian && typeof temporalPatterns.circadian === 'object' ? Object.entries(temporalPatterns.circadian).map(([period, data]) => (
+                      <div key={period} className="p-3 bg-green-50 rounded-lg">
+                        <div className="font-medium text-green-900 capitalize mb-1">{period}</div>
+                        <div className="text-sm text-green-700 mb-1">{data.time}</div>
+                        <ul className="text-xs text-green-600">
+                          {data.patterns.map((pattern, index) => (
+                            <li key={index}>• {pattern.replace(/_/g, ' ')}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Weekly Patterns */}
+                <div>
+                  <h4 className="font-semibold text-blue-800 mb-3">Weekly Patterns</h4>
+                  <div className="space-y-3">
+                    {temporalPatterns.weekly && typeof temporalPatterns.weekly === 'object' ? Object.entries(temporalPatterns.weekly).map(([day, data]) => (
+                      <div key={day} className="p-3 bg-blue-50 rounded-lg">
+                        <div className="font-medium text-blue-900 capitalize mb-1">{day}</div>
+                        <ul className="text-xs text-blue-600">
+                          {data.patterns.map((pattern, index) => (
+                            <li key={index}>• {pattern.replace(/_/g, ' ')}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Causal Analysis */}
+          {causalAnalysis && (
+            <div className="bg-white p-6 rounded-lg shadow-sm">
+              <h3 className="text-xl font-semibold mb-4 flex items-center">
+                <BarChart4 className="w-6 h-6 mr-2 text-purple-600" />
+                Causal Inference Analysis
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Interventions */}
+                <div>
+                  <h4 className="font-semibold text-purple-800 mb-3">Intervention Effects</h4>
+                  <div className="space-y-3">
+                    {causalAnalysis.interventions && typeof causalAnalysis.interventions === 'object' ? Object.entries(causalAnalysis.interventions).map(([intervention, data]) => (
+                      <div key={intervention} className="p-3 bg-purple-50 rounded-lg">
+                        <div className="font-medium text-purple-900 capitalize mb-1">
+                          {intervention.replace(/([A-Z])/g, ' $1').trim()}
+                        </div>
+                        <div className="text-sm text-purple-700 mb-1">
+                          Effect: {data.effect.replace(/_/g, ' ')}
+                        </div>
+                        <div className="text-xs text-purple-600">
+                          Magnitude: {(data.magnitude * 100).toFixed(0)}% | 
+                          Duration: {data.duration} | 
+                          Confidence: {(data.confidence * 100).toFixed(0)}%
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Lifestyle Factors */}
+                <div>
+                  <h4 className="font-semibold text-indigo-800 mb-3">Lifestyle Factors</h4>
+                  <div className="space-y-3">
+                    {causalAnalysis.lifestyle && typeof causalAnalysis.lifestyle === 'object' ? Object.entries(causalAnalysis.lifestyle).map(([factor, effects]) => (
+                      <div key={factor} className="p-3 bg-indigo-50 rounded-lg">
+                        <div className="font-medium text-indigo-900 capitalize mb-1">{factor}</div>
+                        <ul className="text-xs text-indigo-600">
+                          {effects && typeof effects === 'object' ? Object.entries(effects).map(([type, effect]) => (
+                            <li key={type}>• {type.replace(/([A-Z])/g, ' $1').trim()}: {effect.replace(/_/g, ' ')}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+      {activeTab === 'monitoring' && (
+        <div className="space-y-8 bg-gradient-to-br from-purple-50 to-indigo-50 p-6 rounded-xl">
+          {/* Real-time Monitoring Header */}
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-indigo-900 mb-2">
+              Real-time Monitoring & Alerting
+            </h1>
+            <p className="text-lg text-indigo-700">
+              Continuous Monitoring and Alerting System for eCDome Health
+            </p>
+          </div>
+          {/* Monitoring Status Card */}
+          <div className="bg-white p-6 rounded-lg shadow-sm">
+            <h3 className="text-xl font-semibold mb-4 flex items-center">
+              <Heart className="w-6 h-6 mr-2 text-pink-600" />
+              Monitoring Status
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="p-4 bg-pink-50 rounded-lg">
+                <h4 className="font-semibold text-pink-900">Active</h4>
+                <p className="text-sm text-pink-700">{monitoringStatus.active ? 'Yes' : 'No'}</p>
+              </div>
+              <div className="p-4 bg-blue-50 rounded-lg">
+                <h4 className="font-semibold text-blue-900">Last Update</h4>
+                <p className="text-sm text-blue-700">{monitoringStatus.lastUpdate ? new Date(monitoringStatus.lastUpdate).toLocaleString() : 'Never'}</p>
+              </div>
+              <div className="p-4 bg-green-50 rounded-lg">
+                <h4 className="font-semibold text-green-900">Data Points</h4>
+                <p className="text-sm text-green-700">{monitoringStatus.dataPoints}</p>
+              </div>
+              <div className="p-4 bg-yellow-50 rounded-lg">
+                <h4 className="font-semibold text-yellow-900">Alerts</h4>
+                <p className="text-sm text-yellow-700">{monitoringStatus.alertCount}</p>
+              </div>
+            </div>
+          </div>
+          {/* Real-time Alerts */}
+          <div className="bg-white p-6 rounded-lg shadow-sm">
+            <h3 className="text-xl font-semibold mb-4 flex items-center">
+              <AlertTriangle className="w-6 h-6 mr-2 text-orange-600" />
+              Real-time Alerts
+            </h3>
+            <div className="space-y-4">
+              {realTimeAlerts.map((alert, index) => (
+                <div key={index} className="bg-orange-50 rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <h5 className="font-semibold text-orange-800">{alert.message}</h5>
+                      <p className="text-sm text-gray-600">{alert.timestamp}</p>
+                    </div>
+                    <div className="text-sm font-medium text-gray-500">{alert.action}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          {/* Data Streams */}
+          <div className="bg-white p-6 rounded-lg shadow-sm">
+            <h3 className="text-xl font-semibold mb-4 flex items-center">
+              <Activity className="w-6 h-6 mr-2 text-green-600" />
+              Data Streams
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {dataStreams && typeof dataStreams === 'object' ? Object.entries(dataStreams).map(([stream, data]) => (
+                <div key={stream} className="p-4 bg-blue-50 rounded-lg">
+                  <h4 className="font-semibold text-blue-900">{stream}</h4>
+                  <div className="space-y-2">
+                    {data && typeof data === 'object' ? Object.entries(data).map(([metric, value]) => (
+                      <div key={metric} className="flex justify-between items-center">
+                        <span className="text-sm text-blue-700 capitalize">{metric}</span>
+                        <span className="text-sm font-medium text-blue-800">{typeof value === 'number' ? value.toFixed(2) : value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          {/* Intervention History */}
+          <div className="bg-white p-6 rounded-lg shadow-sm">
+            <h3 className="text-xl font-semibold mb-4 flex items-center">
+              <Heart className="w-6 h-6 mr-2 text-pink-600" />
+              Intervention History
+            </h3>
+            <div className="space-y-4">
+              {interventionHistory.map((historyItem, index) => (
+                <div key={index} className="bg-pink-50 rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <h5 className="font-semibold text-pink-800">{historyItem.intervention}</h5>
+                      <p className="text-sm text-pink-700">{historyItem.timestamp}</p>
+                    </div>
+                    <div className="text-sm font-medium text-pink-600">
+                      <strong>Improvements:</strong> {historyItem.improvements && typeof historyItem.improvements === 'object' ? Object.entries(historyItem.improvements).map(([metric, improvement]) => (
+                        <p key={metric} className="mt-1">{metric}: {improvement.toFixed(2)}%</p>
+                      ))}
+                    </div>
+                    <div className="text-sm font-medium text-pink-600">
+                      <strong>Side Effects:</strong> {historyItem.sideEffects.join(', ')}
+                    </div>
+                    <div className="text-sm font-medium text-pink-600">
+                      <strong>Compliance:</strong> {historyItem.compliance.toFixed(2)}%
+                    </div>
+                    <div className="text-sm font-medium text-pink-600">
+                      <strong>Satisfaction:</strong> {historyItem.satisfaction.toFixed(2)}%
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+      {activeTab === 'personalized' && (
+        <div className="space-y-8 bg-gradient-to-br from-purple-50 to-indigo-50 p-6 rounded-xl">
+          {/* Personalized Medicine Header */}
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-indigo-900 mb-2">
+              Personalized Medicine & Treatment Optimization
+            </h1>
+            <p className="text-lg text-indigo-700">
+              AI-Powered Genetic Profiling and Precision Dosing
+            </p>
+          </div>
+
+          {/* Genetic Profiling Dashboard */}
+          <div className="bg-white p-6 rounded-lg shadow-sm">
+            <h3 className="text-xl font-semibold mb-4 flex items-center">
+              <Brain className="w-6 h-6 mr-2 text-purple-600" />
+              Genetic Profiling & Risk Assessment
+            </h3>
+            
+            {geneticRiskAnalysis ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Risk Score */}
+                <div className="p-4 bg-gradient-to-br from-purple-50 to-indigo-50 rounded-lg border border-purple-200">
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-purple-800 mb-2">
+                      {(geneticRiskAnalysis.overallRisk * 100).toFixed(0)}%
+                    </div>
+                    <div className="text-sm text-purple-600">Overall Genetic Risk</div>
+                  </div>
+                </div>
+
+                {/* Personalized Traits */}
+                <div className="p-4 bg-blue-50 rounded-lg">
+                  <h4 className="font-semibold text-blue-800 mb-3">Personalized Traits</h4>
+                  <div className="space-y-2">
+                    {geneticProfile.personalizedTraits && typeof geneticProfile.personalizedTraits === 'object' ? Object.entries(geneticProfile.personalizedTraits).map(([trait, value]) => (
+                      <div key={trait} className="flex justify-between items-center">
+                        <span className="text-sm text-blue-700 capitalize">
+                          {trait.replace(/([A-Z])/g, ' $1').trim()}
+                        </span>
+                        <span className={`text-sm font-medium px-2 py-1 rounded ${
+                          value === 'high' ? 'bg-green-100 text-green-800' :
+                          value === 'moderate' ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-red-100 text-red-800'
+                        }`}>
+                          {value}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="text-gray-500">Loading genetic analysis...</div>
+            )}
+
+            {/* Genetic Recommendations */}
+            {geneticRiskAnalysis && (
+              <div className="mt-6">
+                <h4 className="font-semibold text-purple-800 mb-3">Genetic-Based Recommendations</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-4 bg-green-50 rounded-lg">
+                    <h5 className="font-semibold text-green-800 mb-2">Recommendations</h5>
+                    <ul className="text-sm text-green-700 space-y-1">
+                      {geneticRiskAnalysis.recommendations.map((rec, index) => (
+                        <li key={index}>• {rec}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="p-4 bg-blue-50 rounded-lg">
+                    <h5 className="font-semibold text-blue-800 mb-2">Monitoring</h5>
+                    <ul className="text-sm text-blue-700 space-y-1">
+                      {geneticRiskAnalysis.monitoring.map((monitor, index) => (
+                        <li key={index}>• {monitor}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Personalized Dosing Dashboard */}
+          <div className="bg-white p-6 rounded-lg shadow-sm">
+            <h3 className="text-xl font-semibold mb-4 flex items-center">
+              <Target className="w-5 h-5 mr-2 text-green-600" />
+              Personalized Dosing Recommendations
+            </h3>
+            
+            {personalizedDosing ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* CBD Dosing */}
+                <div className="p-4 bg-green-50 rounded-lg">
+                  <h4 className="font-semibold text-green-800 mb-3">CBD Therapy</h4>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-sm text-green-700">Recommended Dose:</span>
+                      <span className="text-sm font-medium text-green-800">{personalizedDosing.cbd.recommendedDose}mg</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-green-700">Weight Factor:</span>
+                      <span className="text-sm font-medium text-green-800">{personalizedDosing.cbd.weightFactor.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-green-700">Metabolism Factor:</span>
+                      <span className="text-sm font-medium text-green-800">{personalizedDosing.cbd.metabolismFactor.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-green-700">Genetic Factor:</span>
+                      <span className="text-sm font-medium text-green-800">{personalizedDosing.cbd.geneticFactor.toFixed(2)}</span>
+                    </div>
+                    <div className="mt-3 p-2 bg-green-100 rounded">
+                      <div className="text-xs text-green-800 font-medium">Titration:</div>
+                      <div className="text-xs text-green-700">{personalizedDosing.cbd.titration}</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* THC Dosing */}
+                <div className="p-4 bg-purple-50 rounded-lg">
+                  <h4 className="font-semibold text-purple-800 mb-3">THC Therapy</h4>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-sm text-purple-700">Recommended Dose:</span>
+                      <span className="text-sm font-medium text-purple-800">{personalizedDosing.thc.recommendedDose}mg</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-purple-700">Tolerance Factor:</span>
+                      <span className="text-sm font-medium text-purple-800">{personalizedDosing.thc.toleranceFactor.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-purple-700">Sensitivity Factor:</span>
+                      <span className="text-sm font-medium text-purple-800">{personalizedDosing.thc.sensitivityFactor.toFixed(2)}</span>
+                    </div>
+                    <div className="mt-3 p-2 bg-purple-100 rounded">
+                      <div className="text-xs text-purple-800 font-medium">Titration:</div>
+                      <div className="text-xs text-purple-700">{personalizedDosing.thc.titration}</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Supplement Dosing */}
+                <div className="md:col-span-2 p-4 bg-blue-50 rounded-lg">
+                  <h4 className="font-semibold text-blue-800 mb-3">Supplement Recommendations</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {personalizedDosing.supplements && typeof personalizedDosing.supplements === 'object' ? Object.entries(personalizedDosing.supplements).map(([supplement, details]) => (
+                      <div key={supplement} className="p-3 bg-white rounded border">
+                        <h5 className="font-semibold text-blue-900 capitalize mb-2">{supplement}</h5>
+                        <div className="text-sm text-blue-700 space-y-1">
+                          <div><strong>Dose:</strong> {details.dose}</div>
+                          <div><strong>Timing:</strong> {details.timing}</div>
+                          <div className="text-xs text-blue-600">{details.rationale}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="text-gray-500">Loading dosing recommendations...</div>
+            )}
+          </div>
+
+          {/* Treatment Protocol Dashboard */}
+          <div className="bg-white p-6 rounded-lg shadow-sm">
+            <h3 className="text-xl font-semibold mb-4 flex items-center">
+              <Zap className="w-6 h-6 mr-2 text-orange-600" />
+              Personalized Treatment Protocol
+            </h3>
+            
+            {treatmentProtocol ? (
+              <div className="space-y-6">
+                {/* Protocol Overview */}
+                <div className="p-4 bg-orange-50 rounded-lg">
+                  <h4 className="font-semibold text-orange-800 mb-2">Protocol Overview</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <div className="text-sm font-medium text-orange-700">Primary Goals:</div>
+                      <ul className="text-xs text-orange-600 mt-1">
+                        {treatmentProtocol.primaryGoals.map((goal, index) => (
+                          <li key={index}>• {goal.replace(/_/g, ' ')}</li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium text-orange-700">Timeline:</div>
+                      <div className="text-xs text-orange-600">{treatmentProtocol.timeline.replace(/_/g, ' ')}</div>
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium text-orange-700">Personalization Factors:</div>
+                      <div className="text-xs text-orange-600">
+                        {Object.keys(treatmentProtocol.personalization).length} categories
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Treatment Phases */}
+                <div>
+                  <h4 className="font-semibold text-gray-800 mb-3">Treatment Phases</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {treatmentProtocol.phases && typeof treatmentProtocol.phases === 'object' ? Object.entries(treatmentProtocol.phases).map(([phase, details]) => (
+                      <div key={phase} className="p-4 bg-gray-50 rounded-lg">
+                        <h5 className="font-semibold text-gray-800 capitalize mb-2">{phase.replace(/([A-Z])/g, ' $1').trim()}</h5>
+                        <div className="text-sm text-gray-700 space-y-2">
+                          <div><strong>Duration:</strong> {details.duration.replace(/_/g, ' ')}</div>
+                          <div><strong>Focus:</strong> {details.focus.replace(/_/g, ' ')}</div>
+                          <div>
+                            <strong>Interventions:</strong>
+                            <ul className="text-xs text-gray-600 mt-1 ml-2">
+                              {details.interventions.map((intervention, index) => (
+                                <li key={index}>• {intervention.replace(/_/g, ' ')}</li>
+                              ))}
+                            </ul>
+                          </div>
+                          <div>
+                            <strong>Monitoring:</strong>
+                            <ul className="text-xs text-gray-600 mt-1 ml-2">
+                              {details.monitoring.map((monitor, index) => (
+                                <li key={index}>• {monitor.replace(/_/g, ' ')}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="text-gray-500">Loading treatment protocol...</div>
+            )}
+          </div>
+        </div>
+      )}
+      {activeTab === 'comprehensive' && (
+        <div className="space-y-8 bg-gradient-to-br from-purple-50 to-indigo-50 p-6 rounded-xl">
+          {/* Comprehensive eCDome Analysis Header */}
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-indigo-900 mb-2">
+              Comprehensive eCDome Analysis
+            </h1>
+            <p className="text-lg text-indigo-700">
+              Advanced Endocannabinoidome System Insights & Optimization
+            </p>
+          </div>
+
+          {/* Circadian eCDome Optimization */}
+          <div className="bg-white p-6 rounded-lg shadow-sm">
+            <h3 className="text-xl font-semibold mb-4">Circadian eCDome Optimization</h3>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={[
+                  { time: '06:00', AEA: 20, '2AG': 40, Cortisol: 90, Testosterone: 85 },
+                  { time: '09:00', AEA: 30, '2AG': 55, Cortisol: 70, Testosterone: 75 },
+                  { time: '12:00', AEA: 45, '2AG': 75, Cortisol: 50, Testosterone: 60 },
+                  { time: '15:00', AEA: 60, '2AG': 85, Cortisol: 40, Testosterone: 50 },
+                  { time: '18:00', AEA: 85, '2AG': 70, Cortisol: 35, Testosterone: 45 },
+                  { time: '21:00', AEA: 95, '2AG': 60, Cortisol: 25, Testosterone: 40 },
+                  { time: '00:00', AEA: 70, '2AG': 45, Cortisol: 20, Testosterone: 35 }
+                ]}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="time" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Line type="monotone" dataKey="AEA" stroke="#8884d8" strokeWidth={2} />
+                  <Line type="monotone" dataKey="2AG" stroke="#82ca9d" strokeWidth={2} />
+                  <Line type="monotone" dataKey="Cortisol" stroke="#ffc658" strokeWidth={2} />
+                  <Line type="monotone" dataKey="Testosterone" stroke="#ff7300" strokeWidth={2} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+            
+            {/* Circadian Optimization Recommendations */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+              <div className="p-4 bg-yellow-50 rounded-lg">
+                <h4 className="font-semibold text-yellow-900 mb-2">Morning (6-12 AM)</h4>
+                <ul className="text-sm text-yellow-700 space-y-1">
+                  <li>• Low AEA, high cortisol</li>
+                  <li>• Exercise boosts 2-AG</li>
+                  <li>• Cold exposure therapy</li>
+                  <li>• Protein-rich breakfast</li>
+                </ul>
+              </div>
+              <div className="p-4 bg-blue-50 rounded-lg">
+                <h4 className="font-semibold text-blue-900 mb-2">Afternoon (12-6 PM)</h4>
+                <ul className="text-sm text-blue-700 space-y-1">
+                  <li>• AEA rising, cortisol falling</li>
+                  <li>• Peak 2-AG levels</li>
+                  <li>• Optimal for social activities</li>
+                  <li>• Light exercise beneficial</li>
+                </ul>
+              </div>
+              <div className="p-4 bg-purple-50 rounded-lg">
+                <h4 className="font-semibold text-purple-900 mb-2">Evening (6-12 PM)</h4>
+                <ul className="text-sm text-purple-700 space-y-1">
+                  <li>• Peak AEA levels (7-9 PM)</li>
+                  <li>• Optimal for intimacy</li>
+                  <li>• Indica cannabis timing</li>
+                  <li>• Relaxation protocols</li>
+                </ul>
+              </div>
+            </div>
+            
+            {/* Key Insights */}
+            <div className="mt-6 p-4 bg-indigo-50 rounded-lg">
+              <h4 className="font-semibold text-indigo-900 mb-2">Key Circadian Insights</h4>
+              <div className="text-sm text-indigo-700">
+                <p><strong>Peak AEA Window (7-9 PM):</strong> Optimal time for intimacy, meditation, and cannabis therapy. This natural peak enhances CB1 receptor sensitivity and emotional connection.</p>
+                <p><strong>Cortisol-AEA Inverse Relationship:</strong> As cortisol decreases throughout the day, AEA naturally increases. Stress reduction techniques can amplify this effect.</p>
+                <p><strong>2-AG Midday Peak:</strong> Highest levels during afternoon support energy, focus, and social engagement. Ideal time for physical activity and social interactions.</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Genomic & Microbiome Integration */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-white p-6 rounded-lg shadow-sm">
+              <h3 className="text-xl font-semibold mb-4">Genetic Polymorphisms (eCDome)</h3>
+              <div className="text-gray-500">[Genetic data will be loaded from Abena services]</div>
+            </div>
+
+            <div className="bg-white p-6 rounded-lg shadow-sm">
+              <h3 className="text-xl font-semibold mb-4">Microbiome-eCDome Axis</h3>
+              <div className="text-gray-500">[Microbiome data will be loaded from Abena services]</div>
+            </div>
+          </div>
+          
+          {/* Drug Interactions & Safety */}
+          <div className="bg-white p-6 rounded-lg shadow-sm">
+            <h3 className="text-xl font-semibold mb-4 flex items-center">
+              <AlertTriangle className="w-6 h-6 mr-2 text-orange-600" />
+              Pharmaceutical-eCDome Interactions
+            </h3>
+            <div className="text-gray-500">[Drug interaction data will be loaded from Abena services]</div>
+            
+            {/* Safety Disclaimer */}
+            <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <h4 className="font-semibold text-red-900 mb-2">⚠️ Important Safety Information</h4>
+              <div className="text-sm text-red-700">
+                <p><strong>Current medications may interact with cannabinoid therapy.</strong> Monitor closely for:</p>
+                <ul className="list-disc list-inside mt-2 space-y-1">
+                  <li>Enhanced sedative effects with benzodiazepines</li>
+                  <li>Potential changes in antidepressant effectiveness</li>
+                  <li>Altered pain medication requirements</li>
+                  <li>Hormonal therapy interactions</li>
+                </ul>
+                <p className="mt-2"><strong>Always consult with your healthcare provider before making changes to medication regimens.</strong></p>
+              </div>
+            </div>
+          </div>
+          
+          {/* Cannabis Strain Recommendations */}
+          <div className="bg-white p-6 rounded-lg shadow-sm">
+            <h3 className="text-xl font-semibold mb-4 flex items-center">
+              <Leaf className="w-6 h-6 mr-2 text-green-600" />
+              Personalized Cannabis Recommendations (eCDome)
+            </h3>
+            <div className="text-gray-500">[Cannabis recommendations will be loaded from Abena services]</div>
+          </div>
+
+          {/* Sexual Health & Hormonal Integration Panel */}
+          <div className="bg-white p-6 rounded-lg shadow-sm">
+            <h3 className="text-xl font-semibold mb-4 flex items-center">
+              <Heart className="w-6 h-6 mr-2 text-pink-600" />
+              Sexual Health & Hormonal Integration (eCDome)
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="p-4 bg-pink-50 rounded-lg">
+                <h4 className="font-semibold text-pink-900">Hormonal Balance</h4>
+                <div className="space-y-2 mt-2">
+                  <div className="flex justify-between">
+                    <span className="text-sm">Testosterone</span>
+                    <span className="text-sm font-medium text-green-600">Optimal</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm">Estradiol</span>
+                    <span className="text-sm font-medium text-yellow-600">Low</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm">Oxytocin</span>
+                    <span className="text-sm font-medium text-green-600">Good</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm">Cortisol</span>
+                    <span className="text-sm font-medium text-red-600">High</span>
+                  </div>
+                </div>
+              </div>
+              <div className="p-4 bg-purple-50 rounded-lg">
+                <h4 className="font-semibold text-purple-900">eCDome-Sexual Health</h4>
+                <ul className="text-sm text-purple-700 mt-2 space-y-1">
+                  <li>• CB1 modulates sexual desire</li>
+                  <li>• AEA enhances intimacy</li>
+                  <li>• 2-AG supports arousal</li>
+                  <li>• Hormones regulate eCDome</li>
+                  <li>• Estrogen enhances CB1 signaling</li>
+                  <li>• Testosterone modulates CB1 expression</li>
+                </ul>
+              </div>
+              <div className="p-4 bg-blue-50 rounded-lg">
+                <h4 className="font-semibold text-blue-900">Optimization</h4>
+                <ul className="text-sm text-blue-700 mt-2 space-y-1">
+                  <li>• Evening cannabis for intimacy</li>
+                  <li>• Hormone-eCDome timing</li>
+                  <li>• Stress reduction protocols</li>
+                  <li>• Relationship enhancement</li>
+                  <li>• Bioidentical hormone consultation</li>
+                  <li>• Partner meditation synchronization</li>
+                </ul>
+              </div>
+            </div>
+            
+            {/* Hormonal Chart */}
+            <div className="mt-6">
+              <h4 className="text-lg font-semibold mb-4">Hormonal & Receptor Status</h4>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={[
+                    { metric: 'Testosterone', current: 90, optimal: 100, status: 'Optimal' },
+                    { metric: 'Estradiol', current: 60, optimal: 100, status: 'Low' },
+                    { metric: 'Cortisol', current: 120, optimal: 100, status: 'High' },
+                    { metric: 'CB1 Expression', current: 85, optimal: 100, status: 'Good' },
+                    { metric: 'CB2 Expression', current: 70, optimal: 100, status: 'Moderate' },
+                    { metric: 'AEA Levels', current: 75, optimal: 100, status: 'Good' }
+                  ]}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="metric" />
+                    <YAxis domain={[0, 150]} />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="current" fill="#8884d8" name="Current Levels (%)" />
+                    <Bar dataKey="optimal" fill="#82ca9d" name="Optimal Range (%)" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+
+          {/* Neurotransmitter Network Analysis */}
+          <div className="bg-white p-6 rounded-lg shadow-sm">
+            <h3 className="text-xl font-semibold mb-4 flex items-center">
+              <Brain className="w-6 h-6 mr-2 text-indigo-600" />
+              Neurotransmitter Network Integration (eCDome)
+            </h3>
+            <div className="h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                <RadarChart data={[
+                  { system: 'eCDome', current: systemHealth.dataQuality || 72, optimal: 100, interaction: 85 },
+                  { system: 'Dopamine', current: chartData.length ? chartData[chartData.length-1].D1 : 68, optimal: 100, interaction: 80 },
+                  { system: 'Serotonin', current: chartData.length ? chartData[chartData.length-1]['5-HT1A'] : 65, optimal: 100, interaction: 75 },
+                  { system: 'GABA', current: 78, optimal: 100, interaction: 88 },
+                  { system: 'Opioid', current: 60, optimal: 100, interaction: 70 },
+                  { system: 'Hormonal', current: 55, optimal: 100, interaction: 65 }
+                ]}>
+                  <PolarGrid />
+                  <PolarAngleAxis dataKey="system" />
+                  <PolarRadiusAxis angle={0} domain={[0, 100]} />
+                  <Radar name="Current Function" dataKey="current" stroke="#8884d8" fill="#8884d8" fillOpacity={0.3} />
+                  <Radar name="eCDome Interaction" dataKey="interaction" stroke="#82ca9d" fill="#82ca9d" fillOpacity={0.2} />
+                  <Legend />
+                </RadarChart>
+              </ResponsiveContainer>
+            </div>
+            
+            {/* Neurotransmitter Details */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+              <div className="p-4 bg-indigo-50 rounded-lg">
+                <h4 className="font-semibold text-indigo-900 mb-2">Key Interactions</h4>
+                <ul className="text-sm text-indigo-700 space-y-1">
+                  <li>• CB1 modulates dopamine release</li>
+                  <li>• Serotonin-eCDome bidirectional modulation</li>
+                  <li>• GABA-eCDome stress response</li>
+                  <li>• Opioid-eCDome pain synergy</li>
+                  <li>• Hormonal receptor expression</li>
+                </ul>
+              </div>
+              <div className="p-4 bg-green-50 rounded-lg">
+                <h4 className="font-semibold text-green-900 mb-2">Therapeutic Implications</h4>
+                <ul className="text-sm text-green-700 space-y-1">
+                  <li>• Cannabis + SSRIs: Monitor interactions</li>
+                  <li>• Opioid reduction with eCDome support</li>
+                  <li>• GABA enhancement for anxiety</li>
+                  <li>• Hormonal optimization timing</li>
+                  <li>• Personalized neurotransmitter balance</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* Treatment Recommendations */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-white p-6 rounded-lg shadow-sm">
+              <h3 className="text-xl font-semibold mb-4 flex items-center">
+                <Leaf className="w-6 h-6 mr-2 text-green-600" />
+                Cannabimimetic Interventions (eCDome)
+              </h3>
+              <div className="text-gray-500">[Treatment recommendations will be loaded from Abena services]</div>
+            </div>
+
+            <div className="bg-white p-6 rounded-lg shadow-sm">
+              <h3 className="text-xl font-semibold mb-4 flex items-center">
+                <Zap className="w-6 h-6 mr-2 text-purple-600" />
+                Personalized Protocol (eCDome)
+              </h3>
+              <div className="text-gray-500">[Personalized protocols will be loaded from Abena services]</div>
+            </div>
+          </div>
+          
+          {/* Final Integration Note */}
+          <div className="bg-indigo-100 border border-indigo-300 rounded-lg p-6">
+            <h4 className="font-semibold text-indigo-900 mb-2">
+              🧠 eCDome Intelligence Integration
+            </h4>
+            <p className="text-indigo-800">
+              This comprehensive analysis runs continuously in the background of all eCDome IHR modules, 
+              cross-referencing every health metric, lab result, and intervention through 
+              the lens of endocannabinoidome optimization. Each recommendation is 
+              personalized based on your unique eCDome profile and current health status.
+            </p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default ECDomeIntelligenceSystem; 

@@ -2,36 +2,36 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import { Brain, Activity, TrendingUp, Clock, BarChart3, Settings } from 'lucide-react';
-import { ECDOME_COMPONENTS } from '../../services/abenaSDK';
+import { EBDOME_COMPONENTS } from '../../services/abenaSDK';
 
-const EcdomeTimeline = ({ timelineData, timeRange, viewMode }) => {
+const EbdomeTimeline = ({ timelineData, timeRange, viewMode }) => {
   const [activeComponents, setActiveComponents] = useState([
-    ECDOME_COMPONENTS.ANANDAMIDE,
-    ECDOME_COMPONENTS.TWO_AG,
-    ECDOME_COMPONENTS.CB1_RECEPTOR,
-    ECDOME_COMPONENTS.CB2_RECEPTOR
+    EBDOME_COMPONENTS.ANANDAMIDE,
+    EBDOME_COMPONENTS.TWO_AG,
+    EBDOME_COMPONENTS.CB1_RECEPTOR,
+    EBDOME_COMPONENTS.CB2_RECEPTOR
   ]);
   const [chartType, setChartType] = useState('line');
   const [showSettings, setShowSettings] = useState(false);
 
   // Component colors for the chart
   const componentColors = {
-    [ECDOME_COMPONENTS.ANANDAMIDE]: '#3B82F6',
-    [ECDOME_COMPONENTS.TWO_AG]: '#10B981',
-    [ECDOME_COMPONENTS.CB1_RECEPTOR]: '#8B5CF6',
-    [ECDOME_COMPONENTS.CB2_RECEPTOR]: '#F59E0B',
-    [ECDOME_COMPONENTS.FAAH_ENZYME]: '#EF4444',
-    [ECDOME_COMPONENTS.MAGL_ENZYME]: '#6B7280'
+    [EBDOME_COMPONENTS.ANANDAMIDE]: '#3B82F6',
+    [EBDOME_COMPONENTS.TWO_AG]: '#10B981',
+    [EBDOME_COMPONENTS.CB1_RECEPTOR]: '#8B5CF6',
+    [EBDOME_COMPONENTS.CB2_RECEPTOR]: '#F59E0B',
+    [EBDOME_COMPONENTS.FAAH_ENZYME]: '#EF4444',
+    [EBDOME_COMPONENTS.MAGL_ENZYME]: '#6B7280'
   };
 
   // Component display names
   const componentNames = {
-    [ECDOME_COMPONENTS.ANANDAMIDE]: 'Anandamide',
-    [ECDOME_COMPONENTS.TWO_AG]: '2-AG',
-    [ECDOME_COMPONENTS.CB1_RECEPTOR]: 'CB1 Receptor',
-    [ECDOME_COMPONENTS.CB2_RECEPTOR]: 'CB2 Receptor',
-    [ECDOME_COMPONENTS.FAAH_ENZYME]: 'FAAH Enzyme',
-    [ECDOME_COMPONENTS.MAGL_ENZYME]: 'MAGL Enzyme'
+    [EBDOME_COMPONENTS.ANANDAMIDE]: 'Anandamide',
+    [EBDOME_COMPONENTS.TWO_AG]: '2-AG',
+    [EBDOME_COMPONENTS.CB1_RECEPTOR]: 'CB1 Receptor',
+    [EBDOME_COMPONENTS.CB2_RECEPTOR]: 'CB2 Receptor',
+    [EBDOME_COMPONENTS.FAAH_ENZYME]: 'FAAH Enzyme',
+    [EBDOME_COMPONENTS.MAGL_ENZYME]: 'MAGL Enzyme'
   };
 
   // Format data for display
@@ -108,7 +108,7 @@ const EcdomeTimeline = ({ timelineData, timeRange, viewMode }) => {
             <Brain className="h-6 w-6 text-white" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">eCDome Activity Timeline</h3>
+            <h3 className="text-lg font-semibold text-gray-900">eBDome Activity Timeline</h3>
             <p className="text-sm text-gray-600">
               ABENA SDK Real-time Endocannabinoid System Monitoring ({timeRange})
             </p>
@@ -139,7 +139,7 @@ const EcdomeTimeline = ({ timelineData, timeRange, viewMode }) => {
                   onClick={() => setChartType('line')}
                   className={`px-3 py-1 rounded text-sm ${
                     chartType === 'line' 
-                      ? 'bg-ecdome-primary text-white' 
+                      ? 'bg-ebdome-primary text-white' 
                       : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                   }`}
                 >
@@ -149,7 +149,7 @@ const EcdomeTimeline = ({ timelineData, timeRange, viewMode }) => {
                   onClick={() => setChartType('area')}
                   className={`px-3 py-1 rounded text-sm ${
                     chartType === 'area' 
-                      ? 'bg-ecdome-primary text-white' 
+                      ? 'bg-ebdome-primary text-white' 
                       : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                   }`}
                 >
@@ -274,7 +274,7 @@ const EcdomeTimeline = ({ timelineData, timeRange, viewMode }) => {
       <div className="mt-6 pt-6 border-t border-gray-200">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Activity className="h-5 w-5 text-ecdome-primary" />
+            <Activity className="h-5 w-5 text-ebdome-primary" />
             <span className="text-sm font-medium text-gray-700">ABENA Analysis Summary</span>
           </div>
           <div className="flex items-center space-x-4 text-sm text-gray-600">
@@ -290,9 +290,9 @@ const EcdomeTimeline = ({ timelineData, timeRange, viewMode }) => {
         </div>
         <div className="mt-3 text-sm text-gray-600">
           <p>
-            eCDome system showing {activeComponents.length} component{activeComponents.length !== 1 ? 's' : ''} 
+            eBDome system showing {activeComponents.length} component{activeComponents.length !== 1 ? 's' : ''} 
             {' '}with average activity of {' '}
-            <span className="font-medium text-ecdome-primary">
+            <span className="font-medium text-ebdome-primary">
               {(activeComponents.reduce((sum, comp) => sum + calculateAverage(comp), 0) / activeComponents.length * 100).toFixed(1)}%
             </span>
             {' '}over the selected time period.
@@ -303,4 +303,4 @@ const EcdomeTimeline = ({ timelineData, timeRange, viewMode }) => {
   );
 };
 
-export default EcdomeTimeline; 
+export default EbdomeTimeline; 

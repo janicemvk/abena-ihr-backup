@@ -1,0 +1,276 @@
+{
+  "title": "ABENA IHR Platform - Sample Medical Cases",
+  "description": "Sample case scenarios for testing and reference",
+  "cases": [
+    {
+      "caseId": 1,
+      "title": "Cardiovascular Risk with Sleep Apnea",
+      "demographics": {
+        "age": 46,
+        "sex": "Male",
+        "height": "5'10\"",
+        "weight": "225 lbs",
+        "bmi": 32.3,
+        "bmiCategory": "Obese Class I"
+      },
+      "chiefComplaint": "Occasional shortness of breath",
+      "medicalHistory": [
+        "Hypertension",
+        "Obesity",
+        "Coronary artery disease",
+        "Obstructive sleep apnea with heavy snoring"
+      ],
+      "currentMedications": [
+        "Atorvastatin (statin for cholesterol management)",
+        "Lisinopril (ACE inhibitor for hypertension)",
+        "HCTZ (hydrochlorothiazide - diuretic for hypertension)"
+      ],
+      "vitalSigns": {
+        "bloodPressure": "188/90 mmHg",
+        "bloodPressureCategory": "Stage 2 Hypertension",
+        "heartRate": "88 bpm"
+      },
+      "socialHistory": {
+        "occupation": "Office job, sedentary (sits most of the day)",
+        "tobacco": "1 pack per day (PPD)",
+        "alcohol": "2 beers per week",
+        "exercise": "Minimal physical activity",
+        "diet": "Standard American diet - meat (chicken, beef), rice, potatoes, breads, desserts"
+      },
+      "allergies": "No known drug allergies (NKDA)",
+      "reviewOfSystems": {
+        "cardiovascular": "No history of chest pain, occasional dyspnea on exertion",
+        "respiratory": "Heavy snoring, diagnosed sleep apnea"
+      }
+    },
+    {
+      "caseId": 2,
+      "title": "Young Active Female with Low Back Pain",
+      "demographics": {
+        "age": 32,
+        "sex": "Female",
+        "height": "5'6\"",
+        "weight": "125 lbs",
+        "bmi": 20.2,
+        "bmiCategory": "Normal"
+      },
+      "chiefComplaint": "Chronic low back pain with bilateral lower extremity radiculopathy, progressively worsening",
+      "medicalHistory": [
+        "No significant past medical history",
+        "No history of back or leg injuries"
+      ],
+      "currentMedications": [
+        "None"
+      ],
+      "vitalSigns": {
+        "bloodPressure": "110/74 mmHg",
+        "bloodPressureCategory": "Normal",
+        "heartRate": "74 bpm"
+      },
+      "socialHistory": {
+        "occupation": "Works outside the home",
+        "exercise": "Active lifestyle - regular walking, Pilates, and yoga",
+        "sleep": "5-6 hours per night, wakes at 6:00 AM",
+        "diet": "Vegetarian, prepares meals at home",
+        "tobacco": "Non-smoker",
+        "alcohol": "Not documented"
+      },
+      "allergies": "No known drug allergies (NKDA)",
+      "reviewOfSystems": {
+        "musculoskeletal": "Chronic low back pain with radiation down both legs, worsening over time",
+        "neurological": "Bilateral lower extremity symptoms consistent with possible radiculopathy"
+      }
+    },
+    {
+      "caseId": 3,
+      "title": "Type 2 Diabetes with Complications",
+      "demographics": {
+        "age": 56,
+        "sex": "Female",
+        "height": "5'4\"",
+        "weight": "190 lbs",
+        "bmi": 32.6,
+        "bmiCategory": "Obese Class I"
+      },
+      "chiefComplaint": "Management of Type 2 Diabetes Mellitus with complications",
+      "medicalHistory": [
+        "Type 2 Diabetes Mellitus",
+        "Diabetic peripheral neuropathy (bilateral feet/toes)",
+        "Hypertension",
+        "Gastroesophageal reflux disease (GERD)",
+        "Obesity"
+      ],
+      "currentMedications": [
+        "Insulin (type and dosing not specified)",
+        "Atorvastatin (statin for cholesterol)",
+        "Metoprolol (beta-blocker for hypertension)",
+        "HCTZ (hydrochlorothiazide - diuretic)",
+        "Amlodipine (calcium channel blocker for hypertension)"
+      ],
+      "laboratoryValues": {
+        "hgbA1C": "7.0%",
+        "hgbA1CNote": "goal typically <7%",
+        "fastingGlucose": "150 mg/dL",
+        "fastingGlucoseNote": "elevated"
+      },
+      "vitalSigns": {
+        "bloodPressure": "130/88 mmHg",
+        "heartRate": "80 bpm"
+      },
+      "socialHistory": {
+        "occupation": "Homemaker",
+        "exercise": "Sedentary, rarely exercises",
+        "tobacco": "Non-smoker",
+        "alcohol": "1 glass of wine with dinner, 5 days per week",
+        "diet": "Standard diet including fish, beef, chicken, salads, breads, sweets for dessert"
+      },
+      "allergies": "Iodine allergy (important for contrast studies)",
+      "reviewOfSystems": {
+        "endocrine": "Type 2 DM with suboptimal glucose control",
+        "neurological": "Bilateral lower extremity peripheral neuropathy affecting toes",
+        "gastrointestinal": "GERD"
+      }
+    },
+    {
+      "caseId": 4,
+      "title": "Elderly Patient with Congestive Heart Failure and Multiple Comorbidities",
+      "demographics": {
+        "age": 78,
+        "sex": "Male",
+        "height": "5'8\"",
+        "weight": "168 lbs",
+        "bmi": 25.5,
+        "bmiCategory": "Overweight"
+      },
+      "chiefComplaint": "Increasing fatigue and shortness of breath with minimal exertion, bilateral ankle swelling",
+      "medicalHistory": [
+        "Congestive Heart Failure (CHF) - EF 35%",
+        "Atrial Fibrillation (AFib)",
+        "Chronic Kidney Disease Stage 3",
+        "Hypertension",
+        "Hyperlipidemia",
+        "Osteoarthritis",
+        "History of myocardial infarction (MI) 5 years ago"
+      ],
+      "currentMedications": [
+        "Furosemide (Lasix - diuretic for CHF)",
+        "Carvedilol (beta-blocker for CHF and hypertension)",
+        "Lisinopril (ACE inhibitor for CHF and hypertension)",
+        "Warfarin (anticoagulant for AFib)",
+        "Atorvastatin (statin for cholesterol)",
+        "Potassium chloride supplement",
+        "Aspirin 81mg daily",
+        "Acetaminophen as needed for arthritis pain"
+      ],
+      "laboratoryValues": {
+        "BNP": "850 pg/mL",
+        "BNPNote": "elevated, suggests heart failure exacerbation",
+        "creatinine": "1.8 mg/dL",
+        "creatinineNote": "elevated, consistent with CKD Stage 3",
+        "eGFR": "42 mL/min/1.73m²",
+        "INR": "2.3",
+        "INRNote": "therapeutic range for AFib (2.0-3.0)",
+        "potassium": "4.2 mEq/L",
+        "potassiumNote": "normal"
+      },
+      "vitalSigns": {
+        "bloodPressure": "118/68 mmHg",
+        "bloodPressureCategory": "Normal",
+        "heartRate": "92 bpm (irregular)",
+        "respiratoryRate": "22 breaths/min",
+        "oxygenSaturation": "93% on room air"
+      },
+      "socialHistory": {
+        "occupation": "Retired postal worker",
+        "livingSituation": "Lives with spouse, has adult children nearby",
+        "exercise": "Limited due to fatigue, short walks around the house",
+        "tobacco": "Former smoker, quit 10 years ago (40 pack-year history)",
+        "alcohol": "None",
+        "diet": "Low sodium diet (2g/day), struggles with compliance"
+      },
+      "allergies": "Penicillin (rash)",
+      "reviewOfSystems": {
+        "cardiovascular": "Dyspnea on exertion, orthopnea (sleeps on 3 pillows), bilateral lower extremity edema, irregular heartbeat",
+        "respiratory": "No cough, occasional wheezing",
+        "renal": "Decreased urine output recently",
+        "musculoskeletal": "Chronic knee and hip pain from osteoarthritis",
+        "general": "Fatigue, decreased exercise tolerance"
+      },
+      "functionalStatus": "Needs assistance with some activities of daily living (ADLs), uses cane for ambulation"
+    },
+    {
+      "caseId": 5,
+      "title": "Young Adult with Anxiety and Metabolic Syndrome",
+      "demographics": {
+        "age": 28,
+        "sex": "Female",
+        "height": "5'3\"",
+        "weight": "172 lbs",
+        "bmi": 30.5,
+        "bmiCategory": "Obese Class I"
+      },
+      "chiefComplaint": "Persistent anxiety, difficulty sleeping, weight gain, and concerns about family history of diabetes",
+      "medicalHistory": [
+        "Generalized Anxiety Disorder (GAD)",
+        "Prediabetes",
+        "Polycystic Ovary Syndrome (PCOS)",
+        "Irregular menstrual cycles",
+        "Family history of Type 2 Diabetes (mother and grandmother)",
+        "Family history of cardiovascular disease (father had MI at age 52)"
+      ],
+      "currentMedications": [
+        "Sertraline (SSRI for anxiety)",
+        "Oral contraceptive pills (for PCOS and cycle regulation)",
+        "Vitamin D supplement",
+        "Multivitamin"
+      ],
+      "laboratoryValues": {
+        "fastingGlucose": "108 mg/dL",
+        "fastingGlucoseNote": "prediabetic range (100-125 mg/dL)",
+        "hgbA1C": "5.9%",
+        "hgbA1CNote": "prediabetic range (5.7-6.4%)",
+        "totalCholesterol": "215 mg/dL",
+        "totalCholesterolNote": "borderline high",
+        "LDL": "138 mg/dL",
+        "LDLNote": "borderline high",
+        "HDL": "42 mg/dL",
+        "HDLNote": "low (should be >50 for females)",
+        "triglycerides": "175 mg/dL",
+        "triglyceridesNote": "borderline high",
+        "TSH": "2.4 mIU/L",
+        "TSHNote": "normal",
+        "vitaminD": "18 ng/mL",
+        "vitaminDNote": "deficient (normal >30)"
+      },
+      "vitalSigns": {
+        "bloodPressure": "128/82 mmHg",
+        "bloodPressureCategory": "Elevated/Stage 1 Hypertension",
+        "heartRate": "84 bpm"
+      },
+      "socialHistory": {
+        "occupation": "Software developer, works from home",
+        "exercise": "Sedentary, sits 10+ hours per day, no regular exercise routine",
+        "sleep": "Difficulty falling asleep, averages 5-6 hours per night, poor sleep quality",
+        "tobacco": "Non-smoker",
+        "alcohol": "1-2 glasses of wine, 2-3 times per week",
+        "diet": "Irregular eating schedule, frequent fast food and takeout, high carbohydrate intake, snacking while working",
+        "stress": "High work stress, deadlines, poor work-life balance"
+      },
+      "allergies": "Sulfa drugs (hives)",
+      "reviewOfSystems": {
+        "psychiatric": "Generalized anxiety, worry, occasional panic attacks, good response to sertraline but still has breakthrough symptoms",
+        "endocrine": "Weight gain of 30 lbs over past 2 years, difficulty losing weight, irregular periods every 45-60 days",
+        "cardiovascular": "Palpitations during anxiety episodes",
+        "general": "Fatigue, difficulty concentrating, stress eating"
+      },
+      "screeningScores": {
+        "GAD7": "14",
+        "GAD7Note": "Moderate anxiety",
+        "PHQ9": "8",
+        "PHQ9Note": "Mild depression"
+      }
+    }
+  ],
+  "notes": "These cases represent common primary care scenarios with varying complexity levels - cardiovascular risk management, acute musculoskeletal complaint in a healthy patient, chronic disease management with complications, elderly polypharmacy and heart failure management, and young adult mental health with metabolic concerns."
+}
+

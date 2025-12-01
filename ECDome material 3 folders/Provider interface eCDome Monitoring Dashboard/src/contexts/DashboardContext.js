@@ -131,7 +131,7 @@ export const DashboardProvider = ({ children }) => {
       
       // Desktop notification
       if (state.notifications.desktop && 'Notification' in window) {
-        new Notification('eCDome Alert', {
+        new Notification('eBDome Alert', {
           body: `${alert.type}: ${alert.message}`,
           icon: '/favicon.ico'
         });
@@ -168,29 +168,34 @@ export const DashboardProvider = ({ children }) => {
     if (state.refreshInterval > 0) {
       const interval = setInterval(async () => {
         try {
-          // Pure mock real-time data - no API calls
+          // Pure mock real-time data - FLATTENED STRUCTURE for PatientOverview
           const mockRealtimeData = {
-            success: true,
-            data: {
-              patientId: 'PAT-001',
-              timestamp: new Date().toISOString(),
-              vitalSigns: {
-                heartRate: Math.floor(Math.random() * 20) + 60, // 60-80
-                bloodPressure: `${Math.floor(Math.random() * 20) + 110}/${Math.floor(Math.random() * 10) + 70}`,
-                temperature: (Math.random() * 2 + 97).toFixed(1), // 97-99
-                oxygenSaturation: Math.floor(Math.random() * 5) + 95 // 95-99
-              },
-              ecdomeReadings: {
-                endocannabinoid: (Math.random() * 0.4 + 0.6).toFixed(2), // 0.6-1.0
-                metabolic: (Math.random() * 0.4 + 0.6).toFixed(2),
-                immune: (Math.random() * 0.4 + 0.6).toFixed(2),
-                hormonal: (Math.random() * 0.4 + 0.6).toFixed(2)
-              },
-              alerts: [],
-              status: 'stable'
-            }
+            patientId: 'PAT-001',
+            timestamp: new Date().toISOString(),
+            // Flattened vital signs for easy access
+            heartRate: Math.floor(Math.random() * 20) + 60, // 60-80
+            bloodPressure: {
+              systolic: Math.floor(Math.random() * 20) + 110,
+              diastolic: Math.floor(Math.random() * 10) + 70
+            },
+            temperature: parseFloat((Math.random() * 2 + 97).toFixed(1)), // 97-99
+            oxygenSaturation: Math.floor(Math.random() * 5) + 95, // 95-99
+            ebdomeActivity: parseFloat((Math.random() * 0.4 + 0.6).toFixed(2)), // 0.6-1.0
+            // Additional vital metrics
+            respirationRate: Math.floor(Math.random() * 6) + 12, // 12-18 breaths/min (normal range)
+            stressLevel: Math.floor(Math.random() * 30) + 20, // 20-50 (stress index)
+            sleepQuality: parseFloat((Math.random() * 0.3 + 0.65).toFixed(2)), // 0.65-0.95 (sleep quality score)
+            // Additional eBDome readings
+            ebdomeReadings: {
+              endocannabinoid: parseFloat((Math.random() * 0.4 + 0.6).toFixed(2)),
+              metabolic: parseFloat((Math.random() * 0.4 + 0.6).toFixed(2)),
+              immune: parseFloat((Math.random() * 0.4 + 0.6).toFixed(2)),
+              hormonal: parseFloat((Math.random() * 0.4 + 0.6).toFixed(2))
+            },
+            alerts: [],
+            status: 'stable'
           };
-          console.log('✅ Mock real-time data updated');
+          console.log('✅ Mock real-time data updated:', mockRealtimeData.heartRate, 'bpm');
           actions.updateRealtimeData(mockRealtimeData);
           actions.setSystemStatus('online');
         } catch (error) {

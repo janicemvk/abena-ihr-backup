@@ -6,8 +6,8 @@ class RealAbenaSDK {
     this.config = config;
     this.isAuthenticated = false;
     this.providerId = null;
-    this.apiBaseUrl = 'http://localhost:4001'; // Background Modules API
-    this.ihrApiUrl = 'http://localhost:4002'; // Abena IHR API
+    this.apiBaseUrl = 'http://138.68.24.154:4001'; // Background Modules API
+    this.ihrApiUrl = 'http://138.68.24.154:4002'; // Abena IHR API
     this.authToken = null;
     this.currentUser = null;
   }

@@ -76,7 +76,7 @@ export const dashboardService = {
   getChartData: async (patientId, chartType, timeRange = '24h') => {
     try {
       // Use ABENA SDK for specific chart types
-      if (chartType === 'ecdome-timeline') {
+      if (chartType === 'ebdome-timeline') {
         return await abena.getEcdomeComponents(patientId, timeRange);
       }
       
@@ -229,13 +229,13 @@ export const dashboardService = {
     }
   },
 
-  // Get eCDome components using ABENA SDK
+  // Get eBDome components using ABENA SDK
   getEcdomeComponents: async (patientId, timeRange = '24h') => {
     try {
       return await abena.getEcdomeComponents(patientId, timeRange);
     } catch (error) {
-      console.error('Failed to fetch eCDome components:', error);
-      throw new Error('Failed to fetch eCDome components');
+      console.error('Failed to fetch eBDome components:', error);
+      throw new Error('Failed to fetch eBDome components');
     }
   },
 

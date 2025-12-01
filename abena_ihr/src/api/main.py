@@ -73,6 +73,15 @@ app.add_middleware(
         "http://localhost:4012",  # Biomarker GUI
         "http://localhost:8000",  # Telemedicine Platform
         "http://localhost:8080",  # API Gateway
+        "http://138.68.24.154:4005",  # Live eCDome Intelligence System
+        "http://138.68.24.154:4006",  # Live Gamification
+        "http://138.68.24.154:4007",  # Live Unified Integration
+        "http://138.68.24.154:4008",  # Live Provider Dashboard
+        "http://138.68.24.154:4009",  # Live Patient Dashboard
+        "http://138.68.24.154:4011",  # Live Data Ingestion
+        "http://138.68.24.154:4012",  # Live Biomarker GUI
+        "http://138.68.24.154:8000",  # Live Telemedicine Platform
+        "http://138.68.24.154:8080",  # Live API Gateway
         "https://abena-ihr.com",  # Production domain
         "https://www.abena-ihr.com",
     ],

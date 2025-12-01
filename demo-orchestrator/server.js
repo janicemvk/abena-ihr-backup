@@ -12,7 +12,11 @@ const io = socketIo(server, {
   cors: {
     origin: "*",
     methods: ["GET", "POST"]
-  }
+  },
+  transports: ['polling', 'websocket'],
+  allowEIO3: true,
+  serveClient: true,
+  path: '/socket.io/'
 });
 
 // Middleware
@@ -20,30 +24,36 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.tailwindcss.com", "https://cdn.socket.io"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.tailwindcss.com", "https://sockets.abenaintel.com"],
       scriptSrcAttr: ["'unsafe-inline'"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.tailwindcss.com"],
       imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'", "ws:", "wss:"],
+      connectSrc: ["'self'", "ws:", "wss:", "http:", "https:"],
       fontSrc: ["'self'", "https:"],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
-      frameSrc: ["'none'"],
+      frameSrc: ["'self'"],
     },
   },
+  crossOriginOpenerPolicy: false,
 }));
 app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
+// Test endpoint
+app.get('/test', (req, res) => {
+  res.json({ message: 'Demo Orchestrator is working!', timestamp: new Date().toISOString() });
+});
+
 // Demo Configuration - Existing Services
 const DEMO_SERVICES = {
-  telemedicine: { port: 8000, url: 'http://localhost:8000', name: 'Telemedicine Platform' },
-  ecdome: { port: 4005, url: 'http://localhost:4005', name: 'eCDome Intelligence' },
-  provider: { port: 4008, url: 'http://localhost:4008', name: 'Provider Dashboard' },
-  patient: { port: 4009, url: 'http://localhost:4009', name: 'Patient Dashboard' },
-  ihr: { port: 4002, url: 'http://localhost:4002', name: 'ABENA IHR' },
-  gamification: { port: 4006, url: 'http://localhost:4006', name: 'Gamification System' }
+  telemedicine: { port: 8000, url: 'http://138.68.24.154:8000', name: 'Telemedicine Platform' },
+  ecdome: { port: 4005, url: 'http://138.68.24.154:4005', name: 'eCDome Intelligence' },
+  provider: { port: 4008, url: 'http://138.68.24.154:4008', name: 'Provider Dashboard' },
+  patient: { port: 4009, url: 'http://138.68.24.154:4009', name: 'Patient Dashboard' },
+  ihr: { port: 4002, url: 'http://138.68.24.154:4002', name: 'ABENA IHR' },
+  gamification: { port: 4006, url: 'http://138.68.24.154:4006', name: 'Gamification System' }
 };
 
 // Demo Orchestration Service
@@ -223,7 +233,7 @@ class DemoOrchestrator {
         // Open telemedicine platform to show data coming in
         socket.emit('open-service', { 
           service: 'telemedicine', 
-          url: 'http://localhost:8000',
+          url: 'http://138.68.24.154:8000',
           message: 'Opening Telemedicine Platform to show data ingestion...'
         });
         break;
@@ -232,7 +242,7 @@ class DemoOrchestrator {
         // Open eCDome intelligence system
         socket.emit('open-service', { 
           service: 'ecdome', 
-          url: 'http://localhost:4005',
+          url: 'http://138.68.24.154:4005',
           message: 'Opening eCDome Intelligence System for analysis...'
         });
         break;
@@ -241,7 +251,7 @@ class DemoOrchestrator {
         // Open provider dashboard
         socket.emit('open-service', { 
           service: 'provider', 
-          url: 'http://localhost:4008',
+          url: 'http://138.68.24.154:4008',
           message: 'Opening Provider Dashboard for clinical recommendations...'
         });
         break;
@@ -250,7 +260,7 @@ class DemoOrchestrator {
         // Show blockchain visualization
         socket.emit('open-service', { 
           service: 'blockchain', 
-          url: 'http://localhost:4002',
+          url: 'http://138.68.24.154:4002',
           message: 'Opening ABENA IHR for blockchain storage...'
         });
         break;
@@ -259,7 +269,7 @@ class DemoOrchestrator {
         // Open provider dashboard with login
         socket.emit('open-service', { 
           service: 'provider', 
-          url: 'http://localhost:4008',
+          url: 'http://138.68.24.154:4008',
           message: 'Opening Provider Dashboard for authentication...'
         });
         break;
@@ -268,7 +278,7 @@ class DemoOrchestrator {
         // Open eCDome with chatbot
         socket.emit('open-service', { 
           service: 'ecdome', 
-          url: 'http://localhost:4005/chatbot',
+          url: 'http://138.68.24.154:4005/chatbot',
           message: 'Opening eCDome Chatbot for provider education...'
         });
         break;
@@ -277,7 +287,7 @@ class DemoOrchestrator {
         // Open provider dashboard with alerts
         socket.emit('open-service', { 
           service: 'provider', 
-          url: 'http://localhost:4008',
+          url: 'http://138.68.24.154:4008',
           message: 'Opening Provider Dashboard for decision support...'
         });
         break;
@@ -286,7 +296,7 @@ class DemoOrchestrator {
         // Open patient dashboard
         socket.emit('open-service', { 
           service: 'patient', 
-          url: 'http://localhost:4009',
+          url: 'http://138.68.24.154:4009',
           message: 'Opening Patient Dashboard for health records...'
         });
         break;
@@ -295,7 +305,7 @@ class DemoOrchestrator {
         // Open patient dashboard with education
         socket.emit('open-service', { 
           service: 'patient', 
-          url: 'http://localhost:4009',
+          url: 'http://138.68.24.154:4009',
           message: 'Opening Patient Dashboard for health education...'
         });
         break;
@@ -304,7 +314,7 @@ class DemoOrchestrator {
         // Open gamification system
         socket.emit('open-service', { 
           service: 'gamification', 
-          url: 'http://localhost:4006',
+          url: 'http://138.68.24.154:4006',
           message: 'Opening Gamification System for patient engagement...'
         });
         break;

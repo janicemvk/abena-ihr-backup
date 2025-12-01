@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   AlertTriangle, 
   TrendingUp, 
@@ -13,16 +13,25 @@ import {
   CheckCircle, 
   Bell,
   Info,
-  AlertCircle
+  AlertCircle,
+  FileText,
+  User,
+  Calendar,
+  Target
 } from 'lucide-react';
 import { usePatient } from '../../contexts/PatientContext';
 import { useDashboard } from '../../contexts/DashboardContext';
+import toast from 'react-hot-toast';
+import HelpInfo from '../Common/HelpInfo';
 
 const PredictiveAlerts = ({ alerts = [], onAlertAction }) => {
-  const { selectedPatient } = usePatient();
+  const { selectedPatient, patientData } = usePatient();
   const { actions: dashboardActions } = useDashboard();
   const [expandedAlert, setExpandedAlert] = useState(null);
   const [dismissedAlerts, setDismissedAlerts] = useState(new Set());
+  const [acknowledgedAlerts, setAcknowledgedAlerts] = useState(new Set());
+  const [showDetailModal, setShowDetailModal] = useState(null);
+  const [patientAlerts, setPatientAlerts] = useState([]);
 
   // Alert severity levels
   const severityConfig = {
@@ -52,70 +61,65 @@ const PredictiveAlerts = ({ alerts = [], onAlertAction }) => {
     }
   };
 
-  // Mock alerts if none provided
-  const mockAlerts = [
-    {
-      id: 'alert-001',
-      type: 'ecdome_imbalance',
-      severity: 'warning',
-      title: 'eCDome System Imbalance Detected',
-      message: 'CB1 receptor activity is 15% below optimal range. Anandamide levels showing declining trend.',
-      timestamp: new Date(Date.now() - 30 * 60 * 1000),
-      module: 'eCDome',
-      probability: 0.87,
-      recommendation: 'Consider lifestyle intervention or supplement protocol.',
-      trend: 'declining',
-      affectedSystems: ['Neurological', 'Stress Response']
-    },
-    {
-      id: 'alert-002',
-      type: 'inflammatory_spike',
-      severity: 'critical',
-      title: 'Inflammatory Cascade Predicted',
-      message: 'Machine learning model predicts 73% probability of inflammatory response within 2-4 hours.',
-      timestamp: new Date(Date.now() - 15 * 60 * 1000),
-      module: 'Inflammatome',
-      probability: 0.73,
-      recommendation: 'Immediate intervention recommended. Consider anti-inflammatory protocol.',
-      trend: 'increasing',
-      affectedSystems: ['Immune System', 'Cardiovascular']
-    },
-    {
-      id: 'alert-003',
-      type: 'metabolic_optimization',
-      severity: 'info',
-      title: 'Metabolic Enhancement Opportunity',
-      message: 'Current metabolic state shows potential for 12% efficiency improvement.',
-      timestamp: new Date(Date.now() - 45 * 60 * 1000),
-      module: 'Metabolome',
-      probability: 0.65,
-      recommendation: 'Optimize nutrition timing and composition.',
-      trend: 'stable',
-      affectedSystems: ['Metabolic', 'Nutriome']
-    },
-    {
-      id: 'alert-004',
-      type: 'circadian_disruption',
-      severity: 'warning',
-      title: 'Circadian Rhythm Disruption Risk',
-      message: 'Sleep pattern analysis indicates 68% risk of circadian misalignment.',
-      timestamp: new Date(Date.now() - 60 * 60 * 1000),
-      module: 'Chronobiome',
-      probability: 0.68,
-      recommendation: 'Adjust light exposure and sleep schedule.',
-      trend: 'increasing',
-      affectedSystems: ['Chronobiome', 'Hormonal']
+  // Load patient-specific alerts
+  useEffect(() => {
+    if (patientData && patientData.data && patientData.data.alerts) {
+      // Transform alerts from patient data to match expected format
+      const transformedAlerts = patientData.data.alerts.map(alert => {
+        // Ensure timestamp is a valid Date object
+        let alertTimestamp;
+        if (alert.timestamp instanceof Date) {
+          alertTimestamp = alert.timestamp;
+        } else if (alert.timestamp) {
+          alertTimestamp = new Date(alert.timestamp);
+        } else {
+          alertTimestamp = new Date();
+        }
+        
+        // Validate the date
+        if (isNaN(alertTimestamp.getTime())) {
+          alertTimestamp = new Date();
+        }
+        
+        return {
+          ...alert,
+          severity: alert.severity || alert.type || 'info', // Ensure severity is set
+          probability: alert.probability || 0.85, // Default confidence level
+          trend: alert.trend || 'stable',
+          module: alert.module || 'General',
+          affectedSystems: alert.recommendations || alert.affectedSystems || [],
+          timestamp: alertTimestamp
+        };
+      });
+      setPatientAlerts(transformedAlerts);
+      console.log(`✅ Loaded ${transformedAlerts.length} alerts for patient ${selectedPatient}`);
+    } else {
+      setPatientAlerts([]);
     }
-  ];
+  }, [patientData, selectedPatient]);
 
-  const displayAlerts = alerts.length > 0 ? alerts : mockAlerts;
-  const activeAlerts = displayAlerts.filter(alert => !dismissedAlerts.has(alert.id));
+  const displayAlerts = patientAlerts.length > 0 ? patientAlerts : alerts;
+  const activeAlerts = displayAlerts.filter(alert => 
+    !dismissedAlerts.has(alert.id) && !acknowledgedAlerts.has(alert.id)
+  );
 
-  const handleAlertAction = (alertId, action) => {
+  const handleAlertAction = (alertId, action, alertTitle) => {
     if (action === 'dismiss') {
       setDismissedAlerts(prev => new Set([...prev, alertId]));
+      toast.success(`Alert dismissed`, {
+        icon: '✓'
+      });
     } else if (action === 'acknowledge') {
-      dashboardActions.removeAlert(alertId);
+      setAcknowledgedAlerts(prev => new Set([...prev, alertId]));
+      toast.success(`Alert acknowledged and marked as reviewed`, {
+        icon: '✅',
+        duration: 3000
+      });
+      // Optional: Log to patient chart
+      console.log(`Alert ${alertId} acknowledged by provider at ${new Date().toISOString()}`);
+    } else if (action === 'view_details') {
+      const alert = displayAlerts.find(a => a.id === alertId);
+      setShowDetailModal(alert);
     }
     
     if (onAlertAction) {
@@ -124,8 +128,18 @@ const PredictiveAlerts = ({ alerts = [], onAlertAction }) => {
   };
 
   const formatTimestamp = (timestamp) => {
+    if (!timestamp) return 'Unknown';
+    
+    // Convert to Date object if it's a string
+    const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
+    
+    // Check if valid date
+    if (isNaN(date.getTime())) {
+      return 'Invalid date';
+    }
+    
     const now = new Date();
-    const diff = now - timestamp;
+    const diff = now - date;
     const minutes = Math.floor(diff / 60000);
     const hours = Math.floor(minutes / 60);
     
@@ -134,7 +148,7 @@ const PredictiveAlerts = ({ alerts = [], onAlertAction }) => {
     } else if (hours < 24) {
       return `${hours} hours ago`;
     } else {
-      return timestamp.toLocaleDateString();
+      return date.toLocaleDateString();
     }
   };
 
@@ -157,11 +171,14 @@ const PredictiveAlerts = ({ alerts = [], onAlertAction }) => {
             <Bell className="w-5 h-5 text-orange-600" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">
-              Predictive Alerts
-            </h3>
+            <div className="flex items-center space-x-2">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Predictive Alerts
+              </h3>
+              <HelpInfo topic="predictive_alerts" size="sm" position="modal" />
+            </div>
             <p className="text-sm text-gray-500">
-              AI-powered health predictions based on eCDome analysis
+              AI-powered health predictions based on eBDome analysis
             </p>
           </div>
         </div>
@@ -181,7 +198,7 @@ const PredictiveAlerts = ({ alerts = [], onAlertAction }) => {
           </div>
         ) : (
           activeAlerts.map((alert) => {
-            const config = severityConfig[alert.severity];
+            const config = severityConfig[alert.severity] || severityConfig.info;
             const IconComponent = config.icon;
             const TrendIcon = getTrendIcon(alert.trend);
             const isExpanded = expandedAlert === alert.id;
@@ -203,12 +220,16 @@ const PredictiveAlerts = ({ alerts = [], onAlertAction }) => {
                         <h4 className={`font-medium ${config.textColor}`}>
                           {alert.title}
                         </h4>
-                        <span className="text-xs bg-gray-100 px-2 py-1 rounded">
-                          {alert.module}
-                        </span>
-                        <span className="text-xs text-gray-500">
-                          {Math.round(alert.probability * 100)}% confidence
-                        </span>
+                        {alert.module && (
+                          <span className="text-xs bg-gray-100 px-2 py-1 rounded">
+                            {alert.module}
+                          </span>
+                        )}
+                        {alert.probability && (
+                          <span className="text-xs text-gray-500">
+                            {Math.round(alert.probability * 100)}% confidence
+                          </span>
+                        )}
                       </div>
                       <p className="text-sm text-gray-600 mb-2">
                         {alert.message}
@@ -280,18 +301,23 @@ const PredictiveAlerts = ({ alerts = [], onAlertAction }) => {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleAlertAction(alert.id, 'acknowledge');
+                            handleAlertAction(alert.id, 'acknowledge', alert.title);
                           }}
-                          className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors"
+                          className={`px-4 py-2 text-sm rounded font-medium transition-colors ${
+                            acknowledgedAlerts.has(alert.id)
+                              ? 'bg-green-100 text-green-700 cursor-not-allowed'
+                              : 'bg-blue-600 text-white hover:bg-blue-700'
+                          }`}
+                          disabled={acknowledgedAlerts.has(alert.id)}
                         >
-                          Acknowledge
+                          {acknowledgedAlerts.has(alert.id) ? '✓ Acknowledged' : 'Acknowledge'}
                         </button>
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleAlertAction(alert.id, 'view_details');
+                            handleAlertAction(alert.id, 'view_details', alert.title);
                           }}
-                          className="px-3 py-1 border border-gray-300 text-xs rounded hover:bg-gray-50 transition-colors"
+                          className="px-4 py-2 border border-gray-300 text-sm rounded hover:bg-gray-50 transition-colors font-medium"
                         >
                           View Details
                         </button>
@@ -308,12 +334,230 @@ const PredictiveAlerts = ({ alerts = [], onAlertAction }) => {
       {activeAlerts.length > 0 && (
         <div className="mt-6 p-3 bg-gray-50 rounded-lg">
           <p className="text-xs text-gray-600 text-center">
-            Alerts are generated using AI analysis of eCDome patterns and 12 ABENA modules.
+            Alerts are generated using AI analysis of eBDome patterns and 12 ABENA modules.
             <br />
             Predictions are based on current patient data and historical patterns.
           </p>
         </div>
       )}
+
+      {/* Alert Detail Modal */}
+      <AnimatePresence>
+        {showDetailModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black bg-opacity-50"
+              onClick={() => setShowDetailModal(null)}
+            />
+
+            {/* Modal */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-3xl bg-white rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
+            >
+              {/* Header */}
+              <div className={`px-6 py-4 border-l-4 ${(severityConfig[showDetailModal.severity] || severityConfig.info).color}`}>
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start space-x-4 flex-1">
+                    {React.createElement((severityConfig[showDetailModal.severity] || severityConfig.info).icon, {
+                      className: `w-8 h-8 ${(severityConfig[showDetailModal.severity] || severityConfig.info).iconColor}`
+                    })}
+                    <div className="flex-1">
+                      <h3 className="text-xl font-semibold text-gray-900 mb-1">
+                        {showDetailModal.title}
+                      </h3>
+                      <div className="flex items-center space-x-3 text-sm text-gray-600">
+                        <span className="flex items-center space-x-1">
+                          <User className="w-4 h-4" />
+                          <span>{patientData?.data?.patientInfo?.name}</span>
+                        </span>
+                        <span>•</span>
+                        <span className="flex items-center space-x-1">
+                          <Calendar className="w-4 h-4" />
+                          <span>{formatTimestamp(showDetailModal.timestamp)}</span>
+                        </span>
+                        <span>•</span>
+                        <span className="uppercase font-medium text-orange-600">
+                          {showDetailModal.type || showDetailModal.severity}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setShowDetailModal(null)}
+                    className="text-gray-400 hover:text-gray-600 rounded-full p-2 hover:bg-gray-100"
+                  >
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Content */}
+              <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
+                {/* Alert Description */}
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-2 flex items-center space-x-2">
+                    <Info className="w-5 h-5 text-blue-600" />
+                    <span>Alert Description</span>
+                  </h4>
+                  <p className="text-gray-700 leading-relaxed">
+                    {showDetailModal.message}
+                  </p>
+                </div>
+
+                {/* Clinical Recommendation */}
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-2 flex items-center space-x-2">
+                    <Target className="w-5 h-5 text-green-600" />
+                    <span>Clinical Recommendation</span>
+                  </h4>
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <p className="text-gray-700">
+                      {showDetailModal.recommendation || 'No specific recommendation available.'}
+                    </p>
+                    {showDetailModal.recommendations && showDetailModal.recommendations.length > 0 && (
+                      <ul className="mt-3 space-y-2">
+                        {showDetailModal.recommendations.map((rec, index) => (
+                          <li key={index} className="flex items-start space-x-2">
+                            <CheckCircle className="w-4 h-4 text-green-600 mt-0.5" />
+                            <span className="text-sm text-gray-700">{rec}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                </div>
+
+                {/* Affected Systems */}
+                {showDetailModal.affectedSystems && showDetailModal.affectedSystems.length > 0 && (
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-2">Affected Systems</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {showDetailModal.affectedSystems.map((system, index) => (
+                        <span
+                          key={index}
+                          className="px-3 py-1.5 bg-gray-100 text-gray-700 text-sm rounded-lg font-medium"
+                        >
+                          {system}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Severity & Confidence */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <h5 className="text-sm font-medium text-gray-600 mb-1">Severity Level</h5>
+                    <p className={`text-2xl font-bold ${(severityConfig[showDetailModal.severity] || severityConfig.info).textColor}`}>
+                      {showDetailModal.severity?.toUpperCase() || 'INFO'}
+                    </p>
+                  </div>
+                  {showDetailModal.probability && (
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <h5 className="text-sm font-medium text-gray-600 mb-1">Confidence Level</h5>
+                      <p className="text-2xl font-bold text-blue-600">
+                        {Math.round(showDetailModal.probability * 100)}%
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Patient Context */}
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-3">Patient Context</h4>
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Patient:</span>
+                      <span className="font-medium text-gray-900">
+                        {patientData?.data?.patientInfo?.name} ({patientData?.data?.patientInfo?.id})
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Age / Gender:</span>
+                      <span className="font-medium text-gray-900">
+                        {patientData?.data?.patientInfo?.age}y / {patientData?.data?.patientInfo?.gender}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">eBDome Score:</span>
+                      <span className="font-medium text-gray-900">
+                        {Math.round((patientData?.data?.ebdomeProfile?.score || 0) * 100)}%
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Risk Level:</span>
+                      <span className={`font-medium ${
+                        patientData?.data?.patientInfo?.riskLevel === 'high' ? 'text-red-600' :
+                        patientData?.data?.patientInfo?.riskLevel === 'medium' ? 'text-yellow-600' :
+                        'text-green-600'
+                      }`}>
+                        {patientData?.data?.patientInfo?.riskLevel?.toUpperCase()}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Alert Metadata */}
+                <div className="border-t pt-4">
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="text-gray-600">Alert ID:</span>
+                      <span className="ml-2 font-mono text-gray-900">{showDetailModal.id}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-600">Generated:</span>
+                      <span className="ml-2 text-gray-900">
+                        {new Date(showDetailModal.timestamp).toLocaleString()}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-gray-600">Module:</span>
+                      <span className="ml-2 font-medium text-gray-900">{showDetailModal.module || 'General'}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-600">Trend:</span>
+                      <span className="ml-2 text-gray-900 capitalize">{showDetailModal.trend || 'Stable'}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer Actions */}
+              <div className="border-t px-6 py-4 bg-gray-50 flex justify-between items-center">
+                <button
+                  onClick={() => setShowDetailModal(null)}
+                  className="px-4 py-2 text-gray-700 hover:bg-gray-200 rounded transition-colors"
+                >
+                  Close
+                </button>
+                <div className="flex space-x-3">
+                  <button
+                    onClick={() => {
+                      handleAlertAction(showDetailModal.id, 'acknowledge', showDetailModal.title);
+                      setShowDetailModal(null);
+                    }}
+                    className={`px-6 py-2 rounded font-medium transition-colors ${
+                      acknowledgedAlerts.has(showDetailModal.id)
+                        ? 'bg-green-100 text-green-700 cursor-not-allowed'
+                        : 'bg-blue-600 text-white hover:bg-blue-700'
+                    }`}
+                    disabled={acknowledgedAlerts.has(showDetailModal.id)}
+                  >
+                    {acknowledgedAlerts.has(showDetailModal.id) ? '✓ Acknowledged' : 'Acknowledge & Close'}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

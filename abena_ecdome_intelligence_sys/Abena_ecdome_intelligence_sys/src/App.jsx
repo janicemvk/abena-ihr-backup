@@ -184,7 +184,8 @@ const IHRDashboard = () => {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Routes>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          {/* <Route path="/" element={<Navigate to="/dashboard" replace />} /> */}
+          <Route path="/" element={<ECDomeIntelligenceSystem />} />
           <Route path="/dashboard" element={<IHRMainDashboard />} />
           <Route path="/ecdome-test" element={<ECDomeIntelligenceSystem />} />
           <Route path="/ecdome-analysis" element={<ECDomeIntelligenceSystem />} />
