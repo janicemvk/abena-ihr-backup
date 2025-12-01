@@ -1,4 +1,4 @@
-# Abena IHR Monorepo – Setup & Run Guide
+# Abena IHR – Setup & Run Guide
 
 This repository contains the complete Abena Intelligent Health Records platform: API gateway, clinical services, telemedicine apps, dashboards, biomarker tooling, ingestion layers, and reference datasets. Follow the steps below after pulling the repo to bring the stack up locally.
 
