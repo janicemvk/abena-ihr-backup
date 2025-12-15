@@ -13,6 +13,7 @@ import ClinicalRecommendations from './ClinicalRecommendations';
 import QuickActions from './QuickActions';
 import DashboardControls from './DashboardControls';
 import MedicalHistory from './MedicalHistory';
+import QuantumResults from './QuantumResults';
 import LoadingSpinner from '../Common/LoadingSpinner';
 import ErrorBoundary from '../Common/ErrorBoundary';
 import { Activity, AlertTriangle, TrendingUp, Eye, Settings } from 'lucide-react';
@@ -129,13 +130,19 @@ const ClinicalDashboard = () => {
 
   if (!patientData) {
     return (
-      <div className="flex-1 flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <Activity className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No patient selected</h3>
-          <p className="text-gray-600">Please select a patient to view their clinical dashboard.</p>
+      <>
+        {/* TEST: Yellow box in early return */}
+        <div style={{ border: '10px solid red', padding: '30px', margin: '30px', backgroundColor: 'yellow', minHeight: '300px', zIndex: 9999, position: 'relative' }}>
+          <h1 style={{ color: 'red', fontSize: '32px', fontWeight: 'bold' }}>🔬 EARLY RETURN: NO PATIENT DATA</h1>
         </div>
-      </div>
+        <div className="flex-1 flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <Activity className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No patient selected</h3>
+            <p className="text-gray-600">Please select a patient to view their clinical dashboard.</p>
+          </div>
+        </div>
+      </>
     );
   }
 
@@ -248,7 +255,15 @@ const ClinicalDashboard = () => {
               />
             </motion.div>
 
-            {/* Row 8: Predictive Alerts - Full Width */}
+            {/* Row 8: Quantum Health Analysis - Full Width */}
+            <motion.div variants={itemVariants}>
+              <QuantumResults
+                patientId={selectedPatient}
+                patientData={patientData}
+              />
+            </motion.div>
+
+            {/* Row 9: Predictive Alerts - Full Width */}
             <motion.div variants={itemVariants}>
               <PredictiveAlerts
                 patientId={selectedPatient}
@@ -256,7 +271,7 @@ const ClinicalDashboard = () => {
               />
             </motion.div>
 
-            {/* Row 8: Clinical Recommendations - Full Width */}
+            {/* Row 10: Clinical Recommendations - Full Width */}
             <motion.div variants={itemVariants}>
               <ClinicalRecommendations
                 patientData={patientData}
@@ -265,7 +280,7 @@ const ClinicalDashboard = () => {
               />
             </motion.div>
 
-            {/* Row 9: Quick Actions - Full Width */}
+            {/* Row 11: Quick Actions - Full Width */}
             <motion.div variants={itemVariants}>
               <QuickActions
                 patientId={selectedPatient}
