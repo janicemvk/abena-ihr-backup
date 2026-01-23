@@ -9,7 +9,7 @@ class HormonalFeatureExtractor extends BaseFeatureExtractor {
     super('hormonal');
   }
 
-  async extract(moduleData, ecdomeData, patientId) {
+  async extract(moduleData, ecbomeData, patientId) {
     return [
       this.normalizeFeature(this.validateData(moduleData.thyroid_function), 0, 100),
       this.normalizeFeature(this.validateData(moduleData.adrenal_function), 0, 100),
@@ -20,7 +20,7 @@ class HormonalFeatureExtractor extends BaseFeatureExtractor {
       this.normalizeFeature(this.validateData(moduleData.pineal_gland_function), 0, 100),
       this.normalizeFeature(this.validateData(moduleData.hormonal_rhythm_synchronization), 0, 100),
       this.normalizeFeature(this.validateData(moduleData.reproductive_health_markers), 0, 100),
-      this.normalizeFeature(this.validateData(ecdomeData.hormonal_ecs_regulation), 0, 100),
+      this.normalizeFeature(this.validateData(ecbomeData.hormonal_ecs_regulation), 0, 100),
       this.normalizeFeature(this.validateData(moduleData.metabolic_hormone_integration), 0, 100),
       this.normalizeFeature(this.validateData(moduleData.stress_hormone_balance), 0, 100)
     ];

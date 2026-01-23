@@ -147,6 +147,10 @@ export const scientificLitService = {
   getArticleDetails: async () => ({ success: true, data: {} })
 };
 
+// Alias for compatibility
+export const scientificLiteratureService = scientificLitService;
+export const medicalDatabaseService = medicalDbService;
+
 export const labResultsService = {
   getLabResults: async () => ({ success: true, data: [] }),
   getEndocannabinoidLevels: async () => ({ success: true, data: {} }),

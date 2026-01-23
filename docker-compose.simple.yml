@@ -119,6 +119,30 @@ services:
     depends_on:
       - background-modules
 
+  # Quantum Healthcare Service
+  quantum-healthcare:
+    build:
+      context: ./quantum-healthcare
+      dockerfile: Dockerfile
+    container_name: abena-quantum-healthcare
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=production
+      - PORT=5000
+      - ABENA_IHR_API=http://abena-ihr-main:4002
+      - ECDOME_API=http://abena-ecdome-intelligence:4005
+      - DATABASE_URL=postgresql://abena_user:abena_password@postgres:5432/abena_ihr
+    ports:
+      - "5000:5000"
+    depends_on:
+      - postgres
+      - abena-ihr
+      - ecdome-intelligence
+    networks:
+      - abena-network
+    volumes:
+      - ./quantum-healthcare:/app
+
   # Telemedicine Platform (Proper React App)
   telemedicine-platform:
     build:
@@ -150,9 +174,13 @@ services:
       dockerfile: Dockerfile
     container_name: abena-unified-integration
     ports:
-      - "4007:4007"
+      - "4008:4008"
     networks:
       - abena-network
+    depends_on:
+      - abena-ihr
+      - ecdome-intelligence
+      - quantum-healthcare
 
   # Provider eCDome Monitoring Dashboard
   provider-dashboard:
@@ -161,9 +189,12 @@ services:
       dockerfile: Dockerfile
     container_name: abena-provider-dashboard
     ports:
-      - "4008:4008"
+      - "4009:4009"
     networks:
       - abena-network
+    depends_on:
+      - abena-ihr
+      - ecdome-intelligence
 
   # Patient eCDome Monitoring Dashboard
   patient-dashboard:
@@ -172,9 +203,12 @@ services:
       dockerfile: Dockerfile
     container_name: abena-patient-dashboard
     ports:
-      - "4009:4009"
+      - "4010:4010"
     networks:
       - abena-network
+    depends_on:
+      - abena-ihr
+      - ecdome-intelligence
 
   # Data Ingestion Layer Dashboard
   data-ingestion:
@@ -211,6 +245,26 @@ services:
     depends_on:
       - postgres
 
+  # Admin Dashboard (Next.js)
+  admin-dashboard:
+    build:
+      context: ./admin-dashboard-nextjs
+      dockerfile: Dockerfile
+    container_name: abena-admin-dashboard
+    ports:
+      - "8080:8080"
+    networks:
+      - abena-network
+    depends_on:
+      - api-gateway
+    environment:
+      - NODE_ENV=production
+      - PORT=8080
+      - NEXTAUTH_SECRET=abena-ihr-admin-secret-key-change-in-production-min-32-chars
+      - NEXTAUTH_URL=http://localhost:8080
+      - NEXT_PUBLIC_INTEGRATION_BRIDGE_URL=http://abena-api-gateway:80
+      - NEXT_PUBLIC_AUTH_SERVICE_URL=http://localhost:3002
+
   # API Gateway
   api-gateway:
     build:
@@ -218,13 +272,15 @@ services:
       dockerfile: Dockerfile.gateway
     container_name: abena-api-gateway
     ports:
-      - "8080:80"
+      - "8081:80"
     depends_on:
       - module-registry
       - background-modules
       - abena-ihr
       - business-rules
       - telemedicine
+      - ecdome-intelligence
+      - quantum-healthcare
     networks:
       - abena-network
     volumes:

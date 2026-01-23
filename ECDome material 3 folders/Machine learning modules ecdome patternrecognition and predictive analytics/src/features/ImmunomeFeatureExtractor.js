@@ -9,7 +9,7 @@ class ImmunomeFeatureExtractor extends BaseFeatureExtractor {
     super('immunome');
   }
 
-  async extract(moduleData, ecdomeData, patientId) {
+  async extract(moduleData, ecbomeData, patientId) {
     return [
       this.normalizeFeature(this.validateData(moduleData.white_blood_cell_count), 4000, 11000),
       this.normalizeFeature(this.validateData(moduleData.t_cell_count), 500, 2000),
@@ -20,7 +20,7 @@ class ImmunomeFeatureExtractor extends BaseFeatureExtractor {
       this.normalizeFeature(this.validateData(moduleData.cytokine_balance), 0, 100),
       this.normalizeFeature(this.validateData(moduleData.immune_memory), 0, 100),
       this.normalizeFeature(this.validateData(moduleData.autoimmune_markers), 0, 100),
-      this.normalizeFeature(this.validateData(ecdomeData.immune_cb2_modulation), 0, 100),
+      this.normalizeFeature(this.validateData(ecbomeData.immune_cb2_modulation), 0, 100),
       this.normalizeFeature(this.validateData(moduleData.immune_surveillance), 0, 100),
       this.normalizeFeature(this.validateData(moduleData.allergic_response), 0, 100)
     ];

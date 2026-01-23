@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import ECDomeIntelligenceSystem from './components/ECDomeIntelligenceSystem';
 import ECDomeChatbot from './components/ECDomeChatbot';
+import ECBomeTestSuite from './components/ECBomeTestSuite';
 import backgroundService from './services/backgroundService';
 
 // IHR System Integration Context
@@ -186,7 +187,9 @@ const IHRDashboard = () => {
         <Routes>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<IHRMainDashboard />} />
-          <Route path="/ecdome-test" element={<ECDomeIntelligenceSystem />} />
+          <Route path="/ecbome-test" element={<ECBomeTestSuite />} />
+          <Route path="/ecdome-test" element={<ECBomeTestSuite />} />
+          <Route path="/ecbome-analysis" element={<ECDomeIntelligenceSystem />} />
           <Route path="/ecdome-analysis" element={<ECDomeIntelligenceSystem />} />
           <Route path="/chatbot" element={<ECDomeChatbot />} />
         </Routes>
@@ -250,19 +253,19 @@ const IHRMainDashboard = () => {
 
       {/* Quick Access to eCDome Components */}
       <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-xl font-semibold mb-4">eCDome Intelligence System</h2>
+        <h2 className="text-xl font-semibold mb-4">eCBome Intelligence System</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <a
-            href="/ecdome-test"
+            href="/ecbome-test"
             className="block p-4 border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors"
           >
             <h3 className="font-medium text-gray-900">Test Suite</h3>
             <p className="text-sm text-gray-600 mt-1">
-              Comprehensive testing and validation of eCDome analysis
+              Comprehensive testing and validation of eCBome analysis
             </p>
           </a>
           <a
-            href="/ecdome-analysis"
+            href="/ecbome-analysis"
             className="block p-4 border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors"
           >
             <h3 className="font-medium text-gray-900">Analysis Dashboard</h3>
@@ -276,7 +279,7 @@ const IHRMainDashboard = () => {
           >
             <h3 className="font-medium text-gray-900">AI Assistant</h3>
             <p className="text-sm text-gray-600 mt-1">
-              Intelligent chatbot for eCDome system queries
+              Intelligent chatbot for eCBome system queries
             </p>
           </a>
         </div>

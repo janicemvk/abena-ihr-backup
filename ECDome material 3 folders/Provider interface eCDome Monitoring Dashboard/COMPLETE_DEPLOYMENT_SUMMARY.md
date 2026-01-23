@@ -13,10 +13,10 @@
 2. ✅ **Real-time Vitals** - All values displaying (HR, BP, Temp, O2, Respiration, Stress, Sleep)
 3. ✅ **Call Patient Button** - Opens professional video call modal
 4. ✅ **Send Message Button** - Opens secure messaging modal
-5. ✅ **eCDome Timeline** - Populated with 24-hour realistic data
+5. ✅ **eCBome Timeline** - Populated with 24-hour realistic data
 6. ✅ **Circadian Patterns** - Realistic day/night variations
 7. ✅ **Meal Effects** - Spike patterns at breakfast, lunch, dinner
-8. ✅ **Patient-Specific Data** - Each patient has unique eCDome profile
+8. ✅ **Patient-Specific Data** - Each patient has unique eCBome profile
 
 ---
 
@@ -34,35 +34,35 @@
 ## 👥 5 Complete Patient Cases
 
 ### **PAT-001: James Wilson, 46M** 🔴
-- **Risk**: HIGH | **eCDome**: 58% (Compromised)
+- **Risk**: HIGH | **eCBome**: 58% (Compromised)
 - **Conditions**: Severe HTN (188/90), Sleep Apnea, CAD, Obesity
 - **Timeline Pattern**: Low Anandamide, disrupted sleep, high inflammation
 - **Alerts**: 3 critical/warning alerts
 - **Recommendations**: 4 evidence-based interventions
 
 ### **PAT-002: Sarah Chen, 32F** 🟢
-- **Risk**: LOW | **eCDome**: 85% (Excellent)
+- **Risk**: LOW | **eCBome**: 85% (Excellent)
 - **Conditions**: Chronic low back pain with radiculopathy
-- **Timeline Pattern**: Excellent eCDome, only sleep deficit visible
+- **Timeline Pattern**: Excellent eCBome, only sleep deficit visible
 - **Alerts**: 1 info alert (sleep)
 - **Recommendations**: 4 referral/therapy recommendations
 
 ### **PAT-003: Margaret Davis, 56F** 🔴
-- **Risk**: HIGH | **eCDome**: 62% (Compromised)
+- **Risk**: HIGH | **eCBome**: 62% (Compromised)
 - **Conditions**: Type 2 DM, Neuropathy, HTN, GERD, Obesity
 - **Timeline Pattern**: Exaggerated meal spikes, chronic inflammation
 - **Alerts**: 3 warning/info alerts
 - **Recommendations**: 5 management interventions
 
 ### **PAT-004: Robert Thompson, 78M** 🚨
-- **Risk**: HIGH | **Status**: CRITICAL | **eCDome**: 45% (Critical)
+- **Risk**: HIGH | **Status**: CRITICAL | **eCBome**: 45% (Critical)
 - **Conditions**: CHF (EF 35%), AFib, CKD Stage 3, MI history
 - **Timeline Pattern**: Severely disrupted, all components low
 - **Alerts**: 4 critical alerts (may need hospitalization)
 - **Recommendations**: 5 urgent interventions
 
 ### **PAT-005: Emily Rodriguez, 28F** 🟡
-- **Risk**: MEDIUM | **eCDome**: 71% (Fair)
+- **Risk**: MEDIUM | **eCBome**: 71% (Fair)
 - **Conditions**: GAD, Prediabetes, PCOS, Metabolic Syndrome
 - **Timeline Pattern**: Work stress dips, metabolic inflammation
 - **Alerts**: 4 warning/info alerts
@@ -88,10 +88,10 @@
 - ✅ **Respiration** (12-18 breaths/min) ⭐ NEW
 - ✅ **Stress Level** (20-50 index) ⭐ NEW
 - ✅ **Sleep Quality** (65-95%) ⭐ NEW
-- ✅ eCDome Activity (60-100%)
+- ✅ eCBome Activity (60-100%)
 - ✅ Updates every 15 seconds
 
-### **eCDome Timeline Chart**
+### **eCBome Timeline Chart**
 - ✅ 24-hour activity visualization
 - ✅ 4 component tracking (Anandamide, 2-AG, CB1, CB2)
 - ✅ Circadian rhythm patterns
@@ -127,7 +127,7 @@
 ### **Clinical Intelligence**
 - ✅ Predictive alerts (patient-specific)
 - ✅ Clinical recommendations (evidence-based)
-- ✅ 12-module eCDome analysis
+- ✅ 12-module eCBome analysis
 - ✅ Dashboard controls (time range, view mode, filters)
 - ✅ System statistics
 - ✅ Quick actions
@@ -214,7 +214,7 @@
 - [ ] Success notification
 - [ ] Modal closes
 
-### **eCDome Timeline** ✅
+### **eCBome Timeline** ✅
 - [ ] Chart shows colored lines (not empty)
 - [ ] **4 metric cards show percentages** (not 0.0%) ⭐
 - [ ] **Blue line** - Anandamide visible
@@ -269,7 +269,7 @@
 
 ```bash
 # 1. Clean caches
-cd "ECDome material 3 folders/Provider interface eCDome Monitoring Dashboard"
+cd "ECDome material 3 folders/Provider interface eCBome Monitoring Dashboard"
 rm -rf node_modules/.cache build
 
 # 2. Clean Docker
@@ -283,7 +283,7 @@ sync && echo 3 | sudo tee /proc/sys/vm/drop_caches  # Freed 345 MB!
 docker-compose stop telemedicine admin-dashboard unified-integration demo-orchestrator patient-dashboard biomarker-integration data-ingestion provider-workflow biomarker-gui
 
 # 5. Build React app
-cd "ECDome material 3 folders/Provider interface eCDome Monitoring Dashboard"
+cd "ECDome material 3 folders/Provider interface eCBome Monitoring Dashboard"
 sudo npm run build  # SUCCESS!
 
 # 6. Deploy to Docker
@@ -300,7 +300,7 @@ curl http://localhost:4009/
 
 ## 📋 What Providers Will See
 
-### **eCDome Timeline Chart Now Shows:**
+### **eCBome Timeline Chart Now Shows:**
 
 **Metric Cards (Top):**
 - Anandamide: 72.5% (example)
@@ -328,7 +328,7 @@ curl http://localhost:4009/
 
 ### **What Providers Learn:**
 
-1. **System Balance**: Is the eCDome functioning optimally?
+1. **System Balance**: Is the eCBome functioning optimally?
 2. **Circadian Health**: Proper day/night rhythm?
 3. **Metabolic Function**: Appropriate meal responses?
 4. **Sleep Quality**: CB2 elevation during sleep = repair happening
@@ -358,7 +358,7 @@ curl http://localhost:4009/
 ### **Step 2: Explore Patients**
 1. Click "Change Patient"
 2. Select different patients (PAT-001 to PAT-005)
-3. Watch eCDome timeline update for each patient
+3. Watch eCBome timeline update for each patient
 4. Compare their patterns
 
 ### **Step 3: Analyze Timeline**
@@ -388,7 +388,7 @@ curl http://localhost:4009/
 **Total Patients**: 5  
 **Active Patients**: 4  
 **Critical Patients**: 1 (PAT-004 - Robert Thompson)  
-**Average eCDome Score**: 64.2%  
+**Average eCBome Score**: 64.2%  
 **System Uptime**: 98.5%  
 **Data Points**: 1.2M  
 **Data Quality**: 99.2%  
@@ -412,7 +412,7 @@ curl http://localhost:4009/
 - Timestamp tracking
 - Connection status
 
-### **eCDome Intelligence** ✅
+### **eCBome Intelligence** ✅
 - 24-hour timeline data
 - 4 component tracking
 - Circadian rhythm simulation
@@ -482,7 +482,7 @@ The dashboard looks exactly the same, but **everything is now functional!**
 ✅ **100% Feature Completion**: All planned features implemented  
 ✅ **5/5 Patients**: Complete data for all cases  
 ✅ **8/8 Vitals**: All vital signs functional  
-✅ **4/4 eCDome Components**: Timeline fully populated  
+✅ **4/4 eCBome Components**: Timeline fully populated  
 ✅ **2/2 Modals**: Video call and messaging working  
 ✅ **0 Design Changes**: UI/UX perfectly preserved  
 ✅ **99.2% Data Quality**: High-quality realistic data  
@@ -544,7 +544,7 @@ docker-compose up -d
 - 🎯 Implemented complete vital signs monitoring
 - 🎯 Built professional video call modal
 - 🎯 Built secure messaging modal
-- 🎯 Populated eCDome Timeline with 24-hour data
+- 🎯 Populated eCBome Timeline with 24-hour data
 - 🎯 Added circadian rhythm patterns
 - 🎯 Implemented meal effect simulation
 - 🎯 Made all dashboard elements functional

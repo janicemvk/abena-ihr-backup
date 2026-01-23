@@ -9,7 +9,7 @@ class NutriomeFeatureExtractor extends BaseFeatureExtractor {
     super('nutriome');
   }
 
-  async extract(moduleData, ecdomeData, patientId) {
+  async extract(moduleData, ecbomeData, patientId) {
     return [
       this.normalizeFeature(this.validateData(moduleData.macronutrient_balance), 0, 100),
       this.normalizeFeature(this.validateData(moduleData.micronutrient_sufficiency), 0, 100),
@@ -20,7 +20,7 @@ class NutriomeFeatureExtractor extends BaseFeatureExtractor {
       this.normalizeFeature(this.validateData(moduleData.nutrient_absorption_efficiency), 0, 100),
       this.normalizeFeature(this.validateData(moduleData.food_sensitivity_markers), 0, 100),
       this.normalizeFeature(this.validateData(moduleData.metabolic_nutrient_utilization), 0, 100),
-      this.normalizeFeature(this.validateData(ecdomeData.nutritional_ecs_impact), 0, 100),
+      this.normalizeFeature(this.validateData(ecbomeData.nutritional_ecs_impact), 0, 100),
       this.normalizeFeature(this.validateData(moduleData.hydration_status), 0, 100),
       this.normalizeFeature(this.validateData(moduleData.mineral_balance), 0, 100)
     ];

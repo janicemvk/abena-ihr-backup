@@ -40,7 +40,7 @@ Each patient has:
 - ✅ Medical conditions
 - ✅ Social history
 - ✅ Lab results
-- ✅ eCDome profiles (12 modules)
+- ✅ eCBome profiles (12 modules)
 
 ---
 
@@ -48,7 +48,7 @@ Each patient has:
 - ✅ **Heart Rate**: 60-80 bpm (patient-specific baselines)
 - ✅ **Blood Pressure**: Systolic/Diastolic (reflects patient's HTN status)
 - ✅ **Temperature**: 97-99°F with variations
-- ✅ **eCDome Activity**: 60-100% based on patient health
+- ✅ **eCBome Activity**: 60-100% based on patient health
 - ✅ **O2 Saturation**: 93-99% (lower in CHF patient)
 - ✅ **Respiration**: 12-18 breaths/min ⭐ FIXED
 - ✅ **Stress Level**: 20-50 index ⭐ FIXED
@@ -94,7 +94,7 @@ Each patient has:
 
 ---
 
-### **📊 eCDome Activity Timeline**
+### **📊 eCBome Activity Timeline**
 - ✅ **4 Component Lines** (not 0.0% anymore!):
   - 🔵 Anandamide ("Bliss molecule") - Mood/pain regulation
   - 🟢 2-AG (Inflammation regulator) - Immune/metabolism
@@ -186,7 +186,7 @@ Summary Stats:
      - Affected systems (tags)
      - Severity level (large display)
      - Confidence percentage
-     - Patient context (name, age, eCDome, risk)
+     - Patient context (name, age, eCBome, risk)
      - Alert metadata (ID, timestamp, module, trend)
    - Can acknowledge from modal
    - "Close" or "Acknowledge & Close" buttons
@@ -275,7 +275,7 @@ Summary Stats:
   - Name, ID, Age, Gender
   - Status badge (Active/Critical)
   - Risk level (color-coded)
-  - eCDome score
+  - eCBome score
   - Last visit timestamp
 - ✅ Selected patient highlighted
 - ✅ Quick stats (Total, Active, Critical counts)
@@ -297,9 +297,9 @@ Summary Stats:
 - ✅ Demographics (ID, age, gender)
 - ✅ Last visit date
 - ✅ Provider name
-- ✅ eCDome Health Score (large display with color)
+- ✅ eCBome Health Score (large display with color)
 - ✅ Status indicator (Excellent/Good/Needs Attention)
-- ✅ Real-time vital signs (3 cards: HR, BP, eCDome)
+- ✅ Real-time vital signs (3 cards: HR, BP, eCBome)
 - ✅ Trend indicators
 - ✅ Live timestamp
 - ✅ Connection status
@@ -332,7 +332,7 @@ Summary Stats:
 
 5. **Patient Overview** shows:
    - Robert Thompson, 78M
-   - eCDome Score: 45% (Critical)
+   - eCBome Score: 45% (Critical)
    - BP: 118/68, HR: 92
    - Status: CRITICAL
 
@@ -341,7 +341,7 @@ Summary Stats:
    - Respiration: 22 (elevated)
    - All vitals updating every 15s
 
-7. **eCDome Timeline** shows:
+7. **eCBome Timeline** shows:
    - All 4 lines very low (30-50% range)
    - No clear circadian pattern
    - Severely disrupted system
@@ -409,7 +409,7 @@ Summary Stats:
 ### **Switch to PAT-001 (James Wilson):**
 **Dashboard Updates:**
 - Real-time vitals: BP 188/90 (Stage 2 HTN!)
-- eCDome Timeline: Low Anandamide (stress/CAD), disrupted sleep patterns
+- eCBome Timeline: Low Anandamide (stress/CAD), disrupted sleep patterns
 - 12 Modules: Cardiovascular 45% (red), Toxicome 40% (red - smoker)
 - Alerts (3): Severe HTN, Sleep apnea impact, Tobacco use
 - Recommendations (4): BP med adjustment, Smoking cessation, Sleep consult, Weight loss
@@ -417,7 +417,7 @@ Summary Stats:
 ### **Switch to PAT-002 (Sarah Chen):**
 **Dashboard Updates:**
 - Real-time vitals: BP 110/74 (perfect!), HR 74
-- eCDome Timeline: Excellent curves (75-90%), clear circadian
+- eCBome Timeline: Excellent curves (75-90%), clear circadian
 - 12 Modules: Mostly green (85% average)
 - Alerts (1): Sleep deficit (only issue)
 - Recommendations (4): Neuro referral, PT, MRI, Sleep optimization
@@ -425,7 +425,7 @@ Summary Stats:
 ### **Switch to PAT-003 (Margaret Davis):**
 **Dashboard Updates:**
 - Real-time vitals: BP 130/88, glucose variability
-- eCDome Timeline: Exaggerated meal spikes (diabetes pattern)
+- eCBome Timeline: Exaggerated meal spikes (diabetes pattern)
 - 12 Modules: Metabolome 48% (disrupted), Inflammatome 50% (elevated)
 - Alerts (3): Suboptimal DM control, Neuropathy, Sedentary
 - Recommendations (5): GLP-1, CGM, Education, Podiatry, Exercise
@@ -508,7 +508,7 @@ Summary Stats:
 
 **What the 7.79 KB Added:**
 - 5 complete patient profiles
-- 24-hour eCDome timeline data
+- 24-hour eCBome timeline data
 - 12-module analysis for all patients
 - Patient-specific alerts (1-4 per patient)
 - Patient-specific recommendations (4-6 per patient)
@@ -553,7 +553,7 @@ Summary Stats:
 - [ ] See sending animation
 - [ ] Modal closes
 
-### **5. eCDome Timeline** ✅
+### **5. eCBome Timeline** ✅
 - [ ] See 4 colored lines (not empty)
 - [ ] Metric cards show percentages
 - [ ] Hover for tooltips
@@ -640,7 +640,7 @@ Summary Stats:
 ✅ Complete medication lists  
 ✅ Lab results and vital signs  
 ✅ Social histories  
-✅ Patient-specific eCDome profiles  
+✅ Patient-specific eCBome profiles  
 
 ### **Real-time Monitoring:**
 ✅ 8 vital signs tracked  
@@ -650,7 +650,7 @@ Summary Stats:
 ✅ Status indicators  
 ✅ Trend tracking  
 
-### **eCDome Intelligence:**
+### **eCBome Intelligence:**
 ✅ 4-component timeline (24 hours)  
 ✅ Circadian rhythm simulation  
 ✅ Meal effect modeling  
@@ -691,7 +691,7 @@ All aspects documented in 11 guides:
 3. Deployment Guide
 4. Modal Features
 5. Vitals Fix
-6. eCDome Timeline Clinical Guide
+6. eCBome Timeline Clinical Guide
 7. 12 Module Analysis Guide
 8. Predictive Alerts Guide
 9. Complete Deployment Summary
@@ -706,7 +706,7 @@ All aspects documented in 11 guides:
 - ✅ **100% Feature Implementation**: Everything requested is working
 - ✅ **5/5 Patients**: All have complete data
 - ✅ **8/8 Vitals**: All displaying correctly
-- ✅ **4/4 eCDome Components**: Timeline fully functional
+- ✅ **4/4 eCBome Components**: Timeline fully functional
 - ✅ **12/12 Modules**: All showing with scores
 - ✅ **15/15 Alerts**: All patients have condition-specific alerts
 - ✅ **24/24 Recommendations**: All patients have evidence-based recs
@@ -758,7 +758,7 @@ All aspects documented in 11 guides:
 2. **Test Each Patient** (5-10 min each):
    - Select patient
    - Review vitals
-   - Check eCDome timeline (should see colored lines)
+   - Check eCBome timeline (should see colored lines)
    - Review 12 modules (should show scores)
    - Read alerts (patient-specific)
    - Expand an alert
@@ -779,7 +779,7 @@ All aspects documented in 11 guides:
    - Each has unique data
    - Alerts match conditions
    - Recommendations are appropriate
-   - eCDome patterns differ
+   - eCBome patterns differ
 
 ---
 
@@ -807,7 +807,7 @@ All aspects documented in 11 guides:
 - **Fully functional clinical dashboard**
 - **5 complete, realistic patients**
 - **All vital signs operational**
-- **eCDome timeline with 24-hour data**
+- **eCBome timeline with 24-hour data**
 - **12-module analysis populated**
 - **Patient-specific alerts (1-4 each)**
 - **Evidence-based recommendations (4-6 each)**
@@ -841,7 +841,7 @@ All aspects documented in 11 guides:
 
 🎯 Switch between 5 patients  
 🎯 Watch real-time vitals update  
-🎯 See eCDome timeline with colored lines  
+🎯 See eCBome timeline with colored lines  
 🎯 Review 12-module analysis with scores  
 🎯 Read patient-specific alerts  
 🎯 Acknowledge alerts and watch them turn green  

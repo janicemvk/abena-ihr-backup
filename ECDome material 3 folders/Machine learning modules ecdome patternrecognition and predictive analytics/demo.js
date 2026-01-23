@@ -1,13 +1,13 @@
-import ECDomeMLEngine from './src/ECDomeMLEngine.js';
+import ECBomeMLEngine from './src/ECBomeMLEngine.js';
 import MLEngineAPI from './src/api/MLEngineAPI.js';
 
 /**
- * ECDOME ML ENGINE DEMO
+ * ECBOME ML ENGINE DEMO
  * Demonstrates the full capabilities of the ML system
  */
-class ECDomeMLDemo {
+class ECBomeMLDemo {
   constructor() {
-    this.mlEngine = new ECDomeMLEngine();
+    this.mlEngine = new ECBomeMLEngine();
     this.api = new MLEngineAPI();
   }
 
@@ -87,8 +87,8 @@ class ECDomeMLDemo {
       }
     };
 
-    // Sample eCdome data - represents endocannabinoid system measurements
-    const ecdomeData = {
+    // Sample eCBome data - represents endocannabinoid system measurements
+    const ecbomeData = {
       cb1_metabolic_impact: 75,
       cb2_anti_inflammatory: 82,
       gut_ecs_production: 78,
@@ -110,11 +110,11 @@ class ECDomeMLDemo {
       patientId,
       userId,
       moduleData,
-      ecdomeData,
+      ecbomeData,
       historicalData,
       currentData: {
         moduleData,
-        ecdomeData,
+        ecbomeData,
         patterns: []
       }
     };
@@ -154,7 +154,7 @@ class ECDomeMLDemo {
             antioxidant_capacity: 78 * variation
           }
         },
-        ecdomeData: {
+        ecbomeData: {
           cb1_metabolic_impact: 75 * variation,
           cb2_anti_inflammatory: 82 * variation,
           stress_ecs_modulation: 82 * variation
@@ -169,7 +169,7 @@ class ECDomeMLDemo {
    * Run comprehensive ML analysis demo
    */
   async runMLAnalysisDemo() {
-    console.log('🧬 Starting eCdome ML Analysis Demo...\n');
+    console.log('🧬 Starting eCBome ML Analysis Demo...\n');
 
     try {
       // Generate sample data
@@ -185,7 +185,7 @@ class ECDomeMLDemo {
       const patternResults = await this.mlEngine.recognizePatterns(
         sampleData.patientId,
         sampleData.moduleData,
-        sampleData.ecdomeData,
+        sampleData.ecbomeData,
         sampleData.userId
       );
       
@@ -266,7 +266,7 @@ class ECDomeMLDemo {
       const features = await this.mlEngine.extractFeatures(
         sampleData.patientId,
         sampleData.moduleData,
-        sampleData.ecdomeData
+        sampleData.ecbomeData
       );
       
       console.log('📈 Feature Extraction Results:');
@@ -308,7 +308,7 @@ class ECDomeMLDemo {
    * Start the API server demo
    */
   async startAPIDemo() {
-    console.log('🚀 Starting eCdome ML API Server Demo...\n');
+    console.log('🚀 Starting eCBome ML API Server Demo...\n');
     
     try {
       // Start the API server
@@ -338,7 +338,7 @@ class ECDomeMLDemo {
    * Run both demos
    */
   async runFullDemo() {
-    console.log('🌟 eCdome ML Engine - Full System Demo\n');
+    console.log('🌟 eCBome ML Engine - Full System Demo\n');
     console.log('======================================\n');
 
     // Run ML analysis demo
@@ -357,7 +357,7 @@ class ECDomeMLDemo {
 
 // Run the demo if this file is executed directly
 if (import.meta.url === new URL(import.meta.url).href) {
-  const demo = new ECDomeMLDemo();
+  const demo = new ECBomeMLDemo();
   
   // Choose which demo to run
   const args = process.argv.slice(2);
@@ -371,4 +371,4 @@ if (import.meta.url === new URL(import.meta.url).href) {
   }
 }
 
-export default ECDomeMLDemo; 
+export default ECBomeMLDemo; 

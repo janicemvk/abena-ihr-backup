@@ -9,7 +9,7 @@ class MetabolomeFeatureExtractor extends BaseFeatureExtractor {
     super('metabolome');
   }
 
-  async extract(moduleData, ecdomeData, patientId) {
+  async extract(moduleData, ecbomeData, patientId) {
     return [
       this.normalizeFeature(this.validateData(moduleData.glucose_levels), 70, 140),
       this.normalizeFeature(this.validateData(moduleData.insulin_sensitivity), 0, 100),
@@ -20,7 +20,7 @@ class MetabolomeFeatureExtractor extends BaseFeatureExtractor {
       this.normalizeFeature(this.validateData(moduleData.lactate_levels), 0, 4),
       this.normalizeFeature(this.validateData(moduleData.fatty_acid_oxidation), 0, 100),
       this.normalizeFeature(this.validateData(moduleData.glycogen_stores), 0, 100),
-      this.normalizeFeature(this.validateData(ecdomeData.cb1_metabolic_impact), 0, 100),
+      this.normalizeFeature(this.validateData(ecbomeData.cb1_metabolic_impact), 0, 100),
       this.normalizeFeature(this.validateData(moduleData.atp_production_rate), 0, 100),
       this.normalizeFeature(this.validateData(moduleData.basal_metabolic_rate), 1000, 3000)
     ];

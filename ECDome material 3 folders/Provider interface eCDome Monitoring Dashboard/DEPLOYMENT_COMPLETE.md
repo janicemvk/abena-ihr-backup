@@ -59,7 +59,7 @@
 3. ✅ **Vital Signs** - Real-time dynamic data
 4. ✅ **Medications** - Full medication lists
 5. ✅ **Allergies & Conditions** - Medical history
-6. ✅ **eCDome Analysis** - 12-module system
+6. ✅ **eCBome Analysis** - 12-module system
 7. ✅ **Clinical Alerts** - Patient-specific warnings
 8. ✅ **Recommendations** - Evidence-based suggestions
 9. ✅ **Timeline View** - 24-hour trends
@@ -81,7 +81,7 @@
 - ✅ Vital signs are patient-specific
 - ✅ Alerts match patient conditions
 - ✅ Medications list is accurate
-- ✅ eCDome scores reflect health status
+- ✅ eCBome scores reflect health status
 - ✅ Recommendations are clinically appropriate
 
 ### Browser Console:
@@ -192,7 +192,7 @@ docker exec -it abena-provider-dashboard sh
 
 4. **Rebuild if Needed**
    ```bash
-   cd "/var/www/html/abena/ECDome material 3 folders/Provider interface eCDome Monitoring Dashboard"
+   cd "/var/www/html/abena/ECDome material 3 folders/Provider interface eCBome Monitoring Dashboard"
    npm run build
    cd /var/www/html/abena
    docker-compose build provider-dashboard
@@ -227,7 +227,7 @@ docker stats abena-provider-dashboard
 ✅ **Dynamic vital signs**  
 ✅ **Patient-specific alerts**  
 ✅ **Clinical recommendations**  
-✅ **eCDome 12-module analysis**  
+✅ **eCBome 12-module analysis**  
 ✅ **Timeline visualization**  
 ✅ **Dashboard controls functional**  
 ✅ **No database required**  

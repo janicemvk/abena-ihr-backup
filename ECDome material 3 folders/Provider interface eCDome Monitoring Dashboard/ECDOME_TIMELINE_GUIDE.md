@@ -1,13 +1,13 @@
-# 📊 eCDome Activity Timeline - Clinical Guide for Providers
+# 📊 eCBome Activity Timeline - Clinical Guide for Providers
 
 **Date**: October 29, 2025  
 **Status**: ✅ **DEPLOYED WITH REALISTIC 24-HOUR DATA**
 
 ---
 
-## 🧠 What is the eCDome Activity Timeline?
+## 🧠 What is the eCBome Activity Timeline?
 
-The **eCDome Activity Timeline** is a real-time monitoring chart that tracks the **Endocannabinoid System (eCDome)** activity over 24 hours. It displays the dynamic interplay of 4 critical endocannabinoid components:
+The **eCBome Activity Timeline** is a real-time monitoring chart that tracks the **Endocannabinoid System (eCBome)** activity over 24 hours. It displays the dynamic interplay of 4 critical endocannabinoid components:
 
 1. **Anandamide** (Blue line) - "The Bliss Molecule"
 2. **2-AG** (Green line) - "The Immune Regulator"
@@ -225,7 +225,7 @@ The **eCDome Activity Timeline** is a real-time monitoring chart that tracks the
 
 ### **PAT-001 (James Wilson) - Cardiovascular Disease + Sleep Apnea**
 
-**Expected eCDome Pattern:**
+**Expected eCBome Pattern:**
 - **Low overall Anandamide** (45-60%) - Cardiovascular stress
 - **Elevated 2-AG** (60-75%) - Chronic inflammation
 - **Disrupted CB1** - Erratic due to sleep apnea (fragmented sleep)
@@ -234,21 +234,21 @@ The **eCDome Activity Timeline** is a real-time monitoring chart that tracks the
 **What Provider Learns:**
 - Sleep apnea causing fragmented patterns (check CB1 instability at night)
 - Chronic inflammation burden (high CB2, elevated 2-AG)
-- Cardiovascular stress impact on eCDome
+- Cardiovascular stress impact on eCBome
 - Need for: CPAP compliance, anti-inflammatory interventions
 
 ---
 
 ### **PAT-002 (Sarah Chen) - Healthy with Back Pain**
 
-**Expected eCDome Pattern:**
+**Expected eCBome Pattern:**
 - **High Anandamide** (75-90%) - Excellent mood baseline
 - **Moderate 2-AG** (70-85%) - Active lifestyle, controlled inflammation
 - **Strong CB1** (75-90%) - Good cognitive function
 - **Moderate CB2** (65-80%) - Low systemic inflammation
 
 **What Provider Learns:**
-- Healthy eCDome system overall
+- Healthy eCBome system overall
 - Back pain is LOCALIZED (not systemic inflammation)
 - Excellent stress regulation
 - Sleep deficit showing in slight circadian disruption
@@ -258,14 +258,14 @@ The **eCDome Activity Timeline** is a real-time monitoring chart that tracks the
 
 ### **PAT-003 (Margaret Davis) - Type 2 Diabetes**
 
-**Expected eCDome Pattern:**
+**Expected eCBome Pattern:**
 - **Low Anandamide** (50-65%) - Metabolic disease effect
 - **Elevated 2-AG** (55-70%) - Chronic inflammation from diabetes
 - **Variable CB1** (55-70%) - Glucose fluctuations affect brain
 - **Elevated CB2** (50-65%) - Chronic inflammation, neuropathy
 
 **What Provider Learns:**
-- Diabetes causing systemic eCDome disruption
+- Diabetes causing systemic eCBome disruption
 - Neuropathy visible in elevated CB2 (immune fighting nerve damage)
 - Glycemic control affects CB1 patterns (brain fog correlation)
 - Post-meal 2-AG spikes exaggerated (insulin resistance)
@@ -275,16 +275,16 @@ The **eCDome Activity Timeline** is a real-time monitoring chart that tracks the
 
 ### **PAT-004 (Robert Thompson) - CHF + Multiple Comorbidities**
 
-**Expected eCDome Pattern:**
+**Expected eCBome Pattern:**
 - **Very Low Anandamide** (30-45%) - Severe disease burden
 - **High 2-AG** (40-55%) - Multiple inflammatory processes
 - **Low CB1** (35-50%) - Cognitive decline, fatigue
 - **Very High CB2** (50-70%) - Body fighting multiple inflammations
 
 **What Provider Learns:**
-- Critical eCDome dysfunction (all components compromised)
+- Critical eCBome dysfunction (all components compromised)
 - CHF causing systemic inflammation (high CB2)
-- Polypharmacy may be affecting eCDome
+- Polypharmacy may be affecting eCBome
 - Poor circadian patterns (no clear day/night distinction)
 - Urgent need for: Hospitalization, medication optimization
 
@@ -292,7 +292,7 @@ The **eCDome Activity Timeline** is a real-time monitoring chart that tracks the
 
 ### **PAT-005 (Emily Rodriguez) - Anxiety + Prediabetes**
 
-**Expected eCDome Pattern:**
+**Expected eCBome Pattern:**
 - **Low Anandamide** (55-70%) - Anxiety depleting "bliss molecule"
 - **Elevated 2-AG** (60-75%) - Metabolic syndrome inflammation
 - **Disrupted CB1** (60-75%) - Anxiety/stress effect, PCOS hormones
@@ -301,14 +301,14 @@ The **eCDome Activity Timeline** is a real-time monitoring chart that tracks the
 **What Provider Learns:**
 - Anxiety visibly depleting Anandamide (especially during work stress)
 - Prediabetes showing in elevated inflammatory markers
-- PCOS hormonal effects on eCDome
+- PCOS hormonal effects on eCBome
 - Sleep deprivation disrupting circadian pattern
 - Stress eating visible in abnormal meal response patterns
 - Need for: CBT, exercise, stress management, metabolic intervention
 
 ---
 
-## 🎯 Clinical Decision Making with eCDome Timeline
+## 🎯 Clinical Decision Making with eCBome Timeline
 
 ### **Intervention Planning**
 
@@ -569,7 +569,7 @@ CB1: -25% (brain rest)
 
 ### **Sarah Chen (PAT-002)** - Healthy & Active
 **Timeline shows:**
-- Excellent eCDome function (System score: 85%)
+- Excellent eCBome function (System score: 85%)
 - Clear circadian rhythm
 - Strong meal responses
 - Only issue: Sleep deprivation visible
@@ -680,7 +680,7 @@ Anandamide at Hour X =
 
 ---
 
-**The eCDome Timeline is now a fully functional clinical intelligence tool providing deep insights into your patients' endocannabinoid system health!** 🎊
+**The eCBome Timeline is now a fully functional clinical intelligence tool providing deep insights into your patients' endocannabinoid system health!** 🎊
 
 ---
 

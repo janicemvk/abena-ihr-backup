@@ -1,6 +1,6 @@
 /**
- * EBDomeScoreWithHelp Component
- * Shows eBDome score and components with integrated help information
+ * ECBomeScoreWithHelp Component
+ * Shows eCBome score and components with integrated help information
  */
 
 import React from 'react';
@@ -8,11 +8,11 @@ import { Brain, TrendingUp, Activity } from 'lucide-react';
 import SectionHeader from '../Common/SectionHeader';
 import HelpInfo from '../Common/HelpInfo';
 
-const EBDomeScoreWithHelp = ({ ebdomeProfile }) => {
-  if (!ebdomeProfile) return null;
+const ECBomeScoreWithHelp = ({ ecbomeProfile }) => {
+  if (!ecbomeProfile) return null;
 
-  const overallScore = ebdomeProfile.overallScore || ebdomeProfile.score || 0;
-  const components = ebdomeProfile.components || {};
+  const overallScore = ecbomeProfile.overallScore || ecbomeProfile.score || 0;
+  const components = ecbomeProfile.components || {};
 
   // Helper to format component names
   const formatName = (name) => {
@@ -70,9 +70,9 @@ const EBDomeScoreWithHelp = ({ ebdomeProfile }) => {
       {/* Section Header */}
       <SectionHeader
         icon={Brain}
-        title="eBDome Profile Analysis"
+        title="eCBome Profile Analysis"
         subtitle="Endocannabinoid System Health Assessment"
-        helpTopic="ebdome_score"
+        helpTopic="ecbome_score"
         helpPosition="modal"
       />
 
@@ -81,13 +81,13 @@ const EBDomeScoreWithHelp = ({ ebdomeProfile }) => {
         <div className="flex items-center justify-between">
           <div className="flex-1">
             <div className="flex items-center space-x-2 mb-2">
-              <h4 className="text-sm font-medium opacity-80">Overall eBDome Score</h4>
-              <HelpInfo topic="ebdome_score" size="sm" position="inline" />
+              <h4 className="text-sm font-medium opacity-80">Overall eCBome Score</h4>
+              <HelpInfo topic="ecbome_score" size="sm" position="inline" />
             </div>
             <div className="flex items-baseline space-x-3">
               <span className="text-5xl font-bold">{overallScore.toFixed(2)}</span>
               <span className="text-lg font-semibold opacity-70">
-                {ebdomeProfile.status || (overallScore >= 0.8 ? 'Excellent' : overallScore >= 0.6 ? 'Good' : 'Needs Attention')}
+                {ecbomeProfile.status || (overallScore >= 0.8 ? 'Excellent' : overallScore >= 0.6 ? 'Good' : 'Needs Attention')}
               </span>
             </div>
           </div>
@@ -104,8 +104,8 @@ const EBDomeScoreWithHelp = ({ ebdomeProfile }) => {
             <h4 className="font-semibold text-gray-900">Component Analysis</h4>
             <HelpInfo 
               helpContent={{
-                title: '12-Module eBDome Components',
-                medical: 'The eBDome system evaluates 12 interconnected physiological modules to assess endocannabinoid system function. Each module represents a specific aspect of ECS regulation including receptor activity, endocannabinoid levels, metabolic enzymes, and downstream physiological effects.',
+                title: '12-Module eCBome Components',
+                medical: 'The eCBome system evaluates 12 interconnected physiological modules to assess endocannabinoid system function. Each module represents a specific aspect of ECS regulation including receptor activity, endocannabinoid levels, metabolic enzymes, and downstream physiological effects.',
                 simple: 'Think of these components as different parts of your body\'s balance system. Each one measures how well a specific part is working. Together, they give a complete picture of your body\'s internal regulation.',
                 relatedTopics: ['Anandamide', 'CB1 Receptors', 'CB2 Receptors', '2-AG', 'Homeostasis']
               }}
@@ -180,7 +180,7 @@ const EBDomeScoreWithHelp = ({ ebdomeProfile }) => {
       {/* Summary Message */}
       <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
         <p className="text-sm text-blue-900">
-          <strong>Clinical Note:</strong> The eBDome score provides a holistic view of endocannabinoid system function. 
+          <strong>Clinical Note:</strong> The eCBome score provides a holistic view of endocannabinoid system function. 
           Scores above 0.8 indicate optimal homeostatic regulation, while lower scores may suggest areas for therapeutic intervention.
           {' '}
           <button className="text-blue-600 hover:text-blue-800 font-medium underline">
@@ -192,5 +192,5 @@ const EBDomeScoreWithHelp = ({ ebdomeProfile }) => {
   );
 };
 
-export default EBDomeScoreWithHelp;
+export default ECBomeScoreWithHelp;
 

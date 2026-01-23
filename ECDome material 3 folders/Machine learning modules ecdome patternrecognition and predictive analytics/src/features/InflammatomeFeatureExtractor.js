@@ -9,7 +9,7 @@ class InflammatomeFeatureExtractor extends BaseFeatureExtractor {
     super('inflammatome');
   }
 
-  async extract(moduleData, ecdomeData, patientId) {
+  async extract(moduleData, ecbomeData, patientId) {
     return [
       this.normalizeFeature(this.validateData(moduleData.c_reactive_protein), 0, 10),
       this.normalizeFeature(this.validateData(moduleData.interleukin_6), 0, 100),
@@ -20,7 +20,7 @@ class InflammatomeFeatureExtractor extends BaseFeatureExtractor {
       this.normalizeFeature(this.validateData(moduleData.nitric_oxide), 0, 100),
       this.normalizeFeature(this.validateData(moduleData.oxidative_stress), 0, 100),
       this.normalizeFeature(this.validateData(moduleData.antioxidant_capacity), 0, 100),
-      this.normalizeFeature(this.validateData(ecdomeData.cb2_anti_inflammatory), 0, 100),
+      this.normalizeFeature(this.validateData(ecbomeData.cb2_anti_inflammatory), 0, 100),
       this.normalizeFeature(this.validateData(moduleData.tissue_healing_rate), 0, 100),
       this.normalizeFeature(this.validateData(moduleData.inflammation_resolution), 0, 100)
     ];

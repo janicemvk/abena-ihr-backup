@@ -12,7 +12,7 @@
 **Problem**: The vitals card was displaying:
 - Heart Rate: `-- bpm`
 - Blood Pressure: `--/--`
-- eCDome Activity: `--%`
+- eCBome Activity: `--%`
 
 **Root Cause**: Data structure mismatch between `DashboardContext` and `PatientOverview` component.
 
@@ -69,9 +69,9 @@ const mockRealtimeData = {
   },
   temperature: parseFloat((Math.random() * 2 + 97).toFixed(1)),
   oxygenSaturation: Math.floor(Math.random() * 5) + 95,
-  ecdomeActivity: parseFloat((Math.random() * 0.4 + 0.6).toFixed(2)),
+  ecbomeActivity: parseFloat((Math.random() * 0.4 + 0.6).toFixed(2)),
   // Additional readings
-  ecdomeReadings: { ... }
+  ecbomeReadings: { ... }
 };
 ```
 
@@ -165,7 +165,7 @@ const handleSendMessage = () => {
 ### Real-time Vitals Display
 - ✅ **Heart Rate**: Updates every 15 seconds (60-80 bpm range)
 - ✅ **Blood Pressure**: Dynamic systolic/diastolic (110-130 / 70-80)
-- ✅ **eCDome Activity**: Live percentage (60-100%)
+- ✅ **eCBome Activity**: Live percentage (60-100%)
 - ✅ **Trend Indicators**: Up/Down/Stable arrows
 - ✅ **Timestamp**: Shows last update time
 
@@ -198,7 +198,7 @@ const handleSendMessage = () => {
 **Expected Values**:
 - Heart Rate: 60-80 bpm
 - Blood Pressure: 110-130 / 70-80 mmHg
-- eCDome Activity: 60-100%
+- eCBome Activity: 60-100%
 
 ### Test Call Patient Button:
 

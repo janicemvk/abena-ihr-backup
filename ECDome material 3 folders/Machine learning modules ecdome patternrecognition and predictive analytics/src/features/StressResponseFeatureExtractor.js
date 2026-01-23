@@ -9,7 +9,7 @@ class StressResponseFeatureExtractor extends BaseFeatureExtractor {
     super('stressResponse');
   }
 
-  async extract(moduleData, ecdomeData, patientId) {
+  async extract(moduleData, ecbomeData, patientId) {
     return [
       this.normalizeFeature(this.validateData(moduleData.cortisol_levels), 0, 100),
       this.normalizeFeature(this.validateData(moduleData.hpa_axis_function), 0, 100),
@@ -20,7 +20,7 @@ class StressResponseFeatureExtractor extends BaseFeatureExtractor {
       this.normalizeFeature(this.validateData(moduleData.psychological_stress_indicators), 0, 100),
       this.normalizeFeature(this.validateData(moduleData.physical_stress_tolerance), 0, 100),
       this.normalizeFeature(this.validateData(moduleData.recovery_time_metrics), 0, 100),
-      this.normalizeFeature(this.validateData(ecdomeData.stress_ecs_modulation), 0, 100),
+      this.normalizeFeature(this.validateData(ecbomeData.stress_ecs_modulation), 0, 100),
       this.normalizeFeature(this.validateData(moduleData.allostatic_load), 0, 100),
       this.normalizeFeature(this.validateData(moduleData.stress_related_inflammation), 0, 100)
     ];

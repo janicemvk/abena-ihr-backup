@@ -9,7 +9,7 @@ class CardiovascularFeatureExtractor extends BaseFeatureExtractor {
     super('cardiovascular');
   }
 
-  async extract(moduleData, ecdomeData, patientId) {
+  async extract(moduleData, ecbomeData, patientId) {
     return [
       this.normalizeFeature(this.validateData(moduleData.heart_rate_variability), 0, 100),
       this.normalizeFeature(this.validateData(moduleData.blood_pressure_control), 0, 100),
@@ -20,7 +20,7 @@ class CardiovascularFeatureExtractor extends BaseFeatureExtractor {
       this.normalizeFeature(this.validateData(moduleData.lipid_profile_optimization), 0, 100),
       this.normalizeFeature(this.validateData(moduleData.clotting_factor_balance), 0, 100),
       this.normalizeFeature(this.validateData(moduleData.exercise_capacity), 0, 100),
-      this.normalizeFeature(this.validateData(ecdomeData.cardiovascular_ecs_influence), 0, 100),
+      this.normalizeFeature(this.validateData(ecbomeData.cardiovascular_ecs_influence), 0, 100),
       this.normalizeFeature(this.validateData(moduleData.cardiac_rhythm_stability), 0, 100),
       this.normalizeFeature(this.validateData(moduleData.peripheral_circulation), 0, 100)
     ];

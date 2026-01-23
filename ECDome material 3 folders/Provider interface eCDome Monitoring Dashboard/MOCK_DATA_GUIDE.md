@@ -30,9 +30,9 @@ Each patient includes:
 - ✅ **Lab Results**: Recent laboratory values (HbA1C, glucose, lipids, etc.)
 - ✅ **Chief Complaint**: Primary reason for visit
 
-### 3. **eCDome Intelligence Profile**
+### 3. **eCBome Intelligence Profile**
 
-Each patient has a complete 12-module eCDome analysis:
+Each patient has a complete 12-module eCBome analysis:
 
 - Endocannabinoid system
 - Metabolome
@@ -76,14 +76,14 @@ Evidence-based recommendations tailored to each patient:
 
 The system generates:
 - ✅ Real-time vital signs with realistic variations
-- ✅ 24-hour eCDome timeline data
+- ✅ 24-hour eCBome timeline data
 - ✅ Historical data trends
 - ✅ Patient statistics and metrics
 
 ## 📊 Patient Case Details
 
 ### Case 1: James Wilson (PAT-001)
-**Risk Level**: HIGH | **eCDome Score**: 0.58 (Compromised)
+**Risk Level**: HIGH | **eCBome Score**: 0.58 (Compromised)
 
 **Conditions**:
 - Stage 2 Hypertension (BP: 188/90)
@@ -102,7 +102,7 @@ The system generates:
 ---
 
 ### Case 2: Sarah Chen (PAT-002)
-**Risk Level**: LOW | **eCDome Score**: 0.85 (Good)
+**Risk Level**: LOW | **eCBome Score**: 0.85 (Good)
 
 **Conditions**:
 - Chronic low back pain with bilateral radiculopathy
@@ -118,7 +118,7 @@ The system generates:
 ---
 
 ### Case 3: Margaret Davis (PAT-003)
-**Risk Level**: HIGH | **eCDome Score**: 0.62 (Compromised)
+**Risk Level**: HIGH | **eCBome Score**: 0.62 (Compromised)
 
 **Conditions**:
 - Type 2 Diabetes Mellitus
@@ -137,7 +137,7 @@ The system generates:
 ---
 
 ### Case 4: Robert Thompson (PAT-004)
-**Risk Level**: HIGH | **Status**: CRITICAL | **eCDome Score**: 0.45 (Critical)
+**Risk Level**: HIGH | **Status**: CRITICAL | **eCBome Score**: 0.45 (Critical)
 
 **Conditions**:
 - Congestive Heart Failure (EF 35%)
@@ -156,7 +156,7 @@ The system generates:
 ---
 
 ### Case 5: Emily Rodriguez (PAT-005)
-**Risk Level**: MEDIUM | **eCDome Score**: 0.71 (Fair)
+**Risk Level**: MEDIUM | **eCBome Score**: 0.71 (Fair)
 
 **Conditions**:
 - Generalized Anxiety Disorder (GAD-7: 14)
@@ -195,7 +195,7 @@ import {
   mockPatients,           // Array of 5 patients with basic info
   mockPatientDetails,     // Detailed medical profiles by patient ID
   generateRealtimeVitals, // Generate dynamic vital signs
-  generateEcdomeTimeline, // Create 24-hour timeline data
+  generateEcbomeTimeline, // Create 24-hour timeline data
   getPatientStats         // Get system statistics
 } from './mockPatientData';
 
@@ -211,7 +211,7 @@ const recommendations = await patientService.getClinicalRecommendations('PAT-001
 ### ✅ Patient Selection
 - Shows all 5 patients
 - Displays risk levels (color-coded)
-- Shows eCDome scores
+- Shows eCBome scores
 - Quick stats: Total, Active, Critical counts
 
 ### ✅ Patient Overview
@@ -223,11 +223,11 @@ const recommendations = await patientService.getClinicalRecommendations('PAT-001
 
 ### ✅ Real-time Monitoring
 - Live vital signs with variations
-- eCDome component readings
+- eCBome component readings
 - System status indicators
 - Timestamp updates
 
-### ✅ eCDome Analysis
+### ✅ eCBome Analysis
 - 12-module breakdown
 - Status indicators
 - Trend analysis
@@ -270,7 +270,7 @@ const recommendations = await patientService.getClinicalRecommendations('PAT-001
 - **Vital Signs** are patient-specific with realistic values
 - **Alerts** are unique to each patient's conditions
 - **Recommendations** are clinically appropriate for each case
-- **eCDome Scores** reflect patient health status
+- **eCBome Scores** reflect patient health status
 - **Medications** match each patient's conditions
 
 ## 🔄 Dynamic Data Features
@@ -280,7 +280,7 @@ const recommendations = await patientService.getClinicalRecommendations('PAT-001
 The mock data includes realistic variations:
 
 - **Vital signs** fluctuate within normal ranges for each patient
-- **eCDome readings** have ±3% variation to simulate real-time changes
+- **eCBome readings** have ±3% variation to simulate real-time changes
 - **Timestamps** are current and update appropriately
 - **Network delays** simulate real API calls (150-400ms)
 

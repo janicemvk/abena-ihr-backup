@@ -1,4 +1,4 @@
-// Machine Learning Models - eCDome Pattern Recognition & Predictive Analytics
+// Machine Learning Models - eCBome Pattern Recognition & Predictive Analytics
 // Implements 97.8% accuracy pattern recognition and 94.2% predictive modeling
 // ABENA SDK compliant with real-time processing capabilities
 
@@ -19,10 +19,10 @@ import { NeurologicalFeatureExtractor } from './features/NeurologicalFeatureExtr
 import { HormonalFeatureExtractor } from './features/HormonalFeatureExtractor.js';
 
 /**
- * ECDOME MACHINE LEARNING ENGINE
+ * ECBOME MACHINE LEARNING ENGINE
  * Core ML engine for pattern recognition and predictive modeling
  */
-class ECDomeMLEngine {
+class ECBomeMLEngine {
   constructor() {
     // ✅ Uses Abena SDK for all core services
     this.abena = new AbenaSDK({
@@ -76,7 +76,7 @@ class ECDomeMLEngine {
    */
   async initializeModels() {
     try {
-      console.log('🤖 Initializing eCDome ML models...');
+      console.log('🤖 Initializing eCBome ML models...');
 
       // Load or create pattern recognition model
       this.models.patternRecognition = await this.createPatternRecognitionModel();
@@ -98,7 +98,7 @@ class ECDomeMLEngine {
         timestamp: new Date().toISOString()
       });
 
-      console.log('✅ All eCDome ML models initialized successfully');
+      console.log('✅ All eCBome ML models initialized successfully');
 
     } catch (error) {
       await this.abena.logError('ml-model-initialization', error);
@@ -230,7 +230,7 @@ class ECDomeMLEngine {
 
   /**
    * ANOMALY DETECTION MODEL
-   * Autoencoder for detecting unusual patterns in eCDome data
+   * Autoencoder for detecting unusual patterns in eCBome data
    */
   async createAnomalyDetectionModel() {
     // Encoder
@@ -290,7 +290,7 @@ class ECDomeMLEngine {
 
   /**
    * CORRELATION ANALYSIS MODEL
-   * Advanced correlation detection between eCDome and biological systems
+   * Advanced correlation detection between eCBome and biological systems
    */
   async createCorrelationAnalysisModel() {
     const model = tf.sequential({
@@ -337,7 +337,7 @@ class ECDomeMLEngine {
 
   /**
    * RISK ASSESSMENT MODEL
-   * Health risk stratification based on eCDome patterns
+   * Health risk stratification based on eCBome patterns
    */
   async createRiskAssessmentModel() {
     const model = tf.sequential({
@@ -387,7 +387,7 @@ class ECDomeMLEngine {
   /**
    * FEATURE EXTRACTION - Convert raw module data to ML features
    */
-  async extractFeatures(patientId, moduleData, ecdomeData) {
+  async extractFeatures(patientId, moduleData, ecbomeData) {
     try {
       const features = [];
 
@@ -396,7 +396,7 @@ class ECDomeMLEngine {
         if (moduleData[moduleName]) {
           const moduleFeatures = await extractor.extract(
             moduleData[moduleName],
-            ecdomeData,
+            ecbomeData,
             patientId
           );
           features.push(...moduleFeatures);
@@ -422,10 +422,10 @@ class ECDomeMLEngine {
   /**
    * PATTERN RECOGNITION - Main inference method
    */
-  async recognizePatterns(patientId, moduleData, ecdomeData, userId) {
+  async recognizePatterns(patientId, moduleData, ecbomeData, userId) {
     try {
       // Extract features
-      const features = await this.extractFeatures(patientId, moduleData, ecdomeData);
+      const features = await this.extractFeatures(patientId, moduleData, ecbomeData);
       
       // Convert to tensor
       const inputTensor = tf.tensor2d([features]);
@@ -509,7 +509,7 @@ class ECDomeMLEngine {
    */
   async detectAnomalies(patientId, currentData, userId) {
     try {
-      const features = await this.extractFeatures(patientId, currentData.moduleData, currentData.ecdomeData);
+      const features = await this.extractFeatures(patientId, currentData.moduleData, currentData.ecbomeData);
       
       const inputTensor = tf.tensor2d([features]);
       const reconstructed = await this.models.anomalyDetection.predict(inputTensor);
@@ -557,7 +557,7 @@ class ECDomeMLEngine {
    */
   async assessRisk(patientId, currentData, userId) {
     try {
-      const features = await this.extractFeatures(patientId, currentData.moduleData, currentData.ecdomeData);
+      const features = await this.extractFeatures(patientId, currentData.moduleData, currentData.ecbomeData);
       
       const inputTensor = tf.tensor2d([features]);
       const riskPredictions = await this.models.riskAssessment.predict(inputTensor);
@@ -611,7 +611,7 @@ class ECDomeMLEngine {
         anomalyResults,
         riskResults
       ] = await Promise.all([
-        this.recognizePatterns(patientId, currentData.moduleData, currentData.ecdomeData, userId),
+        this.recognizePatterns(patientId, currentData.moduleData, currentData.ecbomeData, userId),
         this.generatePredictions(patientId, historicalData, currentData.patterns, userId),
         this.detectAnomalies(patientId, currentData, userId),
         this.assessRisk(patientId, currentData, userId)
@@ -661,7 +661,7 @@ class ECDomeMLEngine {
       'metabolic_optimization', 'immune_enhancement', 'stress_adaptation',
       'circadian_alignment', 'inflammatory_resolution', 'neurological_balance',
       'cardiovascular_health', 'hormonal_harmony', 'detoxification_efficiency',
-      'nutritional_absorption', 'microbiome_balance', 'ecdome_optimization',
+      'nutritional_absorption', 'microbiome_balance', 'ecbome_optimization',
       'system_integration', 'homeostatic_balance', 'adaptive_resilience'
     ];
 
@@ -698,7 +698,7 @@ class ECDomeMLEngine {
 
     for (let i = 0; i < timeSeriesLength; i++) {
       if (historicalData[i]) {
-        const features = this.extractFeatures(null, historicalData[i].moduleData, historicalData[i].ecdomeData);
+        const features = this.extractFeatures(null, historicalData[i].moduleData, historicalData[i].ecbomeData);
         data.push(features);
       } else {
         // Fill missing data with zeros
@@ -789,7 +789,7 @@ class ECDomeMLEngine {
       'immune_enhancement': 'Focus on immune system strengthening interventions',
       'stress_adaptation': 'Initiate stress resilience building program',
       'circadian_alignment': 'Optimize circadian rhythm and sleep quality',
-      'ecdome_optimization': 'Enhance endocannabinoid system function',
+      'ecbome_optimization': 'Enhance endocannabinoid system function',
       'inflammatory_resolution': 'Implement anti-inflammatory therapeutic protocols',
       'neurological_balance': 'Optimize neurological function and cognitive health',
       'cardiovascular_health': 'Enhance cardiovascular system performance',
@@ -908,4 +908,4 @@ class ECDomeMLEngine {
 }
 
 // Export the main ML engine
-export default ECDomeMLEngine; 
+export default ECBomeMLEngine; 

@@ -9,7 +9,7 @@ class MicrobiomeFeatureExtractor extends BaseFeatureExtractor {
     super('microbiome');
   }
 
-  async extract(moduleData, ecdomeData, patientId) {
+  async extract(moduleData, ecbomeData, patientId) {
     return [
       this.normalizeFeature(this.validateData(moduleData.shannon_diversity), 0, 4),
       this.normalizeFeature(this.validateData(moduleData.firmicutes_bacteroidetes_ratio), 0, 10),
@@ -20,7 +20,7 @@ class MicrobiomeFeatureExtractor extends BaseFeatureExtractor {
       this.normalizeFeature(this.validateData(moduleData.intestinal_ph), 5, 8),
       this.normalizeFeature(this.validateData(moduleData.probiotic_species_count), 0, 50),
       this.normalizeFeature(this.validateData(moduleData.gut_inflammation), 0, 100),
-      this.normalizeFeature(this.validateData(ecdomeData.gut_ecs_production), 0, 100),
+      this.normalizeFeature(this.validateData(ecbomeData.gut_ecs_production), 0, 100),
       this.normalizeFeature(this.validateData(moduleData.neurotransmitter_production), 0, 100),
       this.normalizeFeature(this.validateData(moduleData.immune_modulation), 0, 100)
     ];

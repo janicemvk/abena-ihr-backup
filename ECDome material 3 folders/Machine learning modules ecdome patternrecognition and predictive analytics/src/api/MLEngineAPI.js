@@ -2,16 +2,16 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import { RateLimiterRedis } from 'rate-limiter-flexible';
-import ECDomeMLEngine from '../ECDomeMLEngine.js';
+import ECBomeMLEngine from '../ECBomeMLEngine.js';
 
 /**
- * ECDOME ML ENGINE API
+ * ECBOME ML ENGINE API
  * RESTful API for accessing ML pattern recognition and predictive analytics
  */
 class MLEngineAPI {
   constructor() {
     this.app = express();
-    this.mlEngine = new ECDomeMLEngine();
+    this.mlEngine = new ECBomeMLEngine();
     this.port = process.env.PORT || 8007;
     
     // Rate limiting configuration
@@ -71,17 +71,17 @@ class MLEngineAPI {
     // Pattern recognition endpoint
     this.app.post('/api/v1/pattern-recognition', async (req, res) => {
       try {
-        const { patientId, moduleData, ecdomeData, userId } = req.body;
+        const { patientId, moduleData, ecbomeData, userId } = req.body;
         
-        if (!patientId || !moduleData || !ecdomeData || !userId) {
+        if (!patientId || !moduleData || !ecbomeData || !userId) {
           return res.status(400).json({
             error: 'Missing required fields',
-            required: ['patientId', 'moduleData', 'ecdomeData', 'userId']
+            required: ['patientId', 'moduleData', 'ecbomeData', 'userId']
           });
         }
 
         const results = await this.mlEngine.recognizePatterns(
-          patientId, moduleData, ecdomeData, userId
+          patientId, moduleData, ecbomeData, userId
         );
 
         res.json({
@@ -248,17 +248,17 @@ class MLEngineAPI {
     // Feature extraction endpoint
     this.app.post('/api/v1/extract-features', async (req, res) => {
       try {
-        const { patientId, moduleData, ecdomeData } = req.body;
+        const { patientId, moduleData, ecbomeData } = req.body;
         
-        if (!patientId || !moduleData || !ecdomeData) {
+        if (!patientId || !moduleData || !ecbomeData) {
           return res.status(400).json({
             error: 'Missing required fields',
-            required: ['patientId', 'moduleData', 'ecdomeData']
+            required: ['patientId', 'moduleData', 'ecbomeData']
           });
         }
 
         const features = await this.mlEngine.extractFeatures(
-          patientId, moduleData, ecdomeData
+          patientId, moduleData, ecbomeData
         );
 
         res.json({
@@ -283,13 +283,13 @@ class MLEngineAPI {
     // API documentation endpoint
     this.app.get('/api/v1/docs', (req, res) => {
       res.json({
-        title: 'eCdome ML Engine API',
+        title: 'eCBome ML Engine API',
         version: '1.0.0',
-        description: 'RESTful API for eCdome pattern recognition and predictive analytics',
+        description: 'RESTful API for eCBome pattern recognition and predictive analytics',
         endpoints: {
           'POST /api/v1/pattern-recognition': {
             description: 'Analyze biological patterns with 97.8% accuracy',
-            parameters: ['patientId', 'moduleData', 'ecdomeData', 'userId']
+            parameters: ['patientId', 'moduleData', 'ecbomeData', 'userId']
           },
           'POST /api/v1/predictive-modeling': {
             description: 'Generate health predictions with 94.2% accuracy',
@@ -309,7 +309,7 @@ class MLEngineAPI {
           },
           'POST /api/v1/extract-features': {
             description: 'Extract normalized features from biological data',
-            parameters: ['patientId', 'moduleData', 'ecdomeData']
+            parameters: ['patientId', 'moduleData', 'ecbomeData']
           },
           'GET /api/v1/model-status': {
             description: 'Get status of all ML models and configuration'
@@ -365,7 +365,7 @@ class MLEngineAPI {
       await this.mlEngine.initializeModels();
       
       this.app.listen(this.port, () => {
-        console.log(`🚀 eCdome ML Engine API started on port ${this.port}`);
+        console.log(`🚀 eCBome ML Engine API started on port ${this.port}`);
         console.log(`📊 API Documentation: http://localhost:${this.port}/api/v1/docs`);
         console.log(`💚 Health Check: http://localhost:${this.port}/health`);
       });

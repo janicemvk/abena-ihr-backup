@@ -8,6 +8,9 @@ RUN npm install
 
 COPY . .
 
+# Ensure public directory exists
+RUN mkdir -p public
+
 EXPOSE 8080
 
-CMD ["npm", "start"]
+CMD ["node", "server.js"]

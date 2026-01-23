@@ -9,7 +9,7 @@ class ToxicomeFeatureExtractor extends BaseFeatureExtractor {
     super('toxicome');
   }
 
-  async extract(moduleData, ecdomeData, patientId) {
+  async extract(moduleData, ecbomeData, patientId) {
     return [
       this.normalizeFeature(this.validateData(moduleData.heavy_metal_burden), 0, 100),
       this.normalizeFeature(this.validateData(moduleData.environmental_toxin_exposure), 0, 100),
@@ -20,7 +20,7 @@ class ToxicomeFeatureExtractor extends BaseFeatureExtractor {
       this.normalizeFeature(this.validateData(moduleData.oxidative_stress_markers), 0, 100),
       this.normalizeFeature(this.validateData(moduleData.cellular_repair_capacity), 0, 100),
       this.normalizeFeature(this.validateData(moduleData.xenobiotic_metabolism), 0, 100),
-      this.normalizeFeature(this.validateData(ecdomeData.detox_ecs_support), 0, 100),
+      this.normalizeFeature(this.validateData(ecbomeData.detox_ecs_support), 0, 100),
       this.normalizeFeature(this.validateData(moduleData.elimination_pathway_efficiency), 0, 100),
       this.normalizeFeature(this.validateData(moduleData.toxin_binding_capacity), 0, 100)
     ];

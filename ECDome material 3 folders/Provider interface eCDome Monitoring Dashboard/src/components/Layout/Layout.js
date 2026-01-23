@@ -12,7 +12,7 @@ import {
   User,
   LogOut,
   Home,
-  Brain,
+  Heart,
   Shield,
   TrendingUp
 } from 'lucide-react';
@@ -72,7 +72,7 @@ const Layout = ({ children }) => {
           <div className="flex items-center justify-between p-6 border-b border-clinical-border">
             <div className="flex items-center space-x-3">
               <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg">
-                <Brain className="h-8 w-8 text-white" />
+                <Activity className="h-8 w-8 text-white" />
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900">ABENA</h1>
@@ -95,7 +95,7 @@ const Layout = ({ children }) => {
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600">eBDome Intelligence</span>
+                <span className="text-gray-600">eCBome Intelligence</span>
                 <span className="text-green-600 font-medium">Online</span>
               </div>
               <div className="flex items-center justify-between text-sm">
@@ -131,7 +131,7 @@ const Layout = ({ children }) => {
                     }}
                     className={`flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                       item.current
-                        ? 'bg-ebdome-primary text-white'
+                        ? 'bg-ecbome-primary text-white'
                         : 'text-gray-700 hover:bg-gray-100'
                     }`}
                   >
@@ -160,7 +160,7 @@ const Layout = ({ children }) => {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="text-center">
-                <div className="text-2xl font-bold text-ebdome-primary">247</div>
+                <div className="text-2xl font-bold text-ecbome-primary">247</div>
                 <div className="text-xs text-gray-600">Active Patients</div>
               </div>
               <div className="text-center">
@@ -197,9 +197,9 @@ const Layout = ({ children }) => {
               {/* Page title and breadcrumbs */}
               <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-2">
-                  <Shield className="h-5 w-5 text-ebdome-primary" />
+                  <Shield className="h-5 w-5 text-ecbome-primary" />
                   <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
-                    eBDome Intelligence
+                    eCBome Intelligence
                   </span>
                 </div>
                 {loading && (

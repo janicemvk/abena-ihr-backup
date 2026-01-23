@@ -4,9 +4,9 @@ import { usePatient } from '../../contexts/PatientContext';
 import { useDashboard } from '../../contexts/DashboardContext';
 import PatientSelector from './PatientSelector';
 import PatientOverview from './PatientOverview';
-import EbdomeTimeline from './EcdomeTimeline';
+import EcbomeTimeline from './EcdomeTimeline';
 import ModuleAnalysis from './ModuleAnalysis';
-import EbdomeComponents from './EcdomeComponents';
+import EcbomeComponents from './EcdomeComponents';
 import RealtimeMonitoring from './RealtimeMonitoring';
 import PredictiveAlerts from './PredictiveAlerts';
 import ClinicalRecommendations from './ClinicalRecommendations';
@@ -17,7 +17,7 @@ import QuantumResults from './QuantumResults';
 import LoadingSpinner from '../Common/LoadingSpinner';
 import ErrorBoundary from '../Common/ErrorBoundary';
 import { Activity, AlertTriangle, TrendingUp, Eye, Settings } from 'lucide-react';
-import { generateEcdomeTimeline } from '../../services/mockPatientData';
+import { generateEcbomeTimeline } from '../../services/mockPatientData';
 
 const ClinicalDashboard = () => {
   const { 
@@ -52,7 +52,7 @@ const ClinicalDashboard = () => {
   useEffect(() => {
     if (selectedPatient) {
       const hours = timeRange === '24h' ? 24 : timeRange === '7d' ? 168 : timeRange === '30d' ? 720 : 24;
-      const timeline = generateEcdomeTimeline(selectedPatient, Math.min(hours, 48)); // Limit to 48 hours for performance
+      const timeline = generateEcbomeTimeline(selectedPatient, Math.min(hours, 48)); // Limit to 48 hours for performance
       setTimelineData(timeline);
       console.log(`✅ Generated ${timeline.length} timeline data points for ${selectedPatient}`);
     }
@@ -60,8 +60,8 @@ const ClinicalDashboard = () => {
 
   // Extract 12-module data from patient data
   useEffect(() => {
-    if (patientData && patientData.data && patientData.data.ebdomeProfile) {
-      const components = patientData.data.ebdomeProfile.components;
+    if (patientData && patientData.data && patientData.data.ecbomeProfile) {
+      const components = patientData.data.ecbomeProfile.components;
       if (components) {
         // Transform data structure: "reading" field to "score" field
         const transformedData = {};
@@ -160,7 +160,7 @@ const ClinicalDashboard = () => {
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">Clinical Dashboard</h1>
-                <p className="text-gray-600 mt-1">Real-time patient monitoring and eBDome analysis</p>
+                <p className="text-gray-600 mt-1">Real-time patient monitoring and eCBome analysis</p>
               </div>
               <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-2">
@@ -225,17 +225,17 @@ const ClinicalDashboard = () => {
               />
             </motion.div>
 
-            {/* Row 5: eBDome Components - Full Width */}
+            {/* Row 5: eCBome Components - Full Width */}
             <motion.div variants={itemVariants}>
-              <EbdomeComponents
+              <EcbomeComponents
                 patientData={patientData}
                 realtimeData={realtimeData}
               />
             </motion.div>
 
-            {/* Row 6: eBDome Timeline - Full Width */}
+            {/* Row 6: eCBome Timeline - Full Width */}
             <motion.div variants={itemVariants}>
-              <EbdomeTimeline 
+              <EcbomeTimeline 
                 patientId={selectedPatient}
                 timeRange={timeRange}
                 timelineData={timelineData}

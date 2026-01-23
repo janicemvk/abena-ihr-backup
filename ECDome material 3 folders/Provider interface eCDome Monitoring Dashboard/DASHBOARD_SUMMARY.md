@@ -12,25 +12,25 @@ This is the **Provider interface** for healthcare professionals to monitor their
 ## 5 Active Patients
 
 ### 1. **James Wilson (PAT-001)** - 46M
-- **Risk**: 🔴 HIGH | **Status**: Active | **eCDome**: 58%
+- **Risk**: 🔴 HIGH | **Status**: Active | **eCBome**: 58%
 - **Conditions**: Severe Hypertension (188/90), Sleep Apnea, CAD, Obesity
 - **Critical Alert**: Stage 2 Hypertension requires immediate attention
 - **Key Issue**: Active smoker (1 PPD) with cardiovascular disease
 
 ### 2. **Sarah Chen (PAT-002)** - 32F
-- **Risk**: 🟢 LOW | **Status**: Active | **eCDome**: 85%
+- **Risk**: 🟢 LOW | **Status**: Active | **eCBome**: 85%
 - **Conditions**: Chronic low back pain with radiculopathy
 - **Healthy Profile**: Active lifestyle, excellent vitals, vegetarian diet
 - **Key Issue**: Progressive radiculopathy needs imaging/specialist
 
 ### 3. **Margaret Davis (PAT-003)** - 56F
-- **Risk**: 🔴 HIGH | **Status**: Active | **eCDome**: 62%
+- **Risk**: 🔴 HIGH | **Status**: Active | **eCBome**: 62%
 - **Conditions**: Type 2 Diabetes, Neuropathy, HTN, GERD, Obesity
 - **Labs**: HbA1C 7.0%, Glucose 150, on insulin therapy
 - **Key Issue**: Suboptimal diabetes control with complications
 
 ### 4. **Robert Thompson (PAT-004)** - 78M
-- **Risk**: 🔴 HIGH | **Status**: 🚨 CRITICAL | **eCDome**: 45%
+- **Risk**: 🔴 HIGH | **Status**: 🚨 CRITICAL | **eCBome**: 45%
 - **Conditions**: CHF (EF 35%), AFib, CKD Stage 3, MI history
 - **Critical Alerts**: 
   - CHF exacerbation (BNP 850)
@@ -39,7 +39,7 @@ This is the **Provider interface** for healthcare professionals to monitor their
 - **Key Issue**: May require hospitalization for decompensated CHF
 
 ### 5. **Emily Rodriguez (PAT-005)** - 28F
-- **Risk**: 🟡 MEDIUM | **Status**: Active | **eCDome**: 71%
+- **Risk**: 🟡 MEDIUM | **Status**: Active | **eCBome**: 71%
 - **Conditions**: GAD, Prediabetes, PCOS, Metabolic Syndrome, Obesity
 - **Risk Factors**: Strong family hx of DM & CVD, sedentary job, high stress
 - **Key Issue**: Prediabetes with multiple metabolic syndrome components
@@ -51,7 +51,7 @@ This is the **Provider interface** for healthcare professionals to monitor their
 - **Total Patients**: 5
 - **Active**: 4
 - **Critical**: 1 (PAT-004)
-- **Average eCDome Score**: 64%
+- **Average eCBome Score**: 64%
 - **System Uptime**: 98.5%
 - **Data Points**: 1.2M
 
@@ -63,16 +63,16 @@ This is the **Provider interface** for healthcare professionals to monitor their
 
 1. **Patient Selection** - Switch between all 5 patients
 2. **Patient Overview** - Demographics, vitals, medications, allergies
-3. **Real-time Monitoring** - Live vital signs and eCDome readings
-4. **eCDome Analysis** - 12-module system analysis
-5. **Timeline View** - 24-hour eCDome trends
+3. **Real-time Monitoring** - Live vital signs and eCBome readings
+4. **eCBome Analysis** - 12-module system analysis
+5. **Timeline View** - 24-hour eCBome trends
 6. **Clinical Alerts** - Patient-specific warnings and notifications
 7. **Recommendations** - Evidence-based clinical suggestions
 8. **Dashboard Controls** - Time range, view mode, module filters
 9. **Quick Actions** - Patient management tools
 10. **System Statistics** - Practice-wide metrics
 
-### 📊 12 eCDome Modules Tracked
+### 📊 12 eCBome Modules Tracked
 
 1. Endocannabinoid system
 2. Metabolome

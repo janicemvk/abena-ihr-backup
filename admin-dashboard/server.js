@@ -1,14 +1,15 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
+const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
 
 // Middleware
-app.use(helmet());
 app.use(cors());
 app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Health check
 app.get('/health', (req, res) => {
@@ -49,6 +50,11 @@ app.get('/admin/services', (req, res) => {
       'biomarker-gui'
     ]
   });
+});
+
+// Serve index.html for root route
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/public/index.html');
 });
 
 // Start server

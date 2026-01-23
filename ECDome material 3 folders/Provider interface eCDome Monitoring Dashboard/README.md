@@ -1,14 +1,14 @@
-# ABENA Clinical Dashboard - Provider Interface for eCDome Data
+# ABENA Clinical Dashboard - Provider Interface for eCBome Data
 
 ## Overview
 
-The ABENA Clinical Dashboard is a comprehensive healthcare monitoring system designed specifically for providers to analyze and monitor the endocannabinoid system (eCDome) and its 12 core biological modules. Built with the ABENA SDK standard format, this dashboard provides real-time insights into patient health through advanced biological and environmental network analysis.
+The ABENA Clinical Dashboard is a comprehensive healthcare monitoring system designed specifically for providers to analyze and monitor the endocannabinoid system (eCBome) and its 12 core biological modules. Built with the ABENA SDK standard format, this dashboard provides real-time insights into patient health through advanced biological and environmental network analysis.
 
 ## Features
 
-### 🧠 eCDome Intelligence
+### 🧠 eCBome Intelligence
 - **Real-time Endocannabinoid System Monitoring**: Live tracking of anandamide, 2-AG, CB1/CB2 receptors, and enzymatic activity
-- **24-Hour Timeline Analysis**: Visual representation of eCDome component fluctuations
+- **24-Hour Timeline Analysis**: Visual representation of eCBome component fluctuations
 - **Predictive Health Alerts**: AI-powered early warning system for potential health issues
 - **System Balance Optimization**: Comprehensive analysis of endocannabinoid system harmony
 
@@ -54,7 +54,7 @@ The ABENA Clinical Dashboard is a comprehensive healthcare monitoring system des
 - **Axios**: HTTP client for API communication
 
 ### Backend Integration
-- **ABENA SDK**: Standardized interface for eCDome data analysis
+- **ABENA SDK**: Standardized interface for eCBome data analysis
 - **WebSocket**: Real-time data streaming
 - **RESTful API**: Standard HTTP API for data operations
 - **JWT Authentication**: Secure user authentication
@@ -71,8 +71,8 @@ The ABENA Clinical Dashboard is a comprehensive healthcare monitoring system des
 
 1. **Clone the Repository**
    ```bash
-   git clone https://github.com/your-org/ecdome-clinical-dashboard.git
-   cd ecdome-clinical-dashboard
+   git clone https://github.com/your-org/ecbome-clinical-dashboard.git
+   cd ecbome-clinical-dashboard
    ```
 
 2. **Install Dependencies**
@@ -112,12 +112,12 @@ The ABENA Clinical Dashboard is a comprehensive healthcare monitoring system des
 The dashboard integrates with the ABENA SDK through standardized interfaces:
 
 ```javascript
-import abena, { ABENA_MODULES, ECDOME_COMPONENTS } from './services/abenaSDK';
+import abena, { ABENA_MODULES, ECBOME_COMPONENTS } from './services/abenaSDK';
 
 // Initialize ABENA SDK
 await abena.initialize();
 
-// Get patient data with eCDome analysis
+// Get patient data with eCBome analysis
 const patientData = await abena.getPatientData(patientId, 'clinical-dashboard');
 
 // Subscribe to real-time updates
@@ -170,13 +170,13 @@ src/
 
 ### Patient Management
 1. **Select Patient**: Use the patient selector to choose a patient from your roster
-2. **View Overview**: Review patient demographics and current eCDome health score
-3. **Monitor Real-time**: Track vital signs and eCDome activity in real-time
+2. **View Overview**: Review patient demographics and current eCBome health score
+3. **Monitor Real-time**: Track vital signs and eCBome activity in real-time
 4. **Analyze Trends**: Examine 24-hour timeline data for patterns and anomalies
 
-### eCDome Analysis
+### eCBome Analysis
 1. **Timeline View**: Monitor endocannabinoid system components over time
-2. **Component Analysis**: Deep dive into specific eCDome components
+2. **Component Analysis**: Deep dive into specific eCBome components
 3. **Predictive Alerts**: Respond to AI-generated health predictions
 4. **Intervention Planning**: Use clinical recommendations for treatment decisions
 
@@ -197,10 +197,10 @@ const patientData = await patientService.getPatientData(patientId);
 const subscriptionId = patientService.subscribeToPatient(patientId, callback);
 ```
 
-### eCDome Components
+### eCBome Components
 ```javascript
-// Get eCDome timeline data
-const timelineData = await dashboardService.getEcdomeComponents(patientId, '24h');
+// Get eCBome timeline data
+const timelineData = await dashboardService.getEcbomeComponents(patientId, '24h');
 
 // Get module analysis
 const moduleAnalysis = await dashboardService.getModuleAnalysis(patientId, modules);
@@ -247,12 +247,12 @@ For technical support or questions about the ABENA Clinical Dashboard:
 
 - **Email**: support@abena.com
 - **Documentation**: https://docs.abena.com
-- **Issue Tracker**: https://github.com/your-org/ecdome-clinical-dashboard/issues
+- **Issue Tracker**: https://github.com/your-org/ecbome-clinical-dashboard/issues
 
 ## Version History
 
 ### v1.0.0 (Current)
-- Initial release with full eCDome monitoring
+- Initial release with full eCBome monitoring
 - 12 core module analysis
 - Real-time patient monitoring
 - ABENA SDK integration

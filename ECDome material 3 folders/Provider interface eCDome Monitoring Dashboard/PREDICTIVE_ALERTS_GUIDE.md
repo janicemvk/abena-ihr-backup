@@ -9,7 +9,7 @@
 
 ### **Why Predictive Alerts Exist**
 
-**Predictive Alerts** are AI-powered early warning systems that analyze your patient's eCDome activity and 12 biological modules to **predict health events BEFORE they happen**.
+**Predictive Alerts** are AI-powered early warning systems that analyze your patient's eCBome activity and 12 biological modules to **predict health events BEFORE they happen**.
 
 ### **The Core Mission:**
 **"Prevent problems instead of reacting to them"**
@@ -152,7 +152,7 @@ ABENA's Predictive Alerts are **proactive** - warn providers before symptoms man
 
 ### **4. Education & Engagement** 🎓
 **Alerts teach patients:**
-- "Your stress is affecting your heart" (eCDome connection)
+- "Your stress is affecting your heart" (eCBome connection)
 - "Skipping breakfast causes afternoon crashes" (metabolic insight)
 - "Poor sleep worsens your diabetes" (chronobiome impact)
 
@@ -278,7 +278,7 @@ After:  [✓ Acknowledged] (Green, disabled)
 
 **What it does:**
 1. **Opens detailed modal** with complete alert information
-2. **Shows patient context** (name, age, risk level, eCDome score)
+2. **Shows patient context** (name, age, risk level, eCBome score)
 3. **Displays full recommendation** with action items
 4. **Lists affected systems**
 5. **Shows metadata** (Alert ID, timestamp, module, trend, confidence)
@@ -315,7 +315,7 @@ Affected Systems:
 Patient Context:
   Patient: James Wilson (PAT-001)
   Age / Gender: 46y / Male
-  eCDome Score: 58%
+  eCBome Score: 58%
   Risk Level: HIGH
 
 Alert Metadata:
@@ -548,7 +548,7 @@ Recommendations:
 
 **Step 1: Data Collection**
 - Real-time vital signs
-- eCDome 4-component monitoring
+- eCBome 4-component monitoring
 - 12-module biological system data
 - Historical patterns
 - Lab results
@@ -622,7 +622,7 @@ onClick: handleAlertAction(alert.id, 'acknowledge', alert.title)
    - Affected systems (tags)
    - Severity level (large display)
    - Confidence percentage
-   - Patient context (name, age, gender, eCDome score, risk)
+   - Patient context (name, age, gender, eCBome score, risk)
    - Alert metadata (ID, timestamp, module, trend)
 5. **Can acknowledge from modal**: "Acknowledge & Close" button
 6. **Can close** without action: "Close" button
@@ -664,7 +664,7 @@ onClick: handleAlertAction(alert.id, 'acknowledge', alert.title)
 │ ┌─────────────────────────────────────┐ │
 │ │ Patient: James Wilson (PAT-001)     │ │
 │ │ Age/Gender: 46y / Male              │ │
-│ │ eCDome: 58%                         │ │
+│ │ eCBome: 58%                         │ │
 │ │ Risk: HIGH                          │ │
 │ └─────────────────────────────────────┘ │
 │                                          │

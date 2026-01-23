@@ -9,7 +9,7 @@ class PharmacomedFeatureExtractor extends BaseFeatureExtractor {
     super('pharmacome');
   }
 
-  async extract(moduleData, ecdomeData, patientId) {
+  async extract(moduleData, ecbomeData, patientId) {
     return [
       this.normalizeFeature(this.validateData(moduleData.drug_metabolism_rate), 0, 100),
       this.normalizeFeature(this.validateData(moduleData.cytochrome_p450_activity), 0, 100),
@@ -20,7 +20,7 @@ class PharmacomedFeatureExtractor extends BaseFeatureExtractor {
       this.normalizeFeature(this.validateData(moduleData.drug_interaction_potential), 0, 100),
       this.normalizeFeature(this.validateData(moduleData.medication_adherence_factors), 0, 100),
       this.normalizeFeature(this.validateData(moduleData.personalized_dosing_requirements), 0, 100),
-      this.normalizeFeature(this.validateData(ecdomeData.drug_ecs_interactions), 0, 100),
+      this.normalizeFeature(this.validateData(ecbomeData.drug_ecs_interactions), 0, 100),
       this.normalizeFeature(this.validateData(moduleData.bioavailability_factors), 0, 100),
       this.normalizeFeature(this.validateData(moduleData.therapeutic_drug_monitoring), 0, 100)
     ];
