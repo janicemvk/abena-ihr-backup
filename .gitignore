@@ -16,8 +16,14 @@ dist/
 .env.development.local
 .env.test.local
 .env.production.local
+.env.*.local
 
 # IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 
 # Database exports and backups (transfer via SCP, not git)
 # Note: Only exclude dumps in database_exports/, not original SQL schema files
@@ -28,11 +34,10 @@ backup_*.sql.gz
 # Temporary files
 /tmp/
 *.log
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
+*.tmp
+*.temp
+*.bak
+*.cache
 
 # OS generated files
 .DS_Store
@@ -74,9 +79,6 @@ jspm_packages/
 # Yarn Integrity file
 .yarn-integrity
 
-# dotenv environment variables file
-.env
-
 # Python
 __pycache__/
 *.py[cod]
@@ -88,6 +90,26 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+.venv
+
+# Python build artifacts
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Flask
+instance/
+.webassets-cache
 
 # Docker
 .dockerignore
@@ -96,19 +118,6 @@ venv.bak/
 *.db
 *.sqlite
 *.sqlite3
-
-# Temporary files
-*.tmp
-*.temp 
-# Database exports and backups
-database_exports/
-*.sql
-*.sql.gz
-backup_*.sql.gz
-
-# Temporary files
-/tmp/
-*.log
 
 # Backup directories with nested paths (too long for Windows)
 # Exclude ALL backup directories and their contents recursively
@@ -140,7 +149,7 @@ __pycache__/
 # Node modules (if any)
 node_modules/
 
-# Environment files
-.env
-.env.local
-.env.*.local
+# IBM Quantum credentials (keep these private)
+ibm_quantum_credentials.json
+*.pem
+*.key

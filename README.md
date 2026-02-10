@@ -2,11 +2,11 @@
 
 This repository contains the complete Abena Intelligent Health Records platform: API gateway, clinical services, telemedicine apps, dashboards, biomarker tooling, ingestion layers, and reference datasets. Follow the steps below after pulling the repo to bring the stack up locally.
 
---- 
+---
 
 ## 1. Prerequisites
 
-- 4+ CPU cores, 16 GB RAM, 40 GB free disk
+- 4+ CPU cores, 16 GB RAM, 40 GB free disk
 - Docker 24+ and Docker Compose Plugin 2.20+
 - Node.js 18+ (for local service development)
 - Python 3.11+ (for service scripts/tests)
@@ -82,7 +82,7 @@ docker compose -f docker-compose.simple.yml build provider-dashboard
 docker compose -f docker-compose.simple.yml up provider-dashboard
 ```
 
-> For Node-based services, prefer `sudo npm install` inside the project folder before rebuilding so dependencies match the user’s environment expectations.
+> For Node-based services, prefer `sudo npm install` inside the project folder before rebuilding so dependencies match the user's environment expectations.
 
 Stop/reset:
 
@@ -195,3 +195,76 @@ Use `/health` on each service to confirm uptime.
 
 You now have everything needed to pull this repo, stand up the complete Abena ecosystem locally, and begin iterating confidently. 🚀
 
+---
+
+# ABENA Quantum Healthcare Service
+
+## 📋 Overview
+
+The ABENA Quantum Healthcare Service provides quantum computing-based analysis for patient health data, integrated with the main ABENA IHR system. Located in the `quantum-healthcare/` directory.
+
+## 🎯 Key Features
+
+- **Quantum Analysis:** Uses quantum circuits for complex health data analysis
+- **eCDome Integration:** Enhanced endocannabinoid system monitoring
+- **Drug Interaction:** Quantum modeling of medication interactions
+- **Herbal Medicine:** Compatibility analysis for herbal supplements
+- **Blockchain Records:** Smart contract-backed quantum health records
+- **REST API:** Easy integration with existing ABENA services
+
+## 🚀 Quick Start
+
+### Local Development
+
+```bash
+cd quantum-healthcare
+# Install dependencies
+pip install -r requirements.txt
+
+# Run Flask server
+python app.py
+
+# Access at http://localhost:5000
+```
+
+### Docker Deployment
+
+```bash
+# Build Docker image
+cd quantum-healthcare
+docker build -t abena-quantum-healthcare .
+
+# Run container
+docker run -p 5000:5000 abena-quantum-healthcare
+
+# Or use docker-compose (from main abena-backup directory)
+docker-compose up quantum-healthcare
+```
+
+## 📡 API Endpoints
+
+### GET /
+Returns the quantum analysis dashboard
+
+### GET /api/demo-results
+Returns demo quantum analysis results
+
+### POST /api/analyze
+Analyze patient data with quantum circuits
+
+See `quantum-healthcare/README.md` for detailed API documentation.
+
+## 🔗 Integration with ABENA IHR
+
+The quantum service is integrated with ABENA IHR through:
+
+1. **API Gateway** (Port 8081) - Routes requests to quantum service
+2. **ABENA IHR Core** (Port 4002) - Calls quantum analysis API
+3. **eCDome Intelligence** (Port 4005) - Uses quantum-enhanced analysis
+4. **Provider Dashboard** (Port 4009) - Displays quantum results
+
+## 📝 Version
+
+**Version:** 1.0.0  
+**Status:** ✅ Production Ready  
+**Last Updated:** February 10, 2026
