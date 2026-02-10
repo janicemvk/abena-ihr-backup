@@ -110,3 +110,37 @@ backup_*.sql.gz
 /tmp/
 *.log
 
+# Backup directories with nested paths (too long for Windows)
+# Exclude ALL backup directories and their contents recursively
+backup_*/
+backup_*/**
+backup_20251205_182958/
+**/backup_20251205_182958/**
+backups/
+**/backup_*/
+
+# Next.js build files
+.next/
+.next/**
+admin-dashboard-nextjs/.next/
+admin-dashboard-nextjs/.next/**
+
+# Build artifacts
+dist/
+build/
+*.build/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Node modules (if any)
+node_modules/
+
+# Environment files
+.env
+.env.local
+.env.*.local

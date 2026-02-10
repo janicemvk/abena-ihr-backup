@@ -131,7 +131,7 @@ export const DashboardProvider = ({ children }) => {
       
       // Desktop notification
       if (state.notifications.desktop && 'Notification' in window) {
-        new Notification('eBDome Alert', {
+        new Notification('eCBome Alert', {
           body: `${alert.type}: ${alert.message}`,
           icon: '/favicon.ico'
         });
@@ -180,13 +180,13 @@ export const DashboardProvider = ({ children }) => {
             },
             temperature: parseFloat((Math.random() * 2 + 97).toFixed(1)), // 97-99
             oxygenSaturation: Math.floor(Math.random() * 5) + 95, // 95-99
-            ebdomeActivity: parseFloat((Math.random() * 0.4 + 0.6).toFixed(2)), // 0.6-1.0
+            ecbomeActivity: parseFloat((Math.random() * 0.4 + 0.6).toFixed(2)), // 0.6-1.0
             // Additional vital metrics
             respirationRate: Math.floor(Math.random() * 6) + 12, // 12-18 breaths/min (normal range)
             stressLevel: Math.floor(Math.random() * 30) + 20, // 20-50 (stress index)
             sleepQuality: parseFloat((Math.random() * 0.3 + 0.65).toFixed(2)), // 0.65-0.95 (sleep quality score)
-            // Additional eBDome readings
-            ebdomeReadings: {
+            // Additional eCBome readings
+            ecbomeReadings: {
               endocannabinoid: parseFloat((Math.random() * 0.4 + 0.6).toFixed(2)),
               metabolic: parseFloat((Math.random() * 0.4 + 0.6).toFixed(2)),
               immune: parseFloat((Math.random() * 0.4 + 0.6).toFixed(2)),

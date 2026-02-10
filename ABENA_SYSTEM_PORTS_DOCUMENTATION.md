@@ -8,10 +8,10 @@ This document serves as the **SINGLE SOURCE OF TRUTH** for all ABENA IHR system 
 
 ## 📋 System Overview
 
-**Total Services**: 17  
+**Total Services**: 18 (includes Quantum Healthcare)  
 **Status**: All Running ✅  
-**Last Updated**: August 26, 2025  
-**System Version**: ABENA IHR v2.0  
+**Last Updated**: December 5, 2025  
+**System Version**: ABENA IHR v2.1  
 **System Restart**: Completed Successfully ✅
 
 ---
@@ -69,6 +69,7 @@ This document serves as the **SINGLE SOURCE OF TRUTH** for all ABENA IHR system 
 | Provider Workflow | `abena-provider-workflow` | `4007` | `4007` | Clinical Workflows | ✅ Running |
 | Unified Integration | `abena-unified-integration` | `4008` | `4008` | System Integration Hub | ✅ Running |
 | eCDome Intelligence | `abena-ecdome-intelligence` | `4005` | `4005` | AI/ML Services | ✅ Running |
+| Quantum Healthcare | `abena-quantum-healthcare` | `5000` | `5000` | Quantum Analysis | ⏳ Pending |
 | Data Ingestion | `abena-data-ingestion` | `4011` | `4011` | Data Pipeline | ✅ Running |
 | Biomarker GUI | `abena-biomarker-gui` | `4012` | `4012` | Lab Interface | ✅ Running |
 
@@ -82,11 +83,14 @@ This document serves as the **SINGLE SOURCE OF TRUTH** for all ABENA IHR system 
 - **Patient Dashboard**: http://localhost:4010
 - **Admin Dashboard**: http://localhost:8080
 - **API Gateway**: http://localhost:8081
+- **Quantum Healthcare Dashboard**: http://localhost:5000
 
 ### API Endpoints
 - **Main IHR API**: http://localhost:4002
 - **Authentication API**: http://localhost:3001
 - **SDK Service**: http://localhost:3002
+- **Quantum Healthcare API**: http://localhost:5000/api
+- **Quantum via Gateway**: http://localhost:8081/api/v1/quantum/
 
 ### Database Connections
 - **PostgreSQL**: localhost:5433

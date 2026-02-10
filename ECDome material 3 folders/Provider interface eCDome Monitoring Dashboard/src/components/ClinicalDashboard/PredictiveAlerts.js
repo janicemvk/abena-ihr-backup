@@ -178,7 +178,7 @@ const PredictiveAlerts = ({ alerts = [], onAlertAction }) => {
               <HelpInfo topic="predictive_alerts" size="sm" position="modal" />
             </div>
             <p className="text-sm text-gray-500">
-              AI-powered health predictions based on eBDome analysis
+              AI-powered health predictions based on eCBome analysis
             </p>
           </div>
         </div>
@@ -334,7 +334,7 @@ const PredictiveAlerts = ({ alerts = [], onAlertAction }) => {
       {activeAlerts.length > 0 && (
         <div className="mt-6 p-3 bg-gray-50 rounded-lg">
           <p className="text-xs text-gray-600 text-center">
-            Alerts are generated using AI analysis of eBDome patterns and 12 ABENA modules.
+            Alerts are generated using AI analysis of eCBome patterns and 12 ABENA modules.
             <br />
             Predictions are based on current patient data and historical patterns.
           </p>
@@ -486,9 +486,9 @@ const PredictiveAlerts = ({ alerts = [], onAlertAction }) => {
                       </span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">eBDome Score:</span>
+                      <span className="text-gray-600">eCBome Score:</span>
                       <span className="font-medium text-gray-900">
-                        {Math.round((patientData?.data?.ebdomeProfile?.score || 0) * 100)}%
+                        {Math.round((patientData?.data?.ecbomeProfile?.score || 0) * 100)}%
                       </span>
                     </div>
                     <div className="flex justify-between text-sm">

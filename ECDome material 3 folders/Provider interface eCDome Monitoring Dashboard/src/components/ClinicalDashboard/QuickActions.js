@@ -166,8 +166,8 @@ const QuickActions = ({ onActionComplete }) => {
   // Intervention options
   const interventionOptions = [
     {
-      id: 'ebdome_optimization',
-      title: 'eBDome Optimization',
+      id: 'ecbome_optimization',
+      title: 'eCBome Optimization',
       icon: Brain,
       description: 'Targeted endocannabinoid system support',
       protocols: [
@@ -474,15 +474,15 @@ const QuickActions = ({ onActionComplete }) => {
         icon: FileText
       },
       { 
-        id: ReportTypes.ECDOME_ANALYSIS, 
-        name: 'eBDome Analysis Report',
+        id: ReportTypes.ECBOME_ANALYSIS, 
+        name: 'eCBome Analysis Report',
         description: 'Detailed endocannabinoid system analysis',
         icon: Brain
       },
       { 
         id: ReportTypes.MODULE_ASSESSMENT, 
         name: '12-Module Assessment',
-        description: 'Complete breakdown of all 12 eBDome modules',
+        description: 'Complete breakdown of all 12 eCBome modules',
         icon: Activity
       },
       { 
@@ -770,9 +770,9 @@ const QuickActions = ({ onActionComplete }) => {
           </div>
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <span className="text-blue-700">eBDome Score:</span>
+              <span className="text-blue-700">eCBome Score:</span>
               <span className="font-medium text-blue-900 ml-2">
-                {patientData.ebdomeScore || 'N/A'}
+                {patientData.ecbomeScore || 'N/A'}
               </span>
             </div>
             <div>

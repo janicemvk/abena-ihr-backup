@@ -30,7 +30,7 @@ const DashboardControls = ({
     >
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-          <Settings className="h-5 w-5 mr-2 text-ebdome-primary" />
+          <Settings className="h-5 w-5 mr-2 text-ecbome-primary" />
           Dashboard Controls
         </h3>
         <div className="text-sm text-gray-500">
@@ -53,7 +53,7 @@ const DashboardControls = ({
                   onClick={() => onTimeRangeChange(option.value)}
                   className={`flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                     timeRange === option.value
-                      ? 'bg-ebdome-primary text-white'
+                      ? 'bg-ecbome-primary text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
@@ -79,7 +79,7 @@ const DashboardControls = ({
                   onClick={() => setViewMode(option.value)}
                   className={`flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                     viewMode === option.value
-                      ? 'bg-ebdome-primary text-white'
+                      ? 'bg-ecbome-primary text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
@@ -109,7 +109,7 @@ const DashboardControls = ({
                   setSelectedModules(['chronobiome', 'nutriome', 'stressResponse']);
                 }
               }}
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ebdome-primary focus:border-transparent"
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ecbome-primary focus:border-transparent"
             >
               <option value="all">All Modules</option>
               <option value="core">Core Modules</option>
@@ -135,7 +135,7 @@ const DashboardControls = ({
             <button className="px-3 py-1 text-sm text-gray-600 hover:text-gray-800">
               Reset
             </button>
-            <button className="px-3 py-1 text-sm bg-ebdome-primary text-white rounded hover:bg-blue-700">
+            <button className="px-3 py-1 text-sm bg-ecbome-primary text-white rounded hover:bg-blue-700">
               Apply
             </button>
           </div>

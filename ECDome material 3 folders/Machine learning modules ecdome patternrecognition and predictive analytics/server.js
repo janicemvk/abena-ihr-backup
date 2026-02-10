@@ -6,7 +6,7 @@ import dotenv from 'dotenv';
 // Load environment variables
 dotenv.config();
 
-console.log('🧬 eCdome ML Engine - Starting Server...\n');
+console.log('🧬 eCBome ML Engine - Starting Server...\n');
 
 // Create and start the API server
 const api = new MLEngineAPI();

@@ -22,9 +22,27 @@ from pydantic import BaseModel
 from .routers import patients, outcomes, predictions, appointments
 from src.predictive_analytics.predictive_engine import prediction_router
 
-# Configure logging
+# Configure logging FIRST
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Security Integration
+try:
+    from src.security_integration import (
+        setup_security, 
+        secure_login, 
+        get_current_user_secure,
+        JWTAuth,
+        require_role,
+        UserRole,
+        LoginRequest,
+        LoginResponse
+    )
+    SECURITY_ENABLED = True
+    logger.info("✅ Security modules loaded successfully")
+except ImportError as e:
+    logger.warning(f"⚠️ Security modules not available: {e}")
+    SECURITY_ENABLED = False
 
 # Create FastAPI app
 app = FastAPI(
@@ -90,6 +108,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Enable security middleware if available
+if SECURITY_ENABLED:
+    app = setup_security(app)
+    logger.info("✅ Security middleware enabled (rate limiting, JWT auth)")
+
 # Include routers
 app.include_router(patients.router, prefix="/api/v1", tags=["patients"])
 app.include_router(outcomes.router, prefix="/api/v1", tags=["outcomes"])
@@ -141,25 +164,18 @@ async def root():
         "health": "/health"
     }
 
-# Authentication endpoints - NOW USING REAL DATABASE WITH ROLE-BASED ROUTING
-@app.post("/api/v1/auth/login")
-async def login(credentials: Dict[str, str]):
-    """Real authentication endpoint that validates against users table with role-based routing"""
+# Helper functions for secure login
+async def get_user_by_email(email: str) -> Optional[Dict[str, Any]]:
+    """Get user by email from database"""
     try:
-        email = credentials.get('email', '').strip()
-        password = credentials.get('password', '').strip()
-        
-        if not email or not password:
-            raise HTTPException(status_code=400, detail="Email and password are required")
-        
         conn = get_db_connection()
         with conn.cursor() as cur:
-            # First, check the users table for authentication
             cur.execute("""
                 SELECT 
                     id,
                     email,
                     password,
+                    hashed_password,
                     first_name,
                     last_name,
                     role
@@ -167,89 +183,136 @@ async def login(credentials: Dict[str, str]):
                 WHERE email = %s
             """, (email,))
             user = cur.fetchone()
-            
-            if not user:
-                raise HTTPException(status_code=401, detail="Invalid credentials")
-            
-            # In a real system, you would hash and verify the password
-            # For now, we'll use a simple check
-            if password != user['password']:
-                raise HTTPException(status_code=401, detail="Invalid password")
-            
-            user_id = str(user['id'])
-            user_name = f"{user['first_name']} {user['last_name']}"
-            user_role = user['role']
-            
-            # Role-based routing to get additional user data
-            if user_role == 'provider':
-                # Get provider data from providers table
-                cur.execute("""
-                    SELECT 
-                        provider_id,
-                        specialization,
-                        department,
-                        npi_number,
-                        license_number
-                    FROM providers 
-                    WHERE email = %s AND is_active = true
-                """, (email,))
-                provider_data = cur.fetchone()
-                
-                if not provider_data:
-                    raise HTTPException(status_code=401, detail="Provider not found in providers table")
-                
-                user_id = str(provider_data['provider_id'])
-                # Check if first_name already starts with "Dr." to avoid duplication
-                if user['first_name'].startswith('Dr.'):
-                    user_name = f"{user['first_name']} {user['last_name']}"
-                else:
-                    user_name = f"Dr. {user['first_name']} {user['last_name']}"
-                user_type = 'provider'
-                
-            elif user_role == 'patient':
-                # Get patient data from patients table
-                cur.execute("""
-                    SELECT 
-                        patient_id,
-                        medical_record_number,
-                        date_of_birth,
-                        gender
-                    FROM patients 
-                    WHERE email = %s AND is_active = true
-                """, (email,))
-                patient_data = cur.fetchone()
-                
-                if not patient_data:
-                    raise HTTPException(status_code=401, detail="Patient not found in patients table")
-                
-                user_id = str(patient_data['patient_id'])
-                user_type = 'patient'
-                
-            else:
-                raise HTTPException(status_code=400, detail="Invalid user role")
-        
         conn.close()
-        
-        # Generate a simple token (in production, use JWT)
-        token = f"token_{user_id}_{int(datetime.now().timestamp())}"
-        
-        logger.info(f"✅ Role-based authentication successful for {user_type}: {email}")
-        
-        return {
-            "success": True,
-            "token": token,
-            "userId": user_id,
-            "userName": user_name,
-            "userType": user_type,
-            "userRole": user_role,
-            "expiresAt": datetime.now().isoformat(),
-            "message": "Login successful"
-        }
-    except HTTPException:
-        raise
+        return dict(user) if user else None
     except Exception as e:
-        logger.error(f"Authentication error: {e}")
-        raise HTTPException(status_code=500, detail="Authentication failed")
+        logger.error(f"Error fetching user: {e}")
+        return None
+
+async def get_user_data(user_id: int, role: str) -> Dict[str, Any]:
+    """Get additional user data based on role"""
+    try:
+        conn = get_db_connection()
+        with conn.cursor() as cur:
+            if role == 'provider':
+                cur.execute("""
+                    SELECT provider_id, specialization, department, npi_number
+                    FROM providers 
+                    WHERE email = (SELECT email FROM users WHERE id = %s)
+                    AND is_active = true
+                """, (user_id,))
+                data = cur.fetchone()
+                return dict(data) if data else {}
+            elif role == 'patient':
+                cur.execute("""
+                    SELECT patient_id, medical_record_number, date_of_birth, gender
+                    FROM patients 
+                    WHERE email = (SELECT email FROM users WHERE id = %s)
+                    AND is_active = true
+                """, (user_id,))
+                data = cur.fetchone()
+                return dict(data) if data else {}
+        conn.close()
+        return {}
+    except Exception as e:
+        logger.error(f"Error fetching user data: {e}")
+        return {}
+
+# Authentication endpoints - SECURE WITH BCRYPT & JWT
+@app.post("/api/v1/auth/login")
+async def login(credentials: Dict[str, str]):
+    """Secure authentication endpoint with bcrypt password verification and JWT tokens"""
+    if SECURITY_ENABLED:
+        # Use secure login with bcrypt and JWT
+        try:
+            login_request = LoginRequest(
+                email=credentials.get('email', '').strip(),
+                password=credentials.get('password', '').strip()
+            )
+            result = await secure_login(
+                email=login_request.email,
+                password=login_request.password,
+                get_user_by_email_func=get_user_by_email,
+                get_user_data_func=get_user_data
+            )
+            
+            # Get additional user info for backward compatibility
+            user = await get_user_by_email(login_request.email)
+            user_data = await get_user_data(int(result.user_id), result.role)
+            
+            # Format response to match existing frontend expectations
+            user_name = f"{user['first_name']} {user['last_name']}" if user else ""
+            if result.role == 'provider' and not user_name.startswith('Dr.'):
+                user_name = f"Dr. {user_name}"
+            
+            return {
+                "success": True,
+                "token": result.access_token,
+                "access_token": result.access_token,  # Also include for compatibility
+                "token_type": result.token_type,
+                "userId": result.user_id,
+                "userName": user_name,
+                "userType": result.role,
+                "userRole": result.role,
+                "expiresAt": datetime.now().isoformat(),
+                "message": "Login successful"
+            }
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error(f"Secure authentication error: {e}")
+            raise HTTPException(status_code=500, detail="Authentication failed")
+    else:
+        # Fallback to old login (not recommended for production)
+        logger.warning("⚠️ Using insecure login - security modules not available")
+        try:
+            email = credentials.get('email', '').strip()
+            password = credentials.get('password', '').strip()
+            
+            if not email or not password:
+                raise HTTPException(status_code=400, detail="Email and password are required")
+            
+            conn = get_db_connection()
+            with conn.cursor() as cur:
+                cur.execute("""
+                    SELECT id, email, password, hashed_password, first_name, last_name, role
+                    FROM users WHERE email = %s
+                """, (email,))
+                user = cur.fetchone()
+                
+                if not user:
+                    raise HTTPException(status_code=401, detail="Invalid credentials")
+                
+                # Check hashed_password first, then fallback to password
+                if user.get('hashed_password'):
+                    # Try bcrypt verification
+                    try:
+                        import bcrypt
+                        if not bcrypt.checkpw(password.encode('utf-8'), user['hashed_password'].encode('utf-8')):
+                            raise HTTPException(status_code=401, detail="Invalid password")
+                    except:
+                        raise HTTPException(status_code=401, detail="Invalid password")
+                elif password != user.get('password'):
+                    raise HTTPException(status_code=401, detail="Invalid password")
+            
+            conn.close()
+            
+            token = f"token_{user['id']}_{int(datetime.now().timestamp())}"
+            return {
+                "success": True,
+                "token": token,
+                "userId": str(user['id']),
+                "userName": f"{user['first_name']} {user['last_name']}",
+                "userType": user['role'],
+                "userRole": user['role'],
+                "expiresAt": datetime.now().isoformat(),
+                "message": "Login successful"
+            }
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error(f"Authentication error: {e}")
+            raise HTTPException(status_code=500, detail="Authentication failed")
 
 # Doctors endpoint - NOW USING REAL DATABASE
 @app.get("/api/v1/doctors")

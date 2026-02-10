@@ -10,7 +10,7 @@ export default {
         'inter': ['Inter', 'system-ui', 'sans-serif'],
       },
       colors: {
-        'ecdome': {
+        'ecbome': {
           'primary': '#3B82F6',
           'secondary': '#8B5CF6',
           'accent': '#10B981',

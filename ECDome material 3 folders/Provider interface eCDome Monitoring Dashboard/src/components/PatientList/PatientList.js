@@ -77,7 +77,7 @@ const PatientList = () => {
     }
   };
 
-  const geteBDomeScoreColor = (score) => {
+  const geteCBomeScoreColor = (score) => {
     if (score >= 0.8) return 'text-green-600';
     if (score >= 0.6) return 'text-yellow-600';
     if (score >= 0.4) return 'text-orange-600';
@@ -100,10 +100,10 @@ const PatientList = () => {
                   helpContent={{
                     title: 'Patient Management System',
                     subtitle: 'Comprehensive Patient Registry',
-                    medical: 'The Patient Management system provides a centralized registry of all patients under care. It enables rapid patient identification, risk stratification, and access to complete medical records. The system integrates real-time eBDome monitoring data, clinical alerts, and treatment protocols for each patient. Providers can quickly filter by risk level, status, or search by demographics to prioritize care and manage patient panels efficiently.',
+                    medical: 'The Patient Management system provides a centralized registry of all patients under care. It enables rapid patient identification, risk stratification, and access to complete medical records. The system integrates real-time eCBome monitoring data, clinical alerts, and treatment protocols for each patient. Providers can quickly filter by risk level, status, or search by demographics to prioritize care and manage patient panels efficiently.',
                     simple: 'This is your complete patient list - all the people you\'re caring for in one place. You can search for any patient by name or ID, filter by who needs urgent attention (high risk), and see at-a-glance how everyone is doing. Click on any patient to see their full health information and history. It\'s like a digital patient chart organizer.',
                     significance: 'PURPOSE: Centralized patient registry for efficient care coordination. BENEFITS: Quick patient lookup, risk-based prioritization, real-time health status visibility, streamlined workflow. USE CASES: Daily patient rounding, emergency patient identification, risk stratification, care team coordination, population health management. CLINICAL VALUE: Reduces patient lookup time by 80%, enables proactive care for high-risk patients, improves care coordination across teams.',
-                    relatedTopics: ['Risk Stratification', 'Clinical Workflow', 'Population Health', 'eBDome Monitoring']
+                    relatedTopics: ['Risk Stratification', 'Clinical Workflow', 'Population Health', 'eCBome Monitoring']
                   }}
                   size="sm"
                   position="modal"
@@ -205,7 +205,7 @@ const PatientList = () => {
               <th className="px-6 py-4 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Patient</th>
               <th className="px-6 py-4 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Status</th>
               <th className="px-6 py-4 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Risk Level</th>
-              <th className="px-6 py-4 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">eBDome Score</th>
+              <th className="px-6 py-4 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">eCBome Score</th>
               <th className="px-6 py-4 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Last Visit</th>
               <th className="px-6 py-4 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Provider</th>
               <th className="px-6 py-4 text-right text-xs font-medium text-gray-700 uppercase tracking-wider">Actions</th>
@@ -251,16 +251,16 @@ const PatientList = () => {
                   </span>
                 </td>
 
-                {/* eBDome Score */}
+                {/* eCBome Score */}
                 <td className="px-6 py-4">
                   <div className="flex items-center space-x-2">
-                    <div className={`text-xl font-bold ${geteBDomeScoreColor(patient.ebdomeScore)}`}>
-                      {(patient.ebdomeScore * 100).toFixed(0)}%
+                    <div className={`text-xl font-bold ${geteCBomeScoreColor(patient.ecbomeScore)}`}>
+                      {(patient.ecbomeScore * 100).toFixed(0)}%
                     </div>
                     <div className="w-20 h-2 bg-gray-200 rounded-full overflow-hidden">
                       <div 
-                        className={`h-full ${geteBDomeScoreColor(patient.ebdomeScore).replace('text-', 'bg-')}`}
-                        style={{ width: `${(patient.ebdomeScore * 100).toFixed(0)}%` }}
+                        className={`h-full ${geteCBomeScoreColor(patient.ecbomeScore).replace('text-', 'bg-')}`}
+                        style={{ width: `${(patient.ecbomeScore * 100).toFixed(0)}%` }}
                       />
                     </div>
                   </div>
@@ -371,9 +371,9 @@ const PatientList = () => {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 mb-1">Avg eBDome Score</p>
+              <p className="text-sm text-gray-600 mb-1">Avg eCBome Score</p>
               <p className="text-2xl font-bold text-purple-600">
-                {(mockPatients.reduce((sum, p) => sum + p.ebdomeScore, 0) / mockPatients.length * 100).toFixed(0)}%
+                {(mockPatients.reduce((sum, p) => sum + p.ecbomeScore, 0) / mockPatients.length * 100).toFixed(0)}%
               </p>
             </div>
             <Heart className="w-8 h-8 text-purple-500" />

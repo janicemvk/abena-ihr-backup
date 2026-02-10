@@ -4,62 +4,62 @@ import { RadialBarChart, RadialBar, ResponsiveContainer, Cell, PieChart, Pie } f
 import { Brain, Activity, TrendingUp, Info, Zap } from 'lucide-react';
 import HelpInfo from '../Common/HelpInfo';
 
-const EbdomeComponents = ({ ebdomeProfile, realtimeData }) => {
-  if (!ebdomeProfile) return null;
+const EcbomeComponents = ({ ecbomeProfile, realtimeData }) => {
+  if (!ecbomeProfile) return null;
 
   // Component data for radial charts
   const componentData = [
     {
       name: 'Anandamide',
-      value: Math.round(ebdomeProfile.anandamideLevels * 100),
+      value: Math.round(ecbomeProfile.anandamideLevels * 100),
       color: '#3B82F6',
       description: 'Bliss Molecule',
       icon: '🧠',
       optimal: 70,
-      current: ebdomeProfile.anandamideLevels
+      current: ecbomeProfile.anandamideLevels
     },
     {
       name: '2-AG',
-      value: Math.round(ebdomeProfile.twoAGLevels * 100),
+      value: Math.round(ecbomeProfile.twoAGLevels * 100),
       color: '#10B981',
       description: '2-Arachidonoylglycerol',
       icon: '🌿',
       optimal: 65,
-      current: ebdomeProfile.twoAGLevels
+      current: ecbomeProfile.twoAGLevels
     },
     {
       name: 'CB1 Activity',
-      value: Math.round(ebdomeProfile.cb1Activity * 100),
+      value: Math.round(ecbomeProfile.cb1Activity * 100),
       color: '#8B5CF6',
       description: 'Cannabinoid Receptor 1',
       icon: '🔗',
       optimal: 75,
-      current: ebdomeProfile.cb1Activity
+      current: ecbomeProfile.cb1Activity
     },
     {
       name: 'CB2 Activity',
-      value: Math.round(ebdomeProfile.cb2Activity * 100),
+      value: Math.round(ecbomeProfile.cb2Activity * 100),
       color: '#F59E0B',
       description: 'Cannabinoid Receptor 2',
       icon: '🛡️',
       optimal: 70,
-      current: ebdomeProfile.cb2Activity
+      current: ecbomeProfile.cb2Activity
     },
     {
       name: 'System Balance',
-      value: Math.round(ebdomeProfile.systemBalance * 100),
+      value: Math.round(ecbomeProfile.systemBalance * 100),
       color: '#EF4444',
       description: 'Overall Harmony',
       icon: '⚖️',
       optimal: 80,
-      current: ebdomeProfile.systemBalance
+      current: ecbomeProfile.systemBalance
     }
   ];
 
   // System balance pie chart data
   const balanceData = [
-    { name: 'Balanced', value: ebdomeProfile.systemBalance * 100, fill: '#10B981' },
-    { name: 'Imbalanced', value: 100 - (ebdomeProfile.systemBalance * 100), fill: '#E5E7EB' }
+    { name: 'Balanced', value: ecbomeProfile.systemBalance * 100, fill: '#10B981' },
+    { name: 'Imbalanced', value: 100 - (ecbomeProfile.systemBalance * 100), fill: '#E5E7EB' }
   ];
 
   const getStatusColor = (current, optimal) => {
@@ -169,15 +169,15 @@ const EbdomeComponents = ({ ebdomeProfile, realtimeData }) => {
           </div>
           <div>
             <div className="flex items-center space-x-2">
-              <h3 className="text-lg font-semibold text-gray-900">eBDome Component Analysis</h3>
+              <h3 className="text-lg font-semibold text-gray-900">eCBome Component Analysis</h3>
               <HelpInfo 
                 helpContent={{
-                  title: 'eBDome Component Analysis',
+                  title: 'eCBome Component Analysis',
                   subtitle: '12-Module Endocannabinoid System Assessment',
-                  medical: 'The eBDome Component Analysis evaluates the endocannabinoid system across 12 distinct physiological modules, measuring endocannabinoid levels (anandamide, 2-AG), receptor activity (CB1, CB2), metabolic enzymes (FAAH, MAGL), and downstream effects across body systems. Each component is scored based on optimal homeostatic range, with integrated analysis revealing system-wide regulatory capacity and identifying specific deficiencies or dysfunctions.',
+                  medical: 'The eCBome Component Analysis evaluates the endocannabinoid system across 12 distinct physiological modules, measuring endocannabinoid levels (anandamide, 2-AG), receptor activity (CB1, CB2), metabolic enzymes (FAAH, MAGL), and downstream effects across body systems. Each component is scored based on optimal homeostatic range, with integrated analysis revealing system-wide regulatory capacity and identifying specific deficiencies or dysfunctions.',
                   simple: 'This section breaks down your body\'s balance system into individual parts to see which areas are working well and which need support. Think of it like a car diagnostic test - instead of just knowing something is wrong, we can pinpoint exactly which "parts" need attention. Some components affect mood and stress (Anandamide), others control inflammation (CB2), and together they show your body\'s overall balance.',
-                  significance: 'PURPOSE: Identifies specific eBDome deficiencies for targeted treatment. BENEFITS: Pinpoints root causes of symptoms, enables precision interventions, tracks treatment effectiveness by component, reveals hidden health patterns. USE CASES: Chronic pain localization, mood disorder analysis, inflammation source identification, sleep problem diagnosis, metabolic dysfunction detection. CLINICAL VALUE: 12-module breakdown allows targeted supplementation rather than broad approaches, improves treatment success by 65%, reduces side effects by addressing specific imbalances. Each module maps to specific symptoms and conditions.',
-                  relatedTopics: ['eBDome Score', 'Anandamide', 'CB1/CB2 Receptors', '2-AG', 'FAAH Enzyme', 'Homeostasis']
+                  significance: 'PURPOSE: Identifies specific eCBome deficiencies for targeted treatment. BENEFITS: Pinpoints root causes of symptoms, enables precision interventions, tracks treatment effectiveness by component, reveals hidden health patterns. USE CASES: Chronic pain localization, mood disorder analysis, inflammation source identification, sleep problem diagnosis, metabolic dysfunction detection. CLINICAL VALUE: 12-module breakdown allows targeted supplementation rather than broad approaches, improves treatment success by 65%, reduces side effects by addressing specific imbalances. Each module maps to specific symptoms and conditions.',
+                  relatedTopics: ['eCBome Score', 'Anandamide', 'CB1/CB2 Receptors', '2-AG', 'FAAH Enzyme', 'Homeostasis']
                 }}
                 size="sm"
                 position="modal"
@@ -201,19 +201,19 @@ const EbdomeComponents = ({ ebdomeProfile, realtimeData }) => {
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-center space-x-2 mb-1">
-              <h4 className="font-semibold text-gray-900">Overall eBDome Health Score</h4>
-              <HelpInfo topic="ebdome_score" size="xs" position="inline" />
+              <h4 className="font-semibold text-gray-900">Overall eCBome Health Score</h4>
+              <HelpInfo topic="ecbome_score" size="xs" position="inline" />
             </div>
             <p className="text-sm text-gray-600">
               Comprehensive endocannabinoid system balance assessment
             </p>
           </div>
           <div className="text-right">
-            <div className="text-3xl font-bold text-ebdome-primary">
-              {Math.round(ebdomeProfile.overallScore * 100)}%
+            <div className="text-3xl font-bold text-ecbome-primary">
+              {Math.round(ecbomeProfile.overallScore * 100)}%
             </div>
             <div className="text-sm text-gray-600">
-              {getStatusText(ebdomeProfile.overallScore, 0.8)}
+              {getStatusText(ecbomeProfile.overallScore, 0.8)}
             </div>
           </div>
         </div>
@@ -254,7 +254,7 @@ const EbdomeComponents = ({ ebdomeProfile, realtimeData }) => {
         <div className="mt-6 pt-6 border-t border-gray-200">
           <div className="flex items-center justify-between mb-4">
             <h4 className="font-medium text-gray-900 flex items-center">
-              <Zap className="h-5 w-5 mr-2 text-ebdome-primary" />
+              <Zap className="h-5 w-5 mr-2 text-ecbome-primary" />
               Real-time Activity
             </h4>
             <div className="text-sm text-gray-500">
@@ -264,26 +264,26 @@ const EbdomeComponents = ({ ebdomeProfile, realtimeData }) => {
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center p-3 bg-gray-50 rounded-lg">
-              <div className="text-xl font-bold text-ebdome-primary">
-                {Math.round((realtimeData.ebdomeActivity || 0.82) * 100)}%
+              <div className="text-xl font-bold text-ecbome-primary">
+                {Math.round((realtimeData.ecbomeActivity || 0.82) * 100)}%
               </div>
               <div className="text-sm text-gray-600">Current Activity</div>
             </div>
             <div className="text-center p-3 bg-gray-50 rounded-lg">
               <div className="text-xl font-bold text-green-600">
-                {Math.round((ebdomeProfile.systemBalance || 0.75) * 100)}%
+                {Math.round((ecbomeProfile.systemBalance || 0.75) * 100)}%
               </div>
               <div className="text-sm text-gray-600">System Balance</div>
             </div>
             <div className="text-center p-3 bg-gray-50 rounded-lg">
               <div className="text-xl font-bold text-blue-600">
-                {Math.round((ebdomeProfile.anandamideLevels || 0.68) * 100)}%
+                {Math.round((ecbomeProfile.anandamideLevels || 0.68) * 100)}%
               </div>
               <div className="text-sm text-gray-600">Anandamide</div>
             </div>
             <div className="text-center p-3 bg-gray-50 rounded-lg">
               <div className="text-xl font-bold text-purple-600">
-                {Math.round((ebdomeProfile.cb1Activity || 0.72) * 100)}%
+                {Math.round((ecbomeProfile.cb1Activity || 0.72) * 100)}%
               </div>
               <div className="text-sm text-gray-600">CB1 Activity</div>
             </div>
@@ -295,7 +295,7 @@ const EbdomeComponents = ({ ebdomeProfile, realtimeData }) => {
       <div className="mt-6 pt-6 border-t border-gray-200">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Info className="h-5 w-5 text-ebdome-primary" />
+            <Info className="h-5 w-5 text-ecbome-primary" />
             <span className="text-sm font-medium text-gray-700">ABENA Analysis Summary</span>
           </div>
           <div className="flex items-center space-x-1">
@@ -305,9 +305,9 @@ const EbdomeComponents = ({ ebdomeProfile, realtimeData }) => {
         </div>
         <div className="mt-2 text-sm text-gray-600">
           <p>
-            eBDome system showing balanced endocannabinoid activity with {' '}
-            <span className="font-medium text-ebdome-primary">
-              {Math.round(ebdomeProfile.overallScore * 100)}%
+            eCBome system showing balanced endocannabinoid activity with {' '}
+            <span className="font-medium text-ecbome-primary">
+              {Math.round(ecbomeProfile.overallScore * 100)}%
             </span>
             {' '}overall health score. Primary components within optimal ranges.
           </p>
@@ -317,4 +317,4 @@ const EbdomeComponents = ({ ebdomeProfile, realtimeData }) => {
   );
 };
 
-export default EbdomeComponents; 
+export default EcbomeComponents; 

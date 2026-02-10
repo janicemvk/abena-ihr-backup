@@ -1,10 +1,10 @@
-# Patient eCDome Monitoring Dashboard
+# Patient eCBome Monitoring Dashboard
 
 A patient-friendly interface for monitoring endocannabinoid system health using the ABENA SDK standard. This dashboard provides real-time health insights, goal tracking, and personalized wellness recommendations.
 
 ## Features
 
-- **Real-time eCDome Monitoring**: Live tracking of endocannabinoid system metrics
+- **Real-time eCBome Monitoring**: Live tracking of endocannabinoid system metrics
 - **Patient-Friendly Interface**: Simplified, intuitive dashboard design
 - **Health Insights**: Personalized tips and recommendations
 - **Goal Tracking**: Daily wellness goals with progress tracking
@@ -15,7 +15,7 @@ A patient-friendly interface for monitoring endocannabinoid system health using 
 
 ## Key Metrics Tracked
 
-- **eCDome Overall Score**: Comprehensive endocannabinoid system health
+- **eCBome Overall Score**: Comprehensive endocannabinoid system health
 - **Anandamide Levels**: "Bliss factor" neurotransmitter
 - **2-AG Levels**: Balance and homeostasis indicator
 - **CB1 Receptor Activity**: Brain receptor function
@@ -43,7 +43,7 @@ A patient-friendly interface for monitoring endocannabinoid system health using 
 1. **Clone the repository:**
    ```bash
    git clone <repository-url>
-   cd patient-ecdome-monitoring-dashboard
+   cd patient-ecbome-monitoring-dashboard
    ```
 
 2. **Install dependencies:**
@@ -70,7 +70,7 @@ The built files will be in the `dist` directory.
 ## Project Structure
 
 ```
-patient-ecdome-monitoring-dashboard/
+patient-ecbome-monitoring-dashboard/
 ├── src/
 │   ├── components/
 │   │   └── PatientDashboard.jsx    # Main dashboard component
@@ -88,7 +88,7 @@ patient-ecdome-monitoring-dashboard/
 ## Dashboard Components
 
 ### Main Score Card
-- Overall eCDome score with trend indicators
+- Overall eCBome score with trend indicators
 - Individual metric breakdown (Anandamide, 2-AG, CB1, CB2)
 - Real-time score updates
 
@@ -139,7 +139,7 @@ Current implementation uses mock data for demonstration purposes.
 - Implement real-time data fetching and WebSocket connections
 
 ### Features
-- Add new metric cards by extending the `ecdomeMetrics` object
+- Add new metric cards by extending the `ecbomeMetrics` object
 - Create additional chart types using Recharts components
 - Implement new goal categories and tracking systems
 

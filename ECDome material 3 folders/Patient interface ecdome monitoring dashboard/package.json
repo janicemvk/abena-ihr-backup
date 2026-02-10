@@ -1,7 +1,7 @@
 {
-  "name": "patient-ecdome-monitoring-dashboard",
+  "name": "patient-ecbome-monitoring-dashboard",
   "version": "1.0.0",
-  "description": "Patient Interface for eCDome Monitoring Dashboard - ABENA SDK compliant",
+  "description": "Patient Interface for eCBome Monitoring Dashboard - ABENA SDK compliant",
   "main": "src/index.js",
   "scripts": {
     "dev": "vite",
@@ -10,7 +10,7 @@
     "start": "vite"
   },
   "keywords": [
-    "ecdome",
+    "ecbome",
     "patient-dashboard",
     "abena-sdk",
     "endocannabinoid",

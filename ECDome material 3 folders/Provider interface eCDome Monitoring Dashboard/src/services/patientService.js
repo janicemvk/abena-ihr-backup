@@ -4,7 +4,7 @@ import {
   mockPatients, 
   mockPatientDetails, 
   generateRealtimeVitals, 
-  generateEcdomeTimeline,
+  generateEcbomeTimeline,
   getPatientStats 
 } from './mockPatientData';
 
@@ -95,8 +95,8 @@ export const patientService = {
           success: true,
           data: {
             patientInfo: patient,
-            ebdomeProfile: {
-              score: patient.ebdomeScore,
+            ecbomeProfile: {
+              score: patient.ecbomeScore,
               status: 'Unknown',
               components: {}
             },
@@ -136,8 +136,8 @@ export const patientService = {
           patientId: patientId,
           timestamp: new Date().toISOString(),
           vitalSigns: vitals,
-          ebdomeReadings: Object.keys(patientDetails.ebdomeProfile.components).reduce((acc, key) => {
-            const component = patientDetails.ebdomeProfile.components[key];
+          ecbomeReadings: Object.keys(patientDetails.ecbomeProfile.components).reduce((acc, key) => {
+            const component = patientDetails.ecbomeProfile.components[key];
             // Add slight variation to readings
             const variation = (Math.random() * 0.06) - 0.03; // ±3% variation
             acc[key] = Math.max(0, Math.min(1, component.reading + variation)).toFixed(2);
@@ -177,10 +177,10 @@ export const patientService = {
       };
 
       // Return analysis for requested modules (or all if none specified)
-      const requestedModules = modules && modules.length > 0 ? modules : Object.keys(patientDetails.ebdomeProfile.components);
+      const requestedModules = modules && modules.length > 0 ? modules : Object.keys(patientDetails.ecbomeProfile.components);
       
       requestedModules.forEach(moduleName => {
-        const component = patientDetails.ebdomeProfile.components[moduleName];
+        const component = patientDetails.ecbomeProfile.components[moduleName];
         if (component) {
           moduleAnalysis.data.modules[moduleName] = {
             name: moduleName,
@@ -200,8 +200,8 @@ export const patientService = {
     }
   },
 
-  // Get eBDome components - USE COMPREHENSIVE MOCK DATA
-  getEcdomeComponents: async (patientId, timeRange = '24h') => {
+  // Get eCBome components - USE COMPREHENSIVE MOCK DATA
+  getEcbomeComponents: async (patientId, timeRange = '24h') => {
     try {
       // Simulate network delay
       await new Promise(resolve => setTimeout(resolve, 250));
@@ -214,24 +214,24 @@ export const patientService = {
       // Parse timeRange to get hours
       const hours = timeRange === '24h' ? 24 : timeRange === '7d' ? 168 : timeRange === '30d' ? 720 : 24;
 
-      const ebdomeData = {
+      const ecbomeData = {
         success: true,
         data: {
           patientId,
           timeRange,
-          components: patientDetails.ebdomeProfile.components,
-          timeline: generateEcdomeTimeline(patientId, Math.min(hours, 24)), // Limit to 24 hours for performance
-          overallScore: patientDetails.ebdomeProfile.score,
-          status: patientDetails.ebdomeProfile.status,
+          components: patientDetails.ecbomeProfile.components,
+          timeline: generateEcbomeTimeline(patientId, Math.min(hours, 24)), // Limit to 24 hours for performance
+          overallScore: patientDetails.ecbomeProfile.score,
+          status: patientDetails.ecbomeProfile.status,
           timestamp: new Date().toISOString()
         }
       };
 
-      console.log('✅ eBDome components loaded for:', patientId);
-      return ebdomeData;
+      console.log('✅ eCBome components loaded for:', patientId);
+      return ecbomeData;
     } catch (error) {
-      console.error('❌ Failed to fetch eBDome components:', error);
-      throw new Error('Failed to fetch eBDome components');
+      console.error('❌ Failed to fetch eCBome components:', error);
+      throw new Error('Failed to fetch eCBome components');
     }
   },
 
@@ -394,7 +394,7 @@ export const patientService = {
       for (let i = days; i >= 0; i--) {
         historyPoints.push({
           date: new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString(),
-          ebdomeScore: Math.max(0.3, Math.min(1, patientDetails.ebdomeProfile.score + (Math.random() * 0.1 - 0.05))),
+          ecbomeScore: Math.max(0.3, Math.min(1, patientDetails.ecbomeProfile.score + (Math.random() * 0.1 - 0.05))),
           vitalSigns: generateRealtimeVitals(patientId),
           status: patientDetails.patientInfo.status
         });
@@ -407,7 +407,7 @@ export const patientService = {
           timeRange,
           history: historyPoints,
           trends: {
-            ebdomeScore: patientDetails.ebdomeProfile.components.endocannabinoid.trend,
+            ecbomeScore: patientDetails.ecbomeProfile.components.endocannabinoid.trend,
             overallHealth: 'stable'
           },
           timestamp: new Date().toISOString()

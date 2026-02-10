@@ -1,13 +1,13 @@
 {
-  "name": "ecdome-ml-pattern-recognition",
+  "name": "ecbome-ml-pattern-recognition",
   "version": "1.0.0",
-  "description": "eCdome Pattern Recognition & Predictive Analytics - 97.8% accuracy ML system with ABENA SDK integration",
-  "main": "src/ECDomeMLEngine.js",
+  "description": "eCBome Pattern Recognition & Predictive Analytics - 97.8% accuracy ML system with ABENA SDK integration",
+  "main": "src/ECBomeMLEngine.js",
   "type": "module",
   "scripts": {
-    "start": "node src/ECDomeMLEngine.js",
+    "start": "node src/ECBomeMLEngine.js",
     "test": "jest",
-    "dev": "nodemon src/ECDomeMLEngine.js",
+    "dev": "nodemon src/ECBomeMLEngine.js",
     "build": "webpack --mode production",
     "train": "node src/training/trainModels.js",
     "validate": "node src/validation/validateModels.js"
@@ -45,13 +45,13 @@
     "machine-learning",
     "pattern-recognition",
     "predictive-analytics",
-    "ecdome",
+    "ecbome",
     "personalized-medicine",
     "abena-sdk",
     "tensorflow",
     "healthcare-ml"
   ],
-  "author": "eCdome ML Team",
+  "author": "eCBome ML Team",
   "license": "MIT",
   "engines": {
     "node": ">=18.0.0",

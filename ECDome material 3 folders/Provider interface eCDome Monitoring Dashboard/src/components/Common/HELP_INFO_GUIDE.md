@@ -34,7 +34,7 @@ import HelpInfo from '../Common/HelpInfo';
 <HelpInfo topic="heart_rate" size="sm" position="inline" />
 
 // Modal popup for more detailed info
-<HelpInfo topic="ecdome_score" size="md" position="modal" />
+<HelpInfo topic="ecbome_score" size="md" position="modal" />
 ```
 
 ### Using with Section Headers
@@ -79,8 +79,8 @@ import { Heart } from 'lucide-react';
 - `temperature` - Body temperature (°F)
 - `glucose` - Blood glucose (mg/dL)
 
-### eCDome System
-- `ecdome_score` - Overall eCDome score
+### eCBome System
+- `ecbome_score` - Overall eCBome score
 - `anandamide` - Anandamide (AEA) levels
 - `cb1_receptors` - CB1 receptor activity
 - `cb2_receptors` - CB2 receptor activity
@@ -414,7 +414,7 @@ Tested and working on:
 See these components for real-world implementations:
 
 1. **VitalSignsWithHelp.js** - Comprehensive vital signs with help
-2. **ECDomeScoreWithHelp.js** - eCDome analysis with detailed help
+2. **ECBomeScoreWithHelp.js** - eCBome analysis with detailed help
 3. Complete examples in `/src/components/ClinicalDashboard/`
 
 ---

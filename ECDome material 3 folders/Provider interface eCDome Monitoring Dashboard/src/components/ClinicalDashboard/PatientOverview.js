@@ -31,7 +31,7 @@ const PatientOverview = ({ patientData, realtimeData }) => {
       provider: 'Dr. Martinez',
       status: 'active',
       riskLevel: 'medium',
-      ebdomeScore: 0.75,
+      ecbomeScore: 0.75,
       vitalSigns: {
         heartRate: 72,
         bloodPressure: '120/80',
@@ -50,7 +50,7 @@ const PatientOverview = ({ patientData, realtimeData }) => {
         cholesterol: 180
       }
     },
-    ebdomeProfile: {
+    ecbomeProfile: {
       score: 0.75,
       status: 'Good',
       components: {
@@ -66,27 +66,27 @@ const PatientOverview = ({ patientData, realtimeData }) => {
   const data = patientData || mockPatientData;
   
   // Handle different data structures
-  let patientInfo, ebdomeProfile;
+  let patientInfo, ecbomeProfile;
   if (data && data.data) {
-    // API response structure: { success: true, data: { patientInfo: {...}, ebdomeProfile: {...} } }
+    // API response structure: { success: true, data: { patientInfo: {...}, ecbomeProfile: {...} } }
     patientInfo = data.data.patientInfo;
-    ebdomeProfile = data.data.ebdomeProfile;
+    ecbomeProfile = data.data.ecbomeProfile;
   } else if (data && data.patientInfo) {
-    // Direct structure: { patientInfo: {...}, ebdomeProfile: {...} }
+    // Direct structure: { patientInfo: {...}, ecbomeProfile: {...} }
     patientInfo = data.patientInfo;
-    ebdomeProfile = data.ebdomeProfile;
+    ecbomeProfile = data.ecbomeProfile;
   } else {
     // Fallback to mock data
     patientInfo = mockPatientData.patientInfo;
-    ebdomeProfile = mockPatientData.ebdomeProfile;
+    ecbomeProfile = mockPatientData.ecbomeProfile;
   }
   
   // Ensure we have valid data
   if (!patientInfo) {
     patientInfo = mockPatientData.patientInfo;
   }
-  if (!ebdomeProfile) {
-    ebdomeProfile = mockPatientData.ebdomeProfile;
+  if (!ecbomeProfile) {
+    ecbomeProfile = mockPatientData.ecbomeProfile;
   }
   
   // Safety check - don't render if we still don't have valid data
@@ -135,12 +135,12 @@ const PatientOverview = ({ patientData, realtimeData }) => {
       trend: 'stable'
     },
     {
-      label: 'eBDome Activity',
-      value: realtimeData?.ebdomeActivity ? 
-        `${Math.round(realtimeData.ebdomeActivity * 100)}%` : 
+      label: 'eCBome Activity',
+      value: realtimeData?.ecbomeActivity ? 
+        `${Math.round(realtimeData.ecbomeActivity * 100)}%` : 
         '--%',
       icon: <Activity className="h-5 w-5 text-purple-500" />,
-      trend: realtimeData?.ebdomeActivity > 0.8 ? 'up' : 'stable'
+      trend: realtimeData?.ecbomeActivity > 0.8 ? 'up' : 'stable'
     }
   ];
 
@@ -204,19 +204,19 @@ const PatientOverview = ({ patientData, realtimeData }) => {
           </div>
         </div>
 
-        {/* eBDome Health Score */}
+        {/* eCBome Health Score */}
         <div className="lg:col-span-3">
           <div className="text-center">
             <div className="flex items-center justify-center space-x-2 mb-2">
-              {getHealthScoreIcon(ebdomeProfile.score || ebdomeProfile.overallScore || 0)}
-              <span className="text-sm font-medium text-gray-700">eBDome Health Score</span>
+              {getHealthScoreIcon(ecbomeProfile.score || ecbomeProfile.overallScore || 0)}
+              <span className="text-sm font-medium text-gray-700">eCBome Health Score</span>
             </div>
             <div className="relative">
               <div className="text-4xl font-bold text-gray-900">
-                {Math.round((ebdomeProfile.score || ebdomeProfile.overallScore || 0) * 100)}%
+                {Math.round((ecbomeProfile.score || ecbomeProfile.overallScore || 0) * 100)}%
               </div>
-              <div className={`inline-block px-3 py-1 rounded-full text-sm font-medium mt-2 ${getHealthScoreColor(ebdomeProfile.score || ebdomeProfile.overallScore || 0)}`}>
-                {getHealthScoreText(ebdomeProfile.score || ebdomeProfile.overallScore || 0)}
+              <div className={`inline-block px-3 py-1 rounded-full text-sm font-medium mt-2 ${getHealthScoreColor(ecbomeProfile.score || ecbomeProfile.overallScore || 0)}`}>
+                {getHealthScoreText(ecbomeProfile.score || ecbomeProfile.overallScore || 0)}
               </div>
             </div>
           </div>

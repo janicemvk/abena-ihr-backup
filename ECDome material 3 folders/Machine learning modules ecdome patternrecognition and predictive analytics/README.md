@@ -1,4 +1,4 @@
-# eCdome ML Pattern Recognition & Predictive Analytics
+# eCBome ML Pattern Recognition & Predictive Analytics
 
 🧬 **Advanced Machine Learning System for Personalized Healthcare**
 
@@ -52,7 +52,7 @@ A comprehensive ML engine that achieves **97.8% accuracy** in pattern recognitio
 11. **Neurological** - Brain and nervous system
 12. **Hormonal** - Endocrine system balance
 
-### eCdome Integration
+### eCBome Integration
 - Endocannabinoid system (ECS) measurements
 - CB1/CB2 receptor activity
 - System-specific ECS modulation
@@ -82,15 +82,15 @@ npm test
 ### Basic Usage
 
 ```javascript
-import ECDomeMLEngine from './src/ECDomeMLEngine.js';
+import ECBomeMLEngine from './src/ECBomeMLEngine.js';
 
 // Initialize the ML engine
-const mlEngine = new ECDomeMLEngine();
+const mlEngine = new ECBomeMLEngine();
 await mlEngine.initializeModels();
 
 // Analyze patterns
 const patterns = await mlEngine.recognizePatterns(
-  patientId, moduleData, ecdomeData, userId
+  patientId, moduleData, ecbomeData, userId
 );
 
 // Generate predictions
@@ -134,7 +134,7 @@ const response = await fetch('http://localhost:8007/api/v1/pattern-recognition',
       microbiome: { shannon_diversity: 3.2, beneficial_bacteria_count: 78 }
       // ... other modules
     },
-    ecdomeData: {
+    ecbomeData: {
       cb1_metabolic_impact: 75,
       cb2_anti_inflammatory: 82
       // ... other ECS measurements
@@ -255,9 +255,9 @@ node demo.js --api-only
 
 ### Project Structure
 ```
-ecdome-ml-pattern-recognition/
+ecbome-ml-pattern-recognition/
 ├── src/
-│   ├── ECDomeMLEngine.js       # Main ML engine
+│   ├── ECBomeMLEngine.js       # Main ML engine
 │   ├── api/
 │   │   └── MLEngineAPI.js      # RESTful API
 │   ├── features/               # Feature extractors
@@ -304,7 +304,7 @@ Each ML model includes:
 ```bash
 # Clone repository
 git clone <repository-url>
-cd ecdome-ml-pattern-recognition
+cd ecbome-ml-pattern-recognition
 
 # Install dependencies
 npm install
@@ -333,7 +333,7 @@ MIT License - See LICENSE file for details
 ## 🆘 Support
 
 ### Getting Help
-- 📧 Email: support@ecdome-ml.com
+- 📧 Email: support@ecbome-ml.com
 - 💬 Discord: [Community Channel]
 - 📖 Documentation: [Online Docs]
 - 🐛 Issues: [GitHub Issues]
@@ -357,6 +357,6 @@ Special thanks to:
 
 ---
 
-**🧬 eCdome ML Engine** - Transforming healthcare through intelligent pattern recognition and predictive analytics.
+**🧬 eCBome ML Engine** - Transforming healthcare through intelligent pattern recognition and predictive analytics.
 
 *For technical support and collaboration opportunities, please contact the development team.* 

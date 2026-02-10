@@ -45,14 +45,14 @@ const RealtimeMonitoring = ({ realtimeData, patientData }) => {
       current: realtimeData?.temperature
     },
     {
-      name: 'eBDome Activity',
-      value: realtimeData?.ebdomeActivity ? `${Math.round(realtimeData.ebdomeActivity * 100)}` : '--',
+      name: 'eCBome Activity',
+      value: realtimeData?.ecbomeActivity ? `${Math.round(realtimeData.ecbomeActivity * 100)}` : '--',
       unit: '%',
       icon: Brain,
       color: 'text-purple-500',
       bgColor: 'bg-purple-50',
       normal: [70, 90],
-      current: realtimeData?.ebdomeActivity * 100
+      current: realtimeData?.ecbomeActivity * 100
     }
   ];
 
@@ -92,10 +92,10 @@ const RealtimeMonitoring = ({ realtimeData, patientData }) => {
                 helpContent={{
                   title: 'Real-time Monitoring System',
                   subtitle: 'Continuous Patient Data Streaming',
-                  medical: 'The Real-time Monitoring system provides continuous, live streaming of patient vital signs and biomarkers through the ABENA SDK. It utilizes advanced sensor technology and secure data transmission protocols to deliver sub-second latency updates. The system monitors cardiovascular function (heart rate, blood pressure), respiratory status, thermoregulation, and endocannabinoid system activity (eBDome). Real-time data enables immediate detection of physiological changes, supporting early intervention protocols and preventing adverse events.',
+                  medical: 'The Real-time Monitoring system provides continuous, live streaming of patient vital signs and biomarkers through the ABENA SDK. It utilizes advanced sensor technology and secure data transmission protocols to deliver sub-second latency updates. The system monitors cardiovascular function (heart rate, blood pressure), respiratory status, thermoregulation, and endocannabinoid system activity (eCBome). Real-time data enables immediate detection of physiological changes, supporting early intervention protocols and preventing adverse events.',
                   simple: 'Real-time Monitoring keeps track of your health 24/7, updating every second. Think of it like a security camera for your body - it watches your heart, breathing, temperature, and overall health balance continuously. If something starts to go wrong, doctors can see it immediately and help you before it becomes serious. It\'s like having a medical team watching over you all the time, even when you\'re sleeping.',
                   significance: 'PURPOSE: Continuous health surveillance for early problem detection. BENEFITS: Prevents emergencies before they happen, reduces hospital readmissions by 40%, improves patient outcomes through rapid intervention, enables remote monitoring. USE CASES: Post-surgery monitoring, chronic disease management, elderly care, high-risk patients, COVID-19 home monitoring. CLINICAL VALUE: Predicts medical emergencies up to 24 hours in advance, reduces emergency response time by 60%, provides continuous baseline data for AI-powered predictive analytics. Saves lives through early detection.',
-                  relatedTopics: ['Heart Rate Variability', 'Blood Pressure Monitoring', 'eBDome System Activity', 'Predictive Alerts']
+                  relatedTopics: ['Heart Rate Variability', 'Blood Pressure Monitoring', 'eCBome System Activity', 'Predictive Alerts']
                 }}
                 size="sm"
                 position="modal"

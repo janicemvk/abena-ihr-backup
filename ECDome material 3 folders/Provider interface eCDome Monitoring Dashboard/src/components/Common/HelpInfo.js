@@ -268,25 +268,25 @@ export const getHelpContent = (topic) => {
       relatedTopics: ['Diabetes', 'HbA1c', 'Metabolic Health', 'Insulin Resistance']
     },
 
-    // eBDome Specific
-    'ebdome_score': {
-      title: 'eBDome Score',
+    // eCBome Specific
+    'ecbome_score': {
+      title: 'eCBome Score',
       subtitle: 'Endocannabinoid System Health',
-      medical: 'The eBDome score is a composite metric evaluating the functional status of the endocannabinoid system (ECS) across 12 physiological modules. It integrates measurements of endocannabinoid levels, receptor activity, enzyme function, and downstream physiological effects to provide a holistic assessment of ECS health.',
-      simple: 'The eBDome score measures how well your body\'s internal balance system is working. The endocannabinoid system helps regulate everything from mood and sleep to immunity and metabolism. A higher score (closer to 1.0) indicates better overall balance and health.',
+      medical: 'The eCBome score is a composite metric evaluating the functional status of the endocannabinoid system (ECS) across 12 physiological modules. It integrates measurements of endocannabinoid levels, receptor activity, enzyme function, and downstream physiological effects to provide a holistic assessment of ECS health.',
+      simple: 'The eCBome score measures how well your body\'s internal balance system is working. The endocannabinoid system helps regulate everything from mood and sleep to immunity and metabolism. A higher score (closer to 1.0) indicates better overall balance and health.',
       normalRange: '0.8-1.0: Excellent | 0.6-0.79: Good | 0.4-0.59: Needs Attention | <0.4: Critical',
       significance: 'PURPOSE: Measures body\'s natural balance and regulation system. BENEFITS: Predicts health issues before symptoms appear, guides personalized treatment, tracks wellness improvements. USE CASES: Chronic disease management, preventive medicine, treatment optimization, wellness tracking. CLINICAL VALUE: Identifies root causes of health issues, enables precision medicine, predicts disease risk.',
       relatedTopics: ['Anandamide', 'CB1 Receptors', 'CB2 Receptors', '2-AG', 'Homeostasis']
     },
     
-    'ebdome_activity': {
-      title: 'eBDome Activity',
+    'ecbome_activity': {
+      title: 'eCBome Activity',
       subtitle: 'Real-time Endocannabinoid System Function',
-      medical: 'eBDome Activity represents the real-time functional status of the endocannabinoid system, measured as a percentage of optimal homeostatic regulation. This metric integrates immediate endocannabinoid tone, receptor responsiveness, and system-wide regulatory capacity. Values between 70-90% indicate healthy ECS function with active homeostatic regulation across physiological systems.',
-      simple: 'eBDome Activity shows how actively your body\'s balance system is working right now. Think of it as a "health thermostat" - it measures how well your body is maintaining balance in real-time. 70-90% means your system is working great, actively keeping everything in harmony. Lower numbers mean your body is struggling to maintain balance.',
+      medical: 'eCBome Activity represents the real-time functional status of the endocannabinoid system, measured as a percentage of optimal homeostatic regulation. This metric integrates immediate endocannabinoid tone, receptor responsiveness, and system-wide regulatory capacity. Values between 70-90% indicate healthy ECS function with active homeostatic regulation across physiological systems.',
+      simple: 'eCBome Activity shows how actively your body\'s balance system is working right now. Think of it as a "health thermostat" - it measures how well your body is maintaining balance in real-time. 70-90% means your system is working great, actively keeping everything in harmony. Lower numbers mean your body is struggling to maintain balance.',
       normalRange: '70-90%: Optimal | 60-69%: Adequate | 50-59%: Suboptimal | <50%: Impaired',
       significance: 'PURPOSE: Real-time monitoring of body\'s self-regulation capacity. BENEFITS: Detects stress before it causes symptoms, tracks treatment response instantly, identifies triggers affecting health balance. USE CASES: Stress monitoring, pain management, sleep optimization, mental health tracking, inflammation detection. CLINICAL VALUE: Predicts symptom flares 6-12 hours early, enables proactive intervention, guides lifestyle adjustments. Lower activity correlates with increased disease risk and symptom severity.',
-      relatedTopics: ['eBDome Score', 'Homeostasis', 'Stress Response', 'Inflammatory Balance']
+      relatedTopics: ['eCBome Score', 'Homeostasis', 'Stress Response', 'Inflammatory Balance']
     },
 
     'anandamide': {
@@ -296,7 +296,7 @@ export const getHelpContent = (topic) => {
       simple: 'Anandamide is a natural chemical in your body sometimes called the "bliss molecule." It helps you feel good, reduces pain, and supports a positive mood. Think of it as your body\'s natural cannabis-like substance that helps keep you balanced and happy.',
       normalRange: 'Varies by measurement method and individual baseline | Typically measured in ng/mL or pmol/mL',
       significance: 'Low anandamide levels are associated with depression, anxiety, migraine, and irritable bowel syndrome. Enhancing anandamide signaling is a therapeutic target for mood and pain disorders.',
-      relatedTopics: ['eBDome Score', 'CB1 Receptors', 'FAAH Enzyme', 'Mood Regulation']
+      relatedTopics: ['eCBome Score', 'CB1 Receptors', 'FAAH Enzyme', 'Mood Regulation']
     },
 
     'cb1_receptors': {
@@ -343,16 +343,16 @@ export const getHelpContent = (topic) => {
     'clinical_recommendations': {
       title: 'Clinical Recommendations',
       subtitle: 'Evidence-based treatment suggestions',
-      medical: 'Clinical recommendations are evidence-based suggestions derived from current research, clinical guidelines, and patient-specific data. They incorporate biomarker analysis, eBDome profiles, and individual risk factors to provide personalized treatment strategies aligned with best medical practices. Each recommendation is prioritized by clinical urgency, supported by evidence levels, and includes expected outcomes, protocols, and monitoring plans.',
+      medical: 'Clinical recommendations are evidence-based suggestions derived from current research, clinical guidelines, and patient-specific data. They incorporate biomarker analysis, eCBome profiles, and individual risk factors to provide personalized treatment strategies aligned with best medical practices. Each recommendation is prioritized by clinical urgency, supported by evidence levels, and includes expected outcomes, protocols, and monitoring plans.',
       simple: 'Clinical recommendations are personalized suggestions based on your health data and the latest medical research. They\'re like a customized roadmap created by analyzing your specific health situation to help you improve your wellbeing. Think of them as expert advice tailored specifically to you, not generic suggestions.',
-      significance: 'PURPOSE: Provides personalized, evidence-based treatment guidance for optimal patient outcomes. BENEFITS: Improves treatment success rates by 45%, reduces trial-and-error approaches, saves time and costs, enhances patient engagement and compliance. USE CASES: Treatment planning, medication selection, lifestyle interventions, specialist referrals, preventive care strategies. CLINICAL VALUE: Integrates AI analysis with clinical guidelines, considers patient-specific factors (genetics, eBDome profile, comorbidities), prioritizes interventions by urgency and impact. Each recommendation includes success probability, expected timeline, and evidence strength.',
-      relatedTopics: ['Treatment Planning', 'Evidence-Based Medicine', 'Patient Care', 'eBDome Analysis']
+      significance: 'PURPOSE: Provides personalized, evidence-based treatment guidance for optimal patient outcomes. BENEFITS: Improves treatment success rates by 45%, reduces trial-and-error approaches, saves time and costs, enhances patient engagement and compliance. USE CASES: Treatment planning, medication selection, lifestyle interventions, specialist referrals, preventive care strategies. CLINICAL VALUE: Integrates AI analysis with clinical guidelines, considers patient-specific factors (genetics, eCBome profile, comorbidities), prioritizes interventions by urgency and impact. Each recommendation includes success probability, expected timeline, and evidence strength.',
+      relatedTopics: ['Treatment Planning', 'Evidence-Based Medicine', 'Patient Care', 'eCBome Analysis']
     },
 
     'predictive_alerts': {
       title: 'Predictive Alerts',
       subtitle: 'AI-powered health warnings',
-      medical: 'Predictive alerts use machine learning algorithms to analyze real-time patient data, historical trends, and clinical parameters to forecast potential health deterioration or adverse events before they occur. These alerts enable proactive interventions and prevent complications. The system employs multivariate analysis of vital signs, biomarkers, and eBDome metrics to generate early warnings with high specificity and sensitivity.',
+      medical: 'Predictive alerts use machine learning algorithms to analyze real-time patient data, historical trends, and clinical parameters to forecast potential health deterioration or adverse events before they occur. These alerts enable proactive interventions and prevent complications. The system employs multivariate analysis of vital signs, biomarkers, and eCBome metrics to generate early warnings with high specificity and sensitivity.',
       simple: 'Predictive alerts are early warnings powered by artificial intelligence that watch your health data continuously. Like a weather forecast for your health, they can predict problems before they happen, giving your care team time to prevent serious issues. They\'re like having a crystal ball that sees health problems coming before you feel sick.',
       significance: 'PURPOSE: Prevent medical emergencies through early detection and intervention. BENEFITS: Reduces emergency room visits by 50%, prevents hospital readmissions by 60%, catches problems 6-24 hours before symptoms appear, saves lives through proactive care. USE CASES: Heart attack prediction, stroke prevention, diabetic crisis detection, respiratory failure warning, sepsis early detection. CLINICAL VALUE: AI analyzes millions of data points to spot patterns humans miss, learns from every patient to improve accuracy, provides actionable warnings with specific intervention suggestions. False alarm rate <5%.',
       relatedTopics: ['Risk Assessment', 'Preventive Care', 'AI in Healthcare', 'Early Warning Systems']

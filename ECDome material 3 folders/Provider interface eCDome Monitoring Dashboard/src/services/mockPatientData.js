@@ -33,7 +33,7 @@ export const mockPatients = [
     riskLevel: 'high',
     lastVisit: getTimestamp(24),
     provider: 'Dr. Martinez',
-    ebdomeScore: 0.58,
+    ecbomeScore: 0.58,
     mrn: 'MRN-1001'
   },
   {
@@ -45,7 +45,7 @@ export const mockPatients = [
     riskLevel: 'low',
     lastVisit: getTimestamp(48),
     provider: 'Dr. Martinez',
-    ebdomeScore: 0.85,
+    ecbomeScore: 0.85,
     mrn: 'MRN-1002'
   },
   {
@@ -57,7 +57,7 @@ export const mockPatients = [
     riskLevel: 'high',
     lastVisit: getTimestamp(12),
     provider: 'Dr. Martinez',
-    ebdomeScore: 0.62,
+    ecbomeScore: 0.62,
     mrn: 'MRN-1003'
   },
   {
@@ -69,7 +69,7 @@ export const mockPatients = [
     riskLevel: 'high',
     lastVisit: getTimestamp(6),
     provider: 'Dr. Martinez',
-    ebdomeScore: 0.45,
+    ecbomeScore: 0.45,
     mrn: 'MRN-1004'
   },
   {
@@ -81,7 +81,7 @@ export const mockPatients = [
     riskLevel: 'medium',
     lastVisit: getTimestamp(72),
     provider: 'Dr. Martinez',
-    ebdomeScore: 0.71,
+    ecbomeScore: 0.71,
     mrn: 'MRN-1005'
   }
 ];
@@ -104,7 +104,7 @@ export const mockPatientDetails = {
       provider: 'Dr. Martinez',
       status: 'active',
       riskLevel: 'high',
-      ebdomeScore: 0.58,
+      ecbomeScore: 0.58,
       chiefComplaint: 'Occasional shortness of breath',
       vitalSigns: {
         heartRate: 88,
@@ -295,7 +295,7 @@ export const mockPatientDetails = {
         ]
       }
     },
-    ebdomeProfile: {
+    ecbomeProfile: {
       score: 0.58,
       status: 'Compromised',
       components: {
@@ -393,7 +393,7 @@ export const mockPatientDetails = {
       provider: 'Dr. Martinez',
       status: 'active',
       riskLevel: 'low',
-      ebdomeScore: 0.85,
+      ecbomeScore: 0.85,
       chiefComplaint: 'Chronic low back pain with bilateral lower extremity radiculopathy, progressively worsening',
       vitalSigns: {
         heartRate: 74,
@@ -542,7 +542,7 @@ export const mockPatientDetails = {
         hospitalizations: []
       }
     },
-    ebdomeProfile: {
+    ecbomeProfile: {
       score: 0.85,
       status: 'Good',
       components: {
@@ -622,7 +622,7 @@ export const mockPatientDetails = {
       provider: 'Dr. Martinez',
       status: 'active',
       riskLevel: 'high',
-      ebdomeScore: 0.62,
+      ecbomeScore: 0.62,
       chiefComplaint: 'Management of Type 2 Diabetes Mellitus with complications',
       vitalSigns: {
         heartRate: 80,
@@ -781,7 +781,7 @@ export const mockPatientDetails = {
         ]
       }
     },
-    ebdomeProfile: {
+    ecbomeProfile: {
       score: 0.62,
       status: 'Compromised',
       components: {
@@ -887,7 +887,7 @@ export const mockPatientDetails = {
       provider: 'Dr. Martinez',
       status: 'critical',
       riskLevel: 'high',
-      ebdomeScore: 0.45,
+      ecbomeScore: 0.45,
       chiefComplaint: 'Increasing fatigue and shortness of breath with minimal exertion, bilateral ankle swelling',
       vitalSigns: {
         heartRate: 92,
@@ -1070,7 +1070,7 @@ export const mockPatientDetails = {
         ]
       }
     },
-    ebdomeProfile: {
+    ecbomeProfile: {
       score: 0.45,
       status: 'Critical',
       components: {
@@ -1185,7 +1185,7 @@ export const mockPatientDetails = {
       provider: 'Dr. Martinez',
       status: 'active',
       riskLevel: 'medium',
-      ebdomeScore: 0.71,
+      ecbomeScore: 0.71,
       chiefComplaint: 'Persistent anxiety, difficulty sleeping, weight gain, concerns about family history of diabetes',
       vitalSigns: {
         heartRate: 84,
@@ -1354,7 +1354,7 @@ export const mockPatientDetails = {
         PHQ9: 8 // Mild depression
       }
     },
-    ebdomeProfile: {
+    ecbomeProfile: {
       score: 0.71,
       status: 'Fair',
       components: {
@@ -1481,15 +1481,15 @@ export const generateRealtimeVitals = (patientId) => {
 };
 
 /**
- * Generate eBDome timeline data for 24 hours with circadian rhythm patterns
+ * Generate eCBome timeline data for 24 hours with circadian rhythm patterns
  */
-export const generateEcdomeTimeline = (patientId, hours = 24) => {
+export const generateEcbomeTimeline = (patientId, hours = 24) => {
   const timeline = [];
   const patientData = mockPatientDetails[patientId];
   
   if (!patientData) return [];
 
-  const components = patientData.ebdomeProfile.components;
+  const components = patientData.ecbomeProfile.components;
   
   // Helper function to apply circadian rhythm (peaks in afternoon, dips at night)
   const getCircadianMultiplier = (hourOfDay) => {
@@ -1583,13 +1583,13 @@ export const generateEcdomeTimeline = (patientId, hours = 24) => {
 export const getPatientStats = () => {
   const activeCount = mockPatients.filter(p => p.status === 'active').length;
   const criticalCount = mockPatients.filter(p => p.status === 'critical').length;
-  const avgEcdomeScore = mockPatients.reduce((sum, p) => sum + p.ebdomeScore, 0) / mockPatients.length;
+  const avgEcbomeScore = mockPatients.reduce((sum, p) => sum + p.ecbomeScore, 0) / mockPatients.length;
 
   return {
     totalPatients: mockPatients.length,
     activePatients: activeCount,
     criticalPatients: criticalCount,
-    averageEcdomeScore: avgEcdomeScore.toFixed(2),
+    averageEcbomeScore: avgEcbomeScore.toFixed(2),
     systemUptime: 98.5,
     dataPoints: '1.2M',
     lastUpdated: getTimestamp(0)
@@ -1600,7 +1600,7 @@ export default {
   mockPatients,
   mockPatientDetails,
   generateRealtimeVitals,
-  generateEcdomeTimeline,
+  generateEcbomeTimeline,
   getPatientStats
 };
 

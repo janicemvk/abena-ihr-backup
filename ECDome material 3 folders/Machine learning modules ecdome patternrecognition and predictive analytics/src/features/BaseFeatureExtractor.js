@@ -11,11 +11,11 @@ class BaseFeatureExtractor {
   /**
    * Extract features from module data
    * @param {Object} moduleData - Raw module data
-   * @param {Object} ecdomeData - eCDome-specific data
+   * @param {Object} ecbomeData - eCBome-specific data
    * @param {String} patientId - Patient identifier
    * @returns {Array} Array of normalized features
    */
-  async extract(moduleData, ecdomeData, patientId) {
+  async extract(moduleData, ecbomeData, patientId) {
     // Override in specific extractors
     return new Array(this.featureCount).fill(0);
   }

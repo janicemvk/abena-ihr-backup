@@ -1,11 +1,11 @@
 /**
  * ABENA Clinical Report Generator
- * Generates comprehensive patient health reports with eBDome analysis
+ * Generates comprehensive patient health reports with eCBome analysis
  */
 
 export const ReportTypes = {
   COMPREHENSIVE: 'comprehensive',
-  ECDOME_ANALYSIS: 'ebdome_analysis',
+  ECBOME_ANALYSIS: 'ecbome_analysis',
   MODULE_ASSESSMENT: 'module_assessment',
   TREATMENT_PROGRESS: 'treatment_progress',
   LAB_RESULTS: 'lab_results'
@@ -24,8 +24,8 @@ export const generateReport = async (reportType, patientData, realtimeData = nul
     case ReportTypes.COMPREHENSIVE:
       reportContent = generateComprehensiveReport(patientData, realtimeData, reportId, timestamp);
       break;
-    case ReportTypes.ECDOME_ANALYSIS:
-      reportContent = generateECDomeReport(patientData, reportId, timestamp);
+    case ReportTypes.ECBOME_ANALYSIS:
+      reportContent = generateECBomeReport(patientData, reportId, timestamp);
       break;
     case ReportTypes.MODULE_ASSESSMENT:
       reportContent = generateModuleAssessmentReport(patientData, reportId, timestamp);
@@ -86,7 +86,7 @@ export const printReport = (reportContent) => {
 const generateComprehensiveReport = (patientData, realtimeData, reportId, timestamp) => {
   const data = patientData?.data || patientData;
   const patientInfo = data?.patientInfo || {};
-  const ebdomeProfile = data?.ebdomeProfile || {};
+  const ecbomeProfile = data?.ecbomeProfile || {};
   const vitals = realtimeData?.data?.vitalSigns || patientInfo?.vitalSigns || {};
   const recommendations = data?.recommendations || [];
   const alerts = data?.alerts || [];
@@ -297,7 +297,7 @@ const generateComprehensiveReport = (patientData, realtimeData, reportId, timest
       color: #1e40af;
     }
     
-    .ebdome-component {
+    .ecbome-component {
       background: white;
       border: 1px solid #e2e8f0;
       border-radius: 8px;
@@ -551,33 +551,33 @@ const generateComprehensiveReport = (patientData, realtimeData, reportId, timest
   </div>
   ` : ''}
 
-  <!-- eBDome Profile Analysis -->
+  <!-- eCBome Profile Analysis -->
   <div class="section">
     <h2 class="section-title">
       <span class="icon">🧬</span>
-      eBDome Profile Analysis
+      eCBome Profile Analysis
     </h2>
     <div class="card">
       <div class="data-row">
-        <span class="data-label">Overall eBDome Score</span>
+        <span class="data-label">Overall eCBome Score</span>
         <span class="data-value" style="font-size: 24px; color: #6366f1;">
-          ${ebdomeProfile.overallScore || ebdomeProfile.score || 'N/A'}
+          ${ecbomeProfile.overallScore || ecbomeProfile.score || 'N/A'}
         </span>
       </div>
       <div class="data-row">
         <span class="data-label">Status</span>
         <span class="data-value">
-          <span class="badge badge-${getScoreBadgeClass(ebdomeProfile.overallScore || ebdomeProfile.score)}">
-            ${ebdomeProfile.status || getScoreStatus(ebdomeProfile.overallScore || ebdomeProfile.score)}
+          <span class="badge badge-${getScoreBadgeClass(ecbomeProfile.overallScore || ecbomeProfile.score)}">
+            ${ecbomeProfile.status || getScoreStatus(ecbomeProfile.overallScore || ecbomeProfile.score)}
           </span>
         </span>
       </div>
     </div>
 
-    ${ebdomeProfile.components ? `
+    ${ecbomeProfile.components ? `
     <h3 style="margin-top: 25px; margin-bottom: 15px; color: #1e293b;">12-Module Component Analysis</h3>
-    ${Object.entries(ebdomeProfile.components).map(([key, component]) => `
-      <div class="ebdome-component">
+    ${Object.entries(ecbomeProfile.components).map(([key, component]) => `
+      <div class="ecbome-component">
         <div class="component-header">
           <span class="component-name">${formatComponentName(key)}</span>
           <span class="component-score">${(component.reading * 100).toFixed(0)}%</span>
@@ -696,12 +696,12 @@ const generateComprehensiveReport = (patientData, realtimeData, reportId, timest
 };
 
 /**
- * Generate eBDome-focused analysis report
+ * Generate eCBome-focused analysis report
  */
-const generateECDomeReport = (patientData, reportId, timestamp) => {
+const generateECBomeReport = (patientData, reportId, timestamp) => {
   const data = patientData?.data || patientData;
   const patientInfo = data?.patientInfo || {};
-  const ebdomeProfile = data?.ebdomeProfile || {};
+  const ecbomeProfile = data?.ecbomeProfile || {};
 
   const reportDate = new Date(timestamp).toLocaleString();
 
@@ -710,14 +710,14 @@ const generateECDomeReport = (patientData, reportId, timestamp) => {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>ABENA eBDome Analysis Report - ${patientInfo.name || 'Patient'}</title>
+  <title>ABENA eCBome Analysis Report - ${patientInfo.name || 'Patient'}</title>
   <style>
     ${getCommonStyles()}
   </style>
 </head>
 <body>
   <div class="header">
-    <h1>🧬 ABENA eBDome Analysis Report</h1>
+    <h1>🧬 ABENA eCBome Analysis Report</h1>
     <p class="subtitle">Endocannabinoid System Comprehensive Assessment</p>
   </div>
 
@@ -737,22 +737,22 @@ const generateECDomeReport = (patientData, reportId, timestamp) => {
   </div>
 
   <div class="section">
-    <h2 class="section-title">Overall eBDome Score</h2>
+    <h2 class="section-title">Overall eCBome Score</h2>
     <div class="card" style="text-align: center; padding: 40px;">
       <div style="font-size: 72px; font-weight: 700; color: #6366f1; margin-bottom: 10px;">
-        ${ebdomeProfile.overallScore || ebdomeProfile.score || 'N/A'}
+        ${ecbomeProfile.overallScore || ecbomeProfile.score || 'N/A'}
       </div>
       <div style="font-size: 24px; color: #64748b;">
-        ${ebdomeProfile.status || getScoreStatus(ebdomeProfile.overallScore || ebdomeProfile.score)}
+        ${ecbomeProfile.status || getScoreStatus(ecbomeProfile.overallScore || ecbomeProfile.score)}
       </div>
     </div>
   </div>
 
-  ${ebdomeProfile.components ? `
+  ${ecbomeProfile.components ? `
   <div class="section">
     <h2 class="section-title">12-Module Detailed Analysis</h2>
-    ${Object.entries(ebdomeProfile.components).map(([key, component]) => `
-      <div class="ebdome-component" style="margin-bottom: 20px;">
+    ${Object.entries(ecbomeProfile.components).map(([key, component]) => `
+      <div class="ecbome-component" style="margin-bottom: 20px;">
         <div class="component-header">
           <span class="component-name" style="font-size: 18px;">${formatComponentName(key)}</span>
           <span class="component-score" style="font-size: 28px;">${(component.reading * 100).toFixed(0)}%</span>
@@ -779,7 +779,7 @@ const generateECDomeReport = (patientData, reportId, timestamp) => {
   ` : ''}
 
   <div class="footer">
-    <p><strong>ABENA Healthcare System - eBDome Analysis</strong></p>
+    <p><strong>ABENA Healthcare System - eCBome Analysis</strong></p>
     <p>Generated: ${reportDate} | Report ID: ${reportId}</p>
   </div>
 </body>
@@ -791,8 +791,8 @@ const generateECDomeReport = (patientData, reportId, timestamp) => {
  * Generate 12-Module Assessment Report
  */
 const generateModuleAssessmentReport = (patientData, reportId, timestamp) => {
-  // Similar to eBDome report but with more detailed module breakdowns
-  return generateECDomeReport(patientData, reportId, timestamp);
+  // Similar to eCBome report but with more detailed module breakdowns
+  return generateECBomeReport(patientData, reportId, timestamp);
 };
 
 /**
@@ -1109,7 +1109,7 @@ function getCommonStyles() {
     .section { margin-bottom: 40px; page-break-inside: avoid; }
     .section-title { font-size: 20px; color: #1e293b; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 20px; }
     .card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-bottom: 15px; }
-    .ebdome-component { background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 10px; }
+    .ecbome-component { background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 10px; }
     .component-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
     .component-name { font-weight: 600; color: #1e293b; font-size: 16px; }
     .component-score { font-size: 20px; font-weight: 700; color: #6366f1; }

@@ -41,7 +41,7 @@ export const dashboardService = {
     try {
       // In production: const response = await api.get(`/dashboard/metrics/${patientId}?range=${timeRange}`);
       const mockMetrics = {
-        avgEcdomeScore: 0.78 + Math.random() * 0.15,
+        avgEcbomeScore: 0.78 + Math.random() * 0.15,
         avgHeartRate: 70 + Math.random() * 10,
         avgBloodPressure: {
           systolic: 118 + Math.random() * 8,
@@ -76,8 +76,8 @@ export const dashboardService = {
   getChartData: async (patientId, chartType, timeRange = '24h') => {
     try {
       // Use ABENA SDK for specific chart types
-      if (chartType === 'ebdome-timeline') {
-        return await abena.getEcdomeComponents(patientId, timeRange);
+      if (chartType === 'ecbome-timeline') {
+        return await abena.getEcbomeComponents(patientId, timeRange);
       }
       
       // For other chart types, use mock data for now
@@ -229,13 +229,13 @@ export const dashboardService = {
     }
   },
 
-  // Get eBDome components using ABENA SDK
-  getEcdomeComponents: async (patientId, timeRange = '24h') => {
+  // Get eCBome components using ABENA SDK
+  getEcbomeComponents: async (patientId, timeRange = '24h') => {
     try {
-      return await abena.getEcdomeComponents(patientId, timeRange);
+      return await abena.getEcbomeComponents(patientId, timeRange);
     } catch (error) {
-      console.error('Failed to fetch eBDome components:', error);
-      throw new Error('Failed to fetch eBDome components');
+      console.error('Failed to fetch eCBome components:', error);
+      throw new Error('Failed to fetch eCBome components');
     }
   },
 

@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, RadialBarChart, RadialBar, AreaChart, Area } from 'recharts';
 import { Activity, Heart, Brain, Droplets, Shield, Clock, Sun, Moon, Zap, Target, TrendingUp, Bell, Calendar, Book, Settings, User } from 'lucide-react';
 
-// Patient Interface - eCDome Monitoring Dashboard
-// Simplified, patient-friendly view of their eCDome health data
+// Patient Interface - eCBome Monitoring Dashboard
+// Simplified, patient-friendly view of their eCBome health data
 // ABENA SDK compliant with real-time monitoring
 
 const PatientDashboard = () => {
@@ -23,11 +23,11 @@ const PatientDashboard = () => {
       const mockData = {
         patientInfo: {
           firstName: 'Sarah',
-          ecdomeScore: 82,
+          ecbomeScore: 82,
           improvementThisWeek: 5,
           streakDays: 12
         },
-        ecdomeMetrics: {
+        ecbomeMetrics: {
           overall: 82,
           balance: 79,
           anandamide: 75,
@@ -70,7 +70,7 @@ const PatientDashboard = () => {
           {
             type: 'positive',
             title: 'Great Progress!',
-            message: 'Your eCDome balance has improved 5% this week through consistent sleep habits.'
+            message: 'Your eCBome balance has improved 5% this week through consistent sleep habits.'
           },
           {
             type: 'suggestion',
@@ -103,9 +103,9 @@ const PatientDashboard = () => {
       // Simulate live updates
       setPatientData(prev => prev ? {
         ...prev,
-        ecdomeMetrics: {
-          ...prev.ecdomeMetrics,
-          overall: Math.max(75, Math.min(90, prev.ecdomeMetrics.overall + (Math.random() - 0.5) * 2))
+        ecbomeMetrics: {
+          ...prev.ecbomeMetrics,
+          overall: Math.max(75, Math.min(90, prev.ecbomeMetrics.overall + (Math.random() - 0.5) * 2))
         }
       } : null);
     }, 30000);
@@ -144,7 +144,7 @@ const PatientDashboard = () => {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading your eCDome dashboard...</p>
+          <p className="mt-4 text-gray-600">Loading your eCBome dashboard...</p>
         </div>
       </div>
     );
@@ -162,7 +162,7 @@ const PatientDashboard = () => {
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900">Welcome back, {patientData.patientInfo.firstName}!</h1>
-                <p className="text-sm text-gray-600">Your eCDome wellness journey</p>
+                <p className="text-sm text-gray-600">Your eCBome wellness journey</p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
@@ -185,11 +185,11 @@ const PatientDashboard = () => {
           <div className="relative">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-3xl font-bold text-gray-900">Your eCDome Score</h2>
+                <h2 className="text-3xl font-bold text-gray-900">Your eCBome Score</h2>
                 <p className="text-gray-600">Overall endocannabinoid system health</p>
               </div>
               <div className="text-right">
-                <div className="text-5xl font-bold text-green-600">{patientData.ecdomeMetrics.overall}</div>
+                <div className="text-5xl font-bold text-green-600">{patientData.ecbomeMetrics.overall}</div>
                 <div className="flex items-center text-green-600 text-sm">
                   <TrendingUp className="h-4 w-4 mr-1" />
                   +{patientData.patientInfo.improvementThisWeek} this week
@@ -201,12 +201,12 @@ const PatientDashboard = () => {
               <div className="text-center p-4 bg-blue-50 rounded-xl">
                 <div className="relative w-16 h-16 mx-auto mb-2">
                   <ResponsiveContainer width="100%" height="100%">
-                    <RadialBarChart cx="50%" cy="50%" innerRadius="70%" outerRadius="90%" data={[{ value: patientData.ecdomeMetrics.anandamide }]}>
+                    <RadialBarChart cx="50%" cy="50%" innerRadius="70%" outerRadius="90%" data={[{ value: patientData.ecbomeMetrics.anandamide }]}>
                       <RadialBar dataKey="value" fill="#3B82F6" />
                     </RadialBarChart>
                   </ResponsiveContainer>
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-xs font-bold text-gray-700">{patientData.ecdomeMetrics.anandamide}</span>
+                    <span className="text-xs font-bold text-gray-700">{patientData.ecbomeMetrics.anandamide}</span>
                   </div>
                 </div>
                 <p className="text-sm font-medium text-gray-900">Anandamide</p>
@@ -216,12 +216,12 @@ const PatientDashboard = () => {
               <div className="text-center p-4 bg-green-50 rounded-xl">
                 <div className="relative w-16 h-16 mx-auto mb-2">
                   <ResponsiveContainer width="100%" height="100%">
-                    <RadialBarChart cx="50%" cy="50%" innerRadius="70%" outerRadius="90%" data={[{ value: patientData.ecdomeMetrics.twoAG }]}>
+                    <RadialBarChart cx="50%" cy="50%" innerRadius="70%" outerRadius="90%" data={[{ value: patientData.ecbomeMetrics.twoAG }]}>
                       <RadialBar dataKey="value" fill="#10B981" />
                     </RadialBarChart>
                   </ResponsiveContainer>
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-xs font-bold text-gray-700">{patientData.ecdomeMetrics.twoAG}</span>
+                    <span className="text-xs font-bold text-gray-700">{patientData.ecbomeMetrics.twoAG}</span>
                   </div>
                 </div>
                 <p className="text-sm font-medium text-gray-900">2-AG</p>
@@ -231,12 +231,12 @@ const PatientDashboard = () => {
               <div className="text-center p-4 bg-purple-50 rounded-xl">
                 <div className="relative w-16 h-16 mx-auto mb-2">
                   <ResponsiveContainer width="100%" height="100%">
-                    <RadialBarChart cx="50%" cy="50%" innerRadius="70%" outerRadius="90%" data={[{ value: patientData.ecdomeMetrics.cb1Activity }]}>
+                    <RadialBarChart cx="50%" cy="50%" innerRadius="70%" outerRadius="90%" data={[{ value: patientData.ecbomeMetrics.cb1Activity }]}>
                       <RadialBar dataKey="value" fill="#8B5CF6" />
                     </RadialBarChart>
                   </ResponsiveContainer>
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-xs font-bold text-gray-700">{patientData.ecdomeMetrics.cb1Activity}</span>
+                    <span className="text-xs font-bold text-gray-700">{patientData.ecbomeMetrics.cb1Activity}</span>
                   </div>
                 </div>
                 <p className="text-sm font-medium text-gray-900">CB1</p>
@@ -246,12 +246,12 @@ const PatientDashboard = () => {
               <div className="text-center p-4 bg-indigo-50 rounded-xl">
                 <div className="relative w-16 h-16 mx-auto mb-2">
                   <ResponsiveContainer width="100%" height="100%">
-                    <RadialBarChart cx="50%" cy="50%" innerRadius="70%" outerRadius="90%" data={[{ value: patientData.ecdomeMetrics.cb2Activity }]}>
+                    <RadialBarChart cx="50%" cy="50%" innerRadius="70%" outerRadius="90%" data={[{ value: patientData.ecbomeMetrics.cb2Activity }]}>
                       <RadialBar dataKey="value" fill="#6366F1" />
                     </RadialBarChart>
                   </ResponsiveContainer>
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-xs font-bold text-gray-700">{patientData.ecdomeMetrics.cb2Activity}</span>
+                    <span className="text-xs font-bold text-gray-700">{patientData.ecbomeMetrics.cb2Activity}</span>
                   </div>
                 </div>
                 <p className="text-sm font-medium text-gray-900">CB2</p>

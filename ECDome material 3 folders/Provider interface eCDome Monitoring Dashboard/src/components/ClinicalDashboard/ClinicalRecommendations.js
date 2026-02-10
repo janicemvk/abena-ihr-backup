@@ -154,16 +154,16 @@ const ClinicalRecommendations = ({ recommendations = [], onRecommendationAction 
   const mockRecommendations = [
     {
       id: 'rec-001',
-      title: 'Optimize eBDome Balance',
+      title: 'Optimize eCBome Balance',
       category: 'supplement',
       priority: 'high',
       description: 'Patient shows CB1 receptor deficiency. Consider targeted endocannabinoid support.',
-      rationale: 'eBDome analysis indicates 15% reduction in CB1 activity over the past 48 hours. Anandamide levels are suboptimal.',
+      rationale: 'eCBome analysis indicates 15% reduction in CB1 activity over the past 48 hours. Anandamide levels are suboptimal.',
       protocol: {
         intervention: 'Omega-3 supplementation (EPA/DHA 2:1 ratio)',
         dosage: '2000mg daily with meals',
         duration: '8 weeks',
-        monitoring: 'Weekly eBDome profile assessment'
+        monitoring: 'Weekly eCBome profile assessment'
       },
       expectedOutcomes: [
         'Improve CB1 receptor sensitivity (15-20%)',
@@ -173,7 +173,7 @@ const ClinicalRecommendations = ({ recommendations = [], onRecommendationAction 
       contraindications: ['Blood thinning medications', 'Severe liver disease'],
       evidenceLevel: 'Strong',
       confidenceScore: 0.87,
-      affectedModules: ['eBDome', 'Inflammatome', 'Neurological'],
+      affectedModules: ['eCBome', 'Inflammatome', 'Neurological'],
       timeline: '2-4 weeks to see initial benefits',
       cost: '$45-60/month'
     },
@@ -580,7 +580,7 @@ const ClinicalRecommendations = ({ recommendations = [], onRecommendationAction 
             </h4>
             <p className="text-sm text-blue-700">
               These recommendations are generated using AI analysis of your patient's unique 
-              eBDome profile, 12 ABENA modules, and real-time biomarker data. Each protocol 
+              eCBome profile, 12 ABENA modules, and real-time biomarker data. Each protocol 
               is tailored to the individual's specific biological patterns and health goals.
             </p>
           </div>
