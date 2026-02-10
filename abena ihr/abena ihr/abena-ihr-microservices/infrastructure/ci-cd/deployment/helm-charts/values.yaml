@@ -1,0 +1,439 @@
+# Abena IHR Helm Chart Values
+# Healthcare microservices deployment configuration
+
+# Global configuration
+global:
+  environment: "production"
+  registry: "registry.abena-ihr.com"
+  imagePullSecrets:
+    - name: "registry-secret"
+  
+  # Healthcare compliance settings
+  compliance:
+    hipaa: true
+    gdpr: true
+    auditLogging: true
+    dataRetentionDays: 2555
+  
+  # Security settings
+  security:
+    enableNetworkPolicies: true
+    enablePodSecurityPolicies: true
+    enableRBAC: true
+    enableVault: true
+
+# Database configuration
+database:
+  postgres:
+    enabled: true
+    image:
+      repository: "postgres"
+      tag: "15-alpine"
+    persistence:
+      enabled: true
+      size: "100Gi"
+      storageClass: "gp2"
+    resources:
+      requests:
+        memory: "1Gi"
+        cpu: "500m"
+      limits:
+        memory: "2Gi"
+        cpu: "1"
+    monitoring:
+      enabled: true
+      exporter:
+        image: "prometheuscommunity/postgres-exporter"
+        port: 9187
+  
+  redis:
+    enabled: true
+    image:
+      repository: "redis"
+      tag: "7-alpine"
+    persistence:
+      enabled: true
+      size: "10Gi"
+      storageClass: "gp2"
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+      limits:
+        memory: "512Mi"
+        cpu: "200m"
+    monitoring:
+      enabled: true
+      exporter:
+        image: "oliver006/redis_exporter"
+        port: 9121
+
+# Application services
+services:
+  patient-engagement:
+    enabled: true
+    replicas: 3
+    image:
+      repository: "patient-engagement"
+      tag: "latest"
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "250m"
+      limits:
+        memory: "1Gi"
+        cpu: "500m"
+    autoscaling:
+      enabled: true
+      minReplicas: 3
+      maxReplicas: 20
+      targetCPUUtilizationPercentage: 70
+    healthCheck:
+      enabled: true
+      path: "/health"
+      port: 8000
+  
+  data-ingestion:
+    enabled: true
+    replicas: 2
+    image:
+      repository: "data-ingestion"
+      tag: "latest"
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "250m"
+      limits:
+        memory: "1Gi"
+        cpu: "500m"
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 15
+      targetCPUUtilizationPercentage: 70
+    healthCheck:
+      enabled: true
+      path: "/health"
+      port: 8000
+  
+  clinical-decision-support:
+    enabled: true
+    replicas: 2
+    image:
+      repository: "clinical-decision-support"
+      tag: "latest"
+    resources:
+      requests:
+        memory: "1Gi"
+        cpu: "500m"
+      limits:
+        memory: "2Gi"
+        cpu: "1"
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 10
+      targetCPUUtilizationPercentage: 70
+    healthCheck:
+      enabled: true
+      path: "/health"
+      port: 8000
+  
+  privacy-security:
+    enabled: true
+    replicas: 2
+    image:
+      repository: "privacy-security"
+      tag: "latest"
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "250m"
+      limits:
+        memory: "1Gi"
+        cpu: "500m"
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 10
+      targetCPUUtilizationPercentage: 70
+    healthCheck:
+      enabled: true
+      path: "/health"
+      port: 8000
+  
+  blockchain:
+    enabled: true
+    replicas: 2
+    image:
+      repository: "blockchain"
+      tag: "latest"
+    resources:
+      requests:
+        memory: "1Gi"
+        cpu: "500m"
+      limits:
+        memory: "2Gi"
+        cpu: "1"
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 8
+      targetCPUUtilizationPercentage: 70
+    healthCheck:
+      enabled: true
+      path: "/health"
+      port: 8080
+  
+  auth:
+    enabled: true
+    replicas: 2
+    image:
+      repository: "auth"
+      tag: "latest"
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+      limits:
+        memory: "512Mi"
+        cpu: "200m"
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 10
+      targetCPUUtilizationPercentage: 70
+    healthCheck:
+      enabled: true
+      path: "/health"
+      port: 3000
+
+# Monitoring configuration
+monitoring:
+  enabled: true
+  prometheus:
+    enabled: true
+    retention: "15d"
+    storage:
+      size: "50Gi"
+      storageClass: "gp2"
+    resources:
+      requests:
+        memory: "1Gi"
+        cpu: "500m"
+      limits:
+        memory: "2Gi"
+        cpu: "1"
+  
+  grafana:
+    enabled: true
+    adminPassword: "admin123"
+    persistence:
+      enabled: true
+      size: "10Gi"
+      storageClass: "gp2"
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+      limits:
+        memory: "512Mi"
+        cpu: "200m"
+    dashboards:
+      enabled: true
+      default:
+        enabled: true
+        label: "abena-ihr-dashboard"
+  
+  jaeger:
+    enabled: true
+    storage:
+      type: "elasticsearch"
+      options:
+        es:
+          server-urls: "http://elasticsearch:9200"
+          index-prefix: "jaeger"
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+      limits:
+        memory: "512Mi"
+        cpu: "200m"
+
+# Logging configuration
+logging:
+  enabled: true
+  elasticsearch:
+    enabled: true
+    replicas: 3
+    resources:
+      requests:
+        memory: "2Gi"
+        cpu: "500m"
+      limits:
+        memory: "4Gi"
+        cpu: "1"
+    storage:
+      size: "100Gi"
+      storageClass: "gp2"
+  
+  kibana:
+    enabled: true
+    replicas: 2
+    resources:
+      requests:
+        memory: "1Gi"
+        cpu: "250m"
+      limits:
+        memory: "2Gi"
+        cpu: "500m"
+    storage:
+      size: "10Gi"
+      storageClass: "gp2"
+  
+  logstash:
+    enabled: true
+    replicas: 2
+    resources:
+      requests:
+        memory: "1Gi"
+        cpu: "250m"
+      limits:
+        memory: "2Gi"
+        cpu: "500m"
+
+# Security configuration
+security:
+  enabled: true
+  vault:
+    enabled: true
+    dev:
+      enabled: false
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "250m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+  
+  cert-manager:
+    enabled: true
+    clusterIssuer:
+      name: "letsencrypt-prod"
+      email: "security@abena-ihr.com"
+
+# Ingress configuration
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  
+  tls:
+    - secretName: "abena-ihr-tls"
+      hosts:
+        - "api.abena-ihr.com"
+        - "patient.abena-ihr.com"
+        - "provider.abena-ihr.com"
+  
+  hosts:
+    - host: "api.abena-ihr.com"
+      paths:
+        - path: "/"
+          pathType: "Prefix"
+          service:
+            name: "api-gateway"
+            port: 80
+    - host: "patient.abena-ihr.com"
+      paths:
+        - path: "/"
+          pathType: "Prefix"
+          service:
+            name: "patient-portal"
+            port: 80
+    - host: "provider.abena-ihr.com"
+      paths:
+        - path: "/"
+          pathType: "Prefix"
+          service:
+            name: "provider-dashboard"
+            port: 80
+
+# Backup configuration
+backup:
+  enabled: true
+  schedule:
+    database: "0 2 * * *"  # Daily at 2 AM
+    redis: "0 3 * * *"     # Daily at 3 AM
+    config: "0 4 * * *"    # Daily at 4 AM
+  
+  retention:
+    days: 30
+  
+  storage:
+    type: "s3"
+    bucket: "abena-ihr-backups"
+    region: "us-east-1"
+
+# Resource quotas
+resourceQuotas:
+  enabled: true
+  limits:
+    requests.cpu: "10"
+    requests.memory: "20Gi"
+    limits.cpu: "20"
+    limits.memory: "40Gi"
+    persistentvolumeclaims: "20"
+    services: "50"
+    services.loadbalancers: "5"
+
+# Network policies
+networkPolicies:
+  enabled: true
+  defaultPolicy: "deny"
+  allowNamespaces:
+    - "monitoring"
+    - "logging"
+    - "security"
+
+# Pod disruption budgets
+podDisruptionBudgets:
+  enabled: true
+  minAvailable: 1
+
+# Horizontal Pod Autoscaler
+hpa:
+  enabled: true
+  metrics:
+    - type: "Resource"
+      resource:
+        name: "cpu"
+        target:
+          type: "Utilization"
+          averageUtilization: 70
+    - type: "Resource"
+      resource:
+        name: "memory"
+        target:
+          type: "Utilization"
+          averageUtilization: 80
+
+# Vertical Pod Autoscaler
+vpa:
+  enabled: true
+  updatePolicy: "Auto"
+  resourcePolicy:
+    containerPolicies:
+      - containerName: "*"
+        minAllowed:
+          cpu: "100m"
+          memory: "256Mi"
+        maxAllowed:
+          cpu: "2"
+          memory: "4Gi"
+        controlledValues: "RequestsAndLimits" 

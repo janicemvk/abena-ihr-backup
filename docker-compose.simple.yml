@@ -1,0 +1,295 @@
+version: '3.8'
+
+services:
+  # Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: abena-postgres
+    environment:
+      POSTGRES_DB: abena_ihr
+      POSTGRES_USER: abena_user
+      POSTGRES_PASSWORD: abena_password
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - abena-network
+
+  # Module Registry
+  module-registry:
+    build:
+      context: ./api_gateway
+      dockerfile: Dockerfile.registry
+    container_name: abena-module-registry
+    ports:
+      - "3003:3003"
+    networks:
+      - abena-network
+    volumes:
+      - ./api_gateway:/app
+      - /app/node_modules
+
+  # 12 Core Background Modules
+  background-modules:
+    build:
+      context: ./12 Core Background Modules
+      dockerfile: Dockerfile
+    container_name: abena-background-modules
+    environment:
+      - PORT=4001
+      - DATABASE_URL=postgresql://abena_user:abena_password@postgres:5432/abena_ihr
+    ports:
+      - "4001:4001"
+    depends_on:
+      - postgres
+    networks:
+      - abena-network
+    volumes:
+      - ./12 Core Background Modules:/app
+      - /app/node_modules
+
+  # Abena IHR Main System
+  abena-ihr:
+    build:
+      context: ./abena_ihr
+      dockerfile: Dockerfile
+    container_name: abena-ihr-main
+    environment:
+      - PORT=4002
+      - DATABASE_URL=postgresql://abena_user:abena_password@postgres:5432/abena_ihr
+    ports:
+      - "4002:4002"
+    depends_on:
+      - postgres
+    networks:
+      - abena-network
+    volumes:
+      - ./abena_ihr:/app
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+
+  # Business Rule Engine
+  business-rules:
+    build:
+      context: ./business_rule_engine/Business Rule Engine
+      dockerfile: Dockerfile
+    container_name: abena-business-rules
+    environment:
+      - PORT=4003
+      - DATABASE_URL=postgresql://abena_user:abena_password@postgres:5432/abena_ihr
+    ports:
+      - "4003:4003"
+    depends_on:
+      - postgres
+    networks:
+      - abena-network
+    volumes:
+      - ./business_rule_engine/Business Rule Engine:/app
+      - /app/node_modules
+
+  # Telemedicine Platform
+  telemedicine:
+    build:
+      context: ./Telemedicine platform
+      dockerfile: Dockerfile
+    container_name: abena-telemedicine
+    environment:
+      - PORT=4004
+      - REACT_APP_API_URL=http://localhost:80
+    ports:
+      - "4004:4004"
+    networks:
+      - abena-network
+    volumes:
+      - ./Telemedicine platform:/app
+      - /app/node_modules
+
+  # eCdome Intelligence System
+  ecdome-intelligence:
+    build:
+      context: ./abena_unified_integration/Abena_ecdome_intelligence_sys
+      dockerfile: Dockerfile
+    container_name: abena-ecdome-intelligence
+    ports:
+      - "4005:4005"
+    networks:
+      - abena-network
+    depends_on:
+      - background-modules
+
+  # Quantum Healthcare Service
+  quantum-healthcare:
+    build:
+      context: ./quantum-healthcare
+      dockerfile: Dockerfile
+    container_name: abena-quantum-healthcare
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=production
+      - PORT=5000
+      - ABENA_IHR_API=http://abena-ihr-main:4002
+      - ECDOME_API=http://abena-ecdome-intelligence:4005
+      - DATABASE_URL=postgresql://abena_user:abena_password@postgres:5432/abena_ihr
+    ports:
+      - "5000:5000"
+    depends_on:
+      - postgres
+      - abena-ihr
+      - ecdome-intelligence
+    networks:
+      - abena-network
+    volumes:
+      - ./quantum-healthcare:/app
+
+  # Telemedicine Platform (Proper React App)
+  telemedicine-platform:
+    build:
+      context: ./Telemedicine platform
+      dockerfile: Dockerfile
+    container_name: abena-telemedicine-platform
+    ports:
+      - "8000:8000"
+    networks:
+      - abena-network
+    depends_on:
+      - background-modules
+
+  # Abena IHR Gamification
+  gamification:
+    build:
+      context: ./abena_unified_integration/Abena IHR Gamification
+      dockerfile: Dockerfile
+    container_name: abena-gamification
+    ports:
+      - "4006:4006"
+    networks:
+      - abena-network
+
+  # Abena Unified Integration
+  unified-integration:
+    build:
+      context: ./abena_unified_integration/Abena Unified Integration
+      dockerfile: Dockerfile
+    container_name: abena-unified-integration
+    ports:
+      - "4008:4008"
+    networks:
+      - abena-network
+    depends_on:
+      - abena-ihr
+      - ecdome-intelligence
+      - quantum-healthcare
+
+  # Provider eCDome Monitoring Dashboard
+  provider-dashboard:
+    build:
+      context: ./ECDome material 3 folders/Provider interface eCDome Monitoring Dashboard
+      dockerfile: Dockerfile
+    container_name: abena-provider-dashboard
+    ports:
+      - "4009:4009"
+    networks:
+      - abena-network
+    depends_on:
+      - abena-ihr
+      - ecdome-intelligence
+
+  # Patient eCDome Monitoring Dashboard
+  patient-dashboard:
+    build:
+      context: ./ECDome material 3 folders/Patient interface ecdome monitoring dashboard
+      dockerfile: Dockerfile
+    container_name: abena-patient-dashboard
+    ports:
+      - "4010:4010"
+    networks:
+      - abena-network
+    depends_on:
+      - abena-ihr
+      - ecdome-intelligence
+
+  # Data Ingestion Layer Dashboard
+  data-ingestion:
+    build:
+      context: ./abena_comprehensive_test_suite/Abena Data Ingestion Layer
+      dockerfile: Dockerfile
+    container_name: abena-data-ingestion
+    ports:
+      - "4011:4011"
+    networks:
+      - abena-network
+
+  # Biomarker Integration GUI
+  biomarker-gui:
+    build:
+      context: ./abena_biomaker_integration/Abena Biomarker Integration
+      dockerfile: Dockerfile
+    container_name: abena-biomarker-gui
+    ports:
+      - "4012:8050"
+    networks:
+      - abena-network
+
+  # Dynamic Learning Feedback Loop (Python)
+  dynamic-learning:
+    build:
+      context: ./business_rule_engine/Dynamic Learning_feedback loop
+      dockerfile: Dockerfile
+    container_name: abena-dynamic-learning
+    ports:
+      - "4010:5000"
+    networks:
+      - abena-network
+    depends_on:
+      - postgres
+
+  # Admin Dashboard (Next.js)
+  admin-dashboard:
+    build:
+      context: ./admin-dashboard-nextjs
+      dockerfile: Dockerfile
+    container_name: abena-admin-dashboard
+    ports:
+      - "8080:8080"
+    networks:
+      - abena-network
+    depends_on:
+      - api-gateway
+    environment:
+      - NODE_ENV=production
+      - PORT=8080
+      - NEXTAUTH_SECRET=abena-ihr-admin-secret-key-change-in-production-min-32-chars
+      - NEXTAUTH_URL=http://localhost:8080
+      - NEXT_PUBLIC_INTEGRATION_BRIDGE_URL=http://abena-api-gateway:80
+      - NEXT_PUBLIC_AUTH_SERVICE_URL=http://localhost:3002
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: ./api_gateway
+      dockerfile: Dockerfile.gateway
+    container_name: abena-api-gateway
+    ports:
+      - "8081:80"
+    depends_on:
+      - module-registry
+      - background-modules
+      - abena-ihr
+      - business-rules
+      - telemedicine
+      - ecdome-intelligence
+      - quantum-healthcare
+    networks:
+      - abena-network
+    volumes:
+      - ./api_gateway/nginx.conf:/etc/nginx/nginx.conf:ro
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  abena-network:
+    driver: bridge 

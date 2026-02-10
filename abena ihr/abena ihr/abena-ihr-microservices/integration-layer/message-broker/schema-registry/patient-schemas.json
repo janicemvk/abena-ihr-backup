@@ -1,0 +1,480 @@
+{
+  "schemas": [
+    {
+      "name": "PatientProfile",
+      "type": "record",
+      "namespace": "com.abena.ihr.patient",
+      "fields": [
+        {
+          "name": "patient_id",
+          "type": "string",
+          "doc": "Unique patient identifier"
+        },
+        {
+          "name": "first_name",
+          "type": "string",
+          "doc": "Patient's first name"
+        },
+        {
+          "name": "last_name",
+          "type": "string",
+          "doc": "Patient's last name"
+        },
+        {
+          "name": "date_of_birth",
+          "type": "string",
+          "format": "date",
+          "doc": "Patient's date of birth"
+        },
+        {
+          "name": "gender",
+          "type": {
+            "type": "enum",
+            "name": "Gender",
+            "symbols": ["MALE", "FEMALE", "OTHER", "UNKNOWN"]
+          },
+          "doc": "Patient's gender"
+        },
+        {
+          "name": "email",
+          "type": ["null", "string"],
+          "doc": "Patient's email address"
+        },
+        {
+          "name": "phone",
+          "type": ["null", "string"],
+          "doc": "Patient's phone number"
+        },
+        {
+          "name": "address",
+          "type": {
+            "type": "record",
+            "name": "Address",
+            "fields": [
+              {"name": "street", "type": "string"},
+              {"name": "city", "type": "string"},
+              {"name": "state", "type": "string"},
+              {"name": "zip_code", "type": "string"},
+              {"name": "country", "type": "string"}
+            ]
+          },
+          "doc": "Patient's address"
+        },
+        {
+          "name": "emergency_contact",
+          "type": ["null", {
+            "type": "record",
+            "name": "EmergencyContact",
+            "fields": [
+              {"name": "name", "type": "string"},
+              {"name": "relationship", "type": "string"},
+              {"name": "phone", "type": "string"},
+              {"name": "email", "type": ["null", "string"]}
+            ]
+          }],
+          "doc": "Emergency contact information"
+        },
+        {
+          "name": "insurance_info",
+          "type": ["null", {
+            "type": "record",
+            "name": "InsuranceInfo",
+            "fields": [
+              {"name": "provider", "type": "string"},
+              {"name": "policy_number", "type": "string"},
+              {"name": "group_number", "type": ["null", "string"]},
+              {"name": "expiry_date", "type": ["null", "string"], "format": "date"}
+            ]
+          }],
+          "doc": "Insurance information"
+        },
+        {
+          "name": "created_at",
+          "type": "string",
+          "format": "date-time",
+          "doc": "Record creation timestamp"
+        },
+        {
+          "name": "updated_at",
+          "type": "string",
+          "format": "date-time",
+          "doc": "Record last update timestamp"
+        }
+      ]
+    },
+    {
+      "name": "PatientVitals",
+      "type": "record",
+      "namespace": "com.abena.ihr.patient",
+      "fields": [
+        {
+          "name": "vital_id",
+          "type": "string",
+          "doc": "Unique vital signs identifier"
+        },
+        {
+          "name": "patient_id",
+          "type": "string",
+          "doc": "Patient identifier"
+        },
+        {
+          "name": "timestamp",
+          "type": "string",
+          "format": "date-time",
+          "doc": "Vital signs measurement timestamp"
+        },
+        {
+          "name": "blood_pressure",
+          "type": ["null", {
+            "type": "record",
+            "name": "BloodPressure",
+            "fields": [
+              {"name": "systolic", "type": "int"},
+              {"name": "diastolic", "type": "int"},
+              {"name": "unit", "type": "string", "default": "mmHg"}
+            ]
+          }],
+          "doc": "Blood pressure readings"
+        },
+        {
+          "name": "heart_rate",
+          "type": ["null", {
+            "type": "record",
+            "name": "HeartRate",
+            "fields": [
+              {"name": "value", "type": "int"},
+              {"name": "unit", "type": "string", "default": "bpm"}
+            ]
+          }],
+          "doc": "Heart rate measurement"
+        },
+        {
+          "name": "temperature",
+          "type": ["null", {
+            "type": "record",
+            "name": "Temperature",
+            "fields": [
+              {"name": "value", "type": "double"},
+              {"name": "unit", "type": "string", "default": "°C"}
+            ]
+          }],
+          "doc": "Body temperature"
+        },
+        {
+          "name": "respiratory_rate",
+          "type": ["null", {
+            "type": "record",
+            "name": "RespiratoryRate",
+            "fields": [
+              {"name": "value", "type": "int"},
+              {"name": "unit", "type": "string", "default": "breaths/min"}
+            ]
+          }],
+          "doc": "Respiratory rate"
+        },
+        {
+          "name": "oxygen_saturation",
+          "type": ["null", {
+            "type": "record",
+            "name": "OxygenSaturation",
+            "fields": [
+              {"name": "value", "type": "double"},
+              {"name": "unit", "type": "string", "default": "%"}
+            ]
+          }],
+          "doc": "Blood oxygen saturation"
+        },
+        {
+          "name": "weight",
+          "type": ["null", {
+            "type": "record",
+            "name": "Weight",
+            "fields": [
+              {"name": "value", "type": "double"},
+              {"name": "unit", "type": "string", "default": "kg"}
+            ]
+          }],
+          "doc": "Body weight"
+        },
+        {
+          "name": "height",
+          "type": ["null", {
+            "type": "record",
+            "name": "Height",
+            "fields": [
+              {"name": "value", "type": "double"},
+              {"name": "unit", "type": "string", "default": "cm"}
+            ]
+          }],
+          "doc": "Body height"
+        },
+        {
+          "name": "source",
+          "type": {
+            "type": "enum",
+            "name": "VitalSource",
+            "symbols": ["MANUAL", "DEVICE", "SYSTEM", "PATIENT_REPORTED"]
+          },
+          "doc": "Source of vital signs data"
+        },
+        {
+          "name": "device_id",
+          "type": ["null", "string"],
+          "doc": "Device identifier if applicable"
+        },
+        {
+          "name": "provider_id",
+          "type": ["null", "string"],
+          "doc": "Healthcare provider who recorded the vitals"
+        }
+      ]
+    },
+    {
+      "name": "PatientAppointment",
+      "type": "record",
+      "namespace": "com.abena.ihr.patient",
+      "fields": [
+        {
+          "name": "appointment_id",
+          "type": "string",
+          "doc": "Unique appointment identifier"
+        },
+        {
+          "name": "patient_id",
+          "type": "string",
+          "doc": "Patient identifier"
+        },
+        {
+          "name": "provider_id",
+          "type": "string",
+          "doc": "Healthcare provider identifier"
+        },
+        {
+          "name": "scheduled_time",
+          "type": "string",
+          "format": "date-time",
+          "doc": "Scheduled appointment time"
+        },
+        {
+          "name": "duration_minutes",
+          "type": "int",
+          "doc": "Appointment duration in minutes"
+        },
+        {
+          "name": "appointment_type",
+          "type": {
+            "type": "enum",
+            "name": "AppointmentType",
+            "symbols": ["CONSULTATION", "FOLLOW_UP", "EMERGENCY", "ROUTINE_CHECKUP", "SPECIALIST", "TELEMEDICINE"]
+          },
+          "doc": "Type of appointment"
+        },
+        {
+          "name": "status",
+          "type": {
+            "type": "enum",
+            "name": "AppointmentStatus",
+            "symbols": ["SCHEDULED", "CONFIRMED", "IN_PROGRESS", "COMPLETED", "CANCELLED", "NO_SHOW"]
+          },
+          "doc": "Current appointment status"
+        },
+        {
+          "name": "location",
+          "type": ["null", "string"],
+          "doc": "Appointment location or room"
+        },
+        {
+          "name": "notes",
+          "type": ["null", "string"],
+          "doc": "Appointment notes"
+        },
+        {
+          "name": "created_at",
+          "type": "string",
+          "format": "date-time",
+          "doc": "Appointment creation timestamp"
+        },
+        {
+          "name": "updated_at",
+          "type": "string",
+          "format": "date-time",
+          "doc": "Appointment last update timestamp"
+        }
+      ]
+    },
+    {
+      "name": "PatientMedication",
+      "type": "record",
+      "namespace": "com.abena.ihr.patient",
+      "fields": [
+        {
+          "name": "medication_id",
+          "type": "string",
+          "doc": "Unique medication identifier"
+        },
+        {
+          "name": "patient_id",
+          "type": "string",
+          "doc": "Patient identifier"
+        },
+        {
+          "name": "medication_name",
+          "type": "string",
+          "doc": "Name of the medication"
+        },
+        {
+          "name": "generic_name",
+          "type": ["null", "string"],
+          "doc": "Generic name of the medication"
+        },
+        {
+          "name": "dosage",
+          "type": "string",
+          "doc": "Medication dosage"
+        },
+        {
+          "name": "frequency",
+          "type": "string",
+          "doc": "How often to take the medication"
+        },
+        {
+          "name": "route",
+          "type": {
+            "type": "enum",
+            "name": "MedicationRoute",
+            "symbols": ["ORAL", "INTRAVENOUS", "INTRAMUSCULAR", "SUBCUTANEOUS", "TOPICAL", "INHALED", "OTHER"]
+          },
+          "doc": "Route of administration"
+        },
+        {
+          "name": "prescribed_date",
+          "type": "string",
+          "format": "date",
+          "doc": "Date medication was prescribed"
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "format": "date",
+          "doc": "Date to start taking medication"
+        },
+        {
+          "name": "end_date",
+          "type": ["null", "string"],
+          "format": "date",
+          "doc": "Date to stop taking medication"
+        },
+        {
+          "name": "prescriber_id",
+          "type": "string",
+          "doc": "Healthcare provider who prescribed the medication"
+        },
+        {
+          "name": "status",
+          "type": {
+            "type": "enum",
+            "name": "MedicationStatus",
+            "symbols": ["ACTIVE", "DISCONTINUED", "COMPLETED", "ON_HOLD"]
+          },
+          "doc": "Current medication status"
+        },
+        {
+          "name": "instructions",
+          "type": ["null", "string"],
+          "doc": "Special instructions for taking the medication"
+        },
+        {
+          "name": "side_effects",
+          "type": ["null", "string"],
+          "doc": "Known side effects"
+        },
+        {
+          "name": "allergies",
+          "type": {
+            "type": "array",
+            "items": "string"
+          },
+          "doc": "List of known allergies"
+        }
+      ]
+    },
+    {
+      "name": "PatientLabResult",
+      "type": "record",
+      "namespace": "com.abena.ihr.patient",
+      "fields": [
+        {
+          "name": "lab_result_id",
+          "type": "string",
+          "doc": "Unique lab result identifier"
+        },
+        {
+          "name": "patient_id",
+          "type": "string",
+          "doc": "Patient identifier"
+        },
+        {
+          "name": "test_name",
+          "type": "string",
+          "doc": "Name of the laboratory test"
+        },
+        {
+          "name": "test_code",
+          "type": ["null", "string"],
+          "doc": "Standard test code (LOINC, etc.)"
+        },
+        {
+          "name": "result_value",
+          "type": "string",
+          "doc": "Test result value"
+        },
+        {
+          "name": "unit",
+          "type": ["null", "string"],
+          "doc": "Unit of measurement"
+        },
+        {
+          "name": "reference_range",
+          "type": ["null", "string"],
+          "doc": "Normal reference range"
+        },
+        {
+          "name": "abnormal_flag",
+          "type": ["null", {
+            "type": "enum",
+            "name": "AbnormalFlag",
+            "symbols": ["NORMAL", "HIGH", "LOW", "CRITICAL_HIGH", "CRITICAL_LOW"]
+          }],
+          "doc": "Flag indicating if result is abnormal"
+        },
+        {
+          "name": "collection_date",
+          "type": "string",
+          "format": "date-time",
+          "doc": "Date and time sample was collected"
+        },
+        {
+          "name": "result_date",
+          "type": "string",
+          "format": "date-time",
+          "doc": "Date and time result was available"
+        },
+        {
+          "name": "ordering_provider_id",
+          "type": "string",
+          "doc": "Healthcare provider who ordered the test"
+        },
+        {
+          "name": "laboratory",
+          "type": ["null", "string"],
+          "doc": "Laboratory that performed the test"
+        },
+        {
+          "name": "notes",
+          "type": ["null", "string"],
+          "doc": "Additional notes about the result"
+        }
+      ]
+    }
+  ]
+} 

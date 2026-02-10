@@ -1,0 +1,230 @@
+{
+  "schemas": [
+    {
+      "name": "ClinicalEncounterEvent",
+      "type": "record",
+      "namespace": "com.abena.ihr.events.clinical",
+      "fields": [
+        {
+          "name": "event_id",
+          "type": "string",
+          "doc": "Unique event identifier"
+        },
+        {
+          "name": "event_type",
+          "type": {
+            "type": "enum",
+            "name": "ClinicalEventType",
+            "symbols": ["ENCOUNTER_STARTED", "ENCOUNTER_COMPLETED", "ENCOUNTER_CANCELLED", "VITALS_RECORDED", "DIAGNOSIS_ADDED", "MEDICATION_PRESCRIBED", "LAB_ORDERED", "PROCEDURE_SCHEDULED"]
+          },
+          "doc": "Type of clinical event"
+        },
+        {
+          "name": "patient_id",
+          "type": "string",
+          "doc": "Patient identifier"
+        },
+        {
+          "name": "provider_id",
+          "type": "string",
+          "doc": "Healthcare provider identifier"
+        },
+        {
+          "name": "encounter_id",
+          "type": "string",
+          "doc": "Clinical encounter identifier"
+        },
+        {
+          "name": "timestamp",
+          "type": "string",
+          "format": "date-time",
+          "doc": "Event timestamp"
+        },
+        {
+          "name": "location",
+          "type": ["null", "string"],
+          "doc": "Location where event occurred"
+        },
+        {
+          "name": "event_data",
+          "type": {
+            "type": "record",
+            "name": "ClinicalEventData",
+            "fields": [
+              {"name": "vitals", "type": ["null", "PatientVitals"]},
+              {"name": "diagnosis", "type": ["null", "Diagnosis"]},
+              {"name": "medication", "type": ["null", "Medication"]},
+              {"name": "lab_order", "type": ["null", "LabOrder"]},
+              {"name": "procedure", "type": ["null", "Procedure"]},
+              {"name": "notes", "type": ["null", "string"]}
+            ]
+          },
+          "doc": "Event-specific data"
+        },
+        {
+          "name": "metadata",
+          "type": {
+            "type": "record",
+            "name": "EventMetadata",
+            "fields": [
+              {"name": "source_system", "type": "string"},
+              {"name": "user_id", "type": "string"},
+              {"name": "session_id", "type": ["null", "string"]},
+              {"name": "correlation_id", "type": ["null", "string"]}
+            ]
+          },
+          "doc": "Event metadata"
+        }
+      ]
+    },
+    {
+      "name": "ClinicalAlertEvent",
+      "type": "record",
+      "namespace": "com.abena.ihr.events.clinical",
+      "fields": [
+        {
+          "name": "alert_id",
+          "type": "string",
+          "doc": "Unique alert identifier"
+        },
+        {
+          "name": "alert_type",
+          "type": {
+            "type": "enum",
+            "name": "AlertType",
+            "symbols": ["CRITICAL_VITAL", "DRUG_INTERACTION", "ALLERGY_ALERT", "ABNORMAL_LAB", "MEDICATION_DUE", "FOLLOW_UP_REQUIRED", "EMERGENCY_ALERT"]
+          },
+          "doc": "Type of clinical alert"
+        },
+        {
+          "name": "severity",
+          "type": {
+            "type": "enum",
+            "name": "AlertSeverity",
+            "symbols": ["LOW", "MEDIUM", "HIGH", "CRITICAL"]
+          },
+          "doc": "Alert severity level"
+        },
+        {
+          "name": "patient_id",
+          "type": "string",
+          "doc": "Patient identifier"
+        },
+        {
+          "name": "provider_id",
+          "type": ["null", "string"],
+          "doc": "Healthcare provider identifier"
+        },
+        {
+          "name": "triggered_at",
+          "type": "string",
+          "format": "date-time",
+          "doc": "When alert was triggered"
+        },
+        {
+          "name": "alert_message",
+          "type": "string",
+          "doc": "Human-readable alert message"
+        },
+        {
+          "name": "alert_data",
+          "type": {
+            "type": "record",
+            "name": "AlertData",
+            "fields": [
+              {"name": "triggering_value", "type": ["null", "string"]},
+              {"name": "threshold_value", "type": ["null", "string"]},
+              {"name": "recommended_action", "type": ["null", "string"]},
+              {"name": "related_medications", "type": {"type": "array", "items": "string"}},
+              {"name": "related_labs", "type": {"type": "array", "items": "string"}}
+            ]
+          },
+          "doc": "Alert-specific data"
+        },
+        {
+          "name": "status",
+          "type": {
+            "type": "enum",
+            "name": "AlertStatus",
+            "symbols": ["ACTIVE", "ACKNOWLEDGED", "RESOLVED", "ESCALATED"]
+          },
+          "doc": "Current alert status"
+        }
+      ]
+    },
+    {
+      "name": "ClinicalDecisionEvent",
+      "type": "record",
+      "namespace": "com.abena.ihr.events.clinical",
+      "fields": [
+        {
+          "name": "decision_id",
+          "type": "string",
+          "doc": "Unique decision identifier"
+        },
+        {
+          "name": "decision_type",
+          "type": {
+            "type": "enum",
+            "name": "DecisionType",
+            "symbols": ["DIAGNOSIS_SUGGESTION", "TREATMENT_RECOMMENDATION", "MEDICATION_SUGGESTION", "TEST_RECOMMENDATION", "REFERRAL_SUGGESTION", "RISK_ASSESSMENT"]
+          },
+          "doc": "Type of clinical decision"
+        },
+        {
+          "name": "patient_id",
+          "type": "string",
+          "doc": "Patient identifier"
+        },
+        {
+          "name": "provider_id",
+          "type": "string",
+          "doc": "Healthcare provider identifier"
+        },
+        {
+          "name": "encounter_id",
+          "type": ["null", "string"],
+          "doc": "Clinical encounter identifier"
+        },
+        {
+          "name": "triggered_at",
+          "type": "string",
+          "format": "date-time",
+          "doc": "When decision was triggered"
+        },
+        {
+          "name": "confidence_score",
+          "type": "double",
+          "doc": "Confidence score (0.0 to 1.0)"
+        },
+        {
+          "name": "decision_data",
+          "type": {
+            "type": "record",
+            "name": "DecisionData",
+            "fields": [
+              {"name": "suggested_diagnosis", "type": ["null", "string"]},
+              {"name": "treatment_options", "type": {"type": "array", "items": "string"}},
+              {"name": "medication_suggestions", "type": {"type": "array", "items": "string"}},
+              {"name": "test_recommendations", "type": {"type": "array", "items": "string"}},
+              {"name": "risk_factors", "type": {"type": "array", "items": "string"}},
+              {"name": "evidence", "type": {"type": "array", "items": "string"}},
+              {"name": "contraindications", "type": {"type": "array", "items": "string"}}
+            ]
+          },
+          "doc": "Decision-specific data"
+        },
+        {
+          "name": "accepted",
+          "type": ["null", "boolean"],
+          "doc": "Whether provider accepted the decision"
+        },
+        {
+          "name": "reasoning",
+          "type": ["null", "string"],
+          "doc": "Provider's reasoning for acceptance/rejection"
+        }
+      ]
+    }
+  ]
+} 

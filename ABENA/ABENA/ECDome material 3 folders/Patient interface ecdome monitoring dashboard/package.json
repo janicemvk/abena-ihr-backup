@@ -1,0 +1,36 @@
+{
+  "name": "patient-ecdome-monitoring-dashboard",
+  "version": "1.0.0",
+  "description": "Patient Interface for eCDome Monitoring Dashboard - ABENA SDK compliant",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "start": "vite"
+  },
+  "keywords": [
+    "ecdome",
+    "patient-dashboard",
+    "abena-sdk",
+    "endocannabinoid",
+    "health-monitoring"
+  ],
+  "author": "ABENA Healthcare",
+  "license": "MIT",
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "recharts": "^2.8.0",
+    "lucide-react": "^0.294.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.37",
+    "@types/react-dom": "^18.2.15",
+    "@vitejs/plugin-react": "^4.1.1",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.31",
+    "tailwindcss": "^3.3.5",
+    "vite": "^4.5.0"
+  }
+} 

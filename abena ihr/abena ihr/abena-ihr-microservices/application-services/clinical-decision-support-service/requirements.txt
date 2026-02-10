@@ -1,0 +1,17 @@
+fastapi
+uvicorn
+pydantic
+redis
+httpx
+python-dotenv
+loguru
+pytest
+requests
+python-jose
+cryptography
+sqlalchemy
+alembic
+psycopg2-binary
+orjson
+jsonschema
+python-multipart 

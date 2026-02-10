@@ -1,0 +1,116 @@
+# Abena IHR Jaeger Configuration
+# Distributed tracing for healthcare microservices
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jaeger-config
+  namespace: monitoring
+data:
+  jaeger.yaml: |
+    sampling:
+      default_strategy:
+        type: probabilistic
+        param: 0.1
+      per_operation_strategies:
+        - operation: /health
+          type: probabilistic
+          param: 0.0
+        - operation: /metrics
+          type: probabilistic
+          param: 0.0
+        - operation: /patient/*
+          type: probabilistic
+          param: 0.2
+        - operation: /clinical/*
+          type: probabilistic
+          param: 0.3
+        - operation: /telemedicine/*
+          type: probabilistic
+          param: 0.5
+
+    storage:
+      type: elasticsearch
+      options:
+        es:
+          server_urls: http://elasticsearch:9200
+          index_prefix: jaeger
+          username: jaeger
+          password: jaeger-password
+          timeout: 10s
+          max_doc_count: 10000
+
+    ingester:
+      kafka:
+        consumer:
+          topic: jaeger-spans
+          brokers: kafka:9092
+          group_id: jaeger-ingester
+          encoding: json
+
+    query:
+      base_path: /jaeger
+      static_files: /go/jaeger-ui/build
+      port: 16686
+      health_check_http_port: 16687
+
+    agent:
+      http_server:
+        host_port: :14268
+      grpc_server:
+        host_port: :14250
+      sampling:
+        strategies_file: /etc/jaeger/sampling_strategies.json
+
+    collector:
+      otlp:
+        grpc:
+          host_port: :4317
+        http:
+          host_port: :4318
+      zipkin:
+        host_port: :9411
+      sampling:
+        strategies_file: /etc/jaeger/sampling_strategies.json
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jaeger-sampling-strategies
+  namespace: monitoring
+data:
+  sampling_strategies.json: |
+    {
+      "default_strategy": {
+        "type": "probabilistic",
+        "param": 0.1
+      },
+      "service_strategies": [
+        {
+          "service": "patient-engagement-service",
+          "type": "probabilistic",
+          "param": 0.2
+        },
+        {
+          "service": "clinical-decision-support-service",
+          "type": "probabilistic",
+          "param": 0.3
+        },
+        {
+          "service": "telemedicine-service",
+          "type": "probabilistic",
+          "param": 0.5
+        },
+        {
+          "service": "data-ingestion-service",
+          "type": "probabilistic",
+          "param": 0.1
+        },
+        {
+          "service": "privacy-security-service",
+          "type": "probabilistic",
+          "param": 0.4
+        }
+      ]
+    } 

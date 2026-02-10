@@ -1,8 +1,207 @@
+# Abena IHR – Setup & Run Guide
+
+This repository contains the complete Abena Intelligent Health Records platform: API gateway, clinical services, telemedicine apps, dashboards, biomarker tooling, ingestion layers, and reference datasets. Follow the steps below after pulling the repo to bring the stack up locally.
+
+---
+
+## 1. Prerequisites
+
+- 4+ CPU cores, 16 GB RAM, 40 GB free disk
+- Docker 24+ and Docker Compose Plugin 2.20+
+- Node.js 18+ (for local service development)
+- Python 3.11+ (for service scripts/tests)
+- `git`, `curl`, `psql`, `sudo`
+
+> **Tip:** When you edit code that runs inside Docker, rebuild the specific service (`docker compose build <service>`) so cached containers pick up your changes.
+
+---
+
+## 2. Clone and prepare
+
+```bash
+git clone https://github.com/<your-org>/abena.git
+cd /var/www/html/abena
+
+# Make helper scripts executable once
+chmod +x start-abena-system.sh test-system.sh setup-live-database.sh \
+        import-live-database.sh export-local-database.sh rebuild-service.sh
+```
+
+Place the provided SQL dumps (e.g., `ABENA PATIENT DATABASE.sql`) in the repo root if they are not already identical to what you pulled.
+
+---
+
+## 3. Configure environment
+
+`start-abena-system.sh` auto-generates a baseline `.env` if missing. Review/update it before running in non-dev environments:
+
+```bash
+nano .env   # adjust POSTGRES_*, JWT_SECRET, API_KEY, etc.
+```
+
+For custom Docker ports/credentials, keep the values in sync with `docker-compose.simple.yml`.
+
+---
+
+## 4. Launch the full stack (recommended)
+
+```bash
+./start-abena-system.sh
+```
+
+What this script does:
+- Verifies Docker is up and all critical files exist.
+- Creates `.env` (first run only).
+- Optionally clears old volumes.
+- Builds every image and starts the compose stack defined in `docker-compose.simple.yml`.
+- Performs health checks for: Postgres, module registry, background modules, Abena IHR core, business rules, telemedicine, API gateway.
+
+When the script completes, inspect services:
+
+```bash
+docker ps
+curl http://localhost:8080/health          # API gateway (mapped from container port 80)
+curl http://localhost:3003/modules         # Module registry
+curl http://localhost:4001/health          # Background modules
+```
+
+To tail logs:
+
+```bash
+docker compose -f docker-compose.simple.yml logs -f
+```
+
+---
+
+## 5. Manual compose workflow (advanced)
+
+```bash
+docker compose -f docker-compose.simple.yml up --build -d
+# or rebuild a single service after code changes
+docker compose -f docker-compose.simple.yml build provider-dashboard
+docker compose -f docker-compose.simple.yml up provider-dashboard
+```
+
+> For Node-based services, prefer `sudo npm install` inside the project folder before rebuilding so dependencies match the user's environment expectations.
+
+Stop/reset:
+
+```bash
+docker compose -f docker-compose.simple.yml down            # stop
+docker compose -f docker-compose.simple.yml down -v         # stop + clear volumes
+```
+
+---
+
+## 6. Database bootstrap options
+
+1. **Automatic via start script** – loads bundled SQL dumps into the Postgres service.
+2. **Manual live setup** – customize and run:
+   ```bash
+   ./setup-live-database.sh
+   ```
+3. **Import/Export helpers**
+   ```bash
+   ./import-live-database.sh
+   ./export-local-database.sh
+   ```
+
+Postgres is published on host port `5433` (container 5432). Connect with:
+
+```bash
+psql -h localhost -p 5433 -U abena_user -d abena_ihr
+```
+
+---
+
+## 7. Test the deployment
+
+```bash
+./test-system.sh
+
+# Targeted checks
+curl http://localhost:8080/health
+curl http://localhost:3003/modules
+curl http://localhost:4002/health
+```
+
+You can also run the Python smoke tests located at the repo root:
+
+```bash
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r abena_comprehensive_test_suite/requirements.txt
+pytest test_frontend_endpoint.py test_appointment_flow.py
+```
+
+---
+
+## 8. Local service development
+
+Run individual modules outside Docker when iterating:
+
+```bash
+# Database only
+docker compose -f docker-compose.simple.yml up postgres -d
+
+# Background modules (Node)
+cd "12 Core Background Modules"
+sudo npm install
+sudo npm run dev
+
+# Abena IHR FastAPI service
+cd abena_ihr
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn src.api.main:app --reload --port 4002
+```
+
+Point local services at the running Postgres instance (`DATABASE_URL=postgresql://abena_user:abena_password@localhost:5433/abena_ihr`).
+
+---
+
+## 9. Key service endpoints
+
+- API Gateway: `http://localhost:8080` (proxy to all modules)
+- Module Registry: `http://localhost:3003`
+- Background Modules: `http://localhost:4001`
+- Abena IHR Core API: `http://localhost:4002`
+- Business Rule Engine: `http://localhost:4003`
+- Telemedicine Web App: `http://localhost:4004`
+- Provider Dashboard: `http://localhost:4008`
+- Patient Dashboard: `http://localhost:4009`
+- Biomarker GUI (Dash): `http://localhost:4012`
+
+Use `/health` on each service to confirm uptime.
+
+---
+
+## 10. Troubleshooting quick wins
+
+- **Ports already used**: `sudo lsof -i :8080` (replace port) and stop conflicting processes.
+- **Services not updating after code edits**: rebuild the affected image (`docker compose build <service>`). Remember Docker caches files until rebuilt.
+- **Postgres refuses connections**: verify container is up (`docker ps`), then `docker logs abena-postgres`.
+- **Module failing health check**: `docker compose logs <service>`; most services expose `/health` for detailed diagnostics.
+- **Need a clean slate**: `docker compose -f docker-compose.simple.yml down -v && docker system prune -f`.
+
+---
+
+## 11. Next steps for production
+
+1. Swap sample secrets in `.env` for secure values.
+2. Add TLS certificates to `api_gateway/nginx.conf`.
+3. Configure automated backups via `export-local-database.sh` or managed tooling.
+4. Hook your monitoring stack (Prometheus/Grafana) to container metrics.
+5. Review `DEPLOYMENT_GUIDE.md`, `LIVE_DEPLOYMENT_CHECKLIST.md`, and `SYSTEM_STATUS.md` for operational policies.
+
+You now have everything needed to pull this repo, stand up the complete Abena ecosystem locally, and begin iterating confidently. 🚀
+
+---
+
 # ABENA Quantum Healthcare Service
 
 ## 📋 Overview
 
-The ABENA Quantum Healthcare Service provides quantum computing-based analysis for patient health data, integrated with the main ABENA IHR system.
+The ABENA Quantum Healthcare Service provides quantum computing-based analysis for patient health data, integrated with the main ABENA IHR system. Located in the `quantum-healthcare/` directory.
 
 ## 🎯 Key Features
 
@@ -18,6 +217,7 @@ The ABENA Quantum Healthcare Service provides quantum computing-based analysis f
 ### Local Development
 
 ```bash
+cd quantum-healthcare
 # Install dependencies
 pip install -r requirements.txt
 
@@ -31,6 +231,7 @@ python app.py
 
 ```bash
 # Build Docker image
+cd quantum-healthcare
 docker build -t abena-quantum-healthcare .
 
 # Run container
@@ -47,47 +248,11 @@ Returns the quantum analysis dashboard
 
 ### GET /api/demo-results
 Returns demo quantum analysis results
-```json
-{
-  "patient_id": "DEMO_001",
-  "quantum_health_score": 0.78,
-  "system_balance": 0.65,
-  "drug_interactions": [...],
-  "recommendations": [...]
-}
-```
 
 ### POST /api/analyze
 Analyze patient data with quantum circuits
 
-**Request:**
-```json
-{
-  "patient_id": "PAT_001",
-  "symptoms": [1, 0, 1, 0, 1],
-  "biomarkers": {
-    "anandamide": 0.45,
-    "2AG": 2.1,
-    "cb1_density": 85,
-    "cb2_activity": 78
-  },
-  "medications": ["sertraline", "metformin"],
-  "recommended_herbs": ["ginseng", "turmeric"]
-}
-```
-
-**Response:**
-```json
-{
-  "success": true,
-  "results": {
-    "quantum_health_score": 0.78,
-    "system_balance": 0.65,
-    "analysis_timestamp": "2025-12-05T10:30:00Z",
-    ...
-  }
-}
-```
+See `quantum-healthcare/README.md` for detailed API documentation.
 
 ## 🔗 Integration with ABENA IHR
 
@@ -98,114 +263,8 @@ The quantum service is integrated with ABENA IHR through:
 3. **eCDome Intelligence** (Port 4005) - Uses quantum-enhanced analysis
 4. **Provider Dashboard** (Port 4009) - Displays quantum results
 
-### Example Integration (Python/FastAPI)
-
-```python
-import httpx
-
-class QuantumService:
-    def __init__(self):
-        self.quantum_url = "http://quantum-healthcare:5000"
-    
-    async def analyze_patient(self, patient_data):
-        async with httpx.AsyncClient() as client:
-            response = await client.post(
-                f"{self.quantum_url}/api/analyze",
-                json=patient_data,
-                timeout=30.0
-            )
-            return response.json()
-```
-
-## 🧪 Testing
-
-```bash
-# Test demo endpoint
-curl http://localhost:5000/api/demo-results
-
-# Test analysis endpoint
-curl -X POST http://localhost:5000/api/analyze \
-  -H "Content-Type: application/json" \
-  -d '{
-    "patient_id": "TEST_001",
-    "symptoms": [1, 0, 1],
-    "biomarkers": {"anandamide": 0.45, "2AG": 2.1}
-  }'
-```
-
-## 📊 Performance
-
-- **Analysis Time:** < 30 seconds per patient
-- **Memory Usage:** ~500MB
-- **CPU Usage:** Moderate (quantum simulation)
-- **Concurrent Requests:** Up to 10 simultaneous analyses
-
-## ⚙️ Configuration
-
-Environment variables:
-
-```env
-FLASK_APP=app.py
-FLASK_ENV=production
-PORT=5000
-ABENA_IHR_API=http://abena-ihr:4002
-AUTH_SERVICE_URL=http://auth-service:3001
-DATABASE_URL=postgresql://user:pass@postgres:5432/abena_ihr
-```
-
-## 🔒 Security
-
-- Integrates with ABENA authentication service
-- JWT token validation for protected endpoints
-- Rate limiting applied
-- Input validation on all endpoints
-
-## 📦 Dependencies
-
-- Flask 2.3.3 - Web framework
-- flask-cors 4.0.0 - CORS support
-- numpy 1.24.3 - Numerical computing
-- scipy 1.11.1 - Scientific computing
-- qiskit 0.44.1 - Quantum computing framework
-- matplotlib 3.7.2 - Visualization
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-**1. Qiskit import error:**
-```bash
-pip install --upgrade qiskit
-```
-
-**2. Port 5000 already in use:**
-```bash
-# Find process
-netstat -ano | findstr :5000
-# Kill process or change PORT environment variable
-```
-
-**3. Quantum analysis timeout:**
-- Increase timeout in client configuration
-- Check quantum simulator resources
-- Reduce analysis complexity
-
-## 📚 Documentation
-
-- **Integration Guide:** See `INTEGRATION_PLAN_QUANTUM_SECURITY.md` in main directory
-- **API Documentation:** http://localhost:5000/api/docs (when running)
-- **Quantum Analysis:** See `enhanced_quantum_analyzer.py` for implementation details
-
-## 🆘 Support
-
-For issues or questions:
-- Check logs: `docker logs abena-quantum-healthcare`
-- Review integration guide
-- Contact: ABENA IHR support team
-
 ## 📝 Version
 
 **Version:** 1.0.0  
 **Status:** ✅ Production Ready  
-**Last Updated:** December 5, 2025
-
+**Last Updated:** February 10, 2026

@@ -1,0 +1,22 @@
+{
+  "name": "abena-healthcare-api",
+  "version": "1.0.0",
+  "description": "Healthcare API system using Abena SDK for unified authentication, data, privacy, and blockchain services",
+  "main": "lib/abena-sdk.js",
+  "scripts": {
+    "test": "node test-migration.js",
+    "start": "node test-migration.js"
+  },
+  "keywords": ["healthcare", "api", "abena", "sdk", "blockchain", "privacy"],
+  "author": "Abena Healthcare Systems",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+} 

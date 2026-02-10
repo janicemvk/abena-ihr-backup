@@ -1,0 +1,75 @@
+[
+  {
+    "treatment_id": "TEST_TX_001",
+    "treatment_type": "combined",
+    "medications": ["pregabalin", "cbd_oil"],
+    "dosages": {
+      "pregabalin": "150mg_bid",
+      "cbd_oil": "25mg_daily"
+    },
+    "duration_weeks": 12,
+    "lifestyle_interventions": ["mindfulness", "physical_therapy", "sleep_hygiene"],
+    "contraindications": [],
+    "side_effects": ["dizziness", "dry_mouth"],
+    "cost_estimate": 850.0,
+    "evidence_level": "Level I",
+    "monitoring_requirements": ["pain_scores", "side_effects", "functional_assessment"]
+  },
+  {
+    "treatment_id": "TEST_TX_002",
+    "treatment_type": "pharmacological",
+    "medications": ["duloxetine"],
+    "dosages": {
+      "duloxetine": "60mg_daily"
+    },
+    "duration_weeks": 8,
+    "lifestyle_interventions": ["exercise"],
+    "contraindications": ["liver_disease"],
+    "side_effects": ["nausea", "fatigue", "constipation"],
+    "cost_estimate": 120.0,
+    "evidence_level": "Level I",
+    "monitoring_requirements": ["liver_function", "mood_assessment"]
+  },
+  {
+    "treatment_id": "TEST_TX_003",
+    "treatment_type": "behavioral",
+    "medications": [],
+    "dosages": {},
+    "duration_weeks": 16,
+    "lifestyle_interventions": ["cognitive_behavioral_therapy", "meditation", "yoga", "stress_management"],
+    "contraindications": [],
+    "side_effects": [],
+    "cost_estimate": 960.0,
+    "evidence_level": "Level II",
+    "monitoring_requirements": ["pain_scores", "psychological_assessment", "quality_of_life"]
+  },
+  {
+    "treatment_id": "TEST_TX_004",
+    "treatment_type": "combined",
+    "medications": ["gabapentin", "topical_nsaid"],
+    "dosages": {
+      "gabapentin": "300mg_tid",
+      "topical_nsaid": "apply_bid"
+    },
+    "duration_weeks": 10,
+    "lifestyle_interventions": ["physical_therapy", "heat_therapy"],
+    "contraindications": ["kidney_disease"],
+    "side_effects": ["drowsiness", "skin_irritation"],
+    "cost_estimate": 180.0,
+    "evidence_level": "Level II",
+    "monitoring_requirements": ["kidney_function", "pain_scores"]
+  },
+  {
+    "treatment_id": "TEST_TX_005",
+    "treatment_type": "lifestyle",
+    "medications": [],
+    "dosages": {},
+    "duration_weeks": 24,
+    "lifestyle_interventions": ["dietary_changes", "exercise_program", "sleep_optimization", "stress_reduction"],
+    "contraindications": ["severe_mobility_limitations"],
+    "side_effects": [],
+    "cost_estimate": 450.0,
+    "evidence_level": "Level III",
+    "monitoring_requirements": ["lifestyle_compliance", "pain_scores", "functional_improvement"]
+  }
+] 

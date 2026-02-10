@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="104" time="6.463" timestamp="2025-06-23T15:41:55.186052-07:00" hostname="Jan-Computer"><testcase classname="tests.e2e.test_clinical_scenarios.TestClinicalScenarios" name="test_real_patient_case" time="0.003" /><testcase classname="tests.e2e.test_clinical_scenarios.TestClinicalScenarios" name="test_complex_multimorbidity_case" time="0.001" /><testcase classname="tests.e2e.test_patient_workflow.TestPatientWorkflow" name="test_complete_patient_workflow" time="0.005" /><testcase classname="tests.e2e.test_patient_workflow.TestPatientWorkflow" name="test_complete_patient_journey" time="0.022"><failure message="assert 404 in [200, 201, 422]&#10; +  where 404 = &lt;Response [404 Not Found]&gt;.status_code">self = &lt;e2e.test_patient_workflow.TestPatientWorkflow object at 0x0000013B62D62C00&gt;
+app_client = &lt;starlette.testclient.TestClient object at 0x0000013B64CC36E0&gt;
+sample_patient = PatientProfile(patient_id='TEST_PATIENT_001', age=45, gender='female', genomics_data={'CYP2C9_activity': 0.7, 'OPRM1_v...quality': 4.0, 'stress_level': 7.0}, pain_scores=[8.0, 7.5, 8.2, 7.8], functional_assessments={'mobility_score': 35.0})
+sample_treatment = TreatmentPlan(treatment_id='TEST_TX_001', treatment_type='combined', medications=['pregabalin', 'cbd_oil'], dosages={'...d_oil': '25mg_daily'}, duration_weeks=12, lifestyle_interventions=['mindfulness', 'physical_therapy', 'sleep_hygiene'])
+
+    @pytest.mark.e2e
+    def test_complete_patient_journey(self, app_client, sample_patient, sample_treatment):
+        """Test complete patient journey from intake to treatment recommendation"""
+    
+        # 1. Patient data input
+        patient_data = sample_patient.__dict__
+        response = app_client.post("/api/v1/patients/", json=patient_data)
+&gt;       assert response.status_code in [200, 201, 422]  # Account for validation
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       assert 404 in [200, 201, 422]
+E        +  where 404 = &lt;Response [404 Not Found]&gt;.status_code
+
+tests\e2e\test_patient_workflow.py:39: AssertionError</failure></testcase><testcase classname="tests.e2e.test_patient_workflow.TestPatientWorkflow" name="test_adverse_event_detection_workflow" time="0.005"><failure message="assert 404 in [200, 201, 422]&#10; +  where 404 = &lt;Response [404 Not Found]&gt;.status_code">self = &lt;e2e.test_patient_workflow.TestPatientWorkflow object at 0x0000013B62D62B10&gt;
+app_client = &lt;starlette.testclient.TestClient object at 0x0000013B64D23950&gt;
+sample_patient = PatientProfile(patient_id='TEST_PATIENT_001', age=45, gender='female', genomics_data={'CYP2C9_activity': 0.7, 'OPRM1_v...quality': 4.0, 'stress_level': 7.0}, pain_scores=[8.0, 7.5, 8.2, 7.8], functional_assessments={'mobility_score': 35.0})
+
+    @pytest.mark.e2e
+    def test_adverse_event_detection_workflow(self, app_client, sample_patient):
+        """Test adverse event detection and alerting workflow"""
+    
+        # Simulate high-risk patient data
+        high_risk_patient = sample_patient.__dict__.copy()
+        high_risk_patient['age'] = 75  # Elderly
+        high_risk_patient['current_medications'] = ['warfarin', 'metoprolol', 'lisinopril']
+    
+        response = app_client.post("/api/v1/patients/", json=high_risk_patient)
+&gt;       assert response.status_code in [200, 201, 422]
+E       assert 404 in [200, 201, 422]
+E        +  where 404 = &lt;Response [404 Not Found]&gt;.status_code
+
+tests\e2e\test_patient_workflow.py:62: AssertionError</failure></testcase><testcase classname="tests.e2e.test_user_journeys.TestUserJourneys" name="test_provider_journey" time="0.001" /><testcase classname="tests.e2e.test_user_journeys.TestUserJourneys" name="test_patient_portal_journey" time="0.001" /><testcase classname="tests.integration.test_api_integration.TestAPIEndpoints" name="test_health_check" time="0.005" /><testcase classname="tests.integration.test_api_integration.TestAPIEndpoints" name="test_root_endpoint" time="0.004" /><testcase classname="tests.integration.test_api_integration.TestAPIEndpoints" name="test_prediction_endpoint" time="0.009" /><testcase classname="tests.integration.test_database_integration.TestDatabaseIntegration" name="test_database_connection" time="0.001" /><testcase classname="tests.integration.test_database_integration.TestDatabaseIntegration" name="test_data_persistence" time="0.001" /><testcase classname="tests.integration.test_emr_integration.TestEMRIntegration" name="test_emr_connection" time="0.001" /><testcase classname="tests.integration.test_emr_integration.TestEMRIntegration" name="test_emr_data_retrieval" time="0.001" /><testcase classname="tests.integration.test_system_integration.TestSystemIntegration" name="test_full_treatment_plan_generation" time="0.020" /><testcase classname="tests.integration.test_system_integration.TestSystemIntegration" name="test_conflict_resolution" time="0.017" /><testcase classname="tests.integration.test_system_integration.TestSystemIntegration" name="test_outcome_processing" time="0.017" /><testcase classname="tests.integration.test_system_integration.TestDataSynchronization" name="test_data_consistency_across_modules" time="0.001" /><testcase classname="tests.performance.test_benchmarks.TestBenchmarks" name="test_prediction_latency_benchmark" time="0.001" /><testcase classname="tests.performance.test_benchmarks.TestBenchmarks" name="test_throughput_benchmark" time="0.001" /><testcase classname="tests.performance.test_load_testing.TestLoadTesting" name="test_high_concurrent_users" time="0.001" /><testcase classname="tests.performance.test_load_testing.TestLoadTesting" name="test_large_data_volume" time="0.001" /><testcase classname="tests.performance.test_prediction_performance.TestPredictionPerformance" name="test_single_prediction_latency" time="1.775" /><testcase classname="tests.performance.test_prediction_performance.TestPredictionPerformance" name="test_concurrent_prediction_throughput" time="0.022" /><testcase classname="tests.performance.test_prediction_performance.TestPredictionPerformance" name="test_prediction_performance_under_load" time="1.885" /><testcase classname="tests.security.test_authentication.TestAuthentication" name="test_user_login" time="0.001" /><testcase classname="tests.security.test_authentication.TestAuthentication" name="test_access_control" time="0.001" /><testcase classname="tests.security.test_compliance.TestCompliance" name="test_phi_protection" time="0.001" /><testcase classname="tests.security.test_compliance.TestCompliance" name="test_audit_logging" time="0.001" /><testcase classname="tests.security.test_data_privacy.TestDataPrivacy" name="test_patient_data_does_not_leak_in_logs" time="0.001" /><testcase classname="tests.security.test_data_privacy.TestDataPrivacy" name="test_patient_data_serialization_security" time="0.001" /><testcase classname="tests.security.test_data_privacy.TestDataPrivacy" name="test_data_encryption_at_rest" time="0.001" /><testcase classname="tests.security.test_data_privacy.TestDataPrivacy" name="test_phi_data_handling" time="0.001" /><testcase classname="tests.security.test_data_privacy.TestDataPrivacy" name="test_audit_trail_creation" time="0.001" /><testcase classname="tests.security.test_data_privacy.TestDataPrivacy" name="test_data_retention_policies" time="0.001" /><testcase classname="tests.test_abena_comprehensive_suite.TestTreatmentResponsePredictor" name="test_feature_preparation" time="0.001" /><testcase classname="tests.test_abena_comprehensive_suite.TestTreatmentResponsePredictor" name="test_model_training" time="0.016" /><testcase classname="tests.test_abena_comprehensive_suite.TestTreatmentResponsePredictor" name="test_prediction_output" time="0.017" /><testcase classname="tests.test_abena_comprehensive_suite.TestTreatmentResponsePredictor" name="test_prediction_without_training" time="0.002" /><testcase classname="tests.test_abena_comprehensive_suite.TestAdverseEventPredictor" name="test_adverse_event_feature_preparation" time="0.001" /><testcase classname="tests.test_abena_comprehensive_suite.TestAdverseEventPredictor" name="test_risk_categorization" time="0.001" /><testcase classname="tests.test_abena_comprehensive_suite.TestAdverseEventPredictor" name="test_overall_risk_calculation" time="0.001" /><testcase classname="tests.test_abena_comprehensive_suite.TestPredictiveAnalyticsEngine" name="test_engine_initialization" time="0.001" /><testcase classname="tests.test_abena_comprehensive_suite.TestPredictiveAnalyticsEngine" name="test_treatment_recommendation_generation" time="0.017" /><testcase classname="tests.test_abena_comprehensive_suite.TestEMRIntegrationManager" name="test_emr_manager_initialization" time="0.003" /><testcase classname="tests.test_abena_comprehensive_suite.TestEMRIntegrationManager" name="test_epic_authentication" time="0.002" /><testcase classname="tests.test_abena_comprehensive_suite.TestEMRIntegrationManager" name="test_patient_data_retrieval" time="0.002" /><testcase classname="tests.test_abena_comprehensive_suite.TestClinicalNoteGenerator" name="test_note_generator_initialization" time="0.001" /><testcase classname="tests.test_abena_comprehensive_suite.TestClinicalNoteGenerator" name="test_pain_management_note_generation" time="0.001" /><testcase classname="tests.test_abena_comprehensive_suite.TestClinicalNoteGenerator" name="test_adverse_event_alert_generation" time="0.001" /><testcase classname="tests.test_abena_comprehensive_suite.TestRealTimeAlertSystem" name="test_alert_creation" time="0.001" /><testcase classname="tests.test_abena_comprehensive_suite.TestRealTimeAlertSystem" name="test_alert_acknowledgment" time="0.001" /><testcase classname="tests.test_abena_comprehensive_suite.TestRealTimeAlertSystem" name="test_active_alerts_retrieval" time="0.001" /><testcase classname="tests.test_abena_comprehensive_suite.TestSystemIntegration" name="test_full_treatment_plan_generation" time="0.020" /><testcase classname="tests.test_abena_comprehensive_suite.TestSystemIntegration" name="test_conflict_resolution" time="0.018" /><testcase classname="tests.test_abena_comprehensive_suite.TestSystemIntegration" name="test_outcome_processing" time="0.018" /><testcase classname="tests.test_abena_comprehensive_suite.TestDataSynchronization" name="test_data_consistency_across_modules" time="0.001" /><testcase classname="tests.test_abena_comprehensive_suite.TestAPIEndpoints" name="test_health_check" time="0.005" /><testcase classname="tests.test_abena_comprehensive_suite.TestAPIEndpoints" name="test_root_endpoint" time="0.005" /><testcase classname="tests.test_abena_comprehensive_suite.TestAPIEndpoints" name="test_prediction_endpoint" time="0.006" /><testcase classname="tests.test_abena_comprehensive_suite.TestEndToEndWorkflow" name="test_complete_patient_workflow" time="0.002" /><testcase classname="tests.test_abena_comprehensive_suite.TestPerformance" name="test_prediction_performance" time="0.018" /><testcase classname="tests.test_abena_comprehensive_suite.TestPerformance" name="test_concurrent_predictions" time="0.023" /><testcase classname="tests.test_abena_comprehensive_suite.TestClinicalValidation" name="test_prediction_accuracy_validation" time="0.125"><failure message="AssertionError: Accuracy 0.520 below clinical threshold&#10;assert 0.52 &gt; 0.7&#10; +  where 0.52 = &lt;built-in method mean of numpy.ndarray object at 0x0000013B65232E50&gt;()&#10; +    where &lt;built-in method mean of numpy.ndarray object at 0x0000013B65232E50&gt; = array([0.65, 0.65, 0.45, 0.35, 0.5 ]).mean">self = &lt;test_abena_comprehensive_suite.TestClinicalValidation object at 0x0000013B64C90770&gt;
+mock_training_data = [(PatientProfile(patient_id='TRAIN_PATIENT_000', age=20, gender='male', genomics_data={'CYP2C9_activity': 0.4654522438...dications=['cbd_oil', 'cbd_oil'], dosages={}, duration_weeks=19, lifestyle_interventions=[]), 0.8406377498050163), ...]
+
+    def test_prediction_accuracy_validation(self, mock_training_data):
+        """Test prediction accuracy meets clinical standards"""
+        from src.predictive_analytics.predictive_engine import TreatmentResponsePredictor
+        from sklearn.model_selection import cross_val_score
+    
+        predictor = TreatmentResponsePredictor()
+    
+        # Prepare validation dataset
+        X_list, y_list = [], []
+        for patient, treatment, outcome in mock_training_data:
+            features = predictor.prepare_features(patient, treatment)
+            X_list.append(features.flatten())
+            y_list.append(outcome)
+    
+        X = np.array(X_list)
+        y = np.array(y_list)
+    
+        # Train and validate
+        predictor.train_models(mock_training_data)
+    
+        # Get the trained model for validation
+        model = predictor.models['random_forest']
+        scaler = predictor.scalers['response']
+        X_scaled = scaler.transform(X)
+    
+        # Cross-validation
+        cv_scores = cross_val_score(model, X_scaled, (y &gt; 0.6).astype(int), cv=5, scoring='accuracy')
+    
+        # Clinical accuracy should be &gt; 70%
+&gt;       assert cv_scores.mean() &gt; 0.7, f"Accuracy {cv_scores.mean():.3f} below clinical threshold"
+E       AssertionError: Accuracy 0.520 below clinical threshold
+E       assert 0.52 &gt; 0.7
+E        +  where 0.52 = &lt;built-in method mean of numpy.ndarray object at 0x0000013B65232E50&gt;()
+E        +    where &lt;built-in method mean of numpy.ndarray object at 0x0000013B65232E50&gt; = array([0.65, 0.65, 0.45, 0.35, 0.5 ]).mean
+
+tests\test_abena_comprehensive_suite.py:783: AssertionError</failure></testcase><testcase classname="tests.test_abena_comprehensive_suite.TestClinicalValidation" name="test_false_positive_rate" time="0.023"><failure message="AssertionError: False positive rate 0.625 too high&#10;assert 0.625 &lt; 0.2">self = &lt;test_abena_comprehensive_suite.TestClinicalValidation object at 0x0000013B64C901A0&gt;
+mock_training_data = [(PatientProfile(patient_id='TRAIN_PATIENT_000', age=22, gender='male', genomics_data={'CYP2C9_activity': 1.0569874774...cations=['pregabalin', 'cbd_oil'], dosages={}, duration_weeks=9, lifestyle_interventions=[]), 0.4202138562132113), ...]
+
+    def test_false_positive_rate(self, mock_training_data):
+        """Test false positive rate is acceptable for clinical use"""
+        from src.predictive_analytics.predictive_engine import TreatmentResponsePredictor
+        from sklearn.metrics import classification_report
+    
+        predictor = TreatmentResponsePredictor()
+        predictor.train_models(mock_training_data)
+    
+        # Test on validation set
+        validation_data = mock_training_data[-20:]  # Last 20 samples for validation
+    
+        predictions = []
+        actuals = []
+    
+        for patient, treatment, actual_outcome in validation_data:
+            pred_result = predictor.predict_treatment_response(patient, treatment)
+            predictions.append(1 if pred_result.success_probability &gt; 0.6 else 0)
+            actuals.append(1 if actual_outcome &gt; 0.6 else 0)
+    
+        # Calculate classification metrics
+        from sklearn.metrics import confusion_matrix
+        tn, fp, fn, tp = confusion_matrix(actuals, predictions).ravel()
+    
+        false_positive_rate = fp / (fp + tn) if (fp + tn) &gt; 0 else 0
+    
+        # False positive rate should be &lt; 20% for clinical acceptance
+&gt;       assert false_positive_rate &lt; 0.2, f"False positive rate {false_positive_rate:.3f} too high"
+E       AssertionError: False positive rate 0.625 too high
+E       assert 0.625 &lt; 0.2
+
+tests\test_abena_comprehensive_suite.py:811: AssertionError</failure></testcase><testcase classname="tests.test_abena_comprehensive_suite.TestClinicalValidation" name="test_clinical_warning_accuracy" time="0.001" /><testcase classname="tests.test_abena_comprehensive_suite.TestModelRobustness" name="test_missing_data_handling" time="0.001" /><testcase classname="tests.test_abena_comprehensive_suite.TestModelRobustness" name="test_extreme_values_handling" time="0.001" /><testcase classname="tests.test_abena_comprehensive_suite.TestModelRobustness" name="test_model_consistency" time="0.021" /><testcase classname="tests.test_abena_comprehensive_suite.TestWorkflowRobustness" name="test_emr_connection_failure_handling" time="0.001" /><testcase classname="tests.test_abena_comprehensive_suite.TestWorkflowRobustness" name="test_alert_system_overload" time="0.007" /><testcase classname="tests.test_abena_comprehensive_suite.TestDataIntegrity" name="test_patient_data_validation" time="0.001" /><testcase classname="tests.test_abena_comprehensive_suite.TestDataIntegrity" name="test_treatment_plan_validation" time="0.001" /><testcase classname="tests.test_abena_comprehensive_suite.TestComplianceAndRegulatory" name="test_phi_data_handling" time="0.001" /><testcase classname="tests.test_abena_comprehensive_suite.TestComplianceAndRegulatory" name="test_audit_trail_creation" time="0.001" /><testcase classname="tests.test_abena_comprehensive_suite.TestComplianceAndRegulatory" name="test_data_retention_policies" time="0.001" /><testcase classname="tests.test_abena_comprehensive_suite.TestBenchmarks" name="test_prediction_latency_benchmark" time="0.024" /><testcase classname="tests.test_abena_comprehensive_suite.TestBenchmarks" name="test_throughput_benchmark" time="0.093" /><testcase classname="tests.unit.test_clinical_context.TestClinicalContext" name="test_context_analysis" time="0.001" /><testcase classname="tests.unit.test_clinical_context.TestClinicalContext" name="test_context_recommendations" time="0.001" /><testcase classname="tests.unit.test_data_models.TestDataModels" name="test_patient_profile_validation" time="0.001" /><testcase classname="tests.unit.test_data_models.TestDataModels" name="test_treatment_plan_validation" time="0.001" /><testcase classname="tests.unit.test_feedback_loop.TestFeedbackLoop" name="test_feedback_collection" time="0.001" /><testcase classname="tests.unit.test_feedback_loop.TestFeedbackLoop" name="test_model_update_from_feedback" time="0.001" /><testcase classname="tests.unit.test_predictive_engine.TestTreatmentResponsePredictor" name="test_feature_preparation" time="0.002" /><testcase classname="tests.unit.test_predictive_engine.TestTreatmentResponsePredictor" name="test_model_training" time="0.018" /><testcase classname="tests.unit.test_predictive_engine.TestTreatmentResponsePredictor" name="test_prediction_output" time="0.020" /><testcase classname="tests.unit.test_predictive_engine.TestTreatmentResponsePredictor" name="test_prediction_without_training" time="0.002" /><testcase classname="tests.unit.test_predictive_engine.TestAdverseEventPredictor" name="test_adverse_event_feature_preparation" time="0.002" /><testcase classname="tests.unit.test_predictive_engine.TestAdverseEventPredictor" name="test_risk_categorization" time="0.001" /><testcase classname="tests.unit.test_predictive_engine.TestAdverseEventPredictor" name="test_overall_risk_calculation" time="0.001" /><testcase classname="tests.unit.test_predictive_engine.TestPredictiveAnalyticsEngine" name="test_engine_initialization" time="0.001" /><testcase classname="tests.unit.test_predictive_engine.TestPredictiveAnalyticsEngine" name="test_treatment_recommendation_generation" time="0.020" /><testcase classname="tests.unit.test_utils.TestUtils" name="test_date_parsing" time="0.001" /><testcase classname="tests.unit.test_utils.TestUtils" name="test_data_normalization" time="0.001" /><testcase classname="tests.unit.test_workflow_integration.TestEMRIntegrationManager" name="test_emr_manager_initialization" time="0.001" /><testcase classname="tests.unit.test_workflow_integration.TestEMRIntegrationManager" name="test_epic_authentication" time="0.002" /><testcase classname="tests.unit.test_workflow_integration.TestEMRIntegrationManager" name="test_patient_data_retrieval" time="0.002" /><testcase classname="tests.unit.test_workflow_integration.TestClinicalNoteGenerator" name="test_note_generator_initialization" time="0.001" /><testcase classname="tests.unit.test_workflow_integration.TestClinicalNoteGenerator" name="test_pain_management_note_generation" time="0.001" /><testcase classname="tests.unit.test_workflow_integration.TestClinicalNoteGenerator" name="test_adverse_event_alert_generation" time="0.001" /><testcase classname="tests.unit.test_workflow_integration.TestRealTimeAlertSystem" name="test_alert_creation" time="0.001" /><testcase classname="tests.unit.test_workflow_integration.TestRealTimeAlertSystem" name="test_alert_acknowledgment" time="0.001" /><testcase classname="tests.unit.test_workflow_integration.TestRealTimeAlertSystem" name="test_active_alerts_retrieval" time="0.001" /></testsuite></testsuites>

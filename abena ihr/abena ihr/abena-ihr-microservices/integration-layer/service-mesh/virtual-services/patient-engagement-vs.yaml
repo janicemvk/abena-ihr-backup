@@ -1,0 +1,292 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: patient-engagement-vs
+  namespace: abena-ihr
+  labels:
+    app: patient-engagement
+    version: v1
+    environment: production
+spec:
+  hosts:
+    - patient-engagement.abena-ihr.com
+    - patient-engagement-service
+    - patient-engagement-service.abena-ihr.svc.cluster.local
+  gateways:
+    - abena-ihr-gateway
+  http:
+    # Health check endpoint - no authentication required
+    - match:
+        - uri:
+            exact: /health
+        - uri:
+            exact: /ready
+        - uri:
+            exact: /metrics
+      route:
+        - destination:
+            host: patient-engagement-service
+            port:
+              number: 8000
+          weight: 100
+      timeout: 5s
+      retries:
+        attempts: 3
+        perTryTimeout: 2s
+    
+    # Patient dashboard routes - requires authentication
+    - match:
+        - uri:
+            prefix: /dashboard
+        - uri:
+            prefix: /patient/dashboard
+      route:
+        - destination:
+            host: patient-engagement-service
+            port:
+              number: 8000
+            subset: v1
+          weight: 80
+        - destination:
+            host: patient-engagement-service
+            port:
+              number: 8000
+            subset: v2
+          weight: 20
+      timeout: 30s
+      retries:
+        attempts: 3
+        perTryTimeout: 10s
+      fault:
+        delay:
+          percentage:
+            value: 5
+          fixedDelay: 2s
+        abort:
+          percentage:
+            value: 1
+          httpStatus: 500
+    
+    # Appointment booking routes
+    - match:
+        - uri:
+            prefix: /appointments
+        - uri:
+            prefix: /booking
+      route:
+        - destination:
+            host: patient-engagement-service
+            port:
+              number: 8000
+            subset: v1
+          weight: 100
+      timeout: 60s
+      retries:
+        attempts: 5
+        perTryTimeout: 15s
+      fault:
+        delay:
+          percentage:
+            value: 10
+          fixedDelay: 1s
+    
+    # Health tracking routes
+    - match:
+        - uri:
+            prefix: /health-tracking
+        - uri:
+            prefix: /vitals
+        - uri:
+            prefix: /medications
+      route:
+        - destination:
+            host: patient-engagement-service
+            port:
+              number: 8000
+            subset: v1
+          weight: 90
+        - destination:
+            host: patient-engagement-service
+            port:
+              number: 8000
+            subset: v2
+          weight: 10
+      timeout: 45s
+      retries:
+        attempts: 3
+        perTryTimeout: 15s
+    
+    # Patient profile routes
+    - match:
+        - uri:
+            prefix: /profile
+        - uri:
+            prefix: /patient/profile
+      route:
+        - destination:
+            host: patient-engagement-service
+            port:
+              number: 8000
+            subset: v1
+          weight: 100
+      timeout: 20s
+      retries:
+        attempts: 2
+        perTryTimeout: 10s
+    
+    # Notifications and messaging routes
+    - match:
+        - uri:
+            prefix: /notifications
+        - uri:
+            prefix: /messages
+        - uri:
+            prefix: /alerts
+      route:
+        - destination:
+            host: patient-engagement-service
+            port:
+              number: 8000
+            subset: v1
+          weight: 100
+      timeout: 15s
+      retries:
+        attempts: 3
+        perTryTimeout: 5s
+    
+    # Document management routes
+    - match:
+        - uri:
+            prefix: /documents
+        - uri:
+            prefix: /files
+        - uri:
+            prefix: /uploads
+      route:
+        - destination:
+            host: patient-engagement-service
+            port:
+              number: 8000
+            subset: v1
+          weight: 100
+      timeout: 120s
+      retries:
+        attempts: 2
+        perTryTimeout: 60s
+    
+    # API documentation routes
+    - match:
+        - uri:
+            prefix: /docs
+        - uri:
+            prefix: /swagger
+        - uri:
+            prefix: /openapi
+      route:
+        - destination:
+            host: patient-engagement-service
+            port:
+              number: 8000
+            subset: v1
+          weight: 100
+      timeout: 10s
+      retries:
+        attempts: 1
+        perTryTimeout: 5s
+    
+    # Default route for all other requests
+    - route:
+        - destination:
+            host: patient-engagement-service
+            port:
+              number: 8000
+            subset: v1
+          weight: 100
+      timeout: 30s
+      retries:
+        attempts: 2
+        perTryTimeout: 15s
+      fault:
+        delay:
+          percentage:
+            value: 2
+          fixedDelay: 1s
+
+---
+# CORS policy for patient engagement service
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: patient-engagement-cors
+  namespace: abena-ihr
+spec:
+  selector:
+    matchLabels:
+      app: patient-engagement
+  rules:
+    - from:
+        - source:
+            namespaces: ["abena-ihr"]
+        - source:
+            principals: ["cluster.local/ns/abena-ihr/sa/patient-portal"]
+      to:
+        - operation:
+            methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+            paths: ["/*"]
+      when:
+        - key: request.auth.claims[iss]
+          values: ["abena-ihr-auth"]
+        - key: request.auth.claims[aud]
+          values: ["patient-engagement"]
+
+---
+# Rate limiting for patient engagement service
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: patient-engagement-ratelimit
+  namespace: abena-ihr
+spec:
+  selector:
+    matchLabels:
+      app: patient-engagement
+  rules:
+    - from:
+        - source:
+            namespaces: ["abena-ihr"]
+      to:
+        - operation:
+            methods: ["GET"]
+            paths: ["/dashboard/*", "/profile/*"]
+      when:
+        - key: request.auth.claims[sub]
+          notValues: [""]
+      rateLimit:
+        requestsPerUnit: 100
+        unit: MINUTE
+    - from:
+        - source:
+            namespaces: ["abena-ihr"]
+      to:
+        - operation:
+            methods: ["POST", "PUT"]
+            paths: ["/appointments/*", "/booking/*"]
+      when:
+        - key: request.auth.claims[sub]
+          notValues: [""]
+      rateLimit:
+        requestsPerUnit: 20
+        unit: MINUTE
+    - from:
+        - source:
+            namespaces: ["abena-ihr"]
+      to:
+        - operation:
+            methods: ["POST"]
+            paths: ["/uploads/*", "/documents/*"]
+      when:
+        - key: request.auth.claims[sub]
+          notValues: [""]
+      rateLimit:
+        requestsPerUnit: 10
+        unit: MINUTE 

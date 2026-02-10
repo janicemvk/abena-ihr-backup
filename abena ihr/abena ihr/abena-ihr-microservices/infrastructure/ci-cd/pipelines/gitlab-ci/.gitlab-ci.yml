@@ -1,0 +1,175 @@
+# Abena IHR GitLab CI Pipeline
+# Healthcare microservices CI/CD
+
+stages:
+  - validate
+  - test
+  - security
+  - build
+  - deploy
+  - monitor
+
+variables:
+  DOCKER_REGISTRY: "registry.abena-ihr.com"
+  KUBERNETES_NAMESPACE: "abena-ihr"
+  ENVIRONMENT: "production"
+
+# Global before_script
+before_script:
+  - echo "Starting pipeline for $CI_COMMIT_REF_NAME"
+  - docker login $DOCKER_REGISTRY -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+
+# Code validation
+validate:
+  stage: validate
+  image: python:3.11-slim
+  script:
+    - pip install flake8 black isort mypy
+    - flake8 src/ --max-line-length=120 --ignore=E501,W503
+    - black --check src/
+    - isort --check-only src/
+    - mypy src/ --ignore-missing-imports
+  only:
+    - merge_requests
+    - main
+
+# Unit tests
+test:unit:
+  stage: test
+  image: python:3.11-slim
+  services:
+    - postgres:13
+    - redis:6
+  variables:
+    POSTGRES_DB: test_db
+    POSTGRES_USER: test_user
+    POSTGRES_PASSWORD: test_password
+    REDIS_URL: redis://redis:6379
+  script:
+    - pip install -r requirements.txt
+    - pip install pytest pytest-cov pytest-asyncio
+    - python -m pytest tests/unit/ -v --cov=src --cov-report=xml
+  coverage: '/TOTAL.*\s+(\d+%)$/'
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
+    paths:
+      - coverage.xml
+  only:
+    - merge_requests
+    - main
+
+# Integration tests
+test:integration:
+  stage: test
+  image: python:3.11-slim
+  services:
+    - postgres:13
+    - redis:6
+    - kafka:2.8
+  variables:
+    POSTGRES_DB: test_db
+    POSTGRES_USER: test_user
+    POSTGRES_PASSWORD: test_password
+    REDIS_URL: redis://redis:6379
+    KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+  script:
+    - pip install -r requirements.txt
+    - pip install pytest pytest-asyncio
+    - python -m pytest tests/integration/ -v
+  only:
+    - main
+
+# Security scanning
+security:scan:
+  stage: security
+  image: aquasec/trivy:latest
+  script:
+    - trivy fs --severity HIGH,CRITICAL --format json --output trivy-report.json .
+    - trivy image --severity HIGH,CRITICAL --format json --output trivy-image-report.json $DOCKER_REGISTRY/$CI_PROJECT_NAME:$CI_COMMIT_SHA
+  artifacts:
+    reports:
+      container_scanning: trivy-image-report.json
+      sast: trivy-report.json
+    paths:
+      - trivy-report.json
+      - trivy-image-report.json
+  only:
+    - merge_requests
+    - main
+
+# Build Docker image
+build:
+  stage: build
+  image: docker:20.10.16
+  services:
+    - docker:20.10.16-dind
+  script:
+    - docker build -t $DOCKER_REGISTRY/$CI_PROJECT_NAME:$CI_COMMIT_SHA .
+    - docker build -t $DOCKER_REGISTRY/$CI_PROJECT_NAME:latest .
+    - docker push $DOCKER_REGISTRY/$CI_PROJECT_NAME:$CI_COMMIT_SHA
+    - docker push $DOCKER_REGISTRY/$CI_PROJECT_NAME:latest
+  only:
+    - main
+
+# Deploy to staging
+deploy:staging:
+  stage: deploy
+  image: bitnami/kubectl:latest
+  environment:
+    name: staging
+    url: https://staging.abena-ihr.com
+  script:
+    - kubectl config use-context staging
+    - kubectl set image deployment/$CI_PROJECT_NAME $CI_PROJECT_NAME=$DOCKER_REGISTRY/$CI_PROJECT_NAME:$CI_COMMIT_SHA -n $KUBERNETES_NAMESPACE
+    - kubectl rollout status deployment/$CI_PROJECT_NAME -n $KUBERNETES_NAMESPACE
+  when: manual
+  only:
+    - main
+
+# Deploy to production
+deploy:production:
+  stage: deploy
+  image: bitnami/kubectl:latest
+  environment:
+    name: production
+    url: https://api.abena-ihr.com
+  script:
+    - kubectl config use-context production
+    - kubectl set image deployment/$CI_PROJECT_NAME $CI_PROJECT_NAME=$DOCKER_REGISTRY/$CI_PROJECT_NAME:$CI_COMMIT_SHA -n $KUBERNETES_NAMESPACE
+    - kubectl rollout status deployment/$CI_PROJECT_NAME -n $KUBERNETES_NAMESPACE
+  when: manual
+  only:
+    - main
+
+# Health check
+health:check:
+  stage: monitor
+  image: curlimages/curl:latest
+  script:
+    - |
+      for i in {1..30}; do
+        if curl -f https://$CI_PROJECT_NAME.abena-ihr.com/health; then
+          echo "Health check passed"
+          break
+        fi
+        sleep 10
+      done
+  only:
+    - main
+
+# Performance testing
+performance:test:
+  stage: test
+  image: justb4/jmeter:latest
+  script:
+    - jmeter -n -t tests/performance/test-plan.jmx -l results.jtl -e -o report/
+  artifacts:
+    paths:
+      - results.jtl
+      - report/
+  only:
+    - main
+  when: manual 

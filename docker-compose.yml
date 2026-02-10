@@ -1,0 +1,513 @@
+version: '3.8'
+
+services:
+  # Database Services
+  postgres:
+    image: postgres:15-alpine
+    container_name: abena-postgres
+    environment:
+      POSTGRES_DB: abena_ihr
+      POSTGRES_USER: abena_user
+      POSTGRES_PASSWORD: abena_password
+      POSTGRES_MULTIPLE_DATABASES: abena_ihr,abena_patients,abena_clinical,abena_blockchain
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./ABENA PATIENT DATABASE.sql:/docker-entrypoint-initdb.d/01-patient-db.sql
+      - ./IHR Database.sql:/docker-entrypoint-initdb.d/02-ihr-db.sql
+      - ./ABENA CLINICAL DATA.sql:/docker-entrypoint-initdb.d/03-clinical-db.sql
+      - ./ABENA BLOCKCHAIN STATUS.sql:/docker-entrypoint-initdb.d/04-blockchain-db.sql
+      - ./ABENA IHR.sql:/docker-entrypoint-initdb.d/05-abena-ihr.sql
+      - ./quantum-healthcare/database/schema.sql:/docker-entrypoint-initdb.d/06-quantum-schema.sql
+    networks:
+      - abena-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U abena_user -d abena_ihr"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  redis:
+    image: redis:7-alpine
+    container_name: abena-redis
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - abena-network
+    command: redis-server --appendonly yes
+
+  # Demo Orchestrator
+  demo-orchestrator:
+    build:
+      context: ./demo-orchestrator
+      dockerfile: Dockerfile
+    container_name: abena-demo-orchestrator
+    environment:
+      - NODE_ENV=development
+      - PORT=4010
+    ports:
+      - "4020:4010"
+    networks:
+      - abena-network
+    volumes:
+      - ./demo-orchestrator:/app
+      - /app/node_modules
+    depends_on:
+      - postgres
+      - redis
+
+  # Core Services
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    container_name: abena-auth-service
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - JWT_SECRET=abena-super-secret-jwt-key-2024
+      - DATABASE_URL=postgresql://abena_user:abena_password@postgres:5432/abena_ihr
+      - REDIS_URL=redis://redis:6379
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - abena-network
+    volumes:
+      - ./auth-service:/app
+      - /app/node_modules
+
+  sdk-service:
+    build:
+      context: ./abena_unified_integration/Abena Shared SDK -universal Service Client/shared-libraries/abena-sdk
+      dockerfile: Dockerfile
+    container_name: abena-sdk-service
+    environment:
+      - NODE_ENV=development
+      - PORT=3002
+      - AUTH_SERVICE_URL=http://auth-service:3001
+      - DATA_SERVICE_URL=http://data-service:8001
+      - PRIVACY_SERVICE_URL=http://privacy-service:8002
+      - BLOCKCHAIN_SERVICE_URL=http://blockchain-service:8003
+    ports:
+      - "3002:3002"
+    depends_on:
+      - auth-service
+    networks:
+      - abena-network
+    volumes:
+      - ./abena_unified_integration/Abena Shared SDK -universal Service Client/shared-libraries/abena-sdk:/app
+      - /app/node_modules
+
+  module-registry:
+    build:
+      context: ./api_gateway
+      dockerfile: Dockerfile.registry
+    container_name: abena-module-registry
+    environment:
+      - NODE_ENV=development
+      - PORT=3003
+      - AUTH_SERVICE_URL=http://auth-service:3001
+      - DATA_SERVICE_URL=http://data-service:8001
+      - PRIVACY_SERVICE_URL=http://privacy-service:8002
+      - BLOCKCHAIN_SERVICE_URL=http://blockchain-service:8003
+    ports:
+      - "3003:3003"
+    depends_on:
+      - auth-service
+      - sdk-service
+    networks:
+      - abena-network
+    volumes:
+      - ./api_gateway:/app
+      - /app/node_modules
+
+  # Background Modules
+  background-modules:
+    build:
+      context: ./12 Core Background Modules
+      dockerfile: Dockerfile
+    container_name: abena-background-modules
+    environment:
+      - NODE_ENV=development
+      - PORT=4001
+      - AUTH_SERVICE_URL=http://auth-service:3001
+      - SDK_SERVICE_URL=http://sdk-service:3002
+      - MODULE_REGISTRY_URL=http://module-registry:3003
+      - DATABASE_URL=postgresql://abena_user:abena_password@postgres:5432/abena_ihr
+    ports:
+      - "4001:4001"
+    depends_on:
+      - auth-service
+      - sdk-service
+      - module-registry
+    networks:
+      - abena-network
+    volumes:
+      - ./12 Core Background Modules:/app
+      - /app/node_modules
+
+  # Abena IHR Main System
+  abena-ihr:
+    build:
+      context: ./abena_ihr
+      dockerfile: Dockerfile
+    container_name: abena-ihr-main
+    environment:
+      - NODE_ENV=development
+      - PORT=4002
+      - AUTH_SERVICE_URL=http://auth-service:3001
+      - SDK_SERVICE_URL=http://sdk-service:3002
+      - DATABASE_URL=postgresql://abena_user:abena_password@postgres:5432/abena_ihr
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET_KEY=TS3uLxaQ4cXR2jZOwJHYkI7PB10zpVhdFirW9Ebevfo5mKqyANDCUMsgl8tGn6
+    ports:
+      - "4002:4002"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      auth-service:
+        condition: service_started
+      sdk-service:
+        condition: service_started
+    networks:
+      - abena-network
+    volumes:
+      - ./abena_ihr:/app
+      - ./security-package:/security-package:ro
+      - /app/node_modules
+
+  # Business Rule Engine
+  business-rules:
+    build:
+      context: ./business_rule_engine/Business Rule Engine
+      dockerfile: Dockerfile
+    container_name: abena-business-rules
+    environment:
+      - NODE_ENV=development
+      - PORT=4003
+      - AUTH_SERVICE_URL=http://auth-service:3001
+      - SDK_SERVICE_URL=http://sdk-service:3002
+      - DATABASE_URL=postgresql://abena_user:abena_password@postgres:5432/abena_ihr
+    ports:
+      - "4003:4003"
+    depends_on:
+      - auth-service
+      - sdk-service
+    networks:
+      - abena-network
+    volumes:
+      - ./business_rule_engine/Business Rule Engine:/app
+      - /app/node_modules
+
+  # Telemedicine Platform
+  telemedicine:
+    build:
+      context: ./Telemedicine platform
+      dockerfile: Dockerfile
+    container_name: abena-telemedicine
+    environment:
+      - NODE_ENV=development
+      - PORT=8000
+      - AUTH_SERVICE_URL=http://auth-service:3001
+      - SDK_SERVICE_URL=http://sdk-service:3002
+      - DATABASE_URL=postgresql://abena_user:abena_password@postgres:5432/abena_ihr
+    ports:
+      - "8000:8000"
+    depends_on:
+      - auth-service
+      - sdk-service
+    networks:
+      - abena-network
+    volumes:
+      - ./Telemedicine platform:/app
+      - /app/node_modules
+
+  # eCdome Intelligence System
+  ecdome-intelligence:
+    build:
+      context: ./abena_ecdome_intelligence_sys
+      dockerfile: Dockerfile
+    container_name: abena-ecdome-intelligence
+    environment:
+      - NODE_ENV=development
+      - PORT=4005
+      - AUTH_SERVICE_URL=http://auth-service:3001
+      - SDK_SERVICE_URL=http://sdk-service:3002
+      - DATABASE_URL=postgresql://abena_user:abena_password@postgres:5432/abena_ihr
+    ports:
+      - "4005:4005"
+    depends_on:
+      - auth-service
+      - sdk-service
+    networks:
+      - abena-network
+    volumes:
+      - ./abena_ecdome_intelligence_sys:/app
+      - /app/node_modules
+
+  # Quantum Healthcare Service
+  quantum-healthcare:
+    build:
+      context: ./quantum-healthcare
+      dockerfile: Dockerfile
+    container_name: abena-quantum-healthcare
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=production
+      - PORT=5000
+      - ABENA_IHR_API=http://abena-ihr:4002
+      - ECDOME_API=http://ecdome-intelligence:4005
+      - AUTH_SERVICE_URL=http://auth-service:3001
+      - DATABASE_URL=postgresql://abena_user:abena_password@postgres:5432/abena_ihr
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-abena-super-secret-jwt-key-2024}
+    ports:
+      - "5000:5000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      auth-service:
+        condition: service_started
+      abena-ihr:
+        condition: service_started
+      ecdome-intelligence:
+        condition: service_started
+    networks:
+      - abena-network
+    volumes:
+      - ./quantum-healthcare:/app
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5000/api/demo-results || exit 1"]
+      interval: 30s
+      timeout: 10s
+      start_period: 40s
+      retries: 3
+
+  # Biomarker Integration
+  biomarker-integration:
+    build:
+      context: ./abena_biomaker_integration
+      dockerfile: Dockerfile
+    container_name: abena-biomarker-integration
+    environment:
+      - NODE_ENV=development
+      - PORT=4006
+      - AUTH_SERVICE_URL=http://auth-service:3001
+      - SDK_SERVICE_URL=http://sdk-service:3002
+      - DATABASE_URL=postgresql://abena_user:abena_password@postgres:5432/abena_ihr
+    ports:
+      - "4006:4006"
+    depends_on:
+      - auth-service
+      - sdk-service
+    networks:
+      - abena-network
+    volumes:
+      - ./abena_biomaker_integration:/app
+      - /app/node_modules
+
+  # Provider Workflow Integration
+  provider-workflow:
+    build:
+      context: ./provider_workflow_integrations
+      dockerfile: Dockerfile
+    container_name: abena-provider-workflow
+    environment:
+      - NODE_ENV=development
+      - PORT=4007
+      - AUTH_SERVICE_URL=http://auth-service:3001
+      - SDK_SERVICE_URL=http://sdk-service:3002
+      - DATABASE_URL=postgresql://abena_user:abena_password@postgres:5432/abena_ihr
+    ports:
+      - "4007:4007"
+    depends_on:
+      - auth-service
+      - sdk-service
+    networks:
+      - abena-network
+    volumes:
+      - ./provider_workflow_integrations:/app
+      - /app/node_modules
+
+  # Unified Integration Layer
+  unified-integration:
+    build:
+      context: ./abena_unified_integration/Abena Unified Integration
+      dockerfile: Dockerfile
+    container_name: abena-unified-integration
+    environment:
+      - NODE_ENV=development
+      - PORT=4008
+      - AUTH_SERVICE_URL=http://auth-service:3001
+      - SDK_SERVICE_URL=http://sdk-service:3002
+      - MODULE_REGISTRY_URL=http://module-registry:3003
+      - DATABASE_URL=postgresql://abena_user:abena_password@postgres:5432/abena_ihr
+    ports:
+      - "4008:4008"
+    depends_on:
+      - auth-service
+      - sdk-service
+      - module-registry
+    networks:
+      - abena-network
+    volumes:
+      - ./abena_unified_integration:/app
+      - /app/node_modules
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: ./api_gateway
+      dockerfile: Dockerfile.gateway
+    container_name: abena-api-gateway
+    ports:
+      - "8081:80"
+      - "8443:443"
+    depends_on:
+      - auth-service
+      - sdk-service
+      - module-registry
+      - background-modules
+      - abena-ihr
+      - business-rules
+      - telemedicine
+      - ecdome-intelligence
+      - biomarker-integration
+      - provider-workflow
+      - unified-integration
+    networks:
+      - abena-network
+    volumes:
+      - ./api_gateway/nginx.conf:/etc/nginx/nginx.conf:ro
+
+  # Data Ingestion Layer
+  data-ingestion:
+    build:
+      context: ./abena_comprehensive_test_suite/Abena Data Ingestion Layer
+      dockerfile: Dockerfile
+    container_name: abena-data-ingestion
+    environment:
+      - NODE_ENV=development
+      - PORT=4011
+      - AUTH_SERVICE_URL=http://auth-service:3001
+      - SDK_SERVICE_URL=http://sdk-service:3002
+      - DATABASE_URL=postgresql://abena_user:abena_password@postgres:5432/abena_ihr
+    ports:
+      - "4011:4011"
+    depends_on:
+      - auth-service
+      - sdk-service
+    networks:
+      - abena-network
+    volumes:
+      - ./abena_comprehensive_test_suite/Abena Data Ingestion Layer:/app
+      - /app/node_modules
+
+  # Provider Dashboard
+  provider-dashboard:
+    build:
+      context: ./ECDome material 3 folders/Provider interface eCDome Monitoring Dashboard
+      dockerfile: Dockerfile
+    container_name: abena-provider-dashboard
+    environment:
+      - NODE_ENV=development
+      - PORT=4009
+      - AUTH_SERVICE_URL=http://auth-service:3001
+      - SDK_SERVICE_URL=http://sdk-service:3002
+      - DATABASE_URL=postgresql://abena_user:abena_password@postgres:5432/abena_ihr
+    ports:
+      - "4009:4009"
+    depends_on:
+      - auth-service
+      - sdk-service
+    networks:
+      - abena-network
+    volumes:
+      - ./ECDome material 3 folders/Provider interface eCDome Monitoring Dashboard:/app
+      - /app/node_modules
+
+  # Patient Dashboard
+  patient-dashboard:
+    build:
+      context: ./ECDome material 3 folders/Patient interface ecdome monitoring dashboard
+      dockerfile: Dockerfile
+    container_name: abena-patient-dashboard
+    environment:
+      - NODE_ENV=development
+      - PORT=4010
+      - AUTH_SERVICE_URL=http://auth-service:3001
+      - SDK_SERVICE_URL=http://sdk-service:3002
+      - DATABASE_URL=postgresql://abena_user:abena_password@postgres:5432/abena_ihr
+    ports:
+      - "4010:4010"
+    depends_on:
+      - auth-service
+      - sdk-service
+    networks:
+      - abena-network
+    volumes:
+      - ./ECDome material 3 folders/Patient interface ecdome monitoring dashboard:/app
+      - /app/node_modules
+
+  # Biomarker GUI
+  biomarker-gui:
+    build:
+      context: ./abena_biomaker_integration/Abena Clinical Labs Module
+      dockerfile: Dockerfile
+    container_name: abena-biomarker-gui
+    environment:
+      - NODE_ENV=development
+      - PORT=4012
+      - AUTH_SERVICE_URL=http://auth-service:3001
+      - SDK_SERVICE_URL=http://sdk-service:3002
+      - DATABASE_URL=postgresql://abena_user:abena_password@postgres:5432/abena_ihr
+    ports:
+      - "4012:4012"
+    depends_on:
+      - auth-service
+      - sdk-service
+    networks:
+      - abena-network
+    volumes:
+      - ./abena_biomaker_integration/Abena Clinical Labs Module:/app
+      - /app/node_modules
+
+  # Monitoring and Management
+  admin-dashboard:
+    build:
+      context: ./admin-dashboard
+      dockerfile: Dockerfile
+    container_name: abena-admin-dashboard
+    environment:
+      - NODE_ENV=development
+      - PORT=8080
+      - API_GATEWAY_URL=http://api-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - api-gateway
+    networks:
+      - abena-network
+    volumes:
+      - ./admin-dashboard:/app
+      - /app/node_modules
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  abena-network:
+    driver: bridge 

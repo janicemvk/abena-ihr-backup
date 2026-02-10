@@ -1,0 +1,89 @@
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: patient-engagement-dr
+  namespace: abena-ihr
+  labels:
+    app: patient-engagement
+    version: v1
+    environment: production
+spec:
+  host: patient-engagement-service
+  trafficPolicy:
+    loadBalancer:
+      simple: LEAST_CONN
+    connectionPool:
+      tcp:
+        maxConnections: 100
+        connectTimeout: 30s
+        tcpKeepalive:
+          time: 7200s
+          interval: 75s
+          probes: 9
+      http:
+        http1MaxPendingRequests: 1024
+        maxRequestsPerConnection: 10
+        maxRetries: 3
+        idleTimeout: 1800s
+        h2UpgradePolicy: UPGRADE
+    outlierDetection:
+      consecutive5xxErrors: 5
+      interval: 30s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 10
+      minHealthPercent: 50
+    portLevelSettings:
+      - port:
+          number: 8000
+        connectionPool:
+          tcp:
+            maxConnections: 200
+          http:
+            http1MaxPendingRequests: 2048
+            maxRequestsPerConnection: 20
+  subsets:
+    - name: v1
+      labels:
+        version: v1
+      trafficPolicy:
+        loadBalancer:
+          simple: ROUND_ROBIN
+        connectionPool:
+          tcp:
+            maxConnections: 150
+          http:
+            maxRequestsPerConnection: 15
+        outlierDetection:
+          consecutive5xxErrors: 3
+          interval: 20s
+          baseEjectionTime: 20s
+    - name: v2
+      labels:
+        version: v2
+      trafficPolicy:
+        loadBalancer:
+          simple: LEAST_CONN
+        connectionPool:
+          tcp:
+            maxConnections: 100
+          http:
+            maxRequestsPerConnection: 10
+        outlierDetection:
+          consecutive5xxErrors: 2
+          interval: 15s
+          baseEjectionTime: 15s
+    - name: canary
+      labels:
+        version: canary
+      trafficPolicy:
+        loadBalancer:
+          simple: ROUND_ROBIN
+        connectionPool:
+          tcp:
+            maxConnections: 50
+          http:
+            maxRequestsPerConnection: 5
+        outlierDetection:
+          consecutive5xxErrors: 1
+          interval: 10s
+          baseEjectionTime: 10s 

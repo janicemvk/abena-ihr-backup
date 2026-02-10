@@ -1,0 +1,44 @@
+{
+  "patient_response": {
+    "resourceType": "Patient",
+    "id": "test_patient_123",
+    "active": true,
+    "name": [
+      {
+        "use": "official",
+        "family": "Test",
+        "given": ["Patient", "Example"]
+      }
+    ],
+    "gender": "female",
+    "birthDate": "1978-05-15"
+  },
+  "observations_response": {
+    "resourceType": "Bundle",
+    "type": "searchset",
+    "total": 3,
+    "entry": [
+      {
+        "resource": {
+          "resourceType": "Observation",
+          "id": "obs_001",
+          "status": "final",
+          "code": {
+            "coding": [
+              {
+                "system": "http://loinc.org",
+                "code": "72133-2",
+                "display": "Pain severity"
+              }
+            ]
+          },
+          "valueQuantity": {
+            "value": 7,
+            "unit": "score",
+            "system": "http://unitsofmeasure.org"
+          }
+        }
+      }
+    ]
+  }
+} 

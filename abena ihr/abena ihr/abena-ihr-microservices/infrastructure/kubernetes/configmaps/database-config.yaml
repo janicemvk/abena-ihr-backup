@@ -1,0 +1,325 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-config
+  namespace: abena-ihr
+  labels:
+    app: postgres
+    version: v1
+data:
+  postgresql.conf: |
+    # PostgreSQL Configuration for Healthcare Applications
+    # Optimized for Abena IHR microservices
+    
+    # Connection Settings
+    listen_addresses = '*'
+    port = 5432
+    max_connections = 200
+    superuser_reserved_connections = 3
+    
+    # Memory Settings
+    shared_buffers = 256MB
+    effective_cache_size = 1GB
+    maintenance_work_mem = 64MB
+    checkpoint_completion_target = 0.9
+    wal_buffers = 16MB
+    default_statistics_target = 100
+    
+    # Write-Ahead Logging
+    wal_level = replica
+    max_wal_size = 1GB
+    min_wal_size = 80MB
+    checkpoint_timeout = 5min
+    
+    # Query Planner
+    random_page_cost = 1.1
+    effective_io_concurrency = 200
+    
+    # Logging
+    log_destination = 'stderr'
+    logging_collector = on
+    log_directory = 'log'
+    log_filename = 'postgresql-%Y-%m-%d_%H%M%S.log'
+    log_rotation_age = 1d
+    log_rotation_size = 100MB
+    log_min_duration_statement = 1000
+    log_checkpoints = on
+    log_connections = on
+    log_disconnections = on
+    log_lock_waits = on
+    log_temp_files = 0
+    log_autovacuum_min_duration = 0
+    log_error_verbosity = verbose
+    
+    # Autovacuum
+    autovacuum = on
+    autovacuum_max_workers = 3
+    autovacuum_naptime = 1min
+    autovacuum_vacuum_threshold = 50
+    autovacuum_analyze_threshold = 50
+    autovacuum_vacuum_scale_factor = 0.2
+    autovacuum_analyze_scale_factor = 0.1
+    
+    # Security
+    ssl = on
+    ssl_cert_file = '/etc/ssl/certs/ssl-cert-snakeoil.pem'
+    ssl_key_file = '/etc/ssl/private/ssl-cert-snakeoil.key'
+    ssl_prefer_server_ciphers = on
+    ssl_min_protocol_version = 'TLSv1.2'
+    
+    # Healthcare-specific settings
+    # Enable row-level security for patient data
+    row_security = on
+    
+    # Performance tuning for healthcare queries
+    work_mem = 4MB
+    hash_mem_multiplier = 2.0
+    
+    # Backup and recovery
+    archive_mode = on
+    archive_command = 'test ! -f /var/lib/postgresql/archive/%f && cp %p /var/lib/postgresql/archive/%f'
+    archive_timeout = 300
+    
+    # Replication (if needed)
+    max_replication_slots = 5
+    max_wal_senders = 3
+    wal_keep_size = 1GB
+    
+    # Timezone
+    timezone = 'UTC'
+    
+    # Locale
+    lc_messages = 'en_US.utf8'
+    lc_monetary = 'en_US.utf8'
+    lc_numeric = 'en_US.utf8'
+    lc_time = 'en_US.utf8'
+    
+    # Default settings
+    default_text_search_config = 'pg_catalog.english'
+    
+    # Extensions
+    shared_preload_libraries = 'pg_stat_statements'
+    
+    # pg_stat_statements settings
+    pg_stat_statements.max = 10000
+    pg_stat_statements.track = all
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-init
+  namespace: abena-ihr
+  labels:
+    app: postgres
+    version: v1
+data:
+  01-init-schema.sql: |
+    -- Abena IHR Database Initialization
+    -- Healthcare-specific schema setup
+    
+    -- Create extensions
+    CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+    CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+    CREATE EXTENSION IF NOT EXISTS "pg_stat_statements";
+    
+    -- Create healthcare-specific functions
+    CREATE OR REPLACE FUNCTION update_updated_at_column()
+    RETURNS TRIGGER AS $$
+    BEGIN
+        NEW.updated_at = CURRENT_TIMESTAMP;
+        RETURN NEW;
+    END;
+    $$ language 'plpgsql';
+    
+    -- Create audit logging function
+    CREATE OR REPLACE FUNCTION audit_log()
+    RETURNS TRIGGER AS $$
+    BEGIN
+        IF TG_OP = 'INSERT' THEN
+            INSERT INTO audit_logs (table_name, operation, record_id, old_data, new_data, user_id, timestamp)
+            VALUES (TG_TABLE_NAME, 'INSERT', NEW.id, NULL, to_jsonb(NEW), current_setting('app.current_user_id', true), CURRENT_TIMESTAMP);
+            RETURN NEW;
+        ELSIF TG_OP = 'UPDATE' THEN
+            INSERT INTO audit_logs (table_name, operation, record_id, old_data, new_data, user_id, timestamp)
+            VALUES (TG_TABLE_NAME, 'UPDATE', NEW.id, to_jsonb(OLD), to_jsonb(NEW), current_setting('app.current_user_id', true), CURRENT_TIMESTAMP);
+            RETURN NEW;
+        ELSIF TG_OP = 'DELETE' THEN
+            INSERT INTO audit_logs (table_name, operation, record_id, old_data, new_data, user_id, timestamp)
+            VALUES (TG_TABLE_NAME, 'DELETE', OLD.id, to_jsonb(OLD), NULL, current_setting('app.current_user_id', true), CURRENT_TIMESTAMP);
+            RETURN OLD;
+        END IF;
+        RETURN NULL;
+    END;
+    $$ language 'plpgsql';
+    
+    -- Create healthcare data validation functions
+    CREATE OR REPLACE FUNCTION validate_patient_data()
+    RETURNS TRIGGER AS $$
+    BEGIN
+        -- Validate date of birth
+        IF NEW.date_of_birth > CURRENT_DATE THEN
+            RAISE EXCEPTION 'Date of birth cannot be in the future';
+        END IF;
+        
+        -- Validate age (must be reasonable for healthcare)
+        IF NEW.date_of_birth < CURRENT_DATE - INTERVAL '150 years' THEN
+            RAISE EXCEPTION 'Date of birth indicates unrealistic age';
+        END IF;
+        
+        RETURN NEW;
+    END;
+    $$ language 'plpgsql';
+    
+    -- Create indexes for healthcare queries
+    CREATE INDEX IF NOT EXISTS idx_patients_mrn ON patients(medical_record_number);
+    CREATE INDEX IF NOT EXISTS idx_patients_dob ON patients(date_of_birth);
+    CREATE INDEX IF NOT EXISTS idx_appointments_date ON appointments(appointment_date);
+    CREATE INDEX IF NOT EXISTS idx_medications_patient ON medications(patient_id);
+    CREATE INDEX IF NOT EXISTS idx_lab_results_patient ON lab_results(patient_id);
+    
+    -- Create full-text search indexes
+    CREATE INDEX IF NOT EXISTS idx_patients_search ON patients USING gin(to_tsvector('english', first_name || ' ' || last_name));
+    CREATE INDEX IF NOT EXISTS idx_notes_search ON clinical_notes USING gin(to_tsvector('english', content));
+    
+    -- Grant permissions
+    GRANT USAGE ON SCHEMA public TO abena_app;
+    GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO abena_app;
+    GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO abena_app;
+    
+    -- Set up row-level security policies
+    ALTER TABLE patients ENABLE ROW LEVEL SECURITY;
+    ALTER TABLE appointments ENABLE ROW LEVEL SECURITY;
+    ALTER TABLE medications ENABLE ROW LEVEL SECURITY;
+    ALTER TABLE lab_results ENABLE ROW LEVEL SECURITY;
+    ALTER TABLE clinical_notes ENABLE ROW LEVEL SECURITY;
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-config
+  namespace: abena-ihr
+  labels:
+    app: redis
+    version: v1
+data:
+  redis.conf: |
+    # Redis Configuration for Healthcare Applications
+    # Optimized for Abena IHR microservices
+    
+    # Network
+    bind 0.0.0.0
+    port 6379
+    timeout 0
+    tcp-keepalive 300
+    tcp-backlog 511
+    
+    # General
+    daemonize no
+    supervised no
+    pidfile /var/run/redis_6379.pid
+    loglevel notice
+    logfile ""
+    databases 16
+    
+    # Snapshotting
+    save 900 1
+    save 300 10
+    save 60 10000
+    stop-writes-on-bgsave-error yes
+    rdbcompression yes
+    rdbchecksum yes
+    dbfilename dump.rdb
+    dir /data
+    
+    # Replication
+    replica-serve-stale-data yes
+    replica-read-only yes
+    repl-diskless-sync no
+    repl-diskless-sync-delay 5
+    repl-ping-replica-period 10
+    repl-timeout 60
+    repl-disable-tcp-nodelay no
+    repl-backlog-size 1mb
+    repl-backlog-ttl 3600
+    
+    # Security
+    requirepass ${REDIS_PASSWORD}
+    maxclients 10000
+    
+    # Memory Management
+    maxmemory 256mb
+    maxmemory-policy allkeys-lru
+    maxmemory-samples 5
+    
+    # Lazy Freeing
+    lazyfree-lazy-eviction no
+    lazyfree-lazy-expire no
+    lazyfree-lazy-server-del no
+    replica-lazy-flush no
+    
+    # Append Only Mode
+    appendonly yes
+    appendfilename "appendonly.aof"
+    appendfsync everysec
+    no-appendfsync-on-rewrite no
+    auto-aof-rewrite-percentage 100
+    auto-aof-rewrite-min-size 64mb
+    aof-load-truncated yes
+    aof-use-rdb-preamble yes
+    
+    # Lua Scripting
+    lua-time-limit 5000
+    
+    # Slow Log
+    slowlog-log-slower-than 10000
+    slowlog-max-len 128
+    
+    # Latency Monitor
+    latency-monitor-threshold 0
+    
+    # Event Notification
+    notify-keyspace-events ""
+    
+    # Advanced Config
+    hash-max-ziplist-entries 512
+    hash-max-ziplist-value 64
+    list-max-ziplist-size -2
+    list-compress-depth 0
+    set-max-intset-entries 512
+    zset-max-ziplist-entries 128
+    zset-max-ziplist-value 64
+    hll-sparse-max-bytes 3000
+    stream-node-max-bytes 4096
+    stream-node-max-entries 100
+    
+    # Active Rehashing
+    activerehashing yes
+    
+    # Client Output Buffer Limits
+    client-output-buffer-limit normal 0 0 0
+    client-output-buffer-limit replica 256mb 64mb 60
+    client-output-buffer-limit pubsub 32mb 8mb 60
+    
+    # Client Query Buffer Limit
+    client-query-buffer-limit 1gb
+    
+    # Protocol Buffer Limit
+    proto-max-bulk-len 512mb
+    
+    # Frequency
+    hz 10
+    
+    # Dynamic HZ
+    dynamic-hz yes
+    
+    # AOF Rewrite Incremental FSync
+    aof-rewrite-incremental-fsync yes
+    
+    # RDB Save Incremental FSync
+    rdb-save-incremental-fsync yes
+    
+    # LFU Log Factor
+    lfu-log-factor 10
+    
+    # LFU Decay Time
+    lfu-decay-time 1 

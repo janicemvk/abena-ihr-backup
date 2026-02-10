@@ -1,0 +1,373 @@
+# Abena IHR Kafka Topics Configuration
+# Defines all Kafka topics for the microservices architecture
+
+version: '3.8'
+
+services:
+  kafka-topics:
+    image: confluentinc/cp-kafka:7.4.0
+    container_name: kafka-topics-manager
+    depends_on:
+      - kafka
+      - schema-registry
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      SCHEMA_REGISTRY_URL: http://schema-registry:8081
+    command: >
+      bash -c "
+        echo 'Creating Kafka topics for Abena IHR...'
+        
+        # Wait for Kafka to be ready
+        cub kafka-ready -b kafka:9092 1 30
+        
+        # Authentication and User Management Topics
+        kafka-topics --create --if-not-exists \
+          --bootstrap-server kafka:9092 \
+          --topic auth.user.login \
+          --partitions 6 \
+          --replication-factor 3 \
+          --config retention.ms=604800000 \
+          --config cleanup.policy=delete
+        
+        kafka-topics --create --if-not-exists \
+          --bootstrap-server kafka:9092 \
+          --topic auth.user.register \
+          --partitions 3 \
+          --replication-factor 3 \
+          --config retention.ms=2592000000 \
+          --config cleanup.policy=delete
+        
+        kafka-topics --create --if-not-exists \
+          --bootstrap-server kafka:9092 \
+          --topic auth.session.management \
+          --partitions 6 \
+          --replication-factor 3 \
+          --config retention.ms=86400000 \
+          --config cleanup.policy=delete
+        
+        # Patient Engagement Topics
+        kafka-topics --create --if-not-exists \
+          --bootstrap-server kafka:9092 \
+          --topic patient.dashboard.events \
+          --partitions 12 \
+          --replication-factor 3 \
+          --config retention.ms=2592000000 \
+          --config cleanup.policy=delete
+        
+        kafka-topics --create --if-not-exists \
+          --bootstrap-server kafka:9092 \
+          --topic patient.appointment.booking \
+          --partitions 8 \
+          --replication-factor 3 \
+          --config retention.ms=2592000000 \
+          --config cleanup.policy=delete
+        
+        kafka-topics --create --if-not-exists \
+          --bootstrap-server kafka:9092 \
+          --topic patient.health.tracking \
+          --partitions 10 \
+          --replication-factor 3 \
+          --config retention.ms=7776000000 \
+          --config cleanup.policy=delete
+        
+        # Provider Workflow Topics
+        kafka-topics --create --if-not-exists \
+          --bootstrap-server kafka:9092 \
+          --topic provider.workflow.tasks \
+          --partitions 8 \
+          --replication-factor 3 \
+          --config retention.ms=2592000000 \
+          --config cleanup.policy=delete
+        
+        kafka-topics --create --if-not-exists \
+          --bootstrap-server kafka:9092 \
+          --topic provider.schedule.management \
+          --partitions 6 \
+          --replication-factor 3 \
+          --config retention.ms=2592000000 \
+          --config cleanup.policy=delete
+        
+        kafka-topics --create --if-not-exists \
+          --bootstrap-server kafka:9092 \
+          --topic provider.notifications \
+          --partitions 12 \
+          --replication-factor 3 \
+          --config retention.ms=604800000 \
+          --config cleanup.policy=delete
+        
+        # Clinical Decision Support Topics
+        kafka-topics --create --if-not-exists \
+          --bootstrap-server kafka:9092 \
+          --topic clinical.decision.events \
+          --partitions 10 \
+          --replication-factor 3 \
+          --config retention.ms=2592000000 \
+          --config cleanup.policy=delete
+        
+        kafka-topics --create --if-not-exists \
+          --bootstrap-server kafka:9092 \
+          --topic clinical.alerts \
+          --partitions 8 \
+          --replication-factor 3 \
+          --config retention.ms=604800000 \
+          --config cleanup.policy=delete
+        
+        kafka-topics --create --if-not-exists \
+          --bootstrap-server kafka:9092 \
+          --topic clinical.rules.engine \
+          --partitions 6 \
+          --replication-factor 3 \
+          --config retention.ms=2592000000 \
+          --config cleanup.policy=delete
+        
+        # Data Ingestion Topics
+        kafka-topics --create --if-not-exists \
+          --bootstrap-server kafka:9092 \
+          --topic ingestion.vitals \
+          --partitions 15 \
+          --replication-factor 3 \
+          --config retention.ms=7776000000 \
+          --config cleanup.policy=delete
+        
+        kafka-topics --create --if-not-exists \
+          --bootstrap-server kafka:9092 \
+          --topic ingestion.labs \
+          --partitions 12 \
+          --replication-factor 3 \
+          --config retention.ms=7776000000 \
+          --config cleanup.policy=delete
+        
+        kafka-topics --create --if-not-exists \
+          --bootstrap-server kafka:9092 \
+          --topic ingestion.medications \
+          --partitions 10 \
+          --replication-factor 3 \
+          --config retention.ms=7776000000 \
+          --config cleanup.policy=delete
+        
+        kafka-topics --create --if-not-exists \
+          --bootstrap-server kafka:9092 \
+          --topic ingestion.hl7 \
+          --partitions 8 \
+          --replication-factor 3 \
+          --config retention.ms=7776000000 \
+          --config cleanup.policy=delete
+        
+        kafka-topics --create --if-not-exists \
+          --bootstrap-server kafka:9092 \
+          --topic ingestion.fhir \
+          --partitions 8 \
+          --replication-factor 3 \
+          --config retention.ms=7776000000 \
+          --config cleanup.policy=delete
+        
+        # Privacy and Security Topics
+        kafka-topics --create --if-not-exists \
+          --bootstrap-server kafka:9092 \
+          --topic privacy.access.audit \
+          --partitions 10 \
+          --replication-factor 3 \
+          --config retention.ms=31536000000 \
+          --config cleanup.policy=delete
+        
+        kafka-topics --create --if-not-exists \
+          --bootstrap-server kafka:9092 \
+          --topic privacy.data.encryption \
+          --partitions 6 \
+          --replication-factor 3 \
+          --config retention.ms=2592000000 \
+          --config cleanup.policy=delete
+        
+        kafka-topics --create --if-not-exists \
+          --bootstrap-server kafka:9092 \
+          --topic privacy.consent.management \
+          --partitions 8 \
+          --replication-factor 3 \
+          --config retention.ms=31536000000 \
+          --config cleanup.policy=delete
+        
+        # Telemedicine Topics
+        kafka-topics --create --if-not-exists \
+          --bootstrap-server kafka:9092 \
+          --topic telemedicine.video.sessions \
+          --partitions 6 \
+          --replication-factor 3 \
+          --config retention.ms=604800000 \
+          --config cleanup.policy=delete
+        
+        kafka-topics --create --if-not-exists \
+          --bootstrap-server kafka:9092 \
+          --topic telemedicine.consultations \
+          --partitions 8 \
+          --replication-factor 3 \
+          --config retention.ms=2592000000 \
+          --config cleanup.policy=delete
+        
+        # Analytics Engine Topics
+        kafka-topics --create --if-not-exists \
+          --bootstrap-server kafka:9092 \
+          --topic analytics.health.metrics \
+          --partitions 12 \
+          --replication-factor 3 \
+          --config retention.ms=7776000000 \
+          --config cleanup.policy=delete
+        
+        kafka-topics --create --if-not-exists \
+          --bootstrap-server kafka:9092 \
+          --topic analytics.predictions \
+          --partitions 8 \
+          --replication-factor 3 \
+          --config retention.ms=2592000000 \
+          --config cleanup.policy=delete
+        
+        kafka-topics --create --if-not-exists \
+          --bootstrap-server kafka:9092 \
+          --topic analytics.reports \
+          --partitions 6 \
+          --replication-factor 3 \
+          --config retention.ms=2592000000 \
+          --config cleanup.policy=delete
+        
+        # Science Intelligence Topics
+        kafka-topics --create --if-not-exists \
+          --bootstrap-server kafka:9092 \
+          --topic science.research.data \
+          --partitions 10 \
+          --replication-factor 3 \
+          --config retention.ms=7776000000 \
+          --config cleanup.policy=delete
+        
+        kafka-topics --create --if-not-exists \
+          --bootstrap-server kafka:9092 \
+          --topic science.clinical.trials \
+          --partitions 6 \
+          --replication-factor 3 \
+          --config retention.ms=7776000000 \
+          --config cleanup.policy=delete
+        
+        # Blockchain Topics
+        kafka-topics --create --if-not-exists \
+          --bootstrap-server kafka:9092 \
+          --topic blockchain.health.records \
+          --partitions 8 \
+          --replication-factor 3 \
+          --config retention.ms=31536000000 \
+          --config cleanup.policy=delete
+        
+        kafka-topics --create --if-not-exists \
+          --bootstrap-server kafka:9092 \
+          --topic blockchain.consent.records \
+          --partitions 6 \
+          --replication-factor 3 \
+          --config retention.ms=31536000000 \
+          --config cleanup.policy=delete
+        
+        # Unified Data Topics
+        kafka-topics --create --if-not-exists \
+          --bootstrap-server kafka:9092 \
+          --topic unified.data.sync \
+          --partitions 10 \
+          --replication-factor 3 \
+          --config retention.ms=2592000000 \
+          --config cleanup.policy=delete
+        
+        kafka-topics --create --if-not-exists \
+          --bootstrap-server kafka:9092 \
+          --topic unified.data.migration \
+          --partitions 6 \
+          --replication-factor 3 \
+          --config retention.ms=2592000000 \
+          --config cleanup.policy=delete
+        
+        # System Monitoring Topics
+        kafka-topics --create --if-not-exists \
+          --bootstrap-server kafka:9092 \
+          --topic system.health.monitoring \
+          --partitions 8 \
+          --replication-factor 3 \
+          --config retention.ms=604800000 \
+          --config cleanup.policy=delete
+        
+        kafka-topics --create --if-not-exists \
+          --bootstrap-server kafka:9092 \
+          --topic system.performance.metrics \
+          --partitions 10 \
+          --replication-factor 3 \
+          --config retention.ms=604800000 \
+          --config cleanup.policy=delete
+        
+        kafka-topics --create --if-not-exists \
+          --bootstrap-server kafka:9092 \
+          --topic system.error.logs \
+          --partitions 12 \
+          --replication-factor 3 \
+          --config retention.ms=604800000 \
+          --config cleanup.policy=delete
+        
+        # Event Sourcing Topics
+        kafka-topics --create --if-not-exists \
+          --bootstrap-server kafka:9092 \
+          --topic events.patient.lifecycle \
+          --partitions 10 \
+          --replication-factor 3 \
+          --config retention.ms=31536000000 \
+          --config cleanup.policy=delete
+        
+        kafka-topics --create --if-not-exists \
+          --bootstrap-server kafka:9092 \
+          --topic events.provider.lifecycle \
+          --partitions 8 \
+          --replication-factor 3 \
+          --config retention.ms=31536000000 \
+          --config cleanup.policy=delete
+        
+        kafka-topics --create --if-not-exists \
+          --bootstrap-server kafka:9092 \
+          --topic events.clinical.interactions \
+          --partitions 12 \
+          --replication-factor 3 \
+          --config retention.ms=31536000000 \
+          --config cleanup.policy=delete
+        
+        # Dead Letter Queue Topics
+        kafka-topics --create --if-not-exists \
+          --bootstrap-server kafka:9092 \
+          --topic dlq.ingestion.errors \
+          --partitions 6 \
+          --replication-factor 3 \
+          --config retention.ms=2592000000 \
+          --config cleanup.policy=delete
+        
+        kafka-topics --create --if-not-exists \
+          --bootstrap-server kafka:9092 \
+          --topic dlq.processing.errors \
+          --partitions 6 \
+          --replication-factor 3 \
+          --config retention.ms=2592000000 \
+          --config cleanup.policy=delete
+        
+        # Backup and Recovery Topics
+        kafka-topics --create --if-not-exists \
+          --bootstrap-server kafka:9092 \
+          --topic backup.data.sync \
+          --partitions 4 \
+          --replication-factor 3 \
+          --config retention.ms=7776000000 \
+          --config cleanup.policy=delete
+        
+        echo 'All Kafka topics created successfully!'
+        
+        # List all topics
+        echo 'Listing all topics:'
+        kafka-topics --list --bootstrap-server kafka:9092
+        
+        # Show topic details
+        echo 'Topic details:'
+        kafka-topics --describe --bootstrap-server kafka:9092
+      "
+    networks:
+      - abena-network
+
+networks:
+  abena-network:
+    external: true 

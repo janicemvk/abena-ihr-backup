@@ -1,0 +1,114 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: abena_ihr_db
+    environment:
+      POSTGRES_DB: abena_ihr
+      POSTGRES_USER: abena_user
+      POSTGRES_PASSWORD: abena_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/migrations:/docker-entrypoint-initdb.d
+    networks:
+      - abena_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U abena_user -d abena_ihr"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # FastAPI Application
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: abena_ihr_api
+    environment:
+      - DATABASE_URL=postgresql://abena_user:abena_password@postgres:5432/abena_ihr
+      - ENVIRONMENT=production
+      - DEBUG=false
+      - API_HOST=0.0.0.0
+      - API_PORT=8000
+      - SECRET_KEY=your-production-secret-key-change-this
+      - CORS_ORIGINS=http://localhost:3000,https://abena-ihr.com
+      - LOG_LEVEL=INFO
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - abena_network
+    volumes:
+      - ./logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis (for caching and session storage)
+  redis:
+    image: redis:7-alpine
+    container_name: abena_ihr_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - abena_network
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Nginx (reverse proxy for production)
+  nginx:
+    image: nginx:alpine
+    container_name: abena_ihr_nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - api
+    networks:
+      - abena_network
+    restart: unless-stopped
+
+  # pgAdmin (database management - development only)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: abena_ihr_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@abena-ihr.com
+      PGADMIN_DEFAULT_PASSWORD: admin_password
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    networks:
+      - abena_network
+    profiles:
+      - development
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  abena_network:
+    driver: bridge 

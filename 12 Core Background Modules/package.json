@@ -1,0 +1,26 @@
+{
+  "name": "abena-background-modules",
+  "version": "1.0.0",
+  "description": "12 Core Background Modules for Abena IHR System",
+  "main": "health-server.cjs",
+  "scripts": {
+    "start": "node health-server.cjs",
+    "dev": "nodemon health-server.cjs"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "pg": "^8.11.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": [
+    "abena",
+    "ihr",
+    "healthcare",
+    "background-modules"
+  ],
+  "author": "Abena IHR Team",
+  "license": "MIT"
+}

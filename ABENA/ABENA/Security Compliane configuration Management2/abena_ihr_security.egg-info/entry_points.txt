@@ -1,0 +1,2 @@
+[console_scripts]
+abena-ihr-security = abena_ihr_security.cli:main
