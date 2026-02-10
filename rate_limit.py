@@ -26,7 +26,9 @@ def get_redis_client():
             redis_client.ping()  # Test connection
             logger.info("Redis connected for rate limiting")
         except Exception as e:
-            logger.warning(f"Redis connection failed: {e}. Rate limiting will use in-memory fallback.")
+            # Silently fall back to in-memory rate limiting if Redis is not available
+            # This is expected in environments without Redis configured
+            logger.debug(f"Redis not available, using in-memory rate limiting: {e}")
             redis_client = False  # Use False to indicate failed connection
     return redis_client if redis_client else None
 
