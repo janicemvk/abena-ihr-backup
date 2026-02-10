@@ -20,10 +20,14 @@ class QuantumDBClient:
     def __init__(self):
         self.database_url = os.getenv('DATABASE_URL', 'postgresql://abena_user:abena_password@postgres:5432/abena_ihr')
         self.pool = None
-        self._init_pool()
+        # Don't initialize pool on import - wait until first use
+        # This prevents build failures if database isn't available
     
     def _init_pool(self):
-        """Initialize connection pool"""
+        """Initialize connection pool (lazy initialization)"""
+        if self.pool is not None:
+            return  # Already initialized
+        
         try:
             self.pool = SimpleConnectionPool(
                 minconn=1,
@@ -32,14 +36,18 @@ class QuantumDBClient:
             )
             logger.info("Database connection pool initialized")
         except Exception as e:
-            logger.error(f"Failed to initialize database pool: {e}")
+            logger.warning(f"Failed to initialize database pool: {e}. Database features will be disabled.")
             self.pool = None
     
     @contextmanager
     def get_connection(self):
         """Get database connection from pool"""
+        # Lazy initialization
+        if self.pool is None:
+            self._init_pool()
+        
         if not self.pool:
-            raise Exception("Database pool not initialized")
+            raise Exception("Database pool not initialized. Check DATABASE_URL environment variable.")
         
         conn = self.pool.getconn()
         try:
