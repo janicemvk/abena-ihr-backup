@@ -16,13 +16,19 @@ logger = logging.getLogger(__name__)
 REDIS_URL = os.getenv('REDIS_URL', 'redis://redis:6379/0')
 redis_client = None
 
-try:
-    redis_client = redis.from_url(REDIS_URL, decode_responses=True)
-    redis_client.ping()  # Test connection
-    logger.info("Redis connected for rate limiting")
-except Exception as e:
-    logger.warning(f"Redis connection failed: {e}. Rate limiting will use in-memory fallback.")
-    redis_client = None
+# Lazy Redis connection - only connect when needed, not on import
+def get_redis_client():
+    """Get Redis client, connecting only when needed"""
+    global redis_client
+    if redis_client is None:
+        try:
+            redis_client = redis.from_url(REDIS_URL, decode_responses=True, socket_connect_timeout=2)
+            redis_client.ping()  # Test connection
+            logger.info("Redis connected for rate limiting")
+        except Exception as e:
+            logger.warning(f"Redis connection failed: {e}. Rate limiting will use in-memory fallback.")
+            redis_client = False  # Use False to indicate failed connection
+    return redis_client if redis_client else None
 
 # In-memory fallback (per-process, not distributed)
 _memory_cache = {}
@@ -51,17 +57,18 @@ def rate_limit(max_requests=10, window=60, key_prefix="quantum"):
             key = f"{key_prefix}:rate_limit:{user_id}"
             
             # Use Redis if available
-            use_redis = redis_client is not None
+            redis_conn = get_redis_client()
+            use_redis = redis_conn is not None
             redis_available = use_redis
             if use_redis:
                 # Use Redis for distributed rate limiting
                 try:
-                    current = redis_client.incr(key)
+                    current = redis_conn.incr(key)
                     if current == 1:
-                        redis_client.expire(key, window)
+                        redis_conn.expire(key, window)
                     
                     if current > max_requests:
-                        ttl = redis_client.ttl(key)
+                        ttl = redis_conn.ttl(key)
                         return jsonify({
                             'error': 'Rate limit exceeded',
                             'message': f'Maximum {max_requests} requests per {window} seconds',
