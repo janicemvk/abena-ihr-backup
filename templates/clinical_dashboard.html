@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}Clinical Dashboard - ABENA IHR{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .container {
+        max-width: 1600px;
+        margin: 0 auto;
+    }
+    .header {
+        background: white;
+        border-radius: 16px;
+        padding: 40px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .header h1 {
+        color: #1a202c;
+        font-size: 2.5rem;
+        margin-bottom: 8px;
+        font-weight: 700;
+    }
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 24px;
+    }
+    .card {
+        background: white;
+        border-radius: 16px;
+        padding: 32px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .card h3 {
+        font-size: 1.25rem;
+        margin-bottom: 20px;
+        color: #1a202c;
+    }
+    .patient-list {
+        list-style: none;
+    }
+    .patient-item {
+        padding: 16px;
+        border-bottom: 1px solid #e2e8f0;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    .patient-item:hover {
+        background: #f7fafc;
+    }
+    .patient-item:last-child {
+        border-bottom: none;
+    }
+    .metric {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    .metric:last-child {
+        border-bottom: none;
+    }
+    .metric-label {
+        color: #718096;
+    }
+    .metric-value {
+        font-weight: 600;
+        color: #1a202c;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="header">
+        <h1>Clinical Dashboard</h1>
+        <p>Provider interface for patient monitoring and clinical decision support</p>
+    </div>
+
+    <div class="dashboard-grid">
+        <div class="card">
+            <h3>Active Patients</h3>
+            <ul class="patient-list">
+                <li class="patient-item">
+                    <div><strong>PAT-001</strong></div>
+                    <div style="color: #718096; font-size: 0.875rem;">Last analysis: 2 hours ago</div>
+                </li>
+                <li class="patient-item">
+                    <div><strong>PAT-002</strong></div>
+                    <div style="color: #718096; font-size: 0.875rem;">Last analysis: 5 hours ago</div>
+                </li>
+                <li class="patient-item">
+                    <div><strong>PAT-003</strong></div>
+                    <div style="color: #718096; font-size: 0.875rem;">Last analysis: 1 day ago</div>
+                </li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h3>Today's Metrics</h3>
+            <div class="metric">
+                <span class="metric-label">Patients Analyzed</span>
+                <span class="metric-value">12</span>
+            </div>
+            <div class="metric">
+                <span class="metric-label">Quantum Analyses</span>
+                <span class="metric-value">24</span>
+            </div>
+            <div class="metric">
+                <span class="metric-label">Alerts Generated</span>
+                <span class="metric-value">3</span>
+            </div>
+            <div class="metric">
+                <span class="metric-label">Avg Health Score</span>
+                <span class="metric-value">0.72</span>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Recent Alerts</h3>
+            <div style="padding: 16px; background: #fff5f5; border-radius: 8px; margin-bottom: 12px;">
+                <strong style="color: #c53030;">High Priority</strong>
+                <p style="margin-top: 8px; color: #4a5568;">PAT-001: Drug interaction detected</p>
+            </div>
+            <div style="padding: 16px; background: #fffaf0; border-radius: 8px; margin-bottom: 12px;">
+                <strong style="color: #d69e2e;">Medium Priority</strong>
+                <p style="margin-top: 8px; color: #4a5568;">PAT-002: Biomarker levels elevated</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Quick Actions</h3>
+            <button style="width: 100%; padding: 12px; margin-bottom: 12px; background: #4299e1; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                Run New Analysis
+            </button>
+            <button style="width: 100%; padding: 12px; margin-bottom: 12px; background: #48bb78; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                View Patient Reports
+            </button>
+            <button style="width: 100%; padding: 12px; background: #ed8936; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                Export Data
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
