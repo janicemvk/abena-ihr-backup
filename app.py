@@ -29,7 +29,12 @@ PORT = int(os.getenv('PORT', 5000))
 ABENA_IHR_API = os.getenv('ABENA_IHR_API', 'http://abena-ihr:4002')
 ECBOME_API = os.getenv('ECBOME_API', os.getenv('ECDOME_API', 'http://abena-ecdome-intelligence:4005'))
 AUTH_SERVICE_URL = os.getenv('AUTH_SERVICE_URL', 'http://auth-service:3001')
-DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql://abena_user:abena_password@postgres:5432/abena_ihr')
+# For Render/local deployment, use localhost if DATABASE_URL not set
+# For Docker, use 'postgres' service name
+default_db_url = 'postgresql://abena_user:abena_password@localhost:5432/abena_ihr'
+if os.getenv('DOCKER_ENV') == 'true' or os.getenv('DATABASE_HOST') == 'postgres':
+    default_db_url = 'postgresql://abena_user:abena_password@postgres:5432/abena_ihr'
+DATABASE_URL = os.getenv('DATABASE_URL', default_db_url)
 
 logger.info(f"Quantum Healthcare Service starting on port {PORT}")
 logger.info(f"ABENA IHR API: {ABENA_IHR_API}")

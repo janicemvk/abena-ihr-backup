@@ -1,14 +1,33 @@
+# Build tools (must be installed first)
+setuptools>=65.0.0
+wheel>=0.38.0
+
+# Web framework
 flask==2.3.3
 flask-cors==4.0.0
 gunicorn==21.2.0
+
+# Scientific computing (install before qiskit)
 numpy==1.24.3
 scipy==1.11.1
+
+# Quantum computing
 qiskit==0.44.1
+
+# Visualization
 matplotlib==3.7.2
+
+# Authentication & security
 python-jose[cryptography]==3.3.0
+
+# HTTP client
 httpx==0.25.0
+
+# Database & caching
 redis==5.0.0
 psycopg2-binary==2.9.9
 python-dotenv==1.0.0
-psycopg2-pool==1.1
+
+# Optional: psycopg2-pool (may not be available, app handles gracefully)
+# psycopg2-pool==1.1
 

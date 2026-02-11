@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - ABENA IHR{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .container {
+        max-width: 1600px;
+        margin: 0 auto;
+    }
+    .header {
+        background: white;
+        border-radius: 16px;
+        padding: 40px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .header h1 {
+        color: #1a202c;
+        font-size: 2.5rem;
+        margin-bottom: 8px;
+        font-weight: 700;
+    }
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 24px;
+        margin-bottom: 30px;
+    }
+    .stat-card {
+        background: white;
+        border-radius: 16px;
+        padding: 32px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #1a202c;
+        margin-bottom: 8px;
+    }
+    .stat-label {
+        color: #718096;
+        font-size: 0.875rem;
+    }
+    .admin-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 24px;
+    }
+    .card {
+        background: white;
+        border-radius: 16px;
+        padding: 32px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .card h3 {
+        font-size: 1.25rem;
+        margin-bottom: 20px;
+        color: #1a202c;
+    }
+    .user-list {
+        list-style: none;
+    }
+    .user-item {
+        padding: 16px;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .user-item:last-child {
+        border-bottom: none;
+    }
+    .badge {
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    .badge-admin {
+        background: #fed7d7;
+        color: #742a2a;
+    }
+    .badge-provider {
+        background: #bee3f8;
+        color: #2c5282;
+    }
+    .badge-patient {
+        background: #c6f6d5;
+        color: #22543d;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="header">
+        <h1>Admin Dashboard</h1>
+        <p>System administration and user management</p>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value">156</div>
+            <div class="stat-label">Total Users</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">1,234</div>
+            <div class="stat-label">Total Analyses</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">89%</div>
+            <div class="stat-label">System Uptime</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">24</div>
+            <div class="stat-label">Active Sessions</div>
+        </div>
+    </div>
+
+    <div class="admin-grid">
+        <div class="card">
+            <h3>User Management</h3>
+            <ul class="user-list">
+                <li class="user-item">
+                    <div>
+                        <strong>Dr. Smith</strong>
+                        <div style="color: #718096; font-size: 0.875rem;">smith@abena.com</div>
+                    </div>
+                    <span class="badge badge-admin">Admin</span>
+                </li>
+                <li class="user-item">
+                    <div>
+                        <strong>Dr. Johnson</strong>
+                        <div style="color: #718096; font-size: 0.875rem;">johnson@abena.com</div>
+                    </div>
+                    <span class="badge badge-provider">Provider</span>
+                </li>
+                <li class="user-item">
+                    <div>
+                        <strong>Jane Doe</strong>
+                        <div style="color: #718096; font-size: 0.875rem;">jane@example.com</div>
+                    </div>
+                    <span class="badge badge-patient">Patient</span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h3>System Settings</h3>
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; margin-bottom: 8px; color: #4a5568;">Quantum Analysis Enabled</label>
+                <input type="checkbox" checked style="width: 20px; height: 20px;">
+            </div>
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; margin-bottom: 8px; color: #4a5568;">eCBome Integration</label>
+                <input type="checkbox" checked style="width: 20px; height: 20px;">
+            </div>
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; margin-bottom: 8px; color: #4a5568;">Auto-refresh Interval</label>
+                <select style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    <option>30 seconds</option>
+                    <option selected>1 minute</option>
+                    <option>5 minutes</option>
+                </select>
+            </div>
+            <button style="width: 100%; padding: 12px; background: #4299e1; color: white; border: none; border-radius: 8px; cursor: pointer; margin-top: 16px;">
+                Save Settings
+            </button>
+        </div>
+
+        <div class="card">
+            <h3>Recent Activity</h3>
+            <div style="padding: 12px 0; border-bottom: 1px solid #e2e8f0;">
+                <div style="font-weight: 600;">New analysis completed</div>
+                <div style="color: #718096; font-size: 0.875rem;">2 minutes ago</div>
+            </div>
+            <div style="padding: 12px 0; border-bottom: 1px solid #e2e8f0;">
+                <div style="font-weight: 600;">User login: Dr. Johnson</div>
+                <div style="color: #718096; font-size: 0.875rem;">15 minutes ago</div>
+            </div>
+            <div style="padding: 12px 0;">
+                <div style="font-weight: 600;">System backup completed</div>
+                <div style="color: #718096; font-size: 0.875rem;">1 hour ago</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IBENA IHR Quantum Healthcare Analysis</title>
+    <title>ABENA IHR Quantum Healthcare Analysis</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         * {
@@ -315,12 +315,69 @@
         .refresh-btn:hover {
             background: #3182ce;
         }
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 0 20px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            margin-bottom: 20px;
+        }
+        .nav-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 70px;
+        }
+        .nav-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1a202c;
+            text-decoration: none;
+        }
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+        .nav-links a {
+            color: #4a5568;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .nav-links a:hover {
+            background: #edf2f7;
+            color: #1a202c;
+        }
+        .nav-links a.active {
+            background: #4299e1;
+            color: white;
+        }
     </style>
 </head>
 <body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">ABENA IHR</a>
+            <ul class="nav-links">
+                <li><a href="/" class="active">Quantum Analysis</a></li>
+                <li><a href="/clinical">Clinical</a></li>
+                <li><a href="/admin">Admin</a></li>
+                <li><a href="/patient">Patient</a></li>
+                <li><a href="/ecbome">eCBome</a></li>
+                <li><a href="/integration-status">Integration Status</a></li>
+            </ul>
+        </div>
+    </nav>
     <div class="container">
         <div class="header">
-            <h1>IBENA IHR Quantum Healthcare Analysis</h1>
+            <h1>ABENA IHR Quantum Healthcare Analysis</h1>
             <p class="subtitle">Personalized treatment optimization using quantum computing</p>
             <p class="timestamp">Analysis completed: <span id="timestamp"></span></p>
         </div>

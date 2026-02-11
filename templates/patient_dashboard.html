@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}Patient Dashboard - ABENA IHR{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .container {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+    .header {
+        background: white;
+        border-radius: 16px;
+        padding: 40px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .header h1 {
+        color: #1a202c;
+        font-size: 2.5rem;
+        margin-bottom: 8px;
+        font-weight: 700;
+    }
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 24px;
+    }
+    .card {
+        background: white;
+        border-radius: 16px;
+        padding: 32px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .card h3 {
+        font-size: 1.25rem;
+        margin-bottom: 20px;
+        color: #1a202c;
+    }
+    .health-score {
+        text-align: center;
+        padding: 40px 20px;
+    }
+    .score-circle {
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        background: conic-gradient(#48bb78 0deg, #48bb78 252deg, #e2e8f0 252deg, #e2e8f0 360deg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+    }
+    .score-inner {
+        width: 160px;
+        height: 160px;
+        border-radius: 50%;
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        font-weight: 700;
+        color: #1a202c;
+    }
+    .recommendation-item {
+        padding: 16px;
+        background: #f7fafc;
+        border-radius: 8px;
+        margin-bottom: 12px;
+    }
+    .recommendation-item:last-child {
+        margin-bottom: 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="header">
+        <h1>Patient Dashboard</h1>
+        <p>Your health insights and recommendations</p>
+    </div>
+
+    <div class="dashboard-grid">
+        <div class="card health-score">
+            <h3>Your Health Score</h3>
+            <div class="score-circle">
+                <div class="score-inner">78%</div>
+            </div>
+            <p style="color: #718096;">Based on latest quantum analysis</p>
+        </div>
+
+        <div class="card">
+            <h3>Recent Analysis Results</h3>
+            <div style="margin-bottom: 16px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="color: #718096;">Quantum Health Score</span>
+                    <span style="font-weight: 600;">0.78</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="color: #718096;">System Balance</span>
+                    <span style="font-weight: 600;">0.65</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: #718096;">Treatment Optimization</span>
+                    <span style="font-weight: 600;">0.72</span>
+                </div>
+            </div>
+            <button style="width: 100%; padding: 12px; background: #4299e1; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                View Full Report
+            </button>
+        </div>
+
+        <div class="card">
+            <h3>Personalized Recommendations</h3>
+            <div class="recommendation-item">
+                <strong>Monitor eCBome biomarkers weekly</strong>
+                <p style="margin-top: 8px; color: #4a5568; font-size: 0.875rem;">Your endocannabinoid system shows good balance. Continue monitoring.</p>
+            </div>
+            <div class="recommendation-item">
+                <strong>Consider lifestyle modifications</strong>
+                <p style="margin-top: 8px; color: #4a5568; font-size: 0.875rem;">Small changes to sleep and nutrition can improve your health score.</p>
+            </div>
+            <div class="recommendation-item">
+                <strong>Review medication interactions quarterly</strong>
+                <p style="margin-top: 8px; color: #4a5568; font-size: 0.875rem;">Schedule a review with your provider to discuss current medications.</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Upcoming Appointments</h3>
+            <div style="padding: 16px; background: #f7fafc; border-radius: 8px; margin-bottom: 12px;">
+                <div style="font-weight: 600;">Follow-up Consultation</div>
+                <div style="color: #718096; font-size: 0.875rem; margin-top: 4px;">March 15, 2026 at 2:00 PM</div>
+            </div>
+            <div style="padding: 16px; background: #f7fafc; border-radius: 8px;">
+                <div style="font-weight: 600;">Biomarker Review</div>
+                <div style="color: #718096; font-size: 0.875rem; margin-top: 4px;">March 22, 2026 at 10:00 AM</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

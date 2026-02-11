@@ -92,95 +92,98 @@ print("🚀 SUBMITTING TO REAL QUANTUM COMPUTER")
 print("="*70)
 
 try:
-    # Use Session context manager for efficient job submission
+    # Submit job without Session (open plan doesn't support Sessions)
     print(f"Backend: {backend.name}")
     print(f"Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print("\nSubmitting job...")
     
-    with Session(service=service, backend=backend) as session:
-        sampler = Sampler(session=session)
-        job = sampler.run(
-            circuits=[transpiled_qc],
-            shots=1024
-        )
+    # Open plan: Use Sampler with mode=backend (no Session)
+    sampler = Sampler(mode=backend)
+    # SamplerV2: circuits must be positional argument (list)
+    job = sampler.run([transpiled_qc], shots=1024)
     
-        job_id = job.job_id()
-        
-        print("\n✅ JOB SUBMITTED SUCCESSFULLY!")
-        print("="*70)
-        print(f"Job ID: {job_id}")
-        print(f"Backend: {backend.name}")
-        print(f"Status: {job.status()}")
-        creation_date = job.creation_date() if callable(job.creation_date) else job.creation_date
-        print(f"Submitted: {creation_date}")
-        print("="*70)
-        
-        # Wait for results
-        print("\n⏳ Waiting for quantum computer to process job...")
-        print("   (This typically takes 5-20 minutes)")
-        print("   You can close this and check results later if needed")
-        
-        result = job.result()
-        
-        # Success!
-        print("\n" + "="*70)
-        print("🎉 SUCCESS! RESULTS FROM REAL QUANTUM HARDWARE")
-        print("="*70)
-        print(f"Backend: {backend.name}")
-        print(f"Job ID: {job_id}")
-        print(f"Completed: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        print(f"\nQuasi-probability distribution:")
-        
-        quasi_dist = result.quasi_dists[0]
-        print(quasi_dist)
-        
-        # Format top results
-        print("\nTop 5 measurement outcomes:")
-        sorted_outcomes = sorted(quasi_dist.items(), key=lambda x: x[1], reverse=True)[:5]
-        for state, probability in sorted_outcomes:
-            binary = format(state, '04b')
-            print(f"   |{binary}⟩: {probability:.4f} ({probability*100:.2f}%)")
-        
-        print("="*70)
-        
-        # Documentation for IBM application
-        print("\n" + "="*70)
-        print("📋 DOCUMENTATION FOR IBM QUANTUM STARTUP APPLICATION")
-        print("="*70)
-        print(f"")
-        print(f"✅ Successfully executed quantum algorithm on IBM hardware")
-        print(f"")
-        print(f"HARDWARE DETAILS:")
-        print(f"  Backend: {backend.name}")
-        print(f"  Backend type: {backend.processor_type if hasattr(backend, 'processor_type') else 'N/A'}")
-        print(f"  Total qubits: {backend.num_qubits}")
-        print(f"  Qubits used: 4")
-        print(f"")
-        print(f"JOB DETAILS:")
-        print(f"  Job ID: {job_id}")
-        creation_date = job.creation_date() if callable(job.creation_date) else job.creation_date
-        print(f"  Submission date: {creation_date}")
-        print(f"  Status: COMPLETED")
-        print(f"  Shots: 1024")
-        print(f"")
-        print(f"CIRCUIT DETAILS:")
-        print(f"  Description: 4-qubit healthcare treatment optimization")
-        print(f"  Application: Drug-herb-lifestyle-genetics interaction modeling")
-        print(f"  Original circuit depth: {qc.depth()}")
-        print(f"  Transpiled circuit depth: {transpiled_qc.depth()}")
-        print(f"  Optimization level: 3 (maximum)")
-        print(f"")
-        print(f"VALIDATION:")
-        print(f"  ✅ Quantum code runs on real IBM quantum processors")
-        print(f"  ✅ Hardware-ready for production deployment")
-        print(f"  ✅ Successful transpilation and execution")
-        print(f"  ✅ Results obtained from quantum measurement")
-        print("="*70)
-        
-        print("\n✅ Hardware validation complete!")
-        print("✅ ABENA quantum algorithms confirmed hardware-ready!")
-        print("\n💾 Save/screenshot the documentation section above")
-        print("   for your IBM Quantum Startup Program application\n")
+    job_id = job.job_id()
+    
+    print("\n✅ JOB SUBMITTED SUCCESSFULLY!")
+    print("="*70)
+    print(f"Job ID: {job_id}")
+    print(f"Backend: {backend.name}")
+    print(f"Status: {job.status()}")
+    creation_date = job.creation_date() if callable(job.creation_date) else job.creation_date
+    print(f"Submitted: {creation_date}")
+    print("="*70)
+    
+    # Wait for results
+    print("\n⏳ Waiting for quantum computer to process job...")
+    print("   (This typically takes 5-20 minutes)")
+    print("   You can close this and check results later if needed")
+    
+    result = job.result()
+    
+    # Success!
+    print("\n" + "="*70)
+    print("🎉 SUCCESS! RESULTS FROM REAL QUANTUM HARDWARE")
+    print("="*70)
+    print(f"Backend: {backend.name}")
+    print(f"Job ID: {job_id}")
+    print(f"Completed: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"\nQuasi-probability distribution:")
+    
+    # SamplerV2: Access results via result[0] or result.data[0]
+    if hasattr(result, 'data'):
+        quasi_dist = result.data[0]
+    else:
+        quasi_dist = result[0]
+    
+    print(quasi_dist)
+    
+    # Format top results
+    print("\nTop 5 measurement outcomes:")
+    sorted_outcomes = sorted(quasi_dist.items(), key=lambda x: x[1], reverse=True)[:5]
+    for state, probability in sorted_outcomes:
+        binary = format(state, '04b')
+        print(f"   |{binary}⟩: {probability:.4f} ({probability*100:.2f}%)")
+    
+    print("="*70)
+    
+    # Documentation for IBM application
+    print("\n" + "="*70)
+    print("📋 DOCUMENTATION FOR IBM QUANTUM STARTUP APPLICATION")
+    print("="*70)
+    print(f"")
+    print(f"✅ Successfully executed quantum algorithm on IBM hardware")
+    print(f"")
+    print(f"HARDWARE DETAILS:")
+    print(f"  Backend: {backend.name}")
+    print(f"  Backend type: {backend.processor_type if hasattr(backend, 'processor_type') else 'N/A'}")
+    print(f"  Total qubits: {backend.num_qubits}")
+    print(f"  Qubits used: 4")
+    print(f"")
+    print(f"JOB DETAILS:")
+    print(f"  Job ID: {job_id}")
+    creation_date = job.creation_date() if callable(job.creation_date) else job.creation_date
+    print(f"  Submission date: {creation_date}")
+    print(f"  Status: COMPLETED")
+    print(f"  Shots: 1024")
+    print(f"")
+    print(f"CIRCUIT DETAILS:")
+    print(f"  Description: 4-qubit healthcare treatment optimization")
+    print(f"  Application: Drug-herb-lifestyle-genetics interaction modeling")
+    print(f"  Original circuit depth: {qc.depth()}")
+    print(f"  Transpiled circuit depth: {transpiled_qc.depth()}")
+    print(f"  Optimization level: 3 (maximum)")
+    print(f"")
+    print(f"VALIDATION:")
+    print(f"  ✅ Quantum code runs on real IBM quantum processors")
+    print(f"  ✅ Hardware-ready for production deployment")
+    print(f"  ✅ Successful transpilation and execution")
+    print(f"  ✅ Results obtained from quantum measurement")
+    print("="*70)
+    
+    print("\n✅ Hardware validation complete!")
+    print("✅ ABENA quantum algorithms confirmed hardware-ready!")
+    print("\n💾 Save/screenshot the documentation section above")
+    print("   for your IBM Quantum Startup Program application\n")
         
 except Exception as e:
     print(f"\n❌ Error: {e}")
