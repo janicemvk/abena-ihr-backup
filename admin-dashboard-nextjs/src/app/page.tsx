@@ -4,12 +4,13 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { Dialog } from '@headlessui/react'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
+import { config } from '@/config'
 
 const navigation = [
   { name: 'Home', href: '/' },
   { name: 'Features', href: '#features' },
   { name: 'Admin Portal', href: '/admin' },
-  { name: 'Provider Portal', href: '/provider' },
+  { name: 'Provider Portal', href: config.urls.providerPortal, external: true },
 ]
 
 export default function Home() {
@@ -36,13 +37,25 @@ export default function Home() {
           </div>
           <div className="hidden lg:flex lg:gap-x-12">
             {navigation.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className="text-sm font-semibold leading-6 text-gray-900 hover:text-indigo-600"
-              >
-                {item.name}
-              </Link>
+              item.external ? (
+                <a
+                  key={item.name}
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm font-semibold leading-6 text-gray-900 hover:text-indigo-600"
+                >
+                  {item.name}
+                </a>
+              ) : (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className="text-sm font-semibold leading-6 text-gray-900 hover:text-indigo-600"
+                >
+                  {item.name}
+                </Link>
+              )
             ))}
           </div>
           <div className="hidden lg:flex lg:flex-1 lg:justify-end">
@@ -71,13 +84,25 @@ export default function Home() {
               <div className="-my-6 divide-y divide-gray-500/10">
                 <div className="space-y-2 py-6">
                   {navigation.map((item) => (
-                    <Link
-                      key={item.name}
-                      href={item.href}
-                      className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
-                    >
-                      {item.name}
-                    </Link>
+                    item.external ? (
+                      <a
+                        key={item.name}
+                        href={item.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
+                      >
+                        {item.name}
+                      </a>
+                    ) : (
+                      <Link
+                        key={item.name}
+                        href={item.href}
+                        className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
+                      >
+                        {item.name}
+                      </Link>
+                    )
                   ))}
                 </div>
                 <div className="py-6">
@@ -111,9 +136,14 @@ export default function Home() {
                 >
                   Admin Portal
                 </Link>
-                <Link href="/provider" className="text-sm font-semibold leading-6 text-gray-900">
+                <a 
+                  href={config.urls.providerPortal}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm font-semibold leading-6 text-gray-900"
+                >
                   Provider Portal <span aria-hidden="true">→</span>
-                </Link>
+                </a>
               </div>
             </div>
           </div>

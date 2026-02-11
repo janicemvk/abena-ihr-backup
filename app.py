@@ -15,7 +15,6 @@ from rate_limit import quantum_analysis_limit, general_api_limit, demo_results_l
 from services.abena_ihr_client import ihr_client
 from services.ecbome_client import ecbome_client
 import asyncio
-import httpx
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -30,7 +29,12 @@ PORT = int(os.getenv('PORT', 5000))
 ABENA_IHR_API = os.getenv('ABENA_IHR_API', 'http://abena-ihr:4002')
 ECBOME_API = os.getenv('ECBOME_API', os.getenv('ECDOME_API', 'http://abena-ecdome-intelligence:4005'))
 AUTH_SERVICE_URL = os.getenv('AUTH_SERVICE_URL', 'http://auth-service:3001')
-DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql://abena_user:abena_password@postgres:5432/abena_ihr')
+# For Render/local deployment, use localhost if DATABASE_URL not set
+# For Docker, use 'postgres' service name
+default_db_url = 'postgresql://abena_user:abena_password@localhost:5432/abena_ihr'
+if os.getenv('DOCKER_ENV') == 'true' or os.getenv('DATABASE_HOST') == 'postgres':
+    default_db_url = 'postgresql://abena_user:abena_password@postgres:5432/abena_ihr'
+DATABASE_URL = os.getenv('DATABASE_URL', default_db_url)
 
 logger.info(f"Quantum Healthcare Service starting on port {PORT}")
 logger.info(f"ABENA IHR API: {ABENA_IHR_API}")
@@ -41,36 +45,6 @@ logger.info(f"eCBome API: {ECBOME_API}")
 def index():
     """Quantum Healthcare Dashboard"""
     return render_template('dashboard.html')
-
-
-@app.route('/clinical')
-def clinical_dashboard():
-    """Clinical Dashboard"""
-    return render_template('clinical_dashboard.html')
-
-
-@app.route('/admin')
-def admin_dashboard():
-    """Admin Dashboard"""
-    return render_template('admin_dashboard.html')
-
-
-@app.route('/patient')
-def patient_dashboard():
-    """Patient Dashboard"""
-    return render_template('patient_dashboard.html')
-
-
-@app.route('/ecbome')
-def ecbome_dashboard():
-    """eCBome Health System Dashboard"""
-    return render_template('ecbome_dashboard.html')
-
-
-@app.route('/integration-status')
-def integration_status():
-    """Integration Bridge Status"""
-    return render_template('integration_status.html')
 
 
 @app.route('/api/demo-results', methods=['GET'])
@@ -456,109 +430,6 @@ def health():
         "database": db_status,
         "timestamp": datetime.now().isoformat()
     }), 200
-
-
-@app.route('/api/integration-status', methods=['GET'])
-@general_api_limit
-def integration_status_api():
-    """Get integration bridge status for all services"""
-    status = {
-        "timestamp": datetime.now().isoformat(),
-        "services": {}
-    }
-    
-    # Check ABENA IHR API
-    try:
-        async def check_ihr():
-            try:
-                async with httpx.AsyncClient(timeout=5.0) as client:
-                    response = await client.get(f"{ABENA_IHR_API}/health", timeout=5.0)
-                    return response.status_code == 200, response.status_code
-            except:
-                return False, None
-        
-        ihr_ok, ihr_code = asyncio.run(check_ihr())
-        status["services"]["abena_ihr"] = {
-            "status": "connected" if ihr_ok else "disconnected",
-            "url": ABENA_IHR_API,
-            "status_code": ihr_code
-        }
-    except Exception as e:
-        status["services"]["abena_ihr"] = {
-            "status": "error",
-            "error": str(e),
-            "url": ABENA_IHR_API
-        }
-    
-    # Check eCBome API
-    try:
-        async def check_ecbome():
-            try:
-                async with httpx.AsyncClient(timeout=5.0) as client:
-                    response = await client.get(f"{ECBOME_API}/health", timeout=5.0)
-                    return response.status_code == 200, response.status_code
-            except:
-                return False, None
-        
-        ecbome_ok, ecbome_code = asyncio.run(check_ecbome())
-        status["services"]["ecbome"] = {
-            "status": "connected" if ecbome_ok else "disconnected",
-            "url": ECBOME_API,
-            "status_code": ecbome_code
-        }
-    except Exception as e:
-        status["services"]["ecbome"] = {
-            "status": "error",
-            "error": str(e),
-            "url": ECBOME_API
-        }
-    
-    # Check Auth Service
-    try:
-        async def check_auth():
-            try:
-                async with httpx.AsyncClient(timeout=5.0) as client:
-                    response = await client.get(f"{AUTH_SERVICE_URL}/health", timeout=5.0)
-                    return response.status_code == 200, response.status_code
-            except:
-                return False, None
-        
-        auth_ok, auth_code = asyncio.run(check_auth())
-        status["services"]["auth_service"] = {
-            "status": "connected" if auth_ok else "disconnected",
-            "url": AUTH_SERVICE_URL,
-            "status_code": auth_code
-        }
-    except Exception as e:
-        status["services"]["auth_service"] = {
-            "status": "error",
-            "error": str(e),
-            "url": AUTH_SERVICE_URL
-        }
-    
-    # Check Database
-    try:
-        with db_client.get_connection() as conn:
-            with conn.cursor() as cur:
-                cur.execute("SELECT 1")
-        status["services"]["database"] = {
-            "status": "connected",
-            "url": DATABASE_URL.split('@')[1] if '@' in DATABASE_URL else "configured"
-        }
-    except Exception as e:
-        status["services"]["database"] = {
-            "status": "disconnected",
-            "error": str(e)
-        }
-    
-    # Calculate overall status
-    all_connected = all(
-        s.get("status") == "connected" 
-        for s in status["services"].values()
-    )
-    status["overall_status"] = "healthy" if all_connected else "degraded"
-    
-    return jsonify(status), 200
 
 
 if __name__ == '__main__':

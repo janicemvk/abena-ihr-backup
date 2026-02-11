@@ -18,7 +18,13 @@ class QuantumDBClient:
     """Database client for quantum healthcare operations"""
     
     def __init__(self):
-        self.database_url = os.getenv('DATABASE_URL', 'postgresql://abena_user:abena_password@postgres:5432/abena_ihr')
+        # For Render/local deployment, use localhost if DATABASE_URL not set
+        # For Docker, use 'postgres' service name
+        default_url = 'postgresql://abena_user:abena_password@localhost:5432/abena_ihr'
+        if os.getenv('DOCKER_ENV') == 'true' or os.getenv('DATABASE_HOST') == 'postgres':
+            default_url = 'postgresql://abena_user:abena_password@postgres:5432/abena_ihr'
+        
+        self.database_url = os.getenv('DATABASE_URL', default_url)
         self.pool = None
         # Don't initialize pool on import - wait until first use
         # This prevents build failures if database isn't available
@@ -36,7 +42,12 @@ class QuantumDBClient:
             )
             logger.info("Database connection pool initialized")
         except Exception as e:
-            logger.warning(f"Failed to initialize database pool: {e}. Database features will be disabled.")
+            # Only log warning if DATABASE_URL is explicitly set (user expects DB to work)
+            # Otherwise, silently disable database features for MVP
+            if os.getenv('DATABASE_URL'):
+                logger.warning(f"Failed to initialize database pool: {e}. Database features will be disabled.")
+            else:
+                logger.debug(f"Database not available (no DATABASE_URL set). Running without database features.")
             self.pool = None
     
     @contextmanager

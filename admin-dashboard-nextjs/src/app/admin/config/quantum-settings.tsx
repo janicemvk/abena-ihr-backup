@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { CpuChipIcon, CurrencyDollarIcon, ClockIcon } from '@heroicons/react/24/outline'
+import { config } from '@/config'
 
 interface QuantumSettings {
   setting_type: string
@@ -25,7 +26,7 @@ export default function QuantumSettings() {
 
   const fetchSettings = async () => {
     try {
-      const response = await fetch('http://localhost:8081/api/quantum/settings?type=system')
+      const response = await fetch(`${config.urls.integrationBridge}/api/quantum/settings?type=system`)
       const data = await response.json()
       if (data.success) {
         setSettings(data.settings)
@@ -44,7 +45,7 @@ export default function QuantumSettings() {
     
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch('http://localhost:8081/api/quantum/settings', {
+      const response = await fetch(`${config.urls.integrationBridge}/api/quantum/settings`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
