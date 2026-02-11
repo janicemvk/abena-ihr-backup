@@ -2,8 +2,8 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
-  // Enable standalone output for Docker
-  output: 'standalone',
+  // Standalone output disabled for Render deployment (use standard Next.js server)
+  // output: 'standalone',
   // Path-based routing for MVP deployment
   // When deployed to mvp.abenaihr.com/admin, this ensures all routes and assets work correctly
   // Only use basePath in production or when explicitly set
