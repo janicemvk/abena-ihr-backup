@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import ECBomeChatbot from './ECBomeChatbot';
+import ECDomeChatbot from './ECDomeChatbot';
 import PatientSelector from './PatientSelector';
 import { testPatientData, mockPatients } from '../data/testData';
 
-const ECBomeIntelligenceSystem = () => {
+const ECDomeIntelligenceSystem = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [data, setData] = useState(null);
   const [selectedPatient, setSelectedPatient] = useState(null);
@@ -108,7 +108,7 @@ const ECBomeIntelligenceSystem = () => {
                 </div>
 
             {showChatbot && selectedPatient && (
-              <ECBomeChatbot 
+              <ECDomeChatbot 
                 patientData={selectedPatient} 
                 onClose={() => setShowChatbot(false)}
               />
@@ -120,4 +120,4 @@ const ECBomeIntelligenceSystem = () => {
   );
 };
 
-export default ECBomeIntelligenceSystem; 
+export default ECDomeIntelligenceSystem; 
