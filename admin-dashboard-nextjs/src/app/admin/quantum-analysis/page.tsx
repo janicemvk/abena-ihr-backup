@@ -32,15 +32,23 @@ export default function QuantumAnalysisCommandCenter() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [autoRefresh, setAutoRefresh] = useState(true)
+  const [mounted, setMounted] = useState(false)
+
+  // Ensure client-side only rendering
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
+    if (!mounted) return
+    
     loadData()
     
     if (autoRefresh) {
       const interval = setInterval(loadData, 30000) // Refresh every 30 seconds
       return () => clearInterval(interval)
     }
-  }, [autoRefresh])
+  }, [autoRefresh, mounted])
 
   const loadData = async () => {
     try {
@@ -177,6 +185,18 @@ export default function QuantumAnalysisCommandCenter() {
       default:
         return ClockIcon
     }
+  }
+
+  // Prevent SSR issues - only render on client
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-clinical-bg flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ecbome-primary mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading Quantum Analysis System...</p>
+        </div>
+      </div>
+    )
   }
 
   if (loading && !analysisResult) {
