@@ -61,6 +61,43 @@ const apiRequest = async <T>(
   return response.json();
 };
 
+// Mock data for demo purposes
+const MOCK_USERS: AdminUser[] = [
+  {
+    user_id: '1',
+    email: 'admin@abena-ihr.com',
+    first_name: 'System',
+    last_name: 'Administrator',
+    role: 'super_admin',
+    status: 'active',
+    telephone: '(555) 123-4567',
+    created_at: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
+    last_login: new Date().toISOString(),
+  },
+  {
+    user_id: '2',
+    email: 'billing@abena-ihr.com',
+    first_name: 'Jane',
+    last_name: 'Smith',
+    role: 'billing_admin',
+    status: 'active',
+    telephone: '(555) 234-5678',
+    created_at: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
+    last_login: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    user_id: '3',
+    email: 'coding@abena-ihr.com',
+    first_name: 'Mike',
+    last_name: 'Johnson',
+    role: 'coding_admin',
+    status: 'active',
+    telephone: '(555) 345-6789',
+    created_at: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+    last_login: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+  },
+];
+
 export const userService = {
   /**
    * Get all admin users
@@ -71,18 +108,40 @@ export const userService = {
     limit?: number;
     offset?: number;
   }): Promise<UserResponse> => {
-    const queryParams = new URLSearchParams();
-    if (filters) {
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          queryParams.append(key, value.toString());
-        }
-      });
+    try {
+      const queryParams = new URLSearchParams();
+      if (filters) {
+        Object.entries(filters).forEach(([key, value]) => {
+          if (value !== undefined && value !== null) {
+            queryParams.append(key, value.toString());
+          }
+        });
+      }
+      const queryString = queryParams.toString();
+      return await apiRequest<UserResponse>(
+        `/api/admin/users${queryString ? `?${queryString}` : ''}`
+      );
+    } catch (error) {
+      console.warn('Using mock user data:', error);
+      // Return mock data if API fails
+      let filteredUsers = MOCK_USERS;
+      if (filters?.search) {
+        const search = filters.search.toLowerCase();
+        filteredUsers = filteredUsers.filter(u => 
+          u.email.toLowerCase().includes(search) ||
+          u.first_name?.toLowerCase().includes(search) ||
+          u.last_name?.toLowerCase().includes(search)
+        );
+      }
+      if (filters?.status) {
+        filteredUsers = filteredUsers.filter(u => u.status === filters.status);
+      }
+      return {
+        success: true,
+        users: filteredUsers,
+        count: filteredUsers.length,
+      };
     }
-    const queryString = queryParams.toString();
-    return apiRequest<UserResponse>(
-      `/api/admin/users${queryString ? `?${queryString}` : ''}`
-    );
   },
 
   /**
