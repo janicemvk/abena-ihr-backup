@@ -6,6 +6,7 @@
   "main": "src/index.js",
   "scripts": {
     "start": "react-scripts start",
+    "start:prod": "serve -s build -l $PORT",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
@@ -26,7 +27,8 @@
     "axios": "^1.6.7",
     "react-hook-form": "^7.49.3",
     "react-hot-toast": "^2.4.1",
-    "classnames": "^2.5.1"
+    "classnames": "^2.5.1",
+    "serve": "^14.2.1"
   },
   "devDependencies": {
     "@types/react": "^18.2.55",
