@@ -7,9 +7,11 @@
 const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
+const axios = require('axios');
 
 const app = express();
 const PORT = process.env.PORT || 8081;
+const QUANTUM_API_URL = process.env.QUANTUM_API_URL || 'https://abena-quantum-healthcare-platform.onrender.com';
 
 // Middleware
 app.use(cors({
@@ -20,7 +22,11 @@ app.use(cors({
         'http://localhost:4009',
         'http://localhost:4010',
         'http://localhost:8080',
-        'http://localhost:4005',
+        'https://admin-dashboard-joww.onrender.com',
+        'https://ecbome-intelligence-dashboard.onrender.com',
+        'https://provider-portal-va15.onrender.com',
+        'https://patient-portal-9pt9.onrender.com',
+        'https://unified-integration-hub.onrender.com'
     ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -135,6 +141,57 @@ app.post('/api/quantum/settings', (req, res) => {
         message: 'Settings updated',
         settings: req.body
     });
+});
+
+// Quantum API proxy endpoints
+app.get('/api/quantum/status', async (req, res) => {
+    try {
+        const response = await axios.get(`${QUANTUM_API_URL}/health`);
+        
+        res.json({
+            quantum_flask_api: {
+                status: 'online',
+                url: QUANTUM_API_URL
+            }
+        });
+    } catch (error) {
+        console.error('Quantum API status check failed:', error);
+        res.json({
+            quantum_flask_api: {
+                status: 'offline',
+                url: QUANTUM_API_URL,
+                error: error.message
+            }
+        });
+    }
+});
+
+app.get('/api/quantum/demo-results', async (req, res) => {
+    try {
+        const response = await axios.get(`${QUANTUM_API_URL}/api/demo-results`);
+        res.json({ data: response.data });
+    } catch (error) {
+        console.error('Failed to fetch demo results:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to fetch demo results from Quantum API',
+            details: error.message
+        });
+    }
+});
+
+app.post('/api/quantum/analyze-patient', async (req, res) => {
+    try {
+        const response = await axios.post(`${QUANTUM_API_URL}/api/analyze`, req.body);
+        res.json({ data: response.data.results || response.data });
+    } catch (error) {
+        console.error('Failed to analyze patient:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to analyze patient data',
+            details: error.message
+        });
+    }
 });
 
 // Start server
