@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import ECDomeIntelligenceSystem from './components/ECDomeIntelligenceSystem';
 import ECDomeChatbot from './components/ECDomeChatbot';
 import ECBomeTestSuite from './components/ECBomeTestSuite';
+import ECSAnalysisDashboard from './components/ECSAnalysisDashboard';
 import backgroundService from './services/backgroundService';
 
 // IHR System Integration Context
@@ -189,8 +190,8 @@ const IHRDashboard = () => {
           <Route path="/dashboard" element={<IHRMainDashboard />} />
           <Route path="/ecbome-test" element={<ECBomeTestSuite />} />
           <Route path="/ecdome-test" element={<ECBomeTestSuite />} />
-          <Route path="/ecbome-analysis" element={<ECDomeIntelligenceSystem />} />
-          <Route path="/ecdome-analysis" element={<ECDomeIntelligenceSystem />} />
+          <Route path="/ecbome-analysis" element={<ECSAnalysisDashboard />} />
+          <Route path="/ecdome-analysis" element={<ECSAnalysisDashboard />} />
           <Route path="/chatbot" element={<ECDomeChatbot />} />
         </Routes>
       </main>
