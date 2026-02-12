@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import ECBomeIntelligenceSystem from './components/ECBomeIntelligenceSystem';
 import ECBomeChatbot from './components/ECBomeChatbot';
+import ECBomeTestSuite from './components/ECBomeTestSuite';
+import ECSAnalysisDashboard from './components/ECSAnalysisDashboard';
 import backgroundService from './services/backgroundService';
 
 // IHR System Integration Context
@@ -187,8 +189,8 @@ const IHRDashboard = () => {
           {/* <Route path="/" element={<Navigate to="/dashboard" replace />} /> */}
           <Route path="/" element={<ECBomeIntelligenceSystem />} />
           <Route path="/dashboard" element={<IHRMainDashboard />} />
-          <Route path="/ecbome-test" element={<ECBomeIntelligenceSystem />} />
-          <Route path="/ecbome-analysis" element={<ECBomeIntelligenceSystem />} />
+          <Route path="/ecbome-test" element={<ECBomeTestSuite />} />
+          <Route path="/ecbome-analysis" element={<ECSAnalysisDashboard />} />
           <Route path="/chatbot" element={<ECBomeChatbot />} />
         </Routes>
       </main>
