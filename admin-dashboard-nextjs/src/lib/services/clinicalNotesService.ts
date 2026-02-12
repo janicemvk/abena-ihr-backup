@@ -140,7 +140,7 @@ export const clinicalNotesService = {
       }
       return {
         success: true,
-        notes: filteredNotes,
+        clinical_notes: filteredNotes,
         count: filteredNotes.length,
       };
     }
