@@ -95,8 +95,8 @@ export default function QuantumAnalysisContent() {
         icon: DocumentTextIcon,
         data: {
           patient_id: analysisResult.patient_id,
-          biomarkers: analysisResult.biomarker_analysis.length,
-          medications: analysisResult.interaction_analysis.medications.length,
+          biomarkers: analysisResult.biomarker_analysis?.length || 0,
+          medications: analysisResult.interaction_analysis?.medications?.length || 0,
         },
       },
       {
@@ -128,8 +128,8 @@ export default function QuantumAnalysisContent() {
         description: 'QAOA Analysis',
         icon: ShieldCheckIcon,
         data: {
-          safety_score: analysisResult.interaction_analysis.safety_score,
-          level: analysisResult.interaction_analysis.interaction_level,
+          safety_score: analysisResult.interaction_analysis?.safety_score || 0,
+          level: analysisResult.interaction_analysis?.interaction_level || 'Unknown',
         },
       },
       {
@@ -559,38 +559,40 @@ export default function QuantumAnalysisContent() {
             </div>
 
             {/* Drug Interaction */}
-            <div className="dashboard-card">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Drug Interaction Analysis</h3>
-              <div className="space-y-3">
-                <div>
-                  <p className="text-sm text-gray-600">Safety Score</p>
-                  <p className="text-2xl font-bold text-blue-600 mt-1">
-                    {analysisResult.interaction_analysis.safety_score}%
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Interaction Level</p>
-                  <p className={`text-base font-semibold mt-1 ${
-                    analysisResult.interaction_analysis.interaction_level === 'Low' 
-                      ? 'text-green-600' 
-                      : analysisResult.interaction_analysis.interaction_level === 'Moderate'
-                      ? 'text-yellow-600'
-                      : 'text-red-600'
-                  }`}>
-                    {analysisResult.interaction_analysis.interaction_level}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Molecular Energy</p>
-                  <p className="text-base font-semibold text-gray-900 mt-1">
-                    {analysisResult.interaction_analysis.molecular_interaction_energy}
-                  </p>
-                </div>
-                <div className="pt-3 border-t border-clinical-border">
-                  <p className="text-xs text-gray-500">{analysisResult.interaction_analysis.clinical_recommendation}</p>
+            {analysisResult.interaction_analysis && (
+              <div className="dashboard-card">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Drug Interaction Analysis</h3>
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-sm text-gray-600">Safety Score</p>
+                    <p className="text-2xl font-bold text-blue-600 mt-1">
+                      {analysisResult.interaction_analysis.safety_score}%
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Interaction Level</p>
+                    <p className={`text-base font-semibold mt-1 ${
+                      analysisResult.interaction_analysis.interaction_level === 'Low' 
+                        ? 'text-green-600' 
+                        : analysisResult.interaction_analysis.interaction_level === 'Moderate'
+                        ? 'text-yellow-600'
+                        : 'text-red-600'
+                    }`}>
+                      {analysisResult.interaction_analysis.interaction_level}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Molecular Energy</p>
+                    <p className="text-base font-semibold text-gray-900 mt-1">
+                      {analysisResult.interaction_analysis.molecular_interaction_energy}
+                    </p>
+                  </div>
+                  <div className="pt-3 border-t border-clinical-border">
+                    <p className="text-xs text-gray-500">{analysisResult.interaction_analysis.clinical_recommendation}</p>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
             {/* Recommendations */}
             <div className="dashboard-card">
@@ -681,7 +683,7 @@ export default function QuantumAnalysisContent() {
               )}
 
               {/* QAOA Circuit */}
-              {analysisResult.interaction_analysis.circuit_diagram && (
+              {analysisResult.interaction_analysis?.circuit_diagram && (
                 <div className="dashboard-card">
                   <h3 className="text-lg font-semibold text-gray-900 mb-3">QAOA Drug Interaction Circuit</h3>
                   <div className="space-y-2">
@@ -768,7 +770,7 @@ export default function QuantumAnalysisContent() {
         )}
 
         {/* Enhanced Drug Interactions */}
-        {analysisResult && analysisResult.interaction_analysis.interactions_detected && analysisResult.interaction_analysis.interactions_detected.length > 0 && (
+        {analysisResult && analysisResult.interaction_analysis?.interactions_detected && analysisResult.interaction_analysis.interactions_detected.length > 0 && (
           <div className="mb-8">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Drug Interaction Alerts</h2>
             <div className="dashboard-card">
