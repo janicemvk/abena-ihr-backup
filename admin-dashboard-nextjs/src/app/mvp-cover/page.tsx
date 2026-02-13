@@ -36,7 +36,7 @@ export default function MVPCoverPage() {
     {
       icon: Shield,
       title: 'Blockchain Security',
-      description: 'HIPAA-compliant with blockchain transaction logging',
+      description: 'HIPAA-ready architecture with blockchain transaction logging',
       color: 'from-indigo-500 to-blue-600'
     }
   ]
@@ -82,8 +82,8 @@ export default function MVPCoverPage() {
   const stats = [
     { label: 'Integrated Services', value: '7', suffix: '+' },
     { label: 'Quantum Algorithms', value: '3', suffix: '' },
-    { label: 'Patient Engagement', value: '300', suffix: '%' },
-    { label: 'HIPAA Compliant', value: '100', suffix: '%' }
+    { label: 'Engagement Boost', value: '3', suffix: 'x' },
+    { label: 'Security Standards', value: 'HIPAA', suffix: '' }
   ]
 
   return (
@@ -257,7 +257,7 @@ export default function MVPCoverPage() {
             <div className="flex items-center gap-2 mb-4 md:mb-0">
               <CheckCircle className="h-5 w-5 text-green-500" />
               <span className="text-sm text-gray-600">
-                HIPAA Compliant • Blockchain Secured • Quantum Enhanced
+                HIPAA-Ready Architecture • Blockchain Secured • Quantum Enhanced
               </span>
             </div>
             <div className="text-sm text-gray-500">
