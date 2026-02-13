@@ -106,8 +106,8 @@ export default function QuantumAnalysisContent() {
         description: 'Variational Quantum Eigensolver',
         icon: CpuChipIcon,
         data: {
-          score: analysisResult.vqe_analysis.treatment_score,
-          energy: analysisResult.vqe_analysis.final_energy,
+          score: analysisResult.vqe_analysis?.treatment_score || 0,
+          energy: analysisResult.vqe_analysis?.final_energy || 0,
         },
       },
       {
@@ -117,8 +117,8 @@ export default function QuantumAnalysisContent() {
         description: 'Quantum Machine Learning',
         icon: BeakerIcon,
         data: {
-          confidence: analysisResult.pattern_analysis.pattern_confidence,
-          patterns: analysisResult.pattern_analysis.patterns_detected,
+          confidence: analysisResult.pattern_analysis?.pattern_confidence || 0,
+          patterns: analysisResult.pattern_analysis?.patterns_detected || 0,
         },
       },
       {
@@ -424,7 +424,7 @@ export default function QuantumAnalysisContent() {
         )}
 
         {/* Analysis Results */}
-        {analysisResult && (
+        {analysisResult && analysisResult.scores && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
             {/* Overall Scores */}
             <div className="dashboard-card">
@@ -490,10 +490,11 @@ export default function QuantumAnalysisContent() {
             </div>
 
             {/* VQE Optimization Progress */}
-            <div className="dashboard-card">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">VQE Optimization Progress</h3>
-              <div className="space-y-3">
-                {analysisResult.vqe_analysis.optimization_progress.map((step, index) => (
+            {analysisResult.vqe_analysis && analysisResult.vqe_analysis.optimization_progress && (
+              <div className="dashboard-card">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">VQE Optimization Progress</h3>
+                <div className="space-y-3">
+                  {analysisResult.vqe_analysis.optimization_progress.map((step, index) => (
                   <div key={index} className="flex items-center space-x-3">
                     <div className="w-16 text-xs text-gray-600">Step {step.step}</div>
                     <div className="flex-1 bg-gray-200 rounded-full h-2">
@@ -523,6 +524,7 @@ export default function QuantumAnalysisContent() {
                 </div>
               </div>
             </div>
+            )}
           </div>
         )}
 
@@ -530,33 +532,35 @@ export default function QuantumAnalysisContent() {
         {analysisResult && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Pattern Recognition */}
-            <div className="dashboard-card">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Pattern Recognition</h3>
-              <div className="space-y-3">
-                <div>
-                  <p className="text-sm text-gray-600">Detected Pattern</p>
-                  <p className="text-base font-semibold text-gray-900 mt-1">
-                    {analysisResult.pattern_analysis.detected_pattern}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Confidence</p>
-                  <p className="text-2xl font-bold text-ecbome-primary mt-1">
-                    {analysisResult.pattern_analysis.pattern_confidence}%
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Patterns Detected</p>
-                  <p className="text-base font-semibold text-gray-900 mt-1">
-                    {analysisResult.pattern_analysis.patterns_detected}
-                  </p>
-                </div>
-                <div className="pt-3 border-t border-clinical-border">
-                  <p className="text-xs text-gray-500">{analysisResult.pattern_analysis.tcm_recommendation}</p>
-                  <p className="text-xs text-gray-500 mt-1">{analysisResult.pattern_analysis.ayurveda_correlation}</p>
+            {analysisResult.pattern_analysis && (
+              <div className="dashboard-card">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Pattern Recognition</h3>
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-sm text-gray-600">Detected Pattern</p>
+                    <p className="text-base font-semibold text-gray-900 mt-1">
+                      {analysisResult.pattern_analysis.detected_pattern}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Confidence</p>
+                    <p className="text-2xl font-bold text-ecbome-primary mt-1">
+                      {analysisResult.pattern_analysis.pattern_confidence}%
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Patterns Detected</p>
+                    <p className="text-base font-semibold text-gray-900 mt-1">
+                      {analysisResult.pattern_analysis.patterns_detected}
+                    </p>
+                  </div>
+                  <div className="pt-3 border-t border-clinical-border">
+                    <p className="text-xs text-gray-500">{analysisResult.pattern_analysis.tcm_recommendation}</p>
+                    <p className="text-xs text-gray-500 mt-1">{analysisResult.pattern_analysis.ayurveda_correlation}</p>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
             {/* Drug Interaction */}
             {analysisResult.interaction_analysis && (
@@ -595,10 +599,11 @@ export default function QuantumAnalysisContent() {
             )}
 
             {/* Recommendations */}
-            <div className="dashboard-card">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Recommendations</h3>
-              <div className="space-y-3">
-                {analysisResult.recommendations.map((rec, index) => (
+            {analysisResult.recommendations && (
+              <div className="dashboard-card">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Recommendations</h3>
+                <div className="space-y-3">
+                  {analysisResult.recommendations.map((rec, index) => (
                   <div key={index} className="p-3 bg-gray-50 rounded-lg">
                     <div className="flex items-start space-x-2">
                       <span className="text-xs font-bold text-ecbome-primary">#{rec.priority}</span>
@@ -622,6 +627,7 @@ export default function QuantumAnalysisContent() {
                 ))}
               </div>
             </div>
+            )}
           </div>
         )}
 
@@ -631,7 +637,7 @@ export default function QuantumAnalysisContent() {
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Quantum Circuit Diagrams</h2>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* VQE Circuit */}
-              {analysisResult.vqe_analysis.circuit_diagram && (
+              {analysisResult.vqe_analysis?.circuit_diagram && (
                 <div className="dashboard-card">
                   <h3 className="text-lg font-semibold text-gray-900 mb-3">VQE Circuit</h3>
                   <div className="space-y-2">
@@ -659,7 +665,7 @@ export default function QuantumAnalysisContent() {
               )}
 
               {/* QML Circuit */}
-              {analysisResult.pattern_analysis.circuit_diagram && (
+              {analysisResult.pattern_analysis?.circuit_diagram && (
                 <div className="dashboard-card">
                   <h3 className="text-lg font-semibold text-gray-900 mb-3">Pattern Recognition Circuit</h3>
                   <div className="space-y-2">
@@ -711,7 +717,7 @@ export default function QuantumAnalysisContent() {
         )}
 
         {/* Enhanced Pattern Recognition */}
-        {analysisResult && analysisResult.pattern_analysis.all_pattern_matches && (
+        {analysisResult && analysisResult.pattern_analysis?.all_pattern_matches && (
           <div className="mb-8">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">TCM Pattern Matches</h2>
             <div className="dashboard-card">
@@ -811,7 +817,7 @@ export default function QuantumAnalysisContent() {
         )}
 
         {/* Blockchain Transaction */}
-        {analysisResult && analysisResult.blockchain && (
+        {analysisResult?.blockchain && (
           <div className="mb-8">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Blockchain Storage</h2>
             <div className="dashboard-card bg-gradient-to-r from-green-50 to-blue-50 border-2 border-green-200">
@@ -858,7 +864,7 @@ export default function QuantumAnalysisContent() {
         )}
 
         {/* Summary */}
-        {analysisResult && (
+        {analysisResult?.summary && (
           <div className="mt-8 dashboard-card bg-gradient-to-r from-purple-50 to-indigo-50 border-2 border-purple-200">
             <div className="flex items-center justify-between">
               <div>
