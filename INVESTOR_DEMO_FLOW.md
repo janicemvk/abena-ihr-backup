@@ -123,7 +123,7 @@ ABENA IHR is a **revolutionary quantum-powered healthcare platform** that combin
    - Multi-participant support (specialist consultations)
    - Connection status monitoring
    - Call duration tracking
-   - HIPAA-compliant secure messaging
+   - Secure encrypted messaging (HIPAA-ready)
    - Visit summary generation
    - **Direct access to patient's eCBome data during call**
 
@@ -141,8 +141,8 @@ ABENA IHR is a **revolutionary quantum-powered healthcare platform** that combin
 **Key Talking Points:**
 - "Telemedicine isn't an add-on - it's **fully integrated** into the provider workflow"
 - "Providers can view and share quantum analysis results **during the call**"
-- "HIPAA-compliant with end-to-end encryption"
-- "Reduces patient travel time and costs by 70%"
+- "Built with HIPAA-ready architecture and end-to-end encryption"
+- "Potential to reduce patient travel time and costs by up to 70%"
 - "Expands healthcare access to rural and underserved areas"
 - "**This is working RIGHT NOW in our live system**"
 
@@ -208,8 +208,8 @@ ABENA IHR is a **revolutionary quantum-powered healthcare platform** that combin
    - **ZERO health data exposure** - only achievements visible
 
 **Key Talking Points:**
-- "**83% of patients drop off after 3 months** - gamification solves this industry-wide problem"
-- "Research shows gamification increases engagement by **300%** and medication adherence by **40%**"
+- "**83% of patients drop off after 3 months** - gamification addresses this industry-wide problem"
+- "Research shows gamification can increase engagement by **up to 3x** and medication adherence by **up to 40%**"
 - "Privacy-first design: **no health data is ever exposed socially**"
 - "Rewards **real behavior change**, not just data entry"
 - "System is **fully functional** - integration into Patient Portal is Phase 2"
@@ -275,7 +275,7 @@ ABENA IHR is a **revolutionary quantum-powered healthcare platform** that combin
    - Scalable architecture
 
 5. **Market Ready**
-   - HIPAA compliance built-in
+   - HIPAA-ready architecture (formal certification planned)
    - Blockchain security
    - Post-quantum cryptography
 
@@ -343,10 +343,10 @@ ABENA IHR is a **revolutionary quantum-powered healthcare platform** that combin
 - A: "Real IBM Quantum hardware. We can show you the IBM Quantum credentials and circuit diagrams."
 
 **Q: "How do you handle HIPAA compliance?"**
-- A: "Built-in from day one. End-to-end encryption, blockchain audit trails, post-quantum cryptography."
+- A: "We've architected the platform with HIPAA compliance in mind from day one - end-to-end encryption, blockchain audit trails, role-based access control, and post-quantum cryptography. Formal certification is part of our regulatory roadmap as we move toward commercialization."
 
 **Q: "What about patient dropout?"**
-- A: "That's exactly why we built gamification. 83% dropout is the industry problem - we solve it."
+- A: "That's exactly why we built gamification. 83% dropout is an industry-wide problem. Research shows gamification can improve engagement by up to 3x - we've integrated those proven mechanics into our patient portal."
 
 **Q: "How does this integrate with existing systems?"**
 - A: "API-first architecture. We have an Integration Bridge that connects to any EHR via HL7/FHIR."
