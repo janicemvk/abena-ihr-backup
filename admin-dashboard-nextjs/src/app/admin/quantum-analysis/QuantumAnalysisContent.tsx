@@ -1,48 +1,46 @@
 'use client'
 
-import dynamic from 'next/dynamic'
+import { useState, useEffect } from 'react'
+import {
+  CpuChipIcon,
+  BoltIcon,
+  ServerIcon,
+  CubeIcon,
+  ChartBarIcon,
+  CheckCircleIcon,
+  XCircleIcon,
+  ClockIcon,
+  ShieldCheckIcon,
+  BeakerIcon,
+  DocumentTextIcon,
+  LinkIcon,
+} from '@heroicons/react/24/outline'
+import { quantumAnalysisService, QuantumAnalysisResult, QuantumSystemStatus } from '@/lib/services/quantumAnalysisService'
 
-// Dynamically import the component with SSR disabled
-const QuantumAnalysisContent = dynamic(
-  () => import('./QuantumAnalysisContent'),
-  { 
-    ssr: false,
-    loading: () => (
-      <div className="min-h-screen bg-clinical-bg flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading Quantum Analysis System...</p>
-        </div>
-      </div>
-    )
-  }
-)
-
-export default function QuantumAnalysisCommandCenter() {
-  return <QuantumAnalysisContent />
+interface DataFlowStep {
+  id: string
+  name: string
+  status: 'active' | 'complete' | 'pending'
+  description: string
+  icon: React.ComponentType<{ className?: string }>
+  data?: any
 }
+
+export default function QuantumAnalysisContent() {
   const [analysisResult, setAnalysisResult] = useState<QuantumAnalysisResult | null>(null)
   const [systemStatus, setSystemStatus] = useState<QuantumSystemStatus | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [autoRefresh, setAutoRefresh] = useState(true)
-  const [mounted, setMounted] = useState(false)
-
-  // Ensure client-side only rendering
-  useEffect(() => {
-    setMounted(true)
-  }, [])
 
   useEffect(() => {
-    if (!mounted) return
-    
     loadData()
     
     if (autoRefresh) {
       const interval = setInterval(loadData, 30000) // Refresh every 30 seconds
       return () => clearInterval(interval)
     }
-  }, [autoRefresh, mounted])
+  }, [autoRefresh])
 
   const loadData = async () => {
     try {
@@ -179,18 +177,6 @@ export default function QuantumAnalysisCommandCenter() {
       default:
         return ClockIcon
     }
-  }
-
-  // Prevent SSR issues - only render on client
-  if (!mounted) {
-    return (
-      <div className="min-h-screen bg-clinical-bg flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ecbome-primary mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading Quantum Analysis System...</p>
-        </div>
-      </div>
-    )
   }
 
   if (loading && !analysisResult) {
@@ -931,4 +917,3 @@ export default function QuantumAnalysisCommandCenter() {
     </div>
   )
 }
-
