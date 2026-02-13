@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, RadialBarChart, RadialBar, AreaChart, Area } from 'recharts';
-import { Activity, Heart, Brain, Droplets, Shield, Clock, Sun, Moon, Zap, Target, TrendingUp, Bell, Calendar, Book, Settings, User } from 'lucide-react';
+import { Activity, Heart, Brain, Droplets, Shield, Clock, Sun, Moon, Zap, Target, TrendingUp, Bell, Calendar, Book, Settings, User, Trophy, Award } from 'lucide-react';
+import GamificationPanel from './Gamification/GamificationPanel';
 
 // Patient Interface - eCBome Monitoring Dashboard
 // Simplified, patient-friendly view of their eCBome health data
 // ABENA SDK compliant with real-time monitoring
+// NOW WITH GAMIFICATION - Patient data collection incentivized!
 
 const PatientDashboard = () => {
   // State management
@@ -13,6 +15,8 @@ const PatientDashboard = () => {
   const [notifications, setNotifications] = useState([]);
   const [goals, setGoals] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentView, setCurrentView] = useState('dashboard'); // 'dashboard' or 'gamification'
+  const [dataEntryLog, setDataEntryLog] = useState([]);
 
   // Mock patient data - In production, comes from ABENA SDK
   useEffect(() => {
@@ -178,7 +182,53 @@ const PatientDashboard = () => {
         </div>
       </header>
 
+      {/* Navigation Tabs */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className="bg-white rounded-lg shadow-sm p-1 flex space-x-1">
+          <button
+            onClick={() => setCurrentView('dashboard')}
+            className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-md text-sm font-semibold transition-all ${
+              currentView === 'dashboard'
+                ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-md'
+                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+            }`}
+          >
+            <Brain className="w-5 h-5" />
+            eCBome Dashboard
+          </button>
+          <button
+            onClick={() => setCurrentView('gamification')}
+            className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-md text-sm font-semibold transition-all ${
+              currentView === 'gamification'
+                ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-md'
+                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+            }`}
+          >
+            <Trophy className="w-5 h-5" />
+            Health Rewards
+            {dataEntryLog.length > 0 && (
+              <span className="ml-1 px-2 py-0.5 bg-yellow-400 text-xs font-bold rounded-full">
+                {dataEntryLog.length} new
+              </span>
+            )}
+          </button>
+        </div>
+      </div>
+
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* Conditional Rendering Based on Current View */}
+        {currentView === 'gamification' ? (
+          // Gamification Panel - Data Collection Incentive System
+          <GamificationPanel 
+            onDataLogged={(data) => {
+              console.log('Health data logged via gamification:', data);
+              setDataEntryLog(prev => [data, ...prev].slice(0, 10));
+              // In production: await abena.submitHealthData(patientId, data, 'patient-data-entry')
+            }}
+          />
+        ) : (
+          // Original eCBome Dashboard
+          <>
         {/* Main Score Card */}
         <div className="bg-white rounded-2xl shadow-lg p-8 mb-8 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full -mr-16 -mt-16 opacity-10"></div>
@@ -481,6 +531,8 @@ const PatientDashboard = () => {
             </div>
           </div>
         </div>
+        </>
+        )}
       </div>
     </div>
   );
