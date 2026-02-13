@@ -69,6 +69,15 @@ export default function MVPCoverPage() {
       external: true
     },
     {
+      name: 'eCBome Intelligence',
+      description: 'Endocannabinoid system analysis and test suite',
+      href: 'https://ecbome-intelligence-dashboard.onrender.com',
+      icon: Brain,
+      color: 'bg-emerald-600 hover:bg-emerald-700',
+      badge: 'eCBome Analysis',
+      external: true
+    },
+    {
       name: 'Quantum Analysis',
       description: 'Live quantum computing results from IBM hardware',
       href: 'https://abena-quantum-healthcare-platform.onrender.com',
