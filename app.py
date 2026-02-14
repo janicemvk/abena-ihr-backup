@@ -473,6 +473,7 @@ def analyze():
                 })
             except Exception as e:
                 logger.warning(f"IBM job submission skipped/failed: {e}")
+                ibm_job = {"mode": "skipped", "error": str(e)}
 
         results = {
             "success": True,
