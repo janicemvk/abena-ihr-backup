@@ -192,7 +192,7 @@ class UnifiedIntegrationLayer {
   getModuleRegistry() {
     return {
       modules: [
-        { id: 'ecdome-analysis', name: 'eCDome Analysis', status: 'active' },
+        { id: 'ecdome-analysis', name: 'eCBome Analysis', status: 'active' },
         { id: 'clinical-workflow', name: 'Clinical Workflow', status: 'active' },
         { id: 'biomarker-integration', name: 'Biomarker Integration', status: 'active' },
         { id: 'ihr-system', name: 'IHR System', status: 'active' }

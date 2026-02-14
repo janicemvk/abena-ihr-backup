@@ -85,7 +85,7 @@ class AbenaSDK {
         return {
             // Core Systems
             core: {
-                ecdome: { name: 'eCdome Intelligence', status: 'active', priority: 'critical', data: { correlations: 47, impact: 'high' }, lastUpdate: '2 min ago' },
+                ecdome: { name: 'eCBome Intelligence', status: 'active', priority: 'critical', data: { correlations: 47, impact: 'high' }, lastUpdate: '2 min ago' },
                 gamification: { name: 'Gamification System', status: 'active', priority: 'high', data: { correlations: 23, impact: 'medium' }, lastUpdate: '1 min ago' },
                 patientForm: { name: 'Patient Demographics', status: 'active', priority: 'high', data: { correlations: 15, impact: 'high' }, lastUpdate: '5 min ago' }
             },
@@ -136,7 +136,7 @@ class AbenaSDK {
                 },
                 overallCoherence: 87,
                 topPerformingModules: [
-                    { name: 'eCdome Intelligence', correlations: 47, impact: 'high', category: 'Core' },
+                    { name: 'eCBome Intelligence', correlations: 47, impact: 'high', category: 'Core' },
                     { name: 'Gut Microbiome', correlations: 52, impact: 'high', category: 'Functional' },
                     { name: 'Advanced Diagnostics', correlations: 45, impact: 'critical', category: 'Modern' },
                     { name: 'Metabolic Analysis', correlations: 41, impact: 'high', category: 'Functional' },
@@ -148,7 +148,7 @@ class AbenaSDK {
                 ],
                 recommendationEngine: {
                     primary: [
-                        { intervention: 'Integrate eCdome analysis with TCM pulse diagnosis', modules: ['eCdome Intelligence', 'Traditional Chinese Medicine'], priority: 'critical' },
+                        { intervention: 'Integrate eCBome analysis with TCM pulse diagnosis', modules: ['eCBome Intelligence', 'Traditional Chinese Medicine'], priority: 'critical' },
                         { intervention: 'Correlate microbiome data with Ayurvedic dosha assessment', modules: ['Gut Microbiome', 'Ayurvedic Medicine'], priority: 'high' }
                     ],
                     secondary: [

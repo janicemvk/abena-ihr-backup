@@ -32,7 +32,7 @@ const UnifiedIntegrationLayer = ({ moduleRegistry = [] }) => {
         setRegisteredModules({
           // Core Systems
           core: {
-            ecdome: { name: 'eCdome Intelligence', status: 'active', priority: 'critical', data: {}, lastUpdate: '2 min ago' },
+            ecdome: { name: 'eCBome Intelligence', status: 'active', priority: 'critical', data: {}, lastUpdate: '2 min ago' },
             gamification: { name: 'Gamification System', status: 'active', priority: 'high', data: {}, lastUpdate: '1 min ago' },
             patientForm: { name: 'Patient Demographics', status: 'active', priority: 'high', data: {}, lastUpdate: '5 min ago' }
           },
@@ -201,12 +201,12 @@ const UnifiedIntegrationLayer = ({ moduleRegistry = [] }) => {
     
     // Predefined high-correlation patterns
     const knownCorrelations = {
-      'eCdome Intelligence-Traditional Chinese Medicine': 0.94,
-      'eCdome Intelligence-Ayurvedic Medicine': 0.89,
+      'eCBome Intelligence-Traditional Chinese Medicine': 0.94,
+      'eCBome Intelligence-Ayurvedic Medicine': 0.89,
       'Stress Analysis-Anxiety Assessment': 0.96,
-      'Sleep Analysis-eCdome Intelligence': 0.87,
-      'Gut Microbiome-eCdome Intelligence': 0.83,
-      'Hormone Optimization-eCdome Intelligence': 0.91,
+      'Sleep Analysis-eCBome Intelligence': 0.87,
+      'Gut Microbiome-eCBome Intelligence': 0.83,
+      'Hormone Optimization-eCBome Intelligence': 0.91,
       'Inflammation Markers-Traditional Chinese Medicine': 0.88,
       'Heart Rate Monitor-Stress Analysis': 0.92,
       'Continuous Glucose-Metabolic Analysis': 0.95
@@ -246,7 +246,7 @@ const UnifiedIntegrationLayer = ({ moduleRegistry = [] }) => {
     // Create new random values each time this function is called
     const modules_data = [
       { 
-        name: 'eCdome Intelligence', 
+        name: 'eCBome Intelligence', 
         score: getRandom(92, 98), 
         impact: 'high', 
         correlations: getRandom(45, 50), 
@@ -291,23 +291,23 @@ const UnifiedIntegrationLayer = ({ moduleRegistry = [] }) => {
       {
         modules: ['Traditional Chinese Medicine', 'Ayurvedic Medicine'],
         conflict: 'Conflicting thermal recommendations: TCM suggests warming foods, Ayurveda suggests cooling',
-        ecdomeResolution: 'eCdome cortisol levels (elevated) support Ayurvedic cooling approach initially',
+        ecdomeResolution: 'eCBome cortisol levels (elevated) support Ayurvedic cooling approach initially',
         confidence: 0.94,
-        recommendation: 'Start with cooling protocol, monitor eCdome markers, adjust to warming as inflammation reduces'
+        recommendation: 'Start with cooling protocol, monitor eCBome markers, adjust to warming as inflammation reduces'
       },
       {
         modules: ['Medication Management', 'Traditional Chinese Medicine'],
         conflict: 'Potential herb-drug interactions with current SSRI prescription',
-        ecdomeResolution: 'eCdome analysis shows FAAH inhibition by current herbs may enhance SSRI effects',
+        ecdomeResolution: 'eCBome analysis shows FAAH inhibition by current herbs may enhance SSRI effects',
         confidence: 0.87,
-        recommendation: 'Reduce herb dosage by 30%, monitor serotonin-eCdome interactions closely'
+        recommendation: 'Reduce herb dosage by 30%, monitor serotonin-eCBome interactions closely'
       },
       {
         modules: ['Sleep Analysis', 'Heart Rate Monitor'],
         conflict: 'Sleep tracker shows good sleep quality but HRV indicates poor recovery',
-        ecdomeResolution: 'eCdome circadian analysis reveals disrupted endocannabinoid rhythm despite sleep duration',
+        ecdomeResolution: 'eCBome circadian analysis reveals disrupted endocannabinoid rhythm despite sleep duration',
         confidence: 0.91,
-        recommendation: 'Focus on sleep quality over quantity, implement evening eCdome optimization routine'
+        recommendation: 'Focus on sleep quality over quantity, implement evening eCBome optimization routine'
       }
     ];
   };
@@ -317,15 +317,15 @@ const UnifiedIntegrationLayer = ({ moduleRegistry = [] }) => {
       primary: [
         {
           intervention: 'Integrated Stress Reduction Protocol',
-          modules: ['eCdome Intelligence', 'Stress Analysis', 'Traditional Chinese Medicine', 'Heart Rate Monitor', 'Anxiety Assessment'],
+          modules: ['eCBome Intelligence', 'Stress Analysis', 'Traditional Chinese Medicine', 'Heart Rate Monitor', 'Anxiety Assessment'],
           priority: 'Critical',
           timeline: 'Immediate - 2 weeks',
           expectedImpact: 'High',
           confidence: 0.94
         },
         {
-          intervention: 'Gut-Brain-eCdome Optimization',
-          modules: ['Gut Microbiome', 'eCdome Intelligence', 'Inflammation Markers', 'Traditional Chinese Medicine'],
+          intervention: 'Gut-Brain-eCBome Optimization',
+          modules: ['Gut Microbiome', 'eCBome Intelligence', 'Inflammation Markers', 'Traditional Chinese Medicine'],
           priority: 'Critical',
           timeline: '2-6 weeks',
           expectedImpact: 'High',
@@ -335,7 +335,7 @@ const UnifiedIntegrationLayer = ({ moduleRegistry = [] }) => {
       secondary: [
         {
           intervention: 'Circadian Rhythm Restoration',
-          modules: ['Sleep Analysis', 'eCdome Intelligence', 'Heart Rate Monitor', 'Hormone Optimization'],
+          modules: ['Sleep Analysis', 'eCBome Intelligence', 'Heart Rate Monitor', 'Hormone Optimization'],
           priority: 'High',
           timeline: '4-8 weeks',
           expectedImpact: 'Medium-High',
@@ -343,7 +343,7 @@ const UnifiedIntegrationLayer = ({ moduleRegistry = [] }) => {
         },
         {
           intervention: 'Traditional Medicine Integration',
-          modules: ['Traditional Chinese Medicine', 'Ayurvedic Medicine', 'eCdome Intelligence', 'Conflict Resolution'],
+          modules: ['Traditional Chinese Medicine', 'Ayurvedic Medicine', 'eCBome Intelligence', 'Conflict Resolution'],
           priority: 'High',
           timeline: '2-12 weeks',
           expectedImpact: 'Medium-High',
@@ -708,7 +708,7 @@ const UnifiedIntegrationLayer = ({ moduleRegistry = [] }) => {
         <div className="h-80">
           <ResponsiveContainer width="100%" height="100%">
             <RadarChart data={[
-              { module: 'eCdome', current: 96, optimal: 100, correlations: 47 },
+              { module: 'eCBome', current: 96, optimal: 100, correlations: 47 },
               { module: 'TCM', current: 92, optimal: 100, correlations: 31 },
               { module: 'Ayurveda', current: 89, optimal: 100, correlations: 25 },
               { module: 'IoT Devices', current: 91, optimal: 100, correlations: 19 },
@@ -807,7 +807,7 @@ const UnifiedIntegrationLayer = ({ moduleRegistry = [] }) => {
                 <p className="text-orange-800 mb-3">{conflict.conflict}</p>
                 
                 <div className="bg-white p-3 rounded border-l-4 border-purple-400 mb-3">
-                  <h4 className="font-medium text-purple-800 mb-1">🧠 eCdome-Guided Resolution:</h4>
+                  <h4 className="font-medium text-purple-800 mb-1">🧠 eCBome-Guided Resolution:</h4>
                   <p className="text-purple-700 text-sm mb-2">{conflict.ecdomeResolution}</p>
                   <div className="text-xs text-gray-600">
                     AI Confidence: {Math.round(conflict.confidence * 100)}%
@@ -851,7 +851,7 @@ const UnifiedIntegrationLayer = ({ moduleRegistry = [] }) => {
           </div>
           
           <div className="p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">
-            <h3 className="font-semibold text-blue-800 mb-2">eCdome Status</h3>
+            <h3 className="font-semibold text-blue-800 mb-2">eCBome Status</h3>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span>AEA Level:</span>
@@ -921,7 +921,7 @@ const UnifiedIntegrationLayer = ({ moduleRegistry = [] }) => {
               <p>• <strong>Auto-Discovery:</strong> New modules automatically detected and analyzed</p>
               <p>• <strong>Real-Time Correlation:</strong> Immediate pattern recognition with existing modules</p>
               <p>• <strong>Conflict Detection:</strong> AI identifies and resolves contradictions</p>
-              <p>• <strong>eCdome Validation:</strong> All recommendations scientifically validated</p>
+              <p>• <strong>eCBome Validation:</strong> All recommendations scientifically validated</p>
               <p>• <strong>Gamification Integration:</strong> Automatic engagement features</p>
             </div>
           </div>
@@ -996,7 +996,7 @@ const UnifiedIntegrationLayer = ({ moduleRegistry = [] }) => {
               <YAxis />
               <Tooltip />
               <Legend />
-              <Line type="monotone" dataKey="ecdome" stroke="#8b5cf6" strokeWidth={3} name="eCdome Balance %" />
+              <Line type="monotone" dataKey="ecdome" stroke="#8b5cf6" strokeWidth={3} name="eCBome Balance %" />
               <Line type="monotone" dataKey="symptoms" stroke="#ef4444" strokeWidth={3} name="Symptom Severity (10-scale)" />
               <Line type="monotone" dataKey="engagement" stroke="#10b981" strokeWidth={3} name="Patient Engagement %" />
               <Line type="monotone" dataKey="traditionalmedicine" stroke="#f59e0b" strokeWidth={3} name="Traditional Medicine Efficacy %" />
@@ -1007,7 +1007,7 @@ const UnifiedIntegrationLayer = ({ moduleRegistry = [] }) => {
         <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
           <div className="text-center p-3 bg-purple-50 rounded">
             <div className="font-bold text-purple-800">+11%</div>
-            <div className="text-purple-600">eCdome Improvement Predicted</div>
+            <div className="text-purple-600">eCBome Improvement Predicted</div>
           </div>
           <div className="text-center p-3 bg-green-50 rounded">
             <div className="font-bold text-green-800">83%</div>
@@ -1039,7 +1039,7 @@ const UnifiedIntegrationLayer = ({ moduleRegistry = [] }) => {
               <li>• {moduleAnalytics.overallCoherence}% cross-system coherence maintained</li>
               <li>• {Object.keys(moduleAnalytics.correlationMatrix || {}).length} real-time correlations tracked</li>
               <li>• {(moduleAnalytics.conflictingModules || []).length} conflicts resolved automatically</li>
-              <li>• eCdome intelligence validates all recommendations</li>
+              <li>• eCBome intelligence validates all recommendations</li>
             </ul>
           </div>
           
