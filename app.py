@@ -88,16 +88,12 @@ def _get_ibm_service():
     # NOTE: qiskit-ibm-runtime changed accepted channel names over time.
     # Some versions accept only: 'ibm_cloud' or 'ibm_quantum'
     # Older docs/scripts used: 'ibm_quantum_platform'
-    #
-    # We try both so the investor demo works reliably on Render.
     token = os.getenv("QISKIT_IBM_TOKEN")
     last_err = None
-    # Try modern channels first, then legacy.
     for channel in ("ibm_quantum", "ibm_cloud", "ibm_quantum_platform"):
         try:
             if token:
                 return QiskitRuntimeService(channel=channel, token=token)
-            # Fall back to saved credentials (local dev)
             return QiskitRuntimeService(channel=channel)
         except Exception as e:
             last_err = e
@@ -404,6 +400,9 @@ def analyze():
         supplements = data.get('supplements', [])
         conditions = data.get('conditions', [])
         
+        supplements = data.get('supplements', [])
+        conditions = data.get('conditions', [])
+
         recommended_herbs = data.get('recommended_herbs', [])
         
         # TODO: Implement actual quantum analysis
@@ -462,6 +461,19 @@ def analyze():
                 logger.warning(f"IBM job submission skipped/failed: {e}")
                 ibm_job = {"mode": "skipped", "error": str(e)}
         
+        # Optional: submit a real IBM hardware job and include the Job ID (do NOT wait for completion)
+        ibm_job = None
+        if data.get("run_ibm_job") is True:
+            try:
+                ibm_job = _submit_ibm_job({
+                    "medications": medications,
+                    "supplements": supplements,
+                    "conditions": conditions,
+                    "patient_id": patient_id
+                })
+            except Exception as e:
+                logger.warning(f"IBM job submission skipped/failed: {e}")
+
         results = {
             "success": True,
             "results": {
