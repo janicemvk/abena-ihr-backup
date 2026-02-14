@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, RadialBarChart, RadialBar, AreaChart, Area } from 'recharts';
 import { Activity, Heart, Brain, Droplets, Shield, Clock, Sun, Moon, Zap, Target, TrendingUp, Bell, Calendar, Book, Settings, User, Trophy, Award } from 'lucide-react';
 import GamificationPanel from './Gamification/GamificationPanel';
+import OptimizeTreatment from './OptimizeTreatment';
 
 // Patient Interface - eCBome Monitoring Dashboard
 // Simplified, patient-friendly view of their eCBome health data
@@ -15,7 +16,7 @@ const PatientDashboard = () => {
   const [notifications, setNotifications] = useState([]);
   const [goals, setGoals] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [currentView, setCurrentView] = useState('dashboard'); // 'dashboard' or 'gamification'
+  const [currentView, setCurrentView] = useState('dashboard'); // 'dashboard' | 'gamification' | 'optimize'
   const [dataEntryLog, setDataEntryLog] = useState([]);
 
   // Mock patient data - In production, comes from ABENA SDK
@@ -212,6 +213,17 @@ const PatientDashboard = () => {
               </span>
             )}
           </button>
+          <button
+            onClick={() => setCurrentView('optimize')}
+            className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-md text-sm font-semibold transition-all ${
+              currentView === 'optimize'
+                ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-md'
+                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+            }`}
+          >
+            <Zap className="w-5 h-5" />
+            Optimize Treatment
+          </button>
         </div>
       </div>
 
@@ -226,6 +238,8 @@ const PatientDashboard = () => {
               // In production: await abena.submitHealthData(patientId, data, 'patient-data-entry')
             }}
           />
+        ) : currentView === 'optimize' ? (
+          <OptimizeTreatment onBack={() => setCurrentView('dashboard')} />
         ) : (
           // Original eCBome Dashboard
           <>

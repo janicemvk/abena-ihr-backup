@@ -16,6 +16,14 @@ from services.abena_ihr_client import ihr_client
 from services.ecbome_client import ecbome_client
 import asyncio
 
+# Optional IBM Runtime (only needed for live hardware Job IDs)
+try:
+    from qiskit import QuantumCircuit, transpile
+    from qiskit_ibm_runtime import QiskitRuntimeService, Sampler
+    IBM_RUNTIME_AVAILABLE = True
+except Exception:
+    IBM_RUNTIME_AVAILABLE = False
+
 # Initialize Flask app
 app = Flask(__name__)
 CORS(app)
@@ -40,11 +48,123 @@ logger.info(f"Quantum Healthcare Service starting on port {PORT}")
 logger.info(f"ABENA IHR API: {ABENA_IHR_API}")
 logger.info(f"eCBome API: {ECBOME_API}")
 
+def _normalize_items(values):
+    """Normalize meds/supplements/conditions to a list of lowercase strings."""
+    if not values:
+        return []
+    if isinstance(values, str):
+        values = [values]
+    if isinstance(values, dict):
+        values = list(values.values())
+    return [str(v).strip().lower() for v in values if str(v).strip()]
+
+def _detect_warfarin_fish_oil_interaction(medications, supplements):
+    """Return a specific, demo-friendly interaction if present."""
+    meds = _normalize_items(medications)
+    sups = _normalize_items(supplements)
+
+    has_warfarin = any('warfarin' in m for m in meds)
+    has_fish_oil = any('fish oil' in s or 'omega' in s for s in sups) or any('fish oil' in m for m in meds)
+
+    if has_warfarin and has_fish_oil:
+        return {
+            "medication1": "warfarin",
+            "medication2": "fish oil",
+            "interaction_score": 0.82,
+            "severity": "high",
+            "recommendation": "Bleeding risk detected. Consider reducing Fish Oil to 500mg and consult your care team."
+        }
+    return None
+
+def _get_ibm_service():
+    """
+    Create an IBM Runtime service.
+    On Render, set env var QISKIT_IBM_TOKEN.
+    Locally, saved credentials file (~/.qiskit/qiskit-ibm.json) may also work.
+    """
+    if not IBM_RUNTIME_AVAILABLE:
+        raise RuntimeError("IBM runtime not available (qiskit-ibm-runtime not installed).")
+
+    token = os.getenv("QISKIT_IBM_TOKEN")
+    if token:
+        return QiskitRuntimeService(channel='ibm_quantum_platform', token=token)
+    # Fall back to saved credentials (local dev)
+    return QiskitRuntimeService(channel='ibm_quantum_platform')
+
+def _submit_ibm_job(payload):
+    """
+    Submit a small 4-qubit circuit to IBM hardware and return Job ID immediately.
+    This proves real IBM execution without waiting for results.
+    """
+    service = _get_ibm_service()
+
+    # Choose least busy operational hardware
+    backend = service.least_busy(simulator=False, operational=True)
+
+    qc = QuantumCircuit(4, 4)
+
+    # Basic exploration superposition
+    for q in range(4):
+        qc.h(q)
+
+    # Simple entanglement chain (interaction modeling)
+    qc.cx(0, 1)
+    qc.cx(1, 2)
+    qc.cx(2, 3)
+
+    # Light parameterization based on input richness (kept deterministic & safe)
+    meds = payload.get("medications", []) or []
+    sups = payload.get("supplements", []) or []
+    conds = payload.get("conditions", []) or payload.get("symptoms", []) or []
+    richness = min(10, len(meds) + len(sups) + len(conds))
+    angle = (richness + 1) * 0.15
+    qc.ry(angle, 0)
+    qc.ry(angle / 1.5, 1)
+    qc.ry(angle / 2.0, 2)
+    qc.ry(angle / 1.8, 3)
+
+    qc.measure([0, 1, 2, 3], [0, 1, 2, 3])
+
+    transpiled_qc = transpile(qc, backend=backend, optimization_level=3)
+
+    sampler = Sampler(mode=backend)
+    job = sampler.run([transpiled_qc], shots=1024)
+
+    return {
+        "job_id": job.job_id(),
+        "backend": getattr(backend, "name", str(backend)),
+        "status": str(job.status()),
+        "submitted_at": datetime.now().isoformat(),
+        "mode": "ibm_hardware"
+    }
+
 
 @app.route('/')
 def index():
     """Quantum Healthcare Dashboard"""
     return render_template('dashboard.html')
+
+@app.route('/api/ibm/submit', methods=['POST'])
+@general_api_limit
+def ibm_submit():
+    """
+    Submit an IBM Quantum hardware job and return a real Job ID.
+    This endpoint is designed for live investor demos.
+    """
+    try:
+        payload = request.get_json() or {}
+        if not IBM_RUNTIME_AVAILABLE:
+            return jsonify({
+                "success": False,
+                "error": "IBM runtime not installed on this service",
+                "detail": "Install qiskit-ibm-runtime and set QISKIT_IBM_TOKEN to enable real Job IDs."
+            }), 501
+
+        job_info = _submit_ibm_job(payload)
+        return jsonify({"success": True, "ibm_job": job_info}), 200
+    except Exception as e:
+        logger.error(f"IBM submit error: {str(e)}")
+        return jsonify({"success": False, "error": "IBM job submission failed", "detail": str(e)}), 500
 
 
 @app.route('/api/demo-results', methods=['GET'])
@@ -253,6 +373,9 @@ def analyze():
         medications = data.get('medications', [])
         if not medications and prescriptions:
             medications = [p.get('medication') or p.get('drug_name') for p in prescriptions if p.get('medication') or p.get('drug_name')]
+
+        supplements = data.get('supplements', [])
+        conditions = data.get('conditions', [])
         
         recommended_herbs = data.get('recommended_herbs', [])
         
@@ -279,8 +402,14 @@ def analyze():
         
         computation_time = int((time.time() - start_time) * 1000)
         
-        # Generate drug interactions (mock)
+        # Generate drug interactions (demo-friendly + basic mock)
         drug_interactions = []
+
+        # Specific, high-signal demo case: Warfarin + Fish Oil
+        wf = _detect_warfarin_fish_oil_interaction(medications, supplements)
+        if wf:
+            drug_interactions.append(wf)
+
         if len(medications) > 1:
             for i, med1 in enumerate(medications[:3]):  # Limit to first 3
                 for med2 in medications[i+1:3]:
@@ -291,6 +420,19 @@ def analyze():
                         "severity": "low",
                         "recommendation": "Monitor for interactions"
                     })
+
+        # Optional: submit a real IBM hardware job and include the Job ID (do NOT wait for completion)
+        ibm_job = None
+        if data.get("run_ibm_job") is True:
+            try:
+                ibm_job = _submit_ibm_job({
+                    "medications": medications,
+                    "supplements": supplements,
+                    "conditions": conditions,
+                    "patient_id": patient_id
+                })
+            except Exception as e:
+                logger.warning(f"IBM job submission skipped/failed: {e}")
         
         results = {
             "success": True,
@@ -302,6 +444,8 @@ def analyze():
                 "symptoms_analyzed": len(symptoms),
                 "biomarkers_analyzed": len(biomarkers),
                 "medications_checked": len(medications),
+                "supplements_checked": len(supplements) if isinstance(supplements, list) else 0,
+                "conditions_checked": len(conditions) if isinstance(conditions, list) else 0,
                 "herbs_evaluated": len(recommended_herbs),
                 "drug_interactions": drug_interactions,
                 "herbal_recommendations": [],
@@ -310,6 +454,7 @@ def analyze():
                     "ecdome": ecdome_biomarkers is not None,
                     "prescriptions_count": len(prescriptions)
                 },
+                "ibm_job": ibm_job,
                 "recommendations": [
                     "Continue monitoring biomarkers",
                     "Review medication interactions",
