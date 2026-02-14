@@ -85,11 +85,23 @@ def _get_ibm_service():
     if not IBM_RUNTIME_AVAILABLE:
         raise RuntimeError("IBM runtime not available (qiskit-ibm-runtime not installed).")
 
+    # NOTE: qiskit-ibm-runtime changed accepted channel names over time.
+    # Some versions accept only: 'ibm_cloud' or 'ibm_quantum'
+    # Older docs/scripts used: 'ibm_quantum_platform'
+    #
+    # We try both so the investor demo works reliably on Render.
     token = os.getenv("QISKIT_IBM_TOKEN")
-    if token:
-        return QiskitRuntimeService(channel='ibm_quantum_platform', token=token)
-    # Fall back to saved credentials (local dev)
-    return QiskitRuntimeService(channel='ibm_quantum_platform')
+    last_err = None
+    for channel in ("ibm_quantum", "ibm_quantum_platform"):
+        try:
+            if token:
+                return QiskitRuntimeService(channel=channel, token=token)
+            # Fall back to saved credentials (local dev)
+            return QiskitRuntimeService(channel=channel)
+        except Exception as e:
+            last_err = e
+            continue
+    raise last_err or RuntimeError("Failed to initialize IBM Runtime service")
 
 def _submit_ibm_job(payload):
     """
@@ -465,7 +477,7 @@ def analyze():
                 "herbal_recommendations": [],
                 "data_sources": {
                     "abena_ihr": patient_data is not None,
-                    "ecdome": ecdome_biomarkers is not None,
+                    "ecdome": ecbome_biomarkers is not None,
                     "prescriptions_count": len(prescriptions)
                 },
                 "ibm_job": ibm_job,
