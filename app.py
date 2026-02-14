@@ -335,31 +335,45 @@ def analyze():
             except (IndexError, AttributeError):
                 token = None
         
-        # Log analysis start
-        db_client.log_analysis_history(
-            patient_id=patient_id,
-            analysis_type='full_analysis',
-            status='in_progress',
-            input_data=data
-        )
+        # Log analysis start (never block demo if DB is unavailable)
+        try:
+            db_client.log_analysis_history(
+                patient_id=patient_id,
+                analysis_type='full_analysis',
+                status='in_progress',
+                input_data=data
+            )
+        except Exception as e:
+            logger.warning(f"DB history logging skipped: {e}")
         
         logger.info(f"Analyzing patient {patient_id}")
         
-        # Fetch data from external services (async)
-        async def fetch_patient_data():
-            patient_data = await ihr_client.get_patient_data(patient_id, token)
-            prescriptions = await ihr_client.get_patient_prescriptions(patient_id, token)
-            biomarkers = await ecbome_client.get_latest_biomarkers(patient_id, token)
-            return patient_data, prescriptions, biomarkers
-        
-        # Run async data fetching
-        try:
-            patient_data, prescriptions, ecdome_biomarkers = asyncio.run(fetch_patient_data())
-        except Exception as e:
-            logger.warning(f"Error fetching external data: {e}, using provided data")
-            patient_data = None
-            prescriptions = []
-            ecbome_biomarkers = None
+        # If the caller is providing inputs directly (investor demo flow), skip async
+        # calls to other services to avoid network/loop issues and keep the demo reliable.
+        has_direct_inputs = bool(
+            data.get('medications') or data.get('supplements') or data.get('conditions') or data.get('symptoms')
+        )
+
+        patient_data = None
+        prescriptions = []
+        ecbome_biomarkers = None
+
+        if not has_direct_inputs:
+            # Fetch data from external services (async)
+            async def fetch_patient_data():
+                patient_data = await ihr_client.get_patient_data(patient_id, token)
+                prescriptions = await ihr_client.get_patient_prescriptions(patient_id, token)
+                biomarkers = await ecbome_client.get_latest_biomarkers(patient_id, token)
+                return patient_data, prescriptions, biomarkers
+            
+            # Run async data fetching
+            try:
+                patient_data, prescriptions, ecbome_biomarkers = asyncio.run(fetch_patient_data())
+            except Exception as e:
+                logger.warning(f"Error fetching external data: {e}, using provided data")
+                patient_data = None
+                prescriptions = []
+                ecbome_biomarkers = None
         
         # Extract analysis parameters (use provided or fetched data)
         symptoms = data.get('symptoms', [])
@@ -502,7 +516,11 @@ def analyze():
         
     except Exception as e:
         logger.error(f"Analysis error: {str(e)}")
-        return jsonify({"error": "Analysis failed", "detail": str(e)}), 500
+        return jsonify({
+            "error": "Analysis failed",
+            "detail": str(e),
+            "hint": "For live demos, provide medications/supplements/conditions directly (skips external service calls)."
+        }), 500
 
 
 @app.route('/api/patients/<patient_id>/analyses', methods=['GET'])
