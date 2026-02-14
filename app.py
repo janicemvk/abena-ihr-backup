@@ -92,7 +92,8 @@ def _get_ibm_service():
     # We try both so the investor demo works reliably on Render.
     token = os.getenv("QISKIT_IBM_TOKEN")
     last_err = None
-    for channel in ("ibm_quantum", "ibm_quantum_platform"):
+    # Try modern channels first, then legacy.
+    for channel in ("ibm_quantum", "ibm_cloud", "ibm_quantum_platform"):
         try:
             if token:
                 return QiskitRuntimeService(channel=channel, token=token)
@@ -459,6 +460,7 @@ def analyze():
                 })
             except Exception as e:
                 logger.warning(f"IBM job submission skipped/failed: {e}")
+                ibm_job = {"mode": "skipped", "error": str(e)}
         
         results = {
             "success": True,

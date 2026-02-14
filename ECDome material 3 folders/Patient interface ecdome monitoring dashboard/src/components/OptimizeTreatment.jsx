@@ -62,6 +62,7 @@ export default function OptimizeTreatment({ onBack }) {
 
   const ibmJobId = result?.ibm_job?.job_id || null;
   const ibmBackend = result?.ibm_job?.backend || null;
+  const ibmJobError = result?.ibm_job?.error || null;
   const interaction = Array.isArray(result?.drug_interactions) ? result.drug_interactions[0] : null;
 
   return (
@@ -179,6 +180,15 @@ export default function OptimizeTreatment({ onBack }) {
               ) : (
                 <div className="text-sm text-gray-600">
                   IBM Job ID not available. (If this is Render: set <span className="font-mono">QISKIT_IBM_TOKEN</span> on the Quantum service and redeploy.)
+                  {ibmJobError && (
+                    <div className="mt-2 p-3 rounded-lg bg-yellow-50 border border-yellow-200 text-yellow-900">
+                      <div className="font-semibold mb-1">IBM submission detail</div>
+                      <div className="font-mono text-xs break-words">{ibmJobError}</div>
+                      <div className="text-xs mt-2 text-yellow-800">
+                        If you see a DNS/NameResolutionError, Render can’t reach IBM from that environment—run the IBM job from your local machine for the live demo and paste/show the Job ID in IBM Quantum.
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
