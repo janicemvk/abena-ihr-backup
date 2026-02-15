@@ -21,6 +21,22 @@ except ImportError:
     print("   Install it with: pip install qiskit-ibm-runtime")
     sys.exit(1)
 
+def _try_create_service(channel: str, token: str | None = None, instance: str | None = None):
+    """Create a QiskitRuntimeService with the right parameters for the channel."""
+    if channel == "ibm_cloud":
+        # IBM Cloud requires an API key token + instance CRN (or service name)
+        if token and instance:
+            return QiskitRuntimeService(channel=channel, token=token, instance=instance)
+        if instance:
+            return QiskitRuntimeService(channel=channel, instance=instance)
+        if token:
+            return QiskitRuntimeService(channel=channel, token=token)
+        return QiskitRuntimeService(channel=channel)
+    # IBM Quantum channel (legacy / may be deprecated or blocked by DNS depending on network)
+    if token:
+        return QiskitRuntimeService(channel=channel, token=token)
+    return QiskitRuntimeService(channel=channel)
+
 def check_existing_credentials():
     """Check if credentials already exist"""
     print("\n" + "="*70)
@@ -60,11 +76,14 @@ def test_connection(token=None):
     print("="*70)
     
     try:
-        # Modern qiskit-ibm-runtime accepts only these channels:
+        # Modern qiskit-ibm-runtime accepts only:
         # - 'ibm_quantum'
-        # - 'ibm_cloud'
-        # (Older docs referenced 'ibm_quantum_platform', but recent runtimes reject it.)
-        channels_to_try = ['ibm_quantum', 'ibm_cloud']
+        # - 'ibm_cloud'  (requires Instance CRN for most setups)
+        #
+        # If you're using the new IBM Quantum Cloud dashboard (quantum.cloud.ibm.com),
+        # you likely want ibm_cloud + API key + Instance CRN.
+        channels_to_try = ['ibm_cloud', 'ibm_quantum']
+        instance = os.getenv("QISKIT_IBM_INSTANCE") or os.getenv("IBM_QUANTUM_INSTANCE")
 
         last_err = None
         service = None
@@ -72,9 +91,9 @@ def test_connection(token=None):
             try:
                 print(f"   Trying channel: {channel}")
                 if token:
-                    service = QiskitRuntimeService(channel=channel, token=token)
+                    service = _try_create_service(channel, token=token, instance=instance)
                 else:
-                    service = QiskitRuntimeService(channel=channel)
+                    service = _try_create_service(channel, token=None, instance=instance)
                 break
             except Exception as e:
                 print(f"   ⚠️  Channel {channel} failed: {e}")
@@ -108,7 +127,7 @@ def test_connection(token=None):
         print("   3. IBM Quantum service temporarily unavailable")
         return False
 
-def save_credentials(token, channel=None):
+def save_credentials(token, channel=None, instance=None):
     """Save credentials to Qiskit config file"""
     print("\n" + "="*70)
     print("💾 SAVING CREDENTIALS")
@@ -116,13 +135,16 @@ def save_credentials(token, channel=None):
     
     try:
         # Prefer modern channel names.
-        channels_to_try = [channel] if channel else ['ibm_quantum', 'ibm_cloud']
+        channels_to_try = [channel] if channel else ['ibm_cloud', 'ibm_quantum']
         last_err = None
         for ch in channels_to_try:
             if not ch:
                 continue
             try:
-                QiskitRuntimeService.save_account(channel=ch, token=token, overwrite=True)
+                if ch == "ibm_cloud" and instance:
+                    QiskitRuntimeService.save_account(channel=ch, token=token, instance=instance, overwrite=True)
+                else:
+                    QiskitRuntimeService.save_account(channel=ch, token=token, overwrite=True)
                 last_err = None
                 break
             except Exception as e:
