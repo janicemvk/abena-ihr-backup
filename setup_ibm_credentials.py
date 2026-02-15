@@ -60,15 +60,29 @@ def test_connection(token=None):
     print("="*70)
     
     try:
-        if token:
-            # Test with provided token
-            service = QiskitRuntimeService(
-                channel='ibm_quantum_platform',
-                token=token
-            )
-        else:
-            # Test with saved credentials
-            service = QiskitRuntimeService(channel='ibm_quantum_platform')
+        # Modern qiskit-ibm-runtime accepts only these channels:
+        # - 'ibm_quantum'
+        # - 'ibm_cloud'
+        # (Older docs referenced 'ibm_quantum_platform', but recent runtimes reject it.)
+        channels_to_try = ['ibm_quantum', 'ibm_cloud']
+
+        last_err = None
+        service = None
+        for channel in channels_to_try:
+            try:
+                print(f"   Trying channel: {channel}")
+                if token:
+                    service = QiskitRuntimeService(channel=channel, token=token)
+                else:
+                    service = QiskitRuntimeService(channel=channel)
+                break
+            except Exception as e:
+                print(f"   ⚠️  Channel {channel} failed: {e}")
+                last_err = e
+                service = None
+
+        if service is None:
+            raise last_err or Exception("Failed to initialize IBM Runtime service")
         
         print("✅ Connection successful!")
         
@@ -94,17 +108,28 @@ def test_connection(token=None):
         print("   3. IBM Quantum service temporarily unavailable")
         return False
 
-def save_credentials(token, channel='ibm_quantum_platform'):
+def save_credentials(token, channel=None):
     """Save credentials to Qiskit config file"""
     print("\n" + "="*70)
     print("💾 SAVING CREDENTIALS")
     print("="*70)
     
     try:
-        QiskitRuntimeService.save_account(
-            channel=channel,
-            token=token
-        )
+        # Prefer modern channel names.
+        channels_to_try = [channel] if channel else ['ibm_quantum', 'ibm_cloud']
+        last_err = None
+        for ch in channels_to_try:
+            if not ch:
+                continue
+            try:
+                QiskitRuntimeService.save_account(channel=ch, token=token, overwrite=True)
+                last_err = None
+                break
+            except Exception as e:
+                last_err = e
+                continue
+        if last_err:
+            raise last_err
         print(f"✅ Credentials saved successfully!")
         print(f"   Location: {Path.home() / '.qiskit' / 'qiskit-ibm.json'}")
         return True
