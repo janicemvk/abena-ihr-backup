@@ -47,6 +47,70 @@ quantumApi.interceptors.response.use(
 
 export const quantumService = {
   /**
+   * List provider-facing quantum requests (request -> order -> release)
+   */
+  listQuantumRequests: async (patientId, status) => {
+    try {
+      const response = await quantumApi.get('/api/quantum-requests', {
+        params: {
+          patient_id: patientId,
+          status: status || undefined,
+        },
+      });
+      return {
+        success: true,
+        data: response.data.requests || [],
+        count: response.data.count || 0,
+      };
+    } catch (error) {
+      console.error('Error listing quantum requests:', error);
+      return {
+        success: false,
+        error: error.response?.data?.error || error.message || 'Failed to list requests',
+        data: [],
+      };
+    }
+  },
+
+  /**
+   * Provider orders/runs a quantum request (attaches precomputed IBM proof on the API)
+   */
+  orderQuantumRequest: async (requestId, options = {}) => {
+    try {
+      const response = await quantumApi.post(`/api/quantum-requests/${requestId}/order`, options);
+      return {
+        success: true,
+        data: response.data.request,
+      };
+    } catch (error) {
+      console.error('Error ordering quantum request:', error);
+      return {
+        success: false,
+        error: error.response?.data?.error || error.message || 'Failed to order request',
+      };
+    }
+  },
+
+  /**
+   * Provider releases results to the patient
+   */
+  releaseQuantumRequest: async (requestId) => {
+    try {
+      const response = await quantumApi.post(`/api/quantum-requests/${requestId}/release`);
+      return {
+        success: true,
+        data: response.data.request,
+      };
+    } catch (error) {
+      console.error('Error releasing quantum request:', error);
+      return {
+        success: false,
+        error: error.response?.data?.error || error.message || 'Failed to release request',
+      };
+    }
+  },
+
+  /**
    * Run quantum analysis for a patient
    * @param {string} patientId - Patient ID
    * @param {object} options - Optional analysis parameters

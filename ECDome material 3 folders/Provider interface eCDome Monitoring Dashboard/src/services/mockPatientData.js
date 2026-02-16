@@ -25,6 +25,18 @@ const generateVitals = (baseHR, baseSystolic, baseDiastolic, baseTemp, baseO2) =
  */
 export const mockPatients = [
   {
+    id: 'JANE_001',
+    name: 'Jane (Investor Demo)',
+    age: 44,
+    gender: 'Female',
+    status: 'active',
+    riskLevel: 'high',
+    lastVisit: getTimestamp(2),
+    provider: 'Dr. Martinez',
+    ecbomeScore: 0.62,
+    mrn: 'MRN-DEMO-0001'
+  },
+  {
     id: 'PAT-001',
     name: 'James Wilson',
     age: 46,
@@ -1464,11 +1476,24 @@ export const mockPatientDetails = {
   }
 };
 
+// Demo alias so both portals can standardize on a single investor-demo patient id.
+// This intentionally reuses the rich PAT-001 profile so all dashboard modules remain populated.
+mockPatientDetails['JANE_001'] = {
+  ...mockPatientDetails['PAT-001'],
+  patientInfo: {
+    ...mockPatientDetails['PAT-001'].patientInfo,
+    id: 'JANE_001',
+    name: 'Jane (Investor Demo)',
+    mrn: 'MRN-DEMO-0001'
+  }
+};
+
 /**
  * Generate real-time vital signs for a patient
  */
 export const generateRealtimeVitals = (patientId) => {
   const baseVitals = {
+    'JANE_001': { hr: 88, sys: 188, dia: 90, temp: 98.2, o2: 93 },
     'PAT-001': { hr: 88, sys: 188, dia: 90, temp: 98.2, o2: 93 },
     'PAT-002': { hr: 74, sys: 110, dia: 74, temp: 98.4, o2: 99 },
     'PAT-003': { hr: 80, sys: 130, dia: 88, temp: 98.6, o2: 97 },

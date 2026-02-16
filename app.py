@@ -5,7 +5,9 @@ Flask API server for quantum computing-based healthcare analysis
 
 import os
 import json
+import threading
 from datetime import datetime
+from uuid import uuid4
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 import logging
@@ -47,6 +49,114 @@ DATABASE_URL = os.getenv('DATABASE_URL', default_db_url)
 logger.info(f"Quantum Healthcare Service starting on port {PORT}")
 logger.info(f"ABENA IHR API: {ABENA_IHR_API}")
 logger.info(f"eCBome API: {ECBOME_API}")
+
+# ---------------------------------------------------------------------------
+# MVP: Provider-controlled quantum ordering (request -> order -> release)
+# Demo-safe in-memory store. This is intentionally simple for investor demos.
+# ---------------------------------------------------------------------------
+
+_QUANTUM_REQUESTS = {}  # request_id -> request dict
+_QUANTUM_REQUESTS_LOCK = threading.Lock()
+
+# Pre-computed IBM proofs for demo reliability (hardware job IDs generated offline)
+_PRECOMPUTED_IBM_PROOFS = [
+    {
+        "label": "4-qubit validation",
+        "job_id": "d5skpr8husoc73epvu20",
+        "backend": "ibm_fez",
+        "date": "Jan 27, 2026",
+        "notes": "Baseline proof (16 combinations)",
+    },
+    {
+        "label": "6-qubit validation",
+        "job_id": "d6957k5bujdc73d1pod0",
+        "backend": "ibm_fez",
+        "date": "Feb 15, 2026",
+        "notes": "Scaled proof (64 combinations)",
+    },
+]
+
+def _now_iso():
+    return datetime.now().isoformat()
+
+def _safe_request_view(req):
+    """Return a stable, client-friendly view of a quantum request."""
+    if not req:
+        return None
+    return {
+        "request_id": req.get("request_id"),
+        "patient_id": req.get("patient_id"),
+        "status": req.get("status"),
+        "created_at": req.get("created_at"),
+        "ordered_at": req.get("ordered_at"),
+        "released_at": req.get("released_at"),
+        "intake": req.get("intake") or {},
+        "results": req.get("results"),
+    }
+
+def _build_order_results_for_request(req, proof_override=None):
+    intake = req.get("intake") or {}
+    medications = intake.get("medications") or []
+    supplements = intake.get("supplements") or []
+    conditions = intake.get("conditions") or []
+
+    drug_interactions = []
+    wf = _detect_warfarin_fish_oil_interaction(medications, supplements)
+    if wf:
+        drug_interactions.append(wf)
+
+    # Pre-computed IBM proof by default (reliable on Render even if IBM is blocked)
+    proof = _PRECOMPUTED_IBM_PROOFS[1]
+    if isinstance(proof_override, dict):
+        # Allow provider to override proof for demos/testing
+        job_id = proof_override.get("job_id") or proof_override.get("jobId")
+        backend = proof_override.get("backend")
+        if job_id:
+            proof = {
+                "label": proof_override.get("label") or "Precomputed proof (override)",
+                "job_id": job_id,
+                "backend": backend or proof.get("backend"),
+                "date": proof_override.get("date") or proof.get("date"),
+                "notes": proof_override.get("notes") or proof.get("notes"),
+            }
+
+    ibm_job = {
+        "mode": "precomputed",
+        "proof_mode": "precomputed",
+        "job_id": proof.get("job_id"),
+        "backend": proof.get("backend"),
+        "submitted_at": proof.get("date"),
+        "label": proof.get("label"),
+        "notes": proof.get("notes"),
+    }
+
+    summary = "No high-risk interaction detected for the provided inputs."
+    if wf:
+        summary = wf.get("recommendation") or summary
+
+    # Stable demo-friendly scores (keep provider UI looking consistent)
+    quantum_health_score = 0.85 if wf else 0.78
+    system_balance = 0.78 if wf else 0.72
+
+    return {
+        "patient_id": req.get("patient_id"),
+        "analysis_timestamp": _now_iso(),
+        "quantum_health_score": quantum_health_score,
+        "system_balance": system_balance,
+        "overall_health_score": round((quantum_health_score + system_balance) / 2, 2),
+        "safety_score": 0.71 if wf else 0.82,
+        "integration_quality": "Good",
+        "drug_interactions": drug_interactions,
+        "conditions": conditions,
+        "medications": medications,
+        "supplements": supplements,
+        "ibm_job": ibm_job,
+        "recommendations": [
+            "Provider-ordered quantum analysis (MVP)",
+            "Review and adjust supplements/meds with care team",
+        ],
+        "summary": summary,
+    }
 
 def _normalize_items(values):
     """Normalize meds/supplements/conditions to a list of lowercase strings."""
@@ -279,6 +389,148 @@ def demo_results():
     })
 
 
+# -----------------------
+# Request/Order/Release API
+# -----------------------
+
+@app.route('/api/quantum-requests', methods=['POST'])
+@general_api_limit
+def create_quantum_request():
+    """
+    Patient intake-only endpoint.
+    Creates a pending request that a provider can order/review/release.
+    """
+    payload = request.get_json() or {}
+    patient_id = payload.get("patient_id")
+    if not patient_id:
+        return jsonify({"success": False, "error": "patient_id is required"}), 400
+
+    req_id = str(uuid4())
+    req = {
+        "request_id": req_id,
+        "patient_id": patient_id,
+        "status": "pending",
+        "created_at": _now_iso(),
+        "ordered_at": None,
+        "released_at": None,
+        "intake": {
+            "medications": payload.get("medications") or [],
+            "supplements": payload.get("supplements") or [],
+            "conditions": payload.get("conditions") or [],
+        },
+        "results": None,
+    }
+
+    with _QUANTUM_REQUESTS_LOCK:
+        _QUANTUM_REQUESTS[req_id] = req
+
+    return jsonify({"success": True, "request": _safe_request_view(req)}), 201
+
+
+@app.route('/api/quantum-requests', methods=['GET'])
+@general_api_limit
+def list_quantum_requests():
+    """
+    Provider list endpoint.
+    Supports query params:
+      - patient_id
+      - status (pending|ordered|released)
+    """
+    patient_id = request.args.get("patient_id")
+    status = request.args.get("status")
+
+    with _QUANTUM_REQUESTS_LOCK:
+        requests_list = list(_QUANTUM_REQUESTS.values())
+
+    if patient_id:
+        requests_list = [r for r in requests_list if str(r.get("patient_id")) == str(patient_id)]
+    if status:
+        requests_list = [r for r in requests_list if str(r.get("status")) == str(status)]
+
+    # Newest first
+    requests_list.sort(key=lambda r: r.get("created_at") or "", reverse=True)
+
+    return jsonify({
+        "success": True,
+        "requests": [_safe_request_view(r) for r in requests_list],
+        "count": len(requests_list),
+    }), 200
+
+
+@app.route('/api/quantum-requests/<request_id>/order', methods=['POST'])
+@general_api_limit
+def order_quantum_request(request_id):
+    """
+    Provider orders/runs the analysis. For MVP reliability, this attaches a precomputed IBM proof.
+    """
+    payload = request.get_json() or {}
+    proof_override = payload.get("proof") or {}
+
+    with _QUANTUM_REQUESTS_LOCK:
+        req = _QUANTUM_REQUESTS.get(request_id)
+        if not req:
+            return jsonify({"success": False, "error": "request not found"}), 404
+
+        # Idempotent: if already ordered/released, just return current state
+        if req.get("status") in ("ordered", "released") and req.get("results"):
+            return jsonify({"success": True, "request": _safe_request_view(req)}), 200
+
+        req["status"] = "ordered"
+        req["ordered_at"] = _now_iso()
+        req["results"] = _build_order_results_for_request(req, proof_override=proof_override)
+        _QUANTUM_REQUESTS[request_id] = req
+
+    return jsonify({"success": True, "request": _safe_request_view(req)}), 200
+
+
+@app.route('/api/quantum-requests/<request_id>/release', methods=['POST'])
+@general_api_limit
+def release_quantum_request(request_id):
+    """
+    Provider releases results to the patient.
+    """
+    with _QUANTUM_REQUESTS_LOCK:
+        req = _QUANTUM_REQUESTS.get(request_id)
+        if not req:
+            return jsonify({"success": False, "error": "request not found"}), 404
+
+        if req.get("status") == "pending":
+            # Provider must order/run first
+            return jsonify({"success": False, "error": "request must be ordered before release"}), 400
+
+        req["status"] = "released"
+        req["released_at"] = _now_iso()
+        _QUANTUM_REQUESTS[request_id] = req
+
+    return jsonify({"success": True, "request": _safe_request_view(req)}), 200
+
+
+@app.route('/api/quantum-results', methods=['GET'])
+@general_api_limit
+def get_released_quantum_results():
+    """
+    Patient-facing endpoint: returns released results only.
+    Query params:
+      - patient_id (required)
+    """
+    patient_id = request.args.get("patient_id")
+    if not patient_id:
+        return jsonify({"success": False, "error": "patient_id is required"}), 400
+
+    with _QUANTUM_REQUESTS_LOCK:
+        released = [
+            r for r in _QUANTUM_REQUESTS.values()
+            if str(r.get("patient_id")) == str(patient_id) and r.get("status") == "released"
+        ]
+
+    released.sort(key=lambda r: r.get("released_at") or "", reverse=True)
+    return jsonify({
+        "success": True,
+        "results": [_safe_request_view(r) for r in released],
+        "count": len(released),
+    }), 200
+
+
 @app.route('/api/analyze', methods=['POST'])
 # @require_auth  # Temporarily disabled for demo - enable in production
 @quantum_analysis_limit
@@ -455,20 +707,6 @@ def analyze():
                         "recommendation": "Monitor for interactions"
                     })
 
-        # Optional: submit a real IBM hardware job and include the Job ID (do NOT wait for completion)
-        ibm_job = None
-        if data.get("run_ibm_job") is True:
-            try:
-                ibm_job = _submit_ibm_job({
-                    "medications": medications,
-                    "supplements": supplements,
-                    "conditions": conditions,
-                    "patient_id": patient_id
-                })
-            except Exception as e:
-                logger.warning(f"IBM job submission skipped/failed: {e}")
-                ibm_job = {"mode": "skipped", "error": str(e)}
-        
         # Optional: submit a real IBM hardware job and include the Job ID (do NOT wait for completion)
         ibm_job = None
         if data.get("run_ibm_job") is True:

@@ -44,7 +44,7 @@ const ClinicalDashboard = () => {
   // Initialize with default patient if none selected
   useEffect(() => {
     if (!selectedPatient) {
-      patientActions.selectPatient('PAT-001');
+      patientActions.selectPatient('JANE_001');
     }
   }, [selectedPatient, patientActions]);
 

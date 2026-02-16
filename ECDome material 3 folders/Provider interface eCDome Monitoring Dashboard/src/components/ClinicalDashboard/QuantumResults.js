@@ -34,6 +34,7 @@ import LoadingSpinner from '../Common/LoadingSpinner';
 const QuantumResults = ({ patientId, patientData }) => {
   const [analysisResults, setAnalysisResults] = useState(null);
   const [analysisHistory, setAnalysisHistory] = useState([]);
+  const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -59,16 +60,21 @@ const QuantumResults = ({ patientId, patientData }) => {
     setLoading(true);
     setError(null);
     try {
-      const result = await quantumService.getPatientAnalyses(patientId, 5);
-      if (result.success) {
-        setAnalysisHistory(result.data);
-        // Set latest as current results
-        if (result.data.length > 0) {
-          setAnalysisResults(result.data[0]);
-        }
-      } else {
-        // Load demo data on error for investor presentations
-        loadDemoData();
+      // Provider-ordered workflow: requests -> ordered -> released
+      const reqResult = await quantumService.listQuantumRequests(patientId);
+      if (!reqResult.success) throw new Error(reqResult.error || 'Failed to load requests');
+
+      const reqs = reqResult.data || [];
+      setRequests(reqs);
+
+      const completedResults = reqs
+        .filter(r => r?.status === 'ordered' || r?.status === 'released')
+        .map(r => r?.results)
+        .filter(Boolean);
+
+      setAnalysisHistory(completedResults);
+      if (completedResults.length > 0) {
+        setAnalysisResults(completedResults[0]);
       }
     } catch (err) {
       // Load demo data on network error for investor presentations
@@ -144,21 +150,30 @@ const QuantumResults = ({ patientId, patientData }) => {
     setError(null);
 
     try {
-      // Prepare analysis options from patient data
+      // Preferred MVP demo flow:
+      // If patient submitted intake, provider orders the latest pending request.
+      const pending = (requests || []).find(r => r?.status === 'pending');
+      if (pending?.request_id) {
+        const ordered = await quantumService.orderQuantumRequest(pending.request_id);
+        if (!ordered.success) throw new Error(ordered.error || 'Failed to order request');
+
+        const results = ordered?.data?.results;
+        if (results) setAnalysisResults(results);
+        await loadAnalysisHistory();
+        return;
+      }
+
+      // Fallback: legacy direct analysis (kept for resilience)
       const options = {
         symptoms: patientData?.symptoms || [],
         biomarkers: patientData?.biomarkers || {},
         medications: patientData?.medications?.map(m => m.name || m.medication) || [],
       };
-
       const result = await quantumService.analyzePatient(patientId, options);
-
       if (result.success) {
         setAnalysisResults(result.data);
-        // Reload history to include new analysis
         await loadAnalysisHistory();
       } else {
-        // Load demo data on service unavailable
         loadDemoData();
       }
     } catch (err) {
@@ -167,6 +182,22 @@ const QuantumResults = ({ patientId, patientData }) => {
       loadDemoData();
     } finally {
       setIsAnalyzing(false);
+    }
+  };
+
+  const releaseToPatient = async () => {
+    try {
+      setError(null);
+      const ordered = (requests || []).find(r => r?.status === 'ordered' && r?.request_id);
+      if (!ordered?.request_id) {
+        setError('No ordered request available to release yet');
+        return;
+      }
+      const released = await quantumService.releaseQuantumRequest(ordered.request_id);
+      if (!released.success) throw new Error(released.error || 'Failed to release results');
+      await loadAnalysisHistory();
+    } catch (e) {
+      setError(e?.message || 'Release failed');
     }
   };
 
@@ -256,7 +287,7 @@ const QuantumResults = ({ patientId, patientData }) => {
           ) : (
             <>
               <Zap className="w-4 h-4" />
-              Run Quantum Analysis
+              {(requests || []).some(r => r?.status === 'pending') ? 'Order Requested Analysis' : 'Run Quantum Analysis'}
             </>
           )}
         </button>
@@ -268,6 +299,90 @@ const QuantumResults = ({ patientId, patientData }) => {
             <span>{error}</span>
           </div>
         )}
+
+        {/* Provider control panel: order/release requests */}
+        <div className="mb-6 p-4 bg-white border border-gray-200 rounded-lg">
+          <div className="flex items-center justify-between gap-3 mb-3">
+            <div>
+              <div className="font-semibold text-gray-900">Provider Workflow</div>
+              <div className="text-sm text-gray-600">
+                Patient intake requests can be ordered and then released to the patient portal.
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={loadAnalysisHistory}
+                className="text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1"
+              >
+                <RefreshCw className="w-4 h-4" />
+                Refresh
+              </button>
+              <button
+                onClick={releaseToPatient}
+                className="text-sm px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                disabled={!(requests || []).some(r => r?.status === 'ordered')}
+              >
+                Release Results to Patient
+              </button>
+            </div>
+          </div>
+
+          {(requests || []).length === 0 ? (
+            <div className="text-sm text-gray-600">
+              No quantum requests yet. Ask the patient to submit intake from the Patient Portal (JANE_001).
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {(requests || []).slice(0, 5).map((r) => (
+                <div key={r.request_id} className="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <div className="text-sm font-medium text-gray-800">
+                        Request <span className="font-mono">{String(r.request_id).slice(0, 8)}</span>
+                        <span className="ml-2 px-2 py-1 rounded text-xs bg-gray-200 text-gray-800">{r.status}</span>
+                      </div>
+                      <div className="text-xs text-gray-600 mt-1">
+                        Meds: {(r.intake?.medications || []).join(', ') || '—'} | Supplements:{' '}
+                        {(r.intake?.supplements || []).join(', ') || '—'} | Conditions:{' '}
+                        {(r.intake?.conditions || []).join(', ') || '—'}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {r.status === 'pending' && (
+                        <button
+                          onClick={async () => {
+                            setIsAnalyzing(true);
+                            setError(null);
+                            try {
+                              const ordered = await quantumService.orderQuantumRequest(r.request_id);
+                              if (!ordered.success) throw new Error(ordered.error || 'Failed to order request');
+                              const results = ordered?.data?.results;
+                              if (results) setAnalysisResults(results);
+                              await loadAnalysisHistory();
+                            } catch (e) {
+                              setError(e?.message || 'Order failed');
+                            } finally {
+                              setIsAnalyzing(false);
+                            }
+                          }}
+                          className="text-xs px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                        >
+                          Order
+                        </button>
+                      )}
+                      {r.status === 'ordered' && (
+                        <span className="text-xs text-gray-600">Ready to release</span>
+                      )}
+                      {r.status === 'released' && (
+                        <span className="text-xs text-green-700">Released</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
         {analysisResults ? (
           <div className="space-y-6">

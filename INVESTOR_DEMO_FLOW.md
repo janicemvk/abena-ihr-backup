@@ -91,11 +91,12 @@ ABENA IHR is a **revolutionary quantum-powered healthcare platform** that combin
    - Opiate receptor monitoring
 
 3. **Quantum Results Integration**
-   - Show "Run Quantum Analysis" button
-   - Display analysis results
-   - Biomarker insights
-   - TCM pattern matching (78% confidence)
-   - Ayurveda correlations (72% confidence)
+   - Show the **Provider-controlled workflow** (cost control + clinical discretion)
+   - In the Quantum Health Analysis section:
+     - A patient intake **request appears for `JANE_001`**
+     - Click **Order Requested Analysis** (orders/runs the request)
+     - Results display immediately with **IBM Job ID proof (precomputed for demo reliability)**
+     - Click **Release Results to Patient** (patient can now see the released results)
 
 **Key Talking Points:**
 - "Providers see everything in one place"
@@ -158,6 +159,15 @@ ABENA IHR is a **revolutionary quantum-powered healthcare platform** that combin
    - Symptom logging
    - Appointment scheduling
 
+2. **Provider-ordered Quantum Request (LIVE FLOW)**
+   - Open **Submit Intake for Provider Review**
+   - Enter: Warfarin 5mg, Fish Oil 1000mg, Type 2 Diabetes
+   - Click **Submit to Provider for Review**
+   - Click **Check Status**:
+     - Pending (waiting for provider to order)
+     - Ordered (waiting for provider release)
+     - Released (results appear)
+
 2. **Real-time Monitoring:**
    - Anandamide levels
    - 2-AG tracking
@@ -177,9 +187,8 @@ ABENA IHR is a **revolutionary quantum-powered healthcare platform** that combin
 ---
 
 ### **6. Gamification - Patient Engagement Revolution** (2-3 minutes)
-**Status:** ⚡ **FULLY FUNCTIONAL - READY FOR INTEGRATION**  
-**Path:** `abena_unified_integration/Abena IHR Gamification/`  
-**Next Phase:** Integration into Patient Portal (Q2 2026)
+**Status:** ⚡ **INTEGRATED IN PATIENT PORTAL**  
+**Where:** Patient Portal → **Health Rewards** tab
 
 **What to Show:**
 1. **Progressive Leveling System**
