@@ -89,11 +89,19 @@ def _get_ibm_service():
     # Some versions accept only: 'ibm_cloud' or 'ibm_quantum'
     # Older docs/scripts used: 'ibm_quantum_platform'
     token = os.getenv("QISKIT_IBM_TOKEN")
+    instance = os.getenv("QISKIT_IBM_INSTANCE") or os.getenv("IBM_QUANTUM_INSTANCE")
     last_err = None
-    for channel in ("ibm_quantum", "ibm_cloud", "ibm_quantum_platform"):
+
+    # If instance is provided, prefer ibm_cloud first (new IBM Quantum Cloud flow).
+    channels = ("ibm_cloud", "ibm_quantum", "ibm_quantum_platform") if instance else ("ibm_quantum", "ibm_cloud", "ibm_quantum_platform")
+    for channel in channels:
         try:
             if token:
+                if channel == "ibm_cloud" and instance:
+                    return QiskitRuntimeService(channel=channel, token=token, instance=instance)
                 return QiskitRuntimeService(channel=channel, token=token)
+            if channel == "ibm_cloud" and instance:
+                return QiskitRuntimeService(channel=channel, instance=instance)
             return QiskitRuntimeService(channel=channel)
         except Exception as e:
             last_err = e
