@@ -179,7 +179,7 @@ export default function OptimizeTreatment({ onBack }) {
                 </>
               ) : (
                 <div className="text-sm text-gray-600">
-                  IBM Job ID not available. (If this is Render: set <span className="font-mono">QISKIT_IBM_TOKEN</span> on the Quantum service and redeploy.)
+                  IBM Job ID not available. (If this is Render: set <span className="font-mono">QISKIT_IBM_TOKEN</span> <strong>and</strong> <span className="font-mono">QISKIT_IBM_INSTANCE</span> on the Quantum service and redeploy.)
                   {ibmJobError && (
                     <div className="mt-2 p-3 rounded-lg bg-yellow-50 border border-yellow-200 text-yellow-900">
                       <div className="font-semibold mb-1">IBM submission detail</div>

@@ -85,15 +85,15 @@ def _get_ibm_service():
     if not IBM_RUNTIME_AVAILABLE:
         raise RuntimeError("IBM runtime not available (qiskit-ibm-runtime not installed).")
 
-    # NOTE: qiskit-ibm-runtime changed accepted channel names over time.
-    # Some versions accept only: 'ibm_cloud' or 'ibm_quantum'
-    # Older docs/scripts used: 'ibm_quantum_platform'
+    # Modern qiskit-ibm-runtime accepts only:
+    # - 'ibm_cloud' (IBM Cloud API key + Instance CRN)
+    # - 'ibm_quantum' (legacy IBM Quantum token flow; may fail on some networks)
     token = os.getenv("QISKIT_IBM_TOKEN")
     instance = os.getenv("QISKIT_IBM_INSTANCE") or os.getenv("IBM_QUANTUM_INSTANCE")
     last_err = None
 
     # If instance is provided, prefer ibm_cloud first (new IBM Quantum Cloud flow).
-    channels = ("ibm_cloud", "ibm_quantum", "ibm_quantum_platform") if instance else ("ibm_quantum", "ibm_cloud", "ibm_quantum_platform")
+    channels = ("ibm_cloud", "ibm_quantum") if instance else ("ibm_quantum", "ibm_cloud")
     for channel in channels:
         try:
             if token:
