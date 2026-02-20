@@ -58,7 +58,20 @@ pub mod pallet {
         _,
         Blake2_128Concat,
         T::AccountId,
-        DIDDocument<T>,
+        PatientDID<T>,
+        OptionQuery,
+    >;
+
+    /// Provider access registry
+    /// Maps (patient_id, provider_id) to access permissions
+    #[pallet::storage]
+    pub type ProviderAccess<T: Config> = StorageDoubleMap<
+        _,
+        Blake2_128Concat,
+        T::AccountId,
+        Blake2_128Concat,
+        T::AccountId,
+        ProviderAccessRecord<T>,
         OptionQuery,
     >;
 
@@ -76,7 +89,7 @@ pub mod pallet {
     >;
 
     /// Patient consent records
-    /// Maps (patient_id, provider_id) to consent details
+    /// Maps (patient_id, modality) to consent details per therapeutic modality
     #[pallet::storage]
     #[pallet::getter(fn consent_records)]
     pub type ConsentRecords<T: Config> = StorageDoubleMap<
@@ -84,7 +97,7 @@ pub mod pallet {
         Blake2_128Concat,
         T::AccountId,
         Blake2_128Concat,
-        T::AccountId,
+        TherapeuticModality,
         ConsentRecord<T>,
         OptionQuery,
     >;
@@ -103,7 +116,13 @@ pub mod pallet {
     #[pallet::event]
     #[pallet::generate_deposit(pub(super) fn deposit_event)]
     pub enum Event<T: Config> {
-        /// Patient DID was registered
+        /// Patient was registered
+        PatientRegistered {
+            patient: T::AccountId,
+            did: Vec<u8>,
+            metadata_hash: H256,
+        },
+        /// Patient DID was registered (backward compatibility)
         DIDRegistered {
             patient: T::AccountId,
             did: Vec<u8>,
@@ -117,13 +136,37 @@ pub mod pallet {
             patient: T::AccountId,
             credential_type: CredentialType,
         },
-        /// Consent was granted
+        /// Consent was updated for a modality
+        ConsentUpdated {
+            patient: T::AccountId,
+            modality: TherapeuticModality,
+            granted: bool,
+        },
+        /// Provider access was granted
+        ProviderAccessGranted {
+            patient: T::AccountId,
+            provider: T::AccountId,
+            scope: ConsentScope,
+        },
+        /// Provider access was revoked
+        ProviderAccessRevoked {
+            patient: T::AccountId,
+            provider: T::AccountId,
+        },
+        /// Emergency access was granted
+        EmergencyAccessGranted {
+            patient: T::AccountId,
+            requester: T::AccountId,
+            reason: Vec<u8>,
+            expires_at: BlockNumberFor<T>,
+        },
+        /// Consent was granted (backward compatibility)
         ConsentGranted {
             patient: T::AccountId,
             provider: T::AccountId,
             scope: ConsentScope,
         },
-        /// Consent was revoked
+        /// Consent was revoked (backward compatibility)
         ConsentRevoked {
             patient: T::AccountId,
             provider: T::AccountId,
@@ -162,18 +205,25 @@ pub mod pallet {
     /// Extrinsics for the pallet
     #[pallet::call]
     impl<T: Config> Pallet<T> {
-        /// Register a patient DID
+        /// Register a patient (creates DID)
         #[pallet::call_index(0)]
-        #[pallet::weight(T::WeightInfo::register_did())]
-        pub fn register_did(
+        #[pallet::weight(T::WeightInfo::register_patient())]
+        pub fn register_patient(
             origin: OriginFor<T>,
             did: Vec<u8>,
             public_keys: Vec<PublicKey>,
+            metadata_hash: H256,
         ) -> DispatchResult {
             let patient = ensure_signed(origin)?;
 
             // Validate DID format (basic validation)
             ensure!(did.len() > 0, Error::<T>::InvalidDIDFormat);
+
+            // Ensure patient not already registered
+            ensure!(
+                !PatientDIDs::<T>::contains_key(&patient),
+                Error::<T>::DIDNotFound // Reuse error for "already exists"
+            );
 
             // Convert to BoundedVec (clone did first for event)
             let did_bounded = BoundedVec::try_from(did.clone())
@@ -181,21 +231,35 @@ pub mod pallet {
             let public_keys_bounded = BoundedVec::try_from(public_keys)
                 .map_err(|_| Error::<T>::DataTooLarge)?;
 
-            let did_doc = DIDDocument {
+            let patient_did = PatientDID {
                 did: did_bounded,
                 public_keys: public_keys_bounded,
+                metadata_hash,
                 created_at: <frame_system::Pallet<T>>::block_number(),
                 updated_at: <frame_system::Pallet<T>>::block_number(),
             };
 
-            PatientDIDs::<T>::insert(&patient, did_doc);
+            PatientDIDs::<T>::insert(&patient, patient_did);
 
-            Self::deposit_event(Event::DIDRegistered {
+            Self::deposit_event(Event::PatientRegistered {
                 patient,
                 did,
+                metadata_hash,
             });
 
             Ok(())
+        }
+
+        /// Register a patient DID (alias for backward compatibility)
+        #[pallet::call_index(7)]
+        #[pallet::weight(T::WeightInfo::register_did())]
+        pub fn register_did(
+            origin: OriginFor<T>,
+            did: Vec<u8>,
+            public_keys: Vec<PublicKey>,
+        ) -> DispatchResult {
+            // Use default metadata hash (zero hash) for backward compatibility
+            Self::register_patient(origin, did, public_keys, H256::default())
         }
 
         /// Update patient DID
@@ -207,16 +271,16 @@ pub mod pallet {
         ) -> DispatchResult {
             let patient = ensure_signed(origin)?;
 
-            let mut did_doc = PatientDIDs::<T>::get(&patient)
+            let mut patient_did = PatientDIDs::<T>::get(&patient)
                 .ok_or(Error::<T>::DIDNotFound)?;
 
             // Convert public_keys to BoundedVec
             let public_keys_bounded = BoundedVec::try_from(public_keys)
                 .map_err(|_| Error::<T>::DataTooLarge)?;
-            did_doc.public_keys = public_keys_bounded;
-            did_doc.updated_at = <frame_system::Pallet<T>>::block_number();
+            patient_did.public_keys = public_keys_bounded;
+            patient_did.updated_at = <frame_system::Pallet<T>>::block_number();
 
-            PatientDIDs::<T>::insert(&patient, did_doc);
+            PatientDIDs::<T>::insert(&patient, patient_did);
 
             Self::deposit_event(Event::DIDUpdated { patient });
 
@@ -257,8 +321,45 @@ pub mod pallet {
             Ok(())
         }
 
-        /// Grant consent to a provider
+        /// Update consent for specific therapeutic modality
         #[pallet::call_index(3)]
+        #[pallet::weight(T::WeightInfo::update_consent())]
+        pub fn update_consent(
+            origin: OriginFor<T>,
+            modality: TherapeuticModality,
+            granted: bool,
+            expires_at: Option<BlockNumberFor<T>>,
+        ) -> DispatchResult {
+            let patient = ensure_signed(origin)?;
+
+            // Ensure patient is registered
+            ensure!(
+                PatientDIDs::<T>::contains_key(&patient),
+                Error::<T>::DIDNotFound
+            );
+
+            let consent = ConsentRecord {
+                patient: patient.clone(),
+                modality,
+                granted,
+                granted_at: <frame_system::Pallet<T>>::block_number(),
+                expires_at,
+                revoked: !granted,
+            };
+
+            ConsentRecords::<T>::insert(&patient, &modality, consent.clone());
+
+            Self::deposit_event(Event::ConsentUpdated {
+                patient,
+                modality,
+                granted,
+            });
+
+            Ok(())
+        }
+
+        /// Grant consent to a provider (backward compatibility)
+        #[pallet::call_index(8)]
         #[pallet::weight(T::WeightInfo::grant_consent())]
         pub fn grant_consent(
             origin: OriginFor<T>,
@@ -266,9 +367,29 @@ pub mod pallet {
             scope: ConsentScope,
             expires_at: Option<BlockNumberFor<T>>,
         ) -> DispatchResult {
+            // This is kept for backward compatibility
+            // In the new model, use grant_provider_access instead
+            Self::grant_provider_access(origin, provider, scope, expires_at)
+        }
+
+        /// Grant provider access to patient records
+        #[pallet::call_index(4)]
+        #[pallet::weight(T::WeightInfo::grant_provider_access())]
+        pub fn grant_provider_access(
+            origin: OriginFor<T>,
+            provider: T::AccountId,
+            scope: ConsentScope,
+            expires_at: Option<BlockNumberFor<T>>,
+        ) -> DispatchResult {
             let patient = ensure_signed(origin)?;
 
-            let consent = ConsentRecord {
+            // Ensure patient is registered
+            ensure!(
+                PatientDIDs::<T>::contains_key(&patient),
+                Error::<T>::DIDNotFound
+            );
+
+            let access_record = ProviderAccessRecord {
                 patient: patient.clone(),
                 provider: provider.clone(),
                 scope: scope.clone(),
@@ -277,9 +398,9 @@ pub mod pallet {
                 revoked: false,
             };
 
-            ConsentRecords::<T>::insert(&patient, &provider, consent);
+            ProviderAccess::<T>::insert(&patient, &provider, access_record);
 
-            Self::deposit_event(Event::ConsentGranted {
+            Self::deposit_event(Event::ProviderAccessGranted {
                 patient,
                 provider,
                 scope,
@@ -288,23 +409,23 @@ pub mod pallet {
             Ok(())
         }
 
-        /// Revoke consent
-        #[pallet::call_index(4)]
-        #[pallet::weight(T::WeightInfo::revoke_consent())]
-        pub fn revoke_consent(
+        /// Revoke provider access
+        #[pallet::call_index(5)]
+        #[pallet::weight(T::WeightInfo::revoke_provider_access())]
+        pub fn revoke_provider_access(
             origin: OriginFor<T>,
             provider: T::AccountId,
         ) -> DispatchResult {
             let patient = ensure_signed(origin)?;
 
-            let mut consent = ConsentRecords::<T>::get(&patient, &provider)
+            let mut access_record = ProviderAccess::<T>::get(&patient, &provider)
                 .ok_or(Error::<T>::ConsentNotFound)?;
 
-            consent.revoked = true;
+            access_record.revoked = true;
 
-            ConsentRecords::<T>::insert(&patient, &provider, consent);
+            ProviderAccess::<T>::insert(&patient, &provider, access_record);
 
-            Self::deposit_event(Event::ConsentRevoked {
+            Self::deposit_event(Event::ProviderAccessRevoked {
                 patient,
                 provider,
             });
@@ -312,8 +433,66 @@ pub mod pallet {
             Ok(())
         }
 
+        /// Emergency access override
+        #[pallet::call_index(6)]
+        #[pallet::weight(T::WeightInfo::emergency_access())]
+        pub fn emergency_access(
+            origin: OriginFor<T>,
+            patient: T::AccountId,
+            reason: Vec<u8>,
+            duration_blocks: BlockNumberFor<T>,
+        ) -> DispatchResult {
+            let requester = ensure_signed(origin)?;
+
+            // In production, verify requester has emergency access authority
+            // For now, we'll allow any signed account (can be restricted later)
+
+            // Ensure patient is registered
+            ensure!(
+                PatientDIDs::<T>::contains_key(&patient),
+                Error::<T>::DIDNotFound
+            );
+
+            let reason_bounded = BoundedVec::try_from(reason)
+                .map_err(|_| Error::<T>::DataTooLarge)?;
+
+            let current_block = <frame_system::Pallet<T>>::block_number();
+            let expires_at = current_block + duration_blocks;
+
+            // Grant temporary emergency access
+            let emergency_access = ProviderAccessRecord {
+                patient: patient.clone(),
+                provider: requester.clone(),
+                scope: ConsentScope::FullAccess,
+                granted_at: current_block,
+                expires_at: Some(expires_at),
+                revoked: false,
+            };
+
+            ProviderAccess::<T>::insert(&patient, &requester, emergency_access);
+
+            Self::deposit_event(Event::EmergencyAccessGranted {
+                patient,
+                requester,
+                reason: reason_bounded.to_vec(),
+                expires_at,
+            });
+
+            Ok(())
+        }
+
+        /// Revoke consent (backward compatibility)
+        #[pallet::call_index(9)]
+        #[pallet::weight(T::WeightInfo::revoke_consent())]
+        pub fn revoke_consent(
+            origin: OriginFor<T>,
+            provider: T::AccountId,
+        ) -> DispatchResult {
+            Self::revoke_provider_access(origin, provider)
+        }
+
         /// Issue cross-provider authentication token
-        #[pallet::call_index(5)]
+        #[pallet::call_index(10)]
         #[pallet::weight(T::WeightInfo::issue_auth_token())]
         pub fn issue_auth_token(
             origin: OriginFor<T>,
@@ -323,11 +502,11 @@ pub mod pallet {
         ) -> DispatchResult {
             let patient = ensure_signed(origin)?;
 
-            // Verify consent exists
-            let consent = ConsentRecords::<T>::get(&patient, &provider)
+            // Verify provider access exists
+            let access = ProviderAccess::<T>::get(&patient, &provider)
                 .ok_or(Error::<T>::ConsentNotFound)?;
 
-            ensure!(!consent.revoked, Error::<T>::Unauthorized);
+            ensure!(!access.revoked, Error::<T>::Unauthorized);
 
             let token_data = AuthTokenData {
                 patient: patient.clone(),
@@ -348,7 +527,7 @@ pub mod pallet {
         }
 
         /// Verify authentication token
-        #[pallet::call_index(6)]
+        #[pallet::call_index(11)]
         #[pallet::weight(T::WeightInfo::verify_auth_token())]
         pub fn verify_auth_token(
             origin: OriginFor<T>,
@@ -366,11 +545,19 @@ pub mod pallet {
                 Error::<T>::InvalidAuthToken
             );
 
-            // Verify consent is still valid
-            let consent = ConsentRecords::<T>::get(&token_data.patient, &token_data.provider)
+            // Verify provider access is still valid
+            let access = ProviderAccess::<T>::get(&token_data.patient, &token_data.provider)
                 .ok_or(Error::<T>::Unauthorized)?;
 
-            ensure!(!consent.revoked, Error::<T>::Unauthorized);
+            ensure!(!access.revoked, Error::<T>::Unauthorized);
+
+            // Check if access expired
+            if let Some(expires_at) = access.expires_at {
+                ensure!(
+                    current_block < expires_at,
+                    Error::<T>::Unauthorized
+                );
+            }
 
             Ok(())
         }
@@ -378,28 +565,38 @@ pub mod pallet {
 
 /// Weight information for extrinsics
 pub trait WeightInfo {
+    fn register_patient() -> Weight;
     fn register_did() -> Weight;
     fn update_did() -> Weight;
     fn issue_zk_credential() -> Weight;
+    fn update_consent() -> Weight;
+    fn grant_provider_access() -> Weight;
+    fn revoke_provider_access() -> Weight;
+    fn emergency_access() -> Weight;
     fn grant_consent() -> Weight;
     fn revoke_consent() -> Weight;
     fn issue_auth_token() -> Weight;
     fn verify_auth_token() -> Weight;
 }
 
-/// DID Document structure
+/// Patient DID structure
 #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 #[scale_info(skip_type_params(T))]
-pub struct DIDDocument<T: frame_system::Config> {
+pub struct PatientDID<T: frame_system::Config> {
     /// Decentralized Identifier string
     pub did: BoundedVec<u8, ConstU32<256>>,
-    /// Public keys associated with the DID
+    /// Public keys associated with the DID (quantum-resistant ready - ed25519 for now)
     pub public_keys: BoundedVec<PublicKey, ConstU32<10>>,
+    /// Hash of patient metadata (NOT actual PHI data)
+    pub metadata_hash: H256,
     /// Block number when DID was created
     pub created_at: frame_system::pallet_prelude::BlockNumberFor<T>,
     /// Block number when DID was last updated
     pub updated_at: frame_system::pallet_prelude::BlockNumberFor<T>,
 }
+
+/// DID Document structure (backward compatibility alias)
+pub type DIDDocument<T> = PatientDID<T>;
 
 /// Public key structure for DID
 #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
@@ -469,21 +666,54 @@ pub enum RecordType {
     Vitals,
 }
 
-/// Consent record
+/// Therapeutic modality types
+#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen, Copy)]
+pub enum TherapeuticModality {
+    /// Western Medicine
+    WesternMedicine,
+    /// Traditional Chinese Medicine (TCM)
+    TCM,
+    /// Ayurveda
+    Ayurveda,
+    /// Homeopathy
+    Homeopathy,
+    /// Other therapeutic modality
+    Other,
+}
+
+/// Consent record per therapeutic modality
 #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 #[scale_info(skip_type_params(T))]
 pub struct ConsentRecord<T: frame_system::Config> {
     /// Patient account ID
     pub patient: T::AccountId,
-    /// Provider account ID
-    pub provider: T::AccountId,
-    /// Scope of consent
-    pub scope: ConsentScope,
-    /// Block number when consent was granted
+    /// Therapeutic modality
+    pub modality: TherapeuticModality,
+    /// Whether consent is granted
+    pub granted: bool,
+    /// Block number when consent was granted/updated
     pub granted_at: frame_system::pallet_prelude::BlockNumberFor<T>,
     /// Block number when consent expires (None = never expires)
     pub expires_at: Option<frame_system::pallet_prelude::BlockNumberFor<T>>,
     /// Whether consent has been revoked
+    pub revoked: bool,
+}
+
+/// Provider access record
+#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[scale_info(skip_type_params(T))]
+pub struct ProviderAccessRecord<T: frame_system::Config> {
+    /// Patient account ID
+    pub patient: T::AccountId,
+    /// Provider account ID
+    pub provider: T::AccountId,
+    /// Scope of access
+    pub scope: ConsentScope,
+    /// Block number when access was granted
+    pub granted_at: frame_system::pallet_prelude::BlockNumberFor<T>,
+    /// Block number when access expires (None = never expires)
+    pub expires_at: Option<frame_system::pallet_prelude::BlockNumberFor<T>>,
+    /// Whether access has been revoked
     pub revoked: bool,
 }
 
