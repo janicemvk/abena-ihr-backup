@@ -1,0 +1,184 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-sdk-config
+  namespace: abena-ihr
+data:
+  prometheus-sdk.yml: |
+    global:
+      scrape_interval: 15s
+      evaluation_interval: 15s
+
+    rule_files:
+      - "/etc/prometheus/rules/*.yml"
+
+    scrape_configs:
+      # SDK Service Monitoring
+      - job_name: 'abena-shared-sdk'
+        static_configs:
+          - targets: ['sdk-service:3001']
+        metrics_path: /metrics
+        scrape_interval: 30s
+        scrape_timeout: 10s
+        honor_labels: true
+
+      # SDK Health Checks
+      - job_name: 'sdk-health'
+        static_configs:
+          - targets: ['sdk-service:3001']
+        metrics_path: /health
+        scrape_interval: 60s
+        scrape_timeout: 5s
+
+      # SDK Performance Metrics
+      - job_name: 'sdk-performance'
+        static_configs:
+          - targets: ['sdk-service:3001']
+        metrics_path: /metrics/performance
+        scrape_interval: 60s
+        scrape_timeout: 15s
+
+      # SDK Circuit Breaker Metrics
+      - job_name: 'sdk-circuit-breaker'
+        static_configs:
+          - targets: ['sdk-service:3001']
+        metrics_path: /metrics/circuit-breaker
+        scrape_interval: 30s
+        scrape_timeout: 10s
+
+      # SDK Cache Metrics
+      - job_name: 'sdk-cache'
+        static_configs:
+          - targets: ['sdk-service:3001']
+        metrics_path: /metrics/cache
+        scrape_interval: 60s
+        scrape_timeout: 10s
+
+      # SDK Service Discovery Metrics
+      - job_name: 'sdk-discovery'
+        static_configs:
+          - targets: ['sdk-service:3001']
+        metrics_path: /metrics/discovery
+        scrape_interval: 120s
+        scrape_timeout: 10s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: sdk-service-monitor
+  namespace: abena-ihr
+spec:
+  selector:
+    matchLabels:
+      app: abena-shared-sdk
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 30s
+    scrapeTimeout: 10s
+  - port: http
+    path: /health
+    interval: 60s
+    scrapeTimeout: 5s
+  - port: http
+    path: /metrics/performance
+    interval: 60s
+    scrapeTimeout: 15s
+  - port: http
+    path: /metrics/circuit-breaker
+    interval: 30s
+    scrapeTimeout: 10s
+  - port: http
+    path: /metrics/cache
+    interval: 60s
+    scrapeTimeout: 10s
+  - port: http
+    path: /metrics/discovery
+    interval: 120s
+    scrapeTimeout: 10s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: sdk-alerts
+  namespace: abena-ihr
+spec:
+  groups:
+  - name: sdk.rules
+    rules:
+    # SDK Service Health Alerts
+    - alert: SDKServiceDown
+      expr: up{job="abena-shared-sdk"} == 0
+      for: 1m
+      labels:
+        severity: critical
+        component: sdk
+      annotations:
+        summary: "SDK service is down"
+        description: "The Abena Shared SDK service has been down for more than 1 minute"
+
+    - alert: SDKHighErrorRate
+      expr: rate(http_requests_total{job="abena-shared-sdk", status=~"5.."}[5m]) / rate(http_requests_total{job="abena-shared-sdk"}[5m]) > 0.05
+      for: 2m
+      labels:
+        severity: warning
+        component: sdk
+      annotations:
+        summary: "SDK service high error rate"
+        description: "SDK service is returning more than 5% 5xx errors"
+
+    # SDK Performance Alerts
+    - alert: SDKHighLatency
+      expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="abena-shared-sdk"}[5m])) > 0.5
+      for: 2m
+      labels:
+        severity: warning
+        component: sdk
+      annotations:
+        summary: "SDK service high latency"
+        description: "95th percentile latency is above 500ms"
+
+    # Circuit Breaker Alerts
+    - alert: SDKCircuitBreakerOpen
+      expr: sdk_circuit_breaker_state{job="abena-shared-sdk"} == 1
+      for: 1m
+      labels:
+        severity: warning
+        component: sdk
+      annotations:
+        summary: "SDK circuit breaker is open"
+        description: "Circuit breaker has opened for one or more services"
+
+    # Cache Performance Alerts
+    - alert: SDKCacheMissRate
+      expr: rate(sdk_cache_misses_total{job="abena-shared-sdk"}[5m]) / rate(sdk_cache_requests_total{job="abena-shared-sdk"}[5m]) > 0.2
+      for: 5m
+      labels:
+        severity: warning
+        component: sdk
+      annotations:
+        summary: "SDK cache miss rate is high"
+        description: "Cache miss rate is above 20%"
+
+    # Resource Usage Alerts
+    - alert: SDKHighMemoryUsage
+      expr: (container_memory_usage_bytes{container="sdk-service"} / container_spec_memory_limit_bytes{container="sdk-service"}) > 0.8
+      for: 5m
+      labels:
+        severity: warning
+        component: sdk
+      annotations:
+        summary: "SDK service high memory usage"
+        description: "SDK service is using more than 80% of allocated memory"
+
+    - alert: SDKHighCPUUsage
+      expr: (rate(container_cpu_usage_seconds_total{container="sdk-service"}[5m]) / container_spec_cpu_quota{container="sdk-service"}) > 0.8
+      for: 5m
+      labels:
+        severity: warning
+        component: sdk
+      annotations:
+        summary: "SDK service high CPU usage"
+        description: "SDK service is using more than 80% of allocated CPU" 

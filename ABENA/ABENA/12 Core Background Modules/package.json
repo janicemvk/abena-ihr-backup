@@ -1,0 +1,51 @@
+{
+  "name": "abena-12-core-background-modules",
+  "version": "2.0.0",
+  "description": "12 Core Background Modules for biological system monitoring with eCBome correlation and real-time analysis",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "node --test test/**/*.test.js",
+    "lint": "eslint src/**/*.js",
+    "build": "node build.js"
+  },
+  "keywords": [
+    "abena",
+    "background-modules",
+    "biological-monitoring",
+    "ecbome",
+    "endocannabinoid",
+    "health-analytics",
+    "real-time-monitoring"
+  ],
+  "author": "Abena Health Systems",
+  "license": "MIT",
+  "dependencies": {
+    "@abena/sdk": "file:abena_sdk",
+    "axios": "^1.6.0",
+    "dotenv": "^16.3.1",
+    "uuid": "^9.0.1",
+    "winston": "^3.11.0",
+    "lodash": "^4.17.21",
+    "node-cron": "^3.0.3",
+    "socket.io-client": "^4.7.4"
+  },
+  "devDependencies": {
+    "eslint": "^8.55.0",
+    "nodemon": "^3.0.2",
+    "jest": "^29.7.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/abena-health/12-core-background-modules.git"
+  },
+  "bugs": {
+    "url": "https://github.com/abena-health/12-core-background-modules/issues"
+  },
+  "homepage": "https://github.com/abena-health/12-core-background-modules#readme"
+} 

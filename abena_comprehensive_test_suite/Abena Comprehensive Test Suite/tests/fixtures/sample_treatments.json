@@ -1,0 +1,31 @@
+[
+  {
+    "treatment_id": "TEST_TX_001",
+    "treatment_type": "combined",
+    "medications": ["pregabalin", "cbd_oil"],
+    "dosages": {
+      "pregabalin": "150mg_bid",
+      "cbd_oil": "25mg_daily"
+    },
+    "duration_weeks": 12,
+    "lifestyle_interventions": ["mindfulness", "physical_therapy", "sleep_hygiene"]
+  },
+  {
+    "treatment_id": "TEST_TX_002",
+    "treatment_type": "pharmacological",
+    "medications": ["duloxetine"],
+    "dosages": {
+      "duloxetine": "60mg_daily"
+    },
+    "duration_weeks": 8,
+    "lifestyle_interventions": ["exercise"]
+  },
+  {
+    "treatment_id": "TEST_TX_003",
+    "treatment_type": "behavioral",
+    "medications": [],
+    "dosages": {},
+    "duration_weeks": 16,
+    "lifestyle_interventions": ["cognitive_behavioral_therapy", "meditation", "yoga", "stress_management"]
+  }
+] 

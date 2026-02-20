@@ -1,0 +1,90 @@
+# Abena IHR Data Ingestion Service - Python Dependencies
+# Core FastAPI and async dependencies
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+pydantic-settings==2.1.0
+
+# Database and caching
+asyncpg==0.29.0
+redis==5.0.1
+psycopg2-binary==2.9.9
+
+# Kafka for message streaming
+kafka-python==2.0.2
+aiokafka==0.8.11
+confluent-kafka==2.3.0
+
+# HTTP client for auth service communication
+httpx==0.25.2
+aiohttp==3.9.1
+
+# Security and encryption
+cryptography==41.0.8
+pyjwt==2.8.0
+bcrypt==4.1.2
+
+# Data processing and validation
+jsonschema==4.20.0
+marshmallow==3.20.2
+cerberus==1.3.5
+
+# HL7 and FHIR processing
+hl7==0.4.5
+hl7apy==1.3.5
+fhir.resources==7.0.2
+fhirpy==2.0.8
+
+# Medical coding and terminology
+pymedtermino==0.3.11
+
+# Monitoring and logging
+prometheus-client==0.19.0
+structlog==23.2.0
+python-json-logger==2.0.7
+
+# Data serialization and compression
+msgpack==1.0.7
+orjson==3.9.10
+lz4==4.3.2
+
+# Testing dependencies
+pytest==7.4.3
+pytest-asyncio==0.21.1
+pytest-cov==4.1.0
+pytest-mock==3.12.0
+httpx==0.25.2
+fakeredis==2.20.1
+
+# Development dependencies
+black==23.11.0
+isort==5.12.0
+flake8==6.1.0
+mypy==1.7.1
+pre-commit==3.6.0
+
+# Environment and configuration
+python-dotenv==1.0.0
+click==8.1.7
+
+# Performance and utilities
+tenacity==8.2.3  # Retry logic
+backoff==2.2.1   # Backoff strategies
+schedule==1.2.0  # Task scheduling
+python-multipart==0.0.6  # File uploads
+email-validator==2.1.0  # Email validation
+
+# Date and time handling
+python-dateutil==2.8.2
+pytz==2023.3
+
+# Data validation and parsing
+validators==0.22.0
+phonenumbers==8.13.26
+
+# Memory profiling and debugging (dev only)
+memory-profiler==0.61.0
+py-spy==0.3.14
+
+# API documentation
+fastapi-users==12.1.2 

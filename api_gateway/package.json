@@ -1,0 +1,30 @@
+{
+  "name": "abena-api-gateway",
+  "version": "1.0.0",
+  "description": "API Gateway and Module Registry for Abena IHR system",
+  "main": "module-registry.js",
+  "scripts": {
+    "start": "node module-registry.js",
+    "dev": "nodemon module-registry.js",
+    "bridge": "node integration-bridge-server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "axios": "^1.6.0",
+    "winston": "^3.11.0",
+    "dotenv": "^16.3.1",
+    "bcryptjs": "^2.4.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "keywords": [
+    "abena",
+    "api-gateway",
+    "healthcare",
+    "microservices"
+  ],
+  "author": "Abena Health Systems",
+  "license": "MIT"
+} 

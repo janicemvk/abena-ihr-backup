@@ -1,0 +1,15 @@
+{
+  "name": "@abena/sdk",
+  "version": "1.0.0",
+  "description": "Unified Abena SDK for auth, data access, privacy, and audit logging",
+  "main": "index.js",
+  "keywords": ["abena", "sdk", "healthcare", "auth", "privacy", "blockchain"],
+  "author": "Your Name",
+  "license": "MIT",
+   "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  }
+}

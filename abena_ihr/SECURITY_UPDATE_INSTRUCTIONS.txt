@@ -1,0 +1,84 @@
+# ABENA IHR Security Integration Instructions
+
+## Step 1: Update main.py
+
+Add this code to the TOP of your `abena_ihr/src/api/main.py` file:
+
+```python
+# Security Integration
+try:
+    from src.security_integration import (
+        setup_security, 
+        secure_login, 
+        get_current_user_secure,
+        JWTAuth,
+        require_role,
+        UserRole,
+        LoginRequest,
+        LoginResponse
+    )
+    SECURITY_ENABLED = True
+    print("Security modules loaded successfully")
+except ImportError as e:
+    print(f"Warning: Security modules not available: {e}")
+    SECURITY_ENABLED = False
+```
+
+## Step 2: Enable Security Middleware
+
+After creating your FastAPI app, add:
+
+```python
+if SECURITY_ENABLED:
+    app = setup_security(app)
+    print("Security middleware enabled")
+```
+
+## Step 3: Update Login Endpoint
+
+Replace your existing login endpoint with:
+
+```python
+@app.post("/api/v1/auth/login", response_model=LoginResponse)
+async def login(credentials: LoginRequest):
+    """Secure login with bcrypt password verification"""
+    return await secure_login(
+        email=credentials.email,
+        password=credentials.password,
+        get_user_by_email_func=get_user_by_email,
+        get_user_data_func=get_user_data
+    )
+```
+
+## Step 4: Protect Endpoints
+
+Add authentication to your endpoints:
+
+```python
+@app.get("/api/v1/patients")
+async def get_patients(
+    current_user: dict = Depends(get_current_user_secure),
+    role_check = Depends(require_role([UserRole.PROVIDER, UserRole.ADMIN]))
+):
+    """Only providers and admins can access"""
+    return await fetch_patients()
+```
+
+## Step 5: Rebuild and Restart
+
+After making changes:
+
+```powershell
+docker-compose build abena-ihr
+docker-compose up -d abena-ihr
+```
+
+## Testing
+
+Test with:
+
+```powershell
+curl -X POST http://localhost:4002/api/v1/auth/login `
+  -H "Content-Type: application/json" `
+  -d '{"email":"dr.johnson@abena.com","password":"Abena2024Secure"}'
+```

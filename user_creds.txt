@@ -1,0 +1,14 @@
+Provider Credentials:
+Email: dr.johnson@abena.com
+Password: Abena2024Secure
+Role: provider
+ 
+Patient Credentials:
+Email: john.doe@example.com
+Password: PatientPass123
+Role: patient
+ 
+Additional Patient Credentials Available:
+Email: alice.johnson@example.com
+Password: PatientPass123
+Role: patient

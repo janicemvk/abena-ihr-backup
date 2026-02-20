@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+
+{% block title %}eCBome Health System - ABENA IHR{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .container {
+        max-width: 1600px;
+        margin: 0 auto;
+    }
+    .header {
+        background: white;
+        border-radius: 16px;
+        padding: 40px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .header h1 {
+        color: #1a202c;
+        font-size: 2.5rem;
+        margin-bottom: 8px;
+        font-weight: 700;
+    }
+    .modules-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 24px;
+        margin-bottom: 30px;
+    }
+    .module-card {
+        background: white;
+        border-radius: 16px;
+        padding: 32px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .module-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 12px rgba(0,0,0,0.15);
+    }
+    .module-card h3 {
+        font-size: 1.25rem;
+        margin-bottom: 16px;
+        color: #1a202c;
+    }
+    .module-score {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #4299e1;
+        margin-bottom: 8px;
+    }
+    .module-status {
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        display: inline-block;
+    }
+    .status-normal {
+        background: #c6f6d5;
+        color: #22543d;
+    }
+    .status-elevated {
+        background: #fed7d7;
+        color: #742a2a;
+    }
+    .status-low {
+        background: #feebc8;
+        color: #7c2d12;
+    }
+    .ecbome-overview {
+        background: white;
+        border-radius: 16px;
+        padding: 32px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+    .biomarker-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 0;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    .biomarker-row:last-child {
+        border-bottom: none;
+    }
+    .refresh-btn {
+        background: #4299e1;
+        color: white;
+        border: none;
+        padding: 14px 28px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: 600;
+        margin-top: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="header">
+        <h1>eCBome Health System</h1>
+        <p>Endocannabinoid System Monitoring & Analysis</p>
+    </div>
+
+    <div class="ecbome-overview">
+        <h2 style="margin-bottom: 24px; color: #1a202c;">Core Biomarkers</h2>
+        <div class="biomarker-row">
+            <div>
+                <strong>Anandamide</strong>
+                <div style="color: #718096; font-size: 0.875rem;">Primary endocannabinoid</div>
+            </div>
+            <div>
+                <span style="font-size: 1.5rem; font-weight: 600; color: #48bb78;">0.45</span>
+                <span class="module-status status-normal">Normal</span>
+            </div>
+        </div>
+        <div class="biomarker-row">
+            <div>
+                <strong>2-AG (2-Arachidonoylglycerol)</strong>
+                <div style="color: #718096; font-size: 0.875rem;">Secondary endocannabinoid</div>
+            </div>
+            <div>
+                <span style="font-size: 1.5rem; font-weight: 600; color: #ed8936;">2.1</span>
+                <span class="module-status status-elevated">Elevated</span>
+            </div>
+        </div>
+        <div class="biomarker-row">
+            <div>
+                <strong>CB1 Receptor Density</strong>
+                <div style="color: #718096; font-size: 0.875rem;">Cannabinoid receptor type 1</div>
+            </div>
+            <div>
+                <span style="font-size: 1.5rem; font-weight: 600; color: #48bb78;">85</span>
+                <span class="module-status status-normal">Normal</span>
+            </div>
+        </div>
+        <div class="biomarker-row">
+            <div>
+                <strong>CB2 Activity</strong>
+                <div style="color: #718096; font-size: 0.875rem;">Cannabinoid receptor type 2</div>
+            </div>
+            <div>
+                <span style="font-size: 1.5rem; font-weight: 600; color: #48bb78;">78</span>
+                <span class="module-status status-normal">Normal</span>
+            </div>
+        </div>
+    </div>
+
+    <h2 style="margin-bottom: 24px; color: #1a202c; font-size: 1.75rem;">12 Core Biological Modules</h2>
+    <div class="modules-grid">
+        <div class="module-card">
+            <h3>Metabolome</h3>
+            <div class="module-score">0.72</div>
+            <span class="module-status status-normal">Normal</span>
+        </div>
+        <div class="module-card">
+            <h3>Microbiome</h3>
+            <div class="module-score">0.68</div>
+            <span class="module-status status-normal">Normal</span>
+        </div>
+        <div class="module-card">
+            <h3>Inflammatome</h3>
+            <div class="module-score">0.75</div>
+            <span class="module-status status-normal">Normal</span>
+        </div>
+        <div class="module-card">
+            <h3>Immunome</h3>
+            <div class="module-score">0.70</div>
+            <span class="module-status status-normal">Normal</span>
+        </div>
+        <div class="module-card">
+            <h3>Chronobiome</h3>
+            <div class="module-score">0.65</div>
+            <span class="module-status status-low">Low</span>
+        </div>
+        <div class="module-card">
+            <h3>Nutriome</h3>
+            <div class="module-score">0.73</div>
+            <span class="module-status status-normal">Normal</span>
+        </div>
+        <div class="module-card">
+            <h3>Toxicome</h3>
+            <div class="module-score">0.80</div>
+            <span class="module-status status-normal">Normal</span>
+        </div>
+        <div class="module-card">
+            <h3>Pharmacome</h3>
+            <div class="module-score">0.71</div>
+            <span class="module-status status-normal">Normal</span>
+        </div>
+        <div class="module-card">
+            <h3>Stress Response</h3>
+            <div class="module-score">0.67</div>
+            <span class="module-status status-normal">Normal</span>
+        </div>
+        <div class="module-card">
+            <h3>Cardiovascular</h3>
+            <div class="module-score">0.74</div>
+            <span class="module-status status-normal">Normal</span>
+        </div>
+        <div class="module-card">
+            <h3>Neurological</h3>
+            <div class="module-score">0.69</div>
+            <span class="module-status status-normal">Normal</span>
+        </div>
+        <div class="module-card">
+            <h3>Hormonal</h3>
+            <div class="module-score">0.76</div>
+            <span class="module-status status-normal">Normal</span>
+        </div>
+    </div>
+
+    <div style="text-align: center;">
+        <button class="refresh-btn" onclick="location.reload()">Refresh Data</button>
+    </div>
+</div>
+{% endblock %}
+

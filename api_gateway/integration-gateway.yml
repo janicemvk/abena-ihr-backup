@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  # Central API Gateway
+  api-gateway:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - auth-service
+      - sdk-service
+    networks:
+      - abena-network
+
+  # Authentication Service
+  auth-service:
+    image: abena/auth-service:latest
+    environment:
+      - NODE_ENV=production
+      - JWT_SECRET=${JWT_SECRET}
+      - DATABASE_URL=${DATABASE_URL}
+    ports:
+      - "3001:3001"
+    networks:
+      - abena-network
+
+  # Shared SDK Service
+  sdk-service:
+    image: abena/shared-sdk:latest
+    environment:
+      - NODE_ENV=production
+      - SDK_PORT=3002
+    ports:
+      - "3002:3002"
+    networks:
+      - abena-network
+
+  # Module Registry Service
+  module-registry:
+    image: abena/module-registry:latest
+    environment:
+      - NODE_ENV=production
+      - REGISTRY_PORT=3003
+    ports:
+      - "3003:3003"
+    networks:
+      - abena-network
+
+networks:
+  abena-network:
+    driver: bridge 

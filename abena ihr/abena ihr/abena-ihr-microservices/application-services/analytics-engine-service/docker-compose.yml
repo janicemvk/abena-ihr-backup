@@ -1,0 +1,123 @@
+version: '3.8'
+
+services:
+  analytics-engine:
+    build: .
+    container_name: abena-analytics-engine
+    ports:
+      - "8004:8004"
+    environment:
+      # Service Configuration
+      - PORT=8004
+      - SERVICE_NAME=analytics-engine-service
+      
+      # Foundational Services URLs
+      - AUTH_SERVICE_URL=http://auth-service:3001
+      - DATA_SERVICE_URL=http://data-ingestion-service:8001
+      - PRIVACY_SERVICE_URL=http://privacy-security-service:8002
+      - BLOCKCHAIN_SERVICE_URL=http://blockchain-service:8003
+      
+      # Database Configuration
+      - DATABASE_URL=postgresql://abena_user:abena_password@postgres:5432/abena_analytics
+      - REDIS_URL=redis://:password@redis:6379
+      
+      # Analytics Configuration
+      - MODEL_UPDATE_INTERVAL=24h
+      - PREDICTION_CACHE_TTL=3600
+      - MONITORING_FREQUENCY_MINUTES=5
+      - MAX_CONCURRENT_SESSIONS=100
+      
+      # ML Model Configuration
+      - MODEL_STORAGE_PATH=/app/models
+      - ENABLE_GPU=false
+      - BATCH_SIZE=32
+      - MAX_PREDICTION_REQUESTS_PER_MINUTE=1000
+      
+      # Logging and Monitoring
+      - LOG_LEVEL=INFO
+      - ENABLE_PERFORMANCE_METRICS=true
+      - PROMETHEUS_METRICS_PORT=9004
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./src/ml_models:/app/src/ml_models
+      - ./data:/app/data
+      - ./models:/app/models
+    networks:
+      - abena-network
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: abena-analytics-postgres
+    environment:
+      - POSTGRES_DB=abena_analytics
+      - POSTGRES_USER=abena_user
+      - POSTGRES_PASSWORD=abena_password
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - abena-network
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: abena-analytics-redis
+    command: redis-server --requirepass password
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - abena-network
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: abena-analytics-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - abena-network
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: abena-analytics-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+    depends_on:
+      - prometheus
+    networks:
+      - abena-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  abena-network:
+    driver: bridge 

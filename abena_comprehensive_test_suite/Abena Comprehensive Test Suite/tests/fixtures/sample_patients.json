@@ -1,0 +1,60 @@
+[
+  {
+    "patient_id": "TEST_PATIENT_001",
+    "age": 45,
+    "gender": "female",
+    "genomics_data": {
+      "CYP2C9_activity": 0.7,
+      "OPRM1_variant": 1,
+      "COMT_activity": 1.2,
+      "CB1_receptor_density": 0.9
+    },
+    "biomarkers": {
+      "inflammatory_markers": 1.8,
+      "endocannabinoid_levels": 0.6,
+      "cortisol_baseline": 15.2,
+      "gaba_activity": 0.8,
+      "liver_enzymes": 1.2,
+      "kidney_function": 0.9
+    },
+    "medical_history": ["chronic_pain", "anxiety", "fibromyalgia"],
+    "current_medications": ["gabapentin", "sertraline"],
+    "lifestyle_metrics": {
+      "sleep_quality": 4.0,
+      "stress_level": 7.0
+    },
+    "pain_scores": [8.0, 7.5, 8.2, 7.8],
+    "functional_assessments": {
+      "mobility_score": 35.0
+    }
+  },
+  {
+    "patient_id": "TEST_PATIENT_002",
+    "age": 62,
+    "gender": "male",
+    "genomics_data": {
+      "CYP2C9_activity": 1.3,
+      "OPRM1_variant": 0,
+      "COMT_activity": 0.8,
+      "CB1_receptor_density": 1.1
+    },
+    "biomarkers": {
+      "inflammatory_markers": 0.9,
+      "endocannabinoid_levels": 1.2,
+      "cortisol_baseline": 8.5,
+      "gaba_activity": 1.3,
+      "liver_enzymes": 0.8,
+      "kidney_function": 1.1
+    },
+    "medical_history": ["chronic_pain", "diabetes", "hypertension"],
+    "current_medications": ["metformin", "lisinopril", "ibuprofen"],
+    "lifestyle_metrics": {
+      "sleep_quality": 6.5,
+      "stress_level": 5.0
+    },
+    "pain_scores": [6.0, 5.5, 6.8, 6.2],
+    "functional_assessments": {
+      "mobility_score": 65.0
+    }
+  }
+] 

@@ -1,0 +1,362 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: database-backup
+  namespace: abena-ihr
+  labels:
+    app: backup
+    version: v1
+spec:
+  schedule: "0 2 * * *"  # Daily at 2 AM
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 7
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: backup
+            job: database-backup
+        spec:
+          serviceAccountName: backup-sa
+          restartPolicy: OnFailure
+          containers:
+          - name: backup
+            image: postgres:15-alpine
+            command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              
+              TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+              BACKUP_FILE="/backup/postgres_backup_${TIMESTAMP}.sql"
+              
+              echo "Starting PostgreSQL backup at $(date)"
+              
+              # Create backup
+              pg_dumpall -h postgres-service -U postgres -f "${BACKUP_FILE}"
+              
+              # Compress backup
+              gzip "${BACKUP_FILE}"
+              
+              # Upload to S3
+              aws s3 cp "${BACKUP_FILE}.gz" "s3://${S3_BUCKET}/database/postgres/"
+              
+              # Clean up local file
+              rm "${BACKUP_FILE}.gz"
+              
+              echo "PostgreSQL backup completed at $(date)"
+              
+              # Clean up old backups (keep last 30 days)
+              aws s3 ls "s3://${S3_BUCKET}/database/postgres/" | \
+                awk '{print $4}' | \
+                grep "postgres_backup_" | \
+                sort | \
+                head -n -30 | \
+                xargs -I {} aws s3 rm "s3://${S3_BUCKET}/database/postgres/{}"
+              
+              echo "Old backups cleaned up"
+            env:
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: database-secrets
+                  key: database-password
+            - name: S3_BUCKET
+              value: "abena-ihr-backups"
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: aws-access-key-id
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: aws-secret-access-key
+            - name: AWS_DEFAULT_REGION
+              value: "us-east-1"
+            volumeMounts:
+            - name: backup-storage
+              mountPath: /backup
+            resources:
+              requests:
+                memory: "256Mi"
+                cpu: "100m"
+              limits:
+                memory: "512Mi"
+                cpu: "200m"
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: false
+              runAsNonRoot: true
+              runAsUser: 999
+              runAsGroup: 999
+              capabilities:
+                drop:
+                  - ALL
+          volumes:
+          - name: backup-storage
+            emptyDir: {}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: redis-backup
+  namespace: abena-ihr
+  labels:
+    app: backup
+    version: v1
+spec:
+  schedule: "0 3 * * *"  # Daily at 3 AM
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 7
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: backup
+            job: redis-backup
+        spec:
+          serviceAccountName: backup-sa
+          restartPolicy: OnFailure
+          containers:
+          - name: backup
+            image: redis:7-alpine
+            command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              
+              TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+              BACKUP_FILE="/backup/redis_backup_${TIMESTAMP}.rdb"
+              
+              echo "Starting Redis backup at $(date)"
+              
+              # Trigger Redis backup
+              redis-cli -h redis-service -a "${REDIS_PASSWORD}" BGSAVE
+              
+              # Wait for backup to complete
+              sleep 30
+              
+              # Copy backup file
+              kubectl cp abena-ihr/redis-0:/data/dump.rdb "${BACKUP_FILE}"
+              
+              # Upload to S3
+              aws s3 cp "${BACKUP_FILE}" "s3://${S3_BUCKET}/redis/"
+              
+              # Clean up local file
+              rm "${BACKUP_FILE}"
+              
+              echo "Redis backup completed at $(date)"
+              
+              # Clean up old backups (keep last 30 days)
+              aws s3 ls "s3://${S3_BUCKET}/redis/" | \
+                awk '{print $4}' | \
+                grep "redis_backup_" | \
+                sort | \
+                head -n -30 | \
+                xargs -I {} aws s3 rm "s3://${S3_BUCKET}/redis/{}"
+              
+              echo "Old Redis backups cleaned up"
+            env:
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redis-secrets
+                  key: password
+            - name: S3_BUCKET
+              value: "abena-ihr-backups"
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: aws-access-key-id
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: aws-secret-access-key
+            - name: AWS_DEFAULT_REGION
+              value: "us-east-1"
+            volumeMounts:
+            - name: backup-storage
+              mountPath: /backup
+            resources:
+              requests:
+                memory: "128Mi"
+                cpu: "50m"
+              limits:
+                memory: "256Mi"
+                cpu: "100m"
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: false
+              runAsNonRoot: true
+              runAsUser: 999
+              runAsGroup: 999
+              capabilities:
+                drop:
+                  - ALL
+          volumes:
+          - name: backup-storage
+            emptyDir: {}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: configuration-backup
+  namespace: abena-ihr
+  labels:
+    app: backup
+    version: v1
+spec:
+  schedule: "0 4 * * *"  # Daily at 4 AM
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 7
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: backup
+            job: config-backup
+        spec:
+          serviceAccountName: backup-sa
+          restartPolicy: OnFailure
+          containers:
+          - name: backup
+            image: bitnami/kubectl:latest
+            command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              
+              TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+              BACKUP_DIR="/backup/config_${TIMESTAMP}"
+              
+              echo "Starting configuration backup at $(date)"
+              
+              mkdir -p "${BACKUP_DIR}"
+              
+              # Backup ConfigMaps
+              kubectl get configmaps -n abena-ihr -o yaml > "${BACKUP_DIR}/configmaps.yaml"
+              
+              # Backup Secrets (encrypted)
+              kubectl get secrets -n abena-ihr -o yaml > "${BACKUP_DIR}/secrets.yaml"
+              
+              # Backup Deployments
+              kubectl get deployments -n abena-ihr -o yaml > "${BACKUP_DIR}/deployments.yaml"
+              
+              # Backup Services
+              kubectl get services -n abena-ihr -o yaml > "${BACKUP_DIR}/services.yaml"
+              
+              # Backup Network Policies
+              kubectl get networkpolicies -n abena-ihr -o yaml > "${BACKUP_DIR}/networkpolicies.yaml"
+              
+              # Create tar archive
+              tar -czf "${BACKUP_DIR}.tar.gz" -C /backup "config_${TIMESTAMP}"
+              
+              # Upload to S3
+              aws s3 cp "${BACKUP_DIR}.tar.gz" "s3://${S3_BUCKET}/configuration/"
+              
+              # Clean up local files
+              rm -rf "${BACKUP_DIR}" "${BACKUP_DIR}.tar.gz"
+              
+              echo "Configuration backup completed at $(date)"
+              
+              # Clean up old backups (keep last 30 days)
+              aws s3 ls "s3://${S3_BUCKET}/configuration/" | \
+                awk '{print $4}' | \
+                grep "config_" | \
+                sort | \
+                head -n -30 | \
+                xargs -I {} aws s3 rm "s3://${S3_BUCKET}/configuration/{}"
+              
+              echo "Old configuration backups cleaned up"
+            env:
+            - name: S3_BUCKET
+              value: "abena-ihr-backups"
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: aws-access-key-id
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: aws-secret-access-key
+            - name: AWS_DEFAULT_REGION
+              value: "us-east-1"
+            volumeMounts:
+            - name: backup-storage
+              mountPath: /backup
+            resources:
+              requests:
+                memory: "128Mi"
+                cpu: "50m"
+              limits:
+                memory: "256Mi"
+                cpu: "100m"
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: false
+              runAsNonRoot: true
+              runAsUser: 1001
+              runAsGroup: 1001
+              capabilities:
+                drop:
+                  - ALL
+          volumes:
+          - name: backup-storage
+            emptyDir: {}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: backup-sa
+  namespace: abena-ihr
+  labels:
+    app: backup
+    version: v1
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: backup-role
+  namespace: abena-ihr
+rules:
+- apiGroups: [""]
+  resources: ["pods", "pods/exec"]
+  verbs: ["get", "list", "create"]
+- apiGroups: [""]
+  resources: ["configmaps", "secrets", "services"]
+  verbs: ["get", "list"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "statefulsets"]
+  verbs: ["get", "list"]
+- apiGroups: ["networking.k8s.io"]
+  resources: ["networkpolicies"]
+  verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: backup-rolebinding
+  namespace: abena-ihr
+subjects:
+- kind: ServiceAccount
+  name: backup-sa
+  namespace: abena-ihr
+roleRef:
+  kind: Role
+  name: backup-role
+  apiGroup: rbac.authorization.k8s.io 

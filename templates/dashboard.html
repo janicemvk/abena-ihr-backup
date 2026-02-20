@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ABENA IHR Quantum Healthcare Analysis</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+            padding: 20px;
+            color: #1a202c;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+            overflow-x: auto;
+        }
+        .header {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .header h1 {
+            color: #1a202c;
+            font-size: 2.75rem;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+        .header .subtitle {
+            color: #718096;
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+        }
+        .header .timestamp {
+            color: #a0aec0;
+            font-size: 0.95rem;
+        }
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 30px;
+        }
+        @media (max-width: 768px) {
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+            .circuits-grid {
+                grid-template-columns: 1fr;
+            }
+            .analysis-summary {
+                grid-template-columns: 1fr;
+            }
+        }
+        .kpi-card {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .kpi-title {
+            font-size: 1rem;
+            color: #718096;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        .gauge-container {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            margin: 0 auto 20px;
+        }
+        .gauge-circle {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            position: relative;
+        }
+        .gauge-green { background: conic-gradient(#48bb78 0deg, #48bb78 var(--value), #e2e8f0 var(--value), #e2e8f0 360deg); }
+        .gauge-orange { background: conic-gradient(#ed8936 0deg, #ed8936 var(--value), #e2e8f0 var(--value), #e2e8f0 360deg); }
+        .gauge-inner {
+            width: 70%;
+            height: 70%;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+        .data-flow {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .data-flow-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+            color: #1a202c;
+        }
+        .flow-steps {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .flow-step {
+            flex: 1;
+            min-width: 120px;
+            text-align: center;
+            position: relative;
+        }
+        .flow-step-number {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            margin: 0 auto 12px;
+            font-size: 1.2rem;
+        }
+        .flow-step-blue { background: #4299e1; }
+        .flow-step-purple { background: #9f7aea; }
+        .flow-step-green { background: #48bb78; }
+        .flow-step-orange { background: #ed8936; }
+        .flow-step-black { background: #2d3748; }
+        .flow-step-name {
+            font-size: 0.9rem;
+            color: #4a5568;
+            font-weight: 600;
+        }
+        .flow-arrow {
+            font-size: 1.5rem;
+            color: #cbd5e0;
+            margin: 0 8px;
+        }
+        .flow-status {
+            text-align: center;
+            padding: 12px;
+            background: #c6f6d5;
+            border-radius: 8px;
+            color: #22543d;
+            font-weight: 600;
+            margin-top: 16px;
+        }
+        .analysis-summary {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 30px;
+        }
+        .summary-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .summary-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 16px;
+        }
+        .summary-item {
+            margin-bottom: 12px;
+        }
+        .summary-label {
+            font-size: 0.9rem;
+            color: #718096;
+            margin-bottom: 4px;
+        }
+        .summary-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1a202c;
+        }
+        .summary-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .badge-good { background: #c6f6d5; color: #22543d; }
+        .badge-warning { background: #feebc8; color: #7c2d12; }
+        .badge-active { background: #bee3f8; color: #2c5282; }
+        .circuits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 30px;
+        }
+        .circuit-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .circuit-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #1a202c;
+        }
+        .circuit-spec {
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .circuit-label {
+            color: #718096;
+            font-size: 0.9rem;
+        }
+        .circuit-value {
+            color: #1a202c;
+            font-weight: 600;
+        }
+        .tcm-section {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .tcm-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #1a202c;
+        }
+        .tcm-pattern {
+            padding: 16px;
+            background: #f7fafc;
+            border-radius: 12px;
+            margin-bottom: 12px;
+        }
+        .tcm-pattern-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #1a202c;
+        }
+        .tcm-confidence-bar {
+            height: 24px;
+            background: #e2e8f0;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+        .tcm-confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4299e1, #9f7aea);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 12px;
+            color: white;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: #718096;
+            font-size: 1.1rem;
+        }
+        .error {
+            background: #fed7d7;
+            color: #742a2a;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .refresh-btn {
+            background: #4299e1;
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-top: 20px;
+            transition: background 0.2s;
+        }
+        .refresh-btn:hover {
+            background: #3182ce;
+        }
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 0 20px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            margin-bottom: 20px;
+        }
+        .nav-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 70px;
+        }
+        .nav-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1a202c;
+            text-decoration: none;
+        }
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+        .nav-links a {
+            color: #4a5568;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .nav-links a:hover {
+            background: #edf2f7;
+            color: #1a202c;
+        }
+        .nav-links a.active {
+            background: #4299e1;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">ABENA IHR</a>
+            <ul class="nav-links">
+                <li><a href="/" class="active">Quantum Analysis</a></li>
+                <li><a href="https://provider-portal-va15.onrender.com" target="_blank" rel="noopener noreferrer">Clinical</a></li>
+                <li><a href="https://admin-dashboard-joww.onrender.com/admin" target="_blank" rel="noopener noreferrer">Admin</a></li>
+                <li><a href="https://patient-portal-9pt9.onrender.com" target="_blank" rel="noopener noreferrer">Patient</a></li>
+                <li><a href="https://ecbome-intelligence-dashboard.onrender.com" target="_blank" rel="noopener noreferrer">eCBome</a></li>
+                <li><a href="https://unified-integration-hub.onrender.com" target="_blank" rel="noopener noreferrer">Integration Status</a></li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="header">
+            <h1>ABENA IHR Quantum Healthcare Analysis</h1>
+            <p class="subtitle">Personalized treatment optimization using quantum computing</p>
+            <p class="timestamp">Analysis completed: <span id="timestamp"></span></p>
+        </div>
+
+        <div id="error-message" class="error" style="display: none;"></div>
+
+        <div id="loading" class="loading">
+            <p>Loading quantum analysis data...</p>
+        </div>
+
+        <div id="dashboard" style="display: block;">
+            <!-- KPI Gauges -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-title">Treatment Optimization</div>
+                    <div class="gauge-container">
+                        <div class="gauge-circle gauge-green" style="--value: 259deg;">
+                            <div class="gauge-inner">
+                                <span id="treatment-opt">--</span>%
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-title">Overall Health Score</div>
+                    <div class="gauge-container">
+                        <div class="gauge-circle gauge-orange" style="--value: 245deg;">
+                            <div class="gauge-inner">
+                                <span id="overall-health">--</span>%
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-title">Safety Score</div>
+                    <div class="gauge-container">
+                        <div class="gauge-circle gauge-green" style="--value: 256deg;">
+                            <div class="gauge-inner">
+                                <span id="safety-score">--</span>%
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Flow -->
+            <div class="data-flow">
+                <div class="data-flow-title">Complete Data Flow: eCBome → Quantum → Blockchain</div>
+                <div class="flow-steps" id="flow-steps">
+                    <!-- Populated by JavaScript -->
+                </div>
+                <div class="flow-status" id="flow-status">All Steps Complete</div>
+                <div style="text-align: center; margin-top: 12px; color: #718096; font-size: 0.9rem;">
+                    Backend: <strong id="backend-info">Quantum Simulator (IBM Hardware Ready)</strong>
+                </div>
+            </div>
+
+            <!-- Analysis Summary -->
+            <div class="analysis-summary">
+                <div class="summary-card">
+                    <div class="summary-title">Analysis Summary</div>
+                    <div class="summary-item">
+                        <div class="summary-label">Pattern Recognition</div>
+                        <div class="summary-value" id="pattern-recognition">--</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">eCBome Correlation</div>
+                        <div class="summary-value" id="ecbome-correlation">--</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">Integration Quality</div>
+                        <div class="summary-value">
+                            <span class="summary-badge badge-good" id="integration-quality">--</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-title">Safety & Performance</div>
+                    <div class="summary-item">
+                        <div class="summary-label">Drug Interaction Level</div>
+                        <div class="summary-value" id="drug-interaction-level">--</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">Safety Score</div>
+                        <div class="summary-value" id="safety-score-text">--</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">Quantum Advantage</div>
+                        <div class="summary-value">
+                            <span class="summary-badge badge-active" id="quantum-advantage">--</span>
+                        </div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">Speedup</div>
+                        <div class="summary-value" id="speedup">--</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quantum Circuits -->
+            <div class="circuits-grid">
+                <div class="circuit-card">
+                    <div class="circuit-title">VQE Circuit</div>
+                    <div class="circuit-spec">
+                        <span class="circuit-label">Qubits:</span>
+                        <span class="circuit-value" id="vqe-qubits">--</span>
+                    </div>
+                    <div class="circuit-spec">
+                        <span class="circuit-label">Depth:</span>
+                        <span class="circuit-value" id="vqe-depth">--</span>
+                    </div>
+                    <div class="circuit-spec">
+                        <span class="circuit-label">Gates:</span>
+                        <span class="circuit-value" id="vqe-gates">--</span>
+                    </div>
+                    <div class="circuit-spec">
+                        <span class="circuit-label">Hardware Time:</span>
+                        <span class="circuit-value" id="vqe-hardware">--</span>
+                    </div>
+                    <div class="circuit-spec">
+                        <span class="circuit-label">Classical Time:</span>
+                        <span class="circuit-value" id="vqe-classical">--</span>
+                    </div>
+                </div>
+                <div class="circuit-card">
+                    <div class="circuit-title">QML Circuit</div>
+                    <div class="circuit-spec">
+                        <span class="circuit-label">Type:</span>
+                        <span class="circuit-value" id="qml-type">--</span>
+                    </div>
+                    <div class="circuit-spec">
+                        <span class="circuit-label">Qubits:</span>
+                        <span class="circuit-value" id="qml-qubits">--</span>
+                    </div>
+                    <div class="circuit-spec">
+                        <span class="circuit-label">Depth:</span>
+                        <span class="circuit-value" id="qml-depth">--</span>
+                    </div>
+                    <div class="circuit-spec">
+                        <span class="circuit-label">Gates:</span>
+                        <span class="circuit-value" id="qml-gates">--</span>
+                    </div>
+                    <div class="circuit-spec">
+                        <span class="circuit-label">Feature Map:</span>
+                        <span class="circuit-value" id="qml-feature">--</span>
+                    </div>
+                </div>
+                <div class="circuit-card">
+                    <div class="circuit-title">QAOA Circuit</div>
+                    <div class="circuit-spec">
+                        <span class="circuit-label">Qubits:</span>
+                        <span class="circuit-value" id="qaoa-qubits">--</span>
+                    </div>
+                    <div class="circuit-spec">
+                        <span class="circuit-label">Layers:</span>
+                        <span class="circuit-value" id="qaoa-layers">--</span>
+                    </div>
+                    <div class="circuit-spec">
+                        <span class="circuit-label">Depth:</span>
+                        <span class="circuit-value" id="qaoa-depth">--</span>
+                    </div>
+                    <div class="circuit-spec">
+                        <span class="circuit-label">Gates:</span>
+                        <span class="circuit-value" id="qaoa-gates">--</span>
+                    </div>
+                    <div class="circuit-spec">
+                        <span class="circuit-label">Speedup:</span>
+                        <span class="circuit-value" id="qaoa-speedup">--</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TCM Pattern Matches -->
+            <div class="tcm-section">
+                <div class="tcm-title">TCM Pattern Matches with eCBome Correlations</div>
+                <div id="tcm-patterns">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+
+            <div style="text-align: center;">
+                <button class="refresh-btn" onclick="loadData()">🔄 Refresh Analysis</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function loadData() {
+            const loadingEl = document.getElementById('loading');
+            const dashboardEl = document.getElementById('dashboard');
+            const errorEl = document.getElementById('error-message');
+            
+            if (loadingEl) loadingEl.style.display = 'block';
+            if (dashboardEl) dashboardEl.style.display = 'none';
+            if (errorEl) errorEl.style.display = 'none';
+
+            try {
+                const response = await fetch('/api/demo-results');
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                
+                const data = await response.json();
+                displayData(data);
+                if (loadingEl) loadingEl.style.display = 'none';
+                if (dashboardEl) dashboardEl.style.display = 'block';
+            } catch (error) {
+                console.error('Error loading data:', error);
+                // Use fallback demo data if API fails
+                const fallbackData = {
+                    patient_id: "DEMO_001",
+                    quantum_health_score: 0.78,
+                    system_balance: 0.65,
+                    treatment_optimization: 0.719,
+                    overall_health_score: 0.68,
+                    safety_score: 0.71,
+                    analysis_timestamp: new Date().toISOString(),
+                    pattern_recognition: "Spleen Qi Deficiency",
+                    ecbome_correlation: 0.60,
+                    integration_quality: "Good",
+                    drug_interaction_level: "Moderate Risk",
+                    quantum_advantage: "Active",
+                    speedup: "4.5 minutes vs 25.0 hours",
+                    quantum_circuits: {
+                        vqe: { qubits: 4, depth: 4, gates: 12, hardware_time: "4.5 minutes", classical_time: "25.0 hours" },
+                        qml: { type: "Variational Quantum Classifier", qubits: 4, depth: 6, gates: 18, feature_map: "ZZFeatureMap" },
+                        qaoa: { qubits: 6, layers: 3, depth: 2, gates: 18, speedup: "128x" }
+                    },
+                    data_flow: {
+                        steps: [
+                            {name: "eCBome Input", status: "complete", color: "blue"},
+                            {name: "VQE Optimization", status: "complete", color: "purple"},
+                            {name: "Pattern Recognition", status: "complete", color: "green"},
+                            {name: "Drug Interaction", status: "complete", color: "orange"},
+                            {name: "Blockchain Storage", status: "complete", color: "black"}
+                        ],
+                        backend: "Quantum Simulator (IBM Hardware Ready)",
+                        all_complete: true
+                    },
+                    tcm_patterns: [
+                        {pattern: "Spleen Qi Deficiency", confidence: 0.596},
+                        {pattern: "Kidney Yang Deficiency", confidence: 0.423}
+                    ],
+                    recommendations: [
+                        "Monitor eCBome biomarkers weekly",
+                        "Consider lifestyle modifications",
+                        "Review medication interactions quarterly"
+                    ]
+                };
+                displayData(fallbackData);
+                if (errorEl) {
+                    errorEl.textContent = `Using demo data (API unavailable: ${error.message})`;
+                    errorEl.style.display = 'block';
+                }
+                if (loadingEl) loadingEl.style.display = 'none';
+                if (dashboardEl) dashboardEl.style.display = 'block';
+            }
+        }
+
+        function displayData(data) {
+            // Timestamp
+            const timestamp = new Date(data.analysis_timestamp || new Date()).toLocaleString();
+            document.getElementById('timestamp').textContent = timestamp;
+
+            // KPI Gauges
+            document.getElementById('treatment-opt').textContent = (data.treatment_optimization * 100).toFixed(1);
+            document.getElementById('overall-health').textContent = (data.overall_health_score * 100).toFixed(1);
+            document.getElementById('safety-score').textContent = (data.safety_score * 100).toFixed(1);
+
+            // Update gauge angles
+            document.querySelector('.gauge-green').style.setProperty('--value', (data.treatment_optimization * 360) + 'deg');
+            document.querySelector('.gauge-orange').style.setProperty('--value', (data.overall_health_score * 360) + 'deg');
+            document.querySelectorAll('.gauge-green')[1].style.setProperty('--value', (data.safety_score * 360) + 'deg');
+
+            // Data Flow Steps
+            const flowSteps = document.getElementById('flow-steps');
+            if (data.data_flow && data.data_flow.steps) {
+                flowSteps.innerHTML = data.data_flow.steps.map((step, index) => {
+                    const colorClass = `flow-step-${step.color}`;
+                    const arrow = index < data.data_flow.steps.length - 1 ? '<span class="flow-arrow">→</span>' : '';
+                    return `
+                        <div class="flow-step">
+                            <div class="flow-step-number ${colorClass}">${index + 1}</div>
+                            <div class="flow-step-name">${step.name}</div>
+                        </div>
+                        ${arrow}
+                    `;
+                }).join('');
+            }
+
+            // Analysis Summary
+            document.getElementById('pattern-recognition').textContent = data.pattern_recognition || '--';
+            document.getElementById('ecbome-correlation').textContent = (data.ecbome_correlation * 100).toFixed(1) + '%';
+            document.getElementById('integration-quality').textContent = data.integration_quality || '--';
+            document.getElementById('drug-interaction-level').textContent = data.drug_interaction_level || '--';
+            document.getElementById('safety-score-text').textContent = (data.safety_score * 100).toFixed(1) + '%';
+            document.getElementById('quantum-advantage').textContent = data.quantum_advantage || '--';
+            document.getElementById('speedup').textContent = data.speedup || '--';
+
+            // Quantum Circuits
+            if (data.quantum_circuits) {
+                const vqe = data.quantum_circuits.vqe;
+                if (vqe) {
+                    document.getElementById('vqe-qubits').textContent = vqe.qubits;
+                    document.getElementById('vqe-depth').textContent = vqe.depth;
+                    document.getElementById('vqe-gates').textContent = vqe.gates;
+                    document.getElementById('vqe-hardware').textContent = vqe.hardware_time;
+                    document.getElementById('vqe-classical').textContent = vqe.classical_time;
+                }
+
+                const qml = data.quantum_circuits.qml;
+                if (qml) {
+                    document.getElementById('qml-type').textContent = qml.type;
+                    document.getElementById('qml-qubits').textContent = qml.qubits;
+                    document.getElementById('qml-depth').textContent = qml.depth;
+                    document.getElementById('qml-gates').textContent = qml.gates;
+                    document.getElementById('qml-feature').textContent = qml.feature_map;
+                }
+
+                const qaoa = data.quantum_circuits.qaoa;
+                if (qaoa) {
+                    document.getElementById('qaoa-qubits').textContent = qaoa.qubits;
+                    document.getElementById('qaoa-layers').textContent = qaoa.layers;
+                    document.getElementById('qaoa-depth').textContent = qaoa.depth;
+                    document.getElementById('qaoa-gates').textContent = qaoa.gates;
+                    document.getElementById('qaoa-speedup').textContent = qaoa.speedup;
+                }
+            }
+
+            // TCM Patterns
+            const tcmContainer = document.getElementById('tcm-patterns');
+            if (data.tcm_patterns && data.tcm_patterns.length > 0) {
+                tcmContainer.innerHTML = data.tcm_patterns.map(pattern => `
+                    <div class="tcm-pattern">
+                        <div class="tcm-pattern-name">${pattern.pattern}</div>
+                        <div class="tcm-confidence-bar">
+                            <div class="tcm-confidence-fill" style="width: ${pattern.confidence * 100}%">
+                                ${(pattern.confidence * 100).toFixed(1)}% Confidence
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                tcmContainer.innerHTML = '<p style="color: #718096;">No TCM patterns detected</p>';
+            }
+
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+        }
+
+        // Load data on page load
+        loadData();
+        // Auto-refresh every 60 seconds
+        setInterval(loadData, 60000);
+    </script>
+</body>
+</html>

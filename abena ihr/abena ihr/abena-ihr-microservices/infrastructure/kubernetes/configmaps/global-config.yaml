@@ -1,0 +1,97 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: abena-ihr-global-config
+  namespace: abena-ihr
+  labels:
+    app: abena-ihr
+    version: v1
+data:
+  # Global application settings
+  app.name: "Abena IHR"
+  app.version: "1.0.0"
+  app.environment: "production"
+  
+  # Database settings
+  database.pool_size: "20"
+  database.max_overflow: "30"
+  database.pool_timeout: "30"
+  database.pool_recycle: "3600"
+  
+  # Redis settings
+  redis.pool_size: "10"
+  redis.socket_timeout: "5"
+  redis.socket_connect_timeout: "5"
+  
+  # Kafka settings
+  kafka.consumer_group: "abena-ihr-group"
+  kafka.auto_offset_reset: "earliest"
+  kafka.enable_auto_commit: "false"
+  
+  # Logging settings
+  logging.level: "INFO"
+  logging.format: "json"
+  logging.output: "stdout"
+  
+  # Monitoring settings
+  monitoring.metrics_enabled: "true"
+  monitoring.health_check_interval: "30"
+  monitoring.readiness_check_interval: "10"
+  
+  # Security settings
+  security.jwt_expiration: "3600"
+  security.refresh_token_expiration: "86400"
+  security.password_min_length: "8"
+  security.max_login_attempts: "5"
+  security.lockout_duration: "900"
+  
+  # Healthcare compliance
+  compliance.hipaa_enabled: "true"
+  compliance.gdpr_enabled: "true"
+  compliance.audit_logging: "true"
+  compliance.data_retention_days: "2555"
+  
+  # Notification settings
+  notifications.email_enabled: "true"
+  notifications.sms_enabled: "true"
+  notifications.push_enabled: "true"
+  notifications.slack_enabled: "false"
+  
+  # Service URLs
+  services.auth.url: "https://auth.abena-ihr.com"
+  services.patient_engagement.url: "https://patient.abena-ihr.com"
+  services.clinical_decision.url: "https://clinical.abena-ihr.com"
+  services.data_ingestion.url: "https://data.abena-ihr.com"
+  services.privacy_security.url: "https://privacy.abena-ihr.com"
+  services.blockchain.url: "https://blockchain.abena-ihr.com"
+  
+  # Feature flags
+  features.appointment_booking: "true"
+  features.health_tracking: "true"
+  features.medication_reminders: "true"
+  features.telemedicine_integration: "true"
+  features.document_upload: "true"
+  features.notifications: "true"
+  
+  # Limits
+  limits.max_appointments_per_day: "10"
+  limits.max_health_entries_per_day: "50"
+  limits.max_document_size: "10485760"
+  limits.max_documents_per_patient: "100"
+  
+  # Performance settings
+  performance.max_concurrent_requests: "1000"
+  performance.request_timeout: "30"
+  performance.cache_ttl: "3600"
+  
+  # Backup settings
+  backup.enabled: "true"
+  backup.schedule: "0 2 * * *"
+  backup.retention_days: "30"
+  backup.storage_class: "gp2"
+  
+  # Disaster recovery
+  disaster_recovery.enabled: "true"
+  disaster_recovery.rto_hours: "4"
+  disaster_recovery.rpo_hours: "1"
+  disaster_recovery.backup_location: "s3://abena-ihr-backups" 

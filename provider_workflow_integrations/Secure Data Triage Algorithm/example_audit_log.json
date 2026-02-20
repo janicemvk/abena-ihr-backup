@@ -1,0 +1,82 @@
+[
+  {
+    "timestamp": "2025-06-06T08:33:46.618994",
+    "data_hash": "112fbc5b95377df36bab89bddc4321d819352b8e11cdbda8769bf7ad47b6f9dc",
+    "secured_data_hash": "112fbc5b95377df36bab89bddc4321d819352b8e11cdbda8769bf7ad47b6f9dc",
+    "sensitivity_level": "STATISTICAL",
+    "storage_destination": "anonymous",
+    "processing_steps": [
+      "validation",
+      "pii_detection",
+      "sensitivity_assessment",
+      "consent_verification",
+      "anonymization",
+      "security_application"
+    ],
+    "compliance_flags": {
+      "hipaa_compliant": true,
+      "gdpr_compliant": true,
+      "consent_documented": true
+    }
+  },
+  {
+    "timestamp": "2025-06-06T08:33:46.680057",
+    "data_hash": "19ee0ffbc2d810a243e71a2cedceb4ec4c6d07c449adf444e05af27883b6af90",
+    "secured_data_hash": "e6199efeb34e9b69692e1d4cec80351c18516a6b000f4bd5c734fdd6fc26a075",
+    "sensitivity_level": "SENSITIVE",
+    "storage_destination": "identified",
+    "processing_steps": [
+      "validation",
+      "pii_detection",
+      "sensitivity_assessment",
+      "consent_verification",
+      "anonymization",
+      "security_application"
+    ],
+    "compliance_flags": {
+      "hipaa_compliant": true,
+      "gdpr_compliant": true,
+      "consent_documented": true
+    }
+  },
+  {
+    "timestamp": "2025-06-06T08:33:46.681392",
+    "data_hash": "1af11fffa127c5f1d28ed0be4302063c6ec58258ea720df7a9b7e2e179c93cd4",
+    "secured_data_hash": "1af11fffa127c5f1d28ed0be4302063c6ec58258ea720df7a9b7e2e179c93cd4",
+    "sensitivity_level": "STATISTICAL",
+    "storage_destination": "anonymous",
+    "processing_steps": [
+      "validation",
+      "pii_detection",
+      "sensitivity_assessment",
+      "consent_verification",
+      "anonymization",
+      "security_application"
+    ],
+    "compliance_flags": {
+      "hipaa_compliant": true,
+      "gdpr_compliant": true,
+      "consent_documented": true
+    }
+  },
+  {
+    "timestamp": "2025-06-06T08:33:46.682743",
+    "data_hash": "ca09cbc7ed9bbe4829a977e6ed22f66a56d8cf1d8ec7399cb5629186535d3f78",
+    "secured_data_hash": "ca09cbc7ed9bbe4829a977e6ed22f66a56d8cf1d8ec7399cb5629186535d3f78",
+    "sensitivity_level": "SENSITIVE",
+    "storage_destination": "quarantine",
+    "processing_steps": [
+      "validation",
+      "pii_detection",
+      "sensitivity_assessment",
+      "consent_verification",
+      "anonymization",
+      "security_application"
+    ],
+    "compliance_flags": {
+      "hipaa_compliant": true,
+      "gdpr_compliant": true,
+      "consent_documented": true
+    }
+  }
+]

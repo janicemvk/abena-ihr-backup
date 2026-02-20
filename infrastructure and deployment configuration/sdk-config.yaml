@@ -1,0 +1,189 @@
+# =====================================================
+# ABENA SHARED SDK CONFIGURATION
+# =====================================================
+
+sdk:
+  # Universal Service Client Configuration
+  universal:
+    enabled: true
+    timeout: 30000
+    retryAttempts: 3
+    retryDelay: 1000
+    circuitBreaker:
+      enabled: true
+      failureThreshold: 5
+      recoveryTimeout: 60000
+      monitoringWindow: 60000
+
+  # Service Discovery
+  discovery:
+    type: "kubernetes"  # kubernetes, consul, etcd
+    namespace: "abena-ihr"
+    refreshInterval: 30000
+    healthCheckInterval: 10000
+
+  # Caching Configuration
+  cache:
+    type: "redis"  # redis, memory, none
+    ttl: 3600
+    maxSize: 1000
+    evictionPolicy: "lru"
+
+  # Authentication & Security
+  auth:
+    type: "jwt"
+    tokenRefreshInterval: 300000  # 5 minutes
+    tokenExpiryBuffer: 60000     # 1 minute buffer
+
+  # Logging Configuration
+  logging:
+    level: "info"
+    format: "json"
+    output: "stdout"
+    enableRequestLogging: true
+    enablePerformanceLogging: true
+
+  # Metrics & Monitoring
+  metrics:
+    enabled: true
+    endpoint: "/metrics"
+    collectionInterval: 15000
+    enableHistograms: true
+    enableCounters: true
+
+  # Health Checks
+  health:
+    enabled: true
+    endpoint: "/health"
+    readinessEndpoint: "/ready"
+    livenessEndpoint: "/live"
+    checkInterval: 30000
+
+# Service Registry Configuration
+services:
+  # Core IHR Services
+  ihr-api:
+    url: "http://abena-ihr-app:3000"
+    timeout: 30000
+    retryAttempts: 3
+    circuitBreaker:
+      failureThreshold: 5
+      recoveryTimeout: 60000
+
+  # External Healthcare Services
+  fhir-server:
+    url: "${FHIR_SERVER_URL}"
+    timeout: 45000
+    retryAttempts: 2
+    auth:
+      type: "bearer"
+      tokenSource: "environment"
+
+  hl7-gateway:
+    url: "${HL7_ENDPOINT}"
+    timeout: 60000
+    retryAttempts: 1
+    circuitBreaker:
+      failureThreshold: 3
+      recoveryTimeout: 120000
+
+  epic-integration:
+    url: "https://api.epic.com"
+    timeout: 30000
+    retryAttempts: 2
+    auth:
+      type: "oauth2"
+      clientId: "${EPIC_CLIENT_ID}"
+      clientSecret: "${EPIC_CLIENT_SECRET}"
+
+  cerner-integration:
+    url: "https://api.cerner.com"
+    timeout: 30000
+    retryAttempts: 2
+    auth:
+      type: "apikey"
+      header: "X-API-Key"
+
+  # External Service Providers
+  stripe-payment:
+    url: "https://api.stripe.com"
+    timeout: 30000
+    retryAttempts: 2
+    auth:
+      type: "bearer"
+      tokenSource: "environment"
+
+  twilio-sms:
+    url: "https://api.twilio.com"
+    timeout: 30000
+    retryAttempts: 2
+    auth:
+      type: "basic"
+      username: "${TWILIO_ACCOUNT_SID}"
+      password: "${TWILIO_AUTH_TOKEN}"
+
+  sendgrid-email:
+    url: "https://api.sendgrid.com"
+    timeout: 30000
+    retryAttempts: 2
+    auth:
+      type: "bearer"
+      tokenSource: "environment"
+
+  # Storage Services
+  s3-storage:
+    url: "${S3_ENDPOINT}"
+    timeout: 60000
+    retryAttempts: 3
+    auth:
+      type: "aws"
+      region: "${AWS_REGION}"
+
+# Feature Flags
+features:
+  # SDK Features
+  universalClient: true
+  serviceDiscovery: true
+  circuitBreaker: true
+  caching: true
+  metrics: true
+  healthChecks: true
+
+  # Healthcare Features
+  fhirSupport: true
+  hl7Support: true
+  epicIntegration: true
+  cernerIntegration: true
+
+  # Security Features
+  encryption: true
+  auditLogging: true
+  compliance: true
+
+# Environment-specific overrides
+environments:
+  development:
+    logging:
+      level: "debug"
+    cache:
+      ttl: 300
+    metrics:
+      enabled: false
+
+  staging:
+    logging:
+      level: "info"
+    cache:
+      ttl: 1800
+    circuitBreaker:
+      failureThreshold: 3
+
+  production:
+    logging:
+      level: "warn"
+    cache:
+      ttl: 3600
+    circuitBreaker:
+      failureThreshold: 5
+    metrics:
+      enabled: true 

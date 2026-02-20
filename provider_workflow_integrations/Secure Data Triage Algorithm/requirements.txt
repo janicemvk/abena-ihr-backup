@@ -1,0 +1,14 @@
+# Core dependencies for Abena Secure Data Triage Algorithm
+cryptography>=41.0.0
+typing-extensions>=4.8.0
+
+# Optional enhanced dependencies for production use
+# Uncomment the following for advanced privacy-preserving techniques:
+# tenseal>=0.3.14          # For homomorphic encryption
+# opendp>=0.9.0           # For differential privacy
+# pydantic>=2.5.0         # For data validation
+# fastapi>=0.104.0        # For API endpoints
+# uvicorn>=0.24.0         # For web server
+# python-jose>=3.3.0      # For JWT tokens
+# bcrypt>=4.1.0           # For password hashing
+# redis>=5.0.0            # For caching and sessions 
