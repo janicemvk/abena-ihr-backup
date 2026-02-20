@@ -234,6 +234,8 @@ parameter_types! {
     pub const QuantumComputingPalletId: PalletId = PalletId(*b"abena/qc");
     pub const PatientIdentityPalletId: PalletId = PalletId(*b"abena/pi");
     pub const TreatmentProtocolPalletId: PalletId = PalletId(*b"abena/tp");
+    pub const MaxProvidersPerPatient: u32 = 50;
+    pub const MaxConsentRecords: u32 = 10;
 }
 
 impl pallet_patient_health_records::Config for Runtime {
@@ -319,9 +321,9 @@ impl pallet_sudo::Config for Runtime {
 }
 
 impl pallet_patient_identity::Config for Runtime {
-    type Event = Event;
-    type PalletId = PatientIdentityPalletId;
-    type Currency = Balances;
+    type RuntimeEvent = Event;
+    type MaxProvidersPerPatient = MaxProvidersPerPatient;
+    type MaxConsentRecords = MaxConsentRecords;
     type WeightInfo = pallet_patient_identity::weights::SubstrateWeight<Runtime>;
 }
 

@@ -1,7 +1,8 @@
-//! # Patient Identity Pallet
+//! ABENA Patient Identity Pallet
 //!
-//! A pallet for managing patient decentralized identifiers (DIDs),
-//! zero-knowledge proofs for identity verification, and consent management.
+//! Manages decentralized patient identities for the ABENA Integrative Health Record system.
+//! Provides quantum-resistant identity management, consent tracking, and access control
+//! for multi-modality healthcare (Western, TCM, Ayurveda, etc.)
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
@@ -10,9 +11,6 @@ use scale_info::TypeInfo;
 use sp_runtime::RuntimeDebug;
 use frame_system::pallet_prelude::BlockNumberFor;
 use frame_support::weights::Weight;
-use sp_runtime::BoundedVec;
-use frame_support::traits::ConstU32;
-
 
 #[cfg(test)]
 mod mock;
@@ -24,712 +22,546 @@ mod tests;
 mod benchmarking;
 pub mod weights;
 
+pub use pallet::*;
+
 #[frame_support::pallet]
 pub mod pallet {
-    use frame_support::{
-        pallet_prelude::*,
-        traits::{Currency, ReservableCurrency},
-        traits::ConstU32,
-    };
+    use frame_support::pallet_prelude::*;
     use frame_system::pallet_prelude::*;
     use sp_std::vec::Vec;
     use sp_core::H256;
-    use sp_runtime::BoundedVec;    /// Configuration trait for the pallet.
-    #[pallet::config]
-    pub trait Config: frame_system::Config {
-        /// The overarching event type.
-        type RuntimeEvent: From<Event<Self>> + IsType<<Self as frame_system::Config>::RuntimeEvent>;
-        /// The pallet ID for reserving funds
-        type PalletId: Get<frame_support::PalletId>;
-        /// The currency type for deposits
-        type Currency: Currency<Self::AccountId> + ReservableCurrency<Self::AccountId>;
-        /// Weight information for extrinsics
-        type WeightInfo: crate::WeightInfo;
+    
+    /// Therapeutic modalities supported in ABENA
+    #[derive(Encode, Decode, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    pub enum TherapeuticModality {
+        /// Western Medicine
+        WesternMedicine,
+        /// Traditional Chinese Medicine
+        TraditionalChineseMedicine,
+        /// Ayurveda
+        Ayurveda,
+        /// Homeopathy
+        Homeopathy,
+        /// Naturopathy
+        Naturopathy,
+        /// Other therapeutic modality
+        Other,
+    }
+    
+    /// Patient consent record for a specific modality
+    #[derive(Encode, Decode, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    pub struct ConsentRecord {
+        /// Therapeutic modality
+        pub modality: TherapeuticModality,
+        /// Whether consent is granted
+        pub granted: bool,
+        /// Timestamp when consent was granted/updated
+        pub granted_at: u64,
+        /// Optional expiration timestamp
+        pub expires_at: Option<u64>,
+    }
+    
+    /// Patient Decentralized Identifier (DID)
+    #[derive(Encode, Decode, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo)]
+    #[scale_info(skip_type_params(T))]
+    pub struct PatientDID<T: Config> {
+        /// Unique patient identifier
+        pub patient_account: T::AccountId,
+        /// Public key for verification (quantum-resistant in production - ed25519 for now)
+        pub public_key: [u8; 32],
+        /// Hash of patient metadata (name, DOB, etc. - NOT stored on-chain)
+        pub metadata_hash: [u8; 32],
+        /// Creation timestamp
+        pub created_at: u64,
+        /// Last updated timestamp
+        pub updated_at: u64,
+        /// Emergency contact account (can override access)
+        pub emergency_contact: Option<T::AccountId>,
+        /// Is this identity active?
+        pub active: bool,
+    }
+    
+    /// Provider access record
+    #[derive(Encode, Decode, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo)]
+    #[scale_info(skip_type_params(T))]
+    pub struct ProviderAccess<T: Config> {
+        /// Provider account ID
+        pub provider_account: T::AccountId,
+        /// Timestamp when access was granted
+        pub granted_at: u64,
+        /// Optional expiration timestamp
+        pub expires_at: Option<u64>,
+        /// Level of access granted
+        pub access_level: AccessLevel,
+    }
+    
+    /// Access levels for providers
+    #[derive(Encode, Decode, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    pub enum AccessLevel {
+        /// Read-only access
+        Read,
+        /// Read and write access
+        ReadWrite,
+        /// Emergency access (full access)
+        Emergency,
     }
 
     #[pallet::pallet]
     pub struct Pallet<T>(_);
 
-    /// Patient DID registry
-    /// Maps account ID to their DID document
+    #[pallet::config]
+    pub trait Config: frame_system::Config {
+        /// The overarching event type
+        type RuntimeEvent: From<Event<Self>> + IsType<<Self as frame_system::Config>::RuntimeEvent>;
+        
+        /// Maximum number of providers that can access a single patient
+        #[pallet::constant]
+        type MaxProvidersPerPatient: Get<u32>;
+        
+        /// Maximum number of consent records per patient
+        #[pallet::constant]
+        type MaxConsentRecords: Get<u32>;
+        
+        /// Weight information for extrinsics
+        type WeightInfo: crate::WeightInfo;
+    }
+
+    /// Storage for patient DIDs
     #[pallet::storage]
-    #[pallet::getter(fn patient_dids)]
-    pub type PatientDIDs<T: Config> = StorageMap<
+    #[pallet::getter(fn patient_identity)]
+    pub type PatientIdentities<T: Config> = StorageMap<
         _,
         Blake2_128Concat,
         T::AccountId,
         PatientDID<T>,
         OptionQuery,
     >;
-
-    /// Provider access registry
-    /// Maps (patient_id, provider_id) to access permissions
+    
+    /// Storage for provider access permissions
     #[pallet::storage]
-    pub type ProviderAccess<T: Config> = StorageDoubleMap<
+    #[pallet::getter(fn provider_access)]
+    pub type ProviderAccessList<T: Config> = StorageDoubleMap<
         _,
         Blake2_128Concat,
-        T::AccountId,
+        T::AccountId, // Patient account
         Blake2_128Concat,
-        T::AccountId,
-        ProviderAccessRecord<T>,
+        T::AccountId, // Provider account
+        ProviderAccess<T>,
         OptionQuery,
     >;
-
-    /// Zero-knowledge proof credentials
-    /// Maps (patient_id, credential_type) to proof metadata
-    #[pallet::storage]
-    pub type ZKCredentials<T: Config> = StorageDoubleMap<
-        _,
-        Blake2_128Concat,
-        T::AccountId,
-        Blake2_128Concat,
-        CredentialType,
-        ZKProofMetadata<T>,
-        OptionQuery,
-    >;
-
-    /// Patient consent records
-    /// Maps (patient_id, modality) to consent details per therapeutic modality
+    
+    /// Storage for consent records
     #[pallet::storage]
     #[pallet::getter(fn consent_records)]
     pub type ConsentRecords<T: Config> = StorageDoubleMap<
         _,
         Blake2_128Concat,
-        T::AccountId,
+        T::AccountId, // Patient account
         Blake2_128Concat,
         TherapeuticModality,
-        ConsentRecord<T>,
+        ConsentRecord,
         OptionQuery,
     >;
 
-    /// Cross-provider authentication tokens
-    #[pallet::storage]
-    pub type AuthTokens<T: Config> = StorageMap<
-        _,
-        Blake2_128Concat,
-        H256,
-        AuthTokenData<T>,
-        OptionQuery,
-    >;
-
-    /// Events emitted by this pallet
     #[pallet::event]
     #[pallet::generate_deposit(pub(super) fn deposit_event)]
     pub enum Event<T: Config> {
-        /// Patient was registered
+        /// Patient DID created [patient_account, metadata_hash]
         PatientRegistered {
             patient: T::AccountId,
-            did: Vec<u8>,
-            metadata_hash: H256,
+            metadata_hash: [u8; 32],
         },
-        /// Patient DID was registered (backward compatibility)
-        DIDRegistered {
-            patient: T::AccountId,
-            did: Vec<u8>,
-        },
-        /// DID was updated
-        DIDUpdated {
-            patient: T::AccountId,
-        },
-        /// Zero-knowledge credential was issued
-        ZKCredentialIssued {
-            patient: T::AccountId,
-            credential_type: CredentialType,
-        },
-        /// Consent was updated for a modality
+        /// Consent updated [patient_account, modality, granted]
         ConsentUpdated {
             patient: T::AccountId,
             modality: TherapeuticModality,
             granted: bool,
         },
-        /// Provider access was granted
+        /// Provider access granted [patient_account, provider_account, access_level]
         ProviderAccessGranted {
             patient: T::AccountId,
             provider: T::AccountId,
-            scope: ConsentScope,
+            access_level: AccessLevel,
         },
-        /// Provider access was revoked
+        /// Provider access revoked [patient_account, provider_account]
         ProviderAccessRevoked {
             patient: T::AccountId,
             provider: T::AccountId,
         },
-        /// Emergency access was granted
-        EmergencyAccessGranted {
-            patient: T::AccountId,
-            requester: T::AccountId,
-            reason: Vec<u8>,
-            expires_at: BlockNumberFor<T>,
-        },
-        /// Consent was granted (backward compatibility)
-        ConsentGranted {
-            patient: T::AccountId,
-            provider: T::AccountId,
-            scope: ConsentScope,
-        },
-        /// Consent was revoked (backward compatibility)
-        ConsentRevoked {
+        /// Emergency access activated [patient_account, provider_account]
+        EmergencyAccessActivated {
             patient: T::AccountId,
             provider: T::AccountId,
         },
-        /// Authentication token was issued
-        AuthTokenIssued {
+        /// Patient identity deactivated [patient_account]
+        PatientDeactivated {
             patient: T::AccountId,
-            provider: T::AccountId,
-            token_hash: H256,
         },
     }
 
-    /// Errors that can occur in this pallet
     #[pallet::error]
     pub enum Error<T> {
-        /// DID not found
-        DIDNotFound,
-        /// Invalid DID format
-        InvalidDIDFormat,
-        /// Consent already exists
+        /// Patient already registered
+        PatientAlreadyExists,
+        /// Patient does not exist
+        PatientNotFound,
+        /// Not authorized to perform this action
+        NotAuthorized,
+        /// Invalid public key
+        InvalidPublicKey,
+        /// Consent already exists for this modality
         ConsentAlreadyExists,
         /// Consent not found
         ConsentNotFound,
-        /// Invalid authentication token
-        InvalidAuthToken,
-        /// Data too large for bounded vector
-        DataTooLarge,
-        /// Unauthorized access
-        Unauthorized,
+        /// Provider access already granted
+        ProviderAccessAlreadyGranted,
+        /// Provider access not found
+        ProviderAccessNotFound,
+        /// Maximum number of providers reached
+        TooManyProviders,
+        /// Maximum number of consent records reached
+        TooManyConsentRecords,
+        /// Patient identity is deactivated
+        PatientDeactivated,
     }
 
-    /// Hooks for the pallet
-    #[pallet::hooks]
-    impl<T: Config> Hooks<BlockNumberFor<T>> for Pallet<T> {}
-
-    /// Extrinsics for the pallet
     #[pallet::call]
     impl<T: Config> Pallet<T> {
-        /// Register a patient (creates DID)
+        
+        /// Register a new patient with a decentralized identifier
+        ///
+        /// Parameters:
+        /// - `public_key`: Patient's public key (32 bytes, ed25519 for now, quantum-resistant ready)
+        /// - `metadata_hash`: Hash of patient metadata (NOT actual PHI data)
+        /// - `emergency_contact`: Optional emergency contact account
         #[pallet::call_index(0)]
         #[pallet::weight(T::WeightInfo::register_patient())]
         pub fn register_patient(
             origin: OriginFor<T>,
-            did: Vec<u8>,
-            public_keys: Vec<PublicKey>,
-            metadata_hash: H256,
+            public_key: [u8; 32],
+            metadata_hash: [u8; 32],
+            emergency_contact: Option<T::AccountId>,
         ) -> DispatchResult {
-            let patient = ensure_signed(origin)?;
-
-            // Validate DID format (basic validation)
-            ensure!(did.len() > 0, Error::<T>::InvalidDIDFormat);
-
-            // Ensure patient not already registered
+            let who = ensure_signed(origin)?;
+            
+            // Ensure patient doesn't already exist
             ensure!(
-                !PatientDIDs::<T>::contains_key(&patient),
-                Error::<T>::DIDNotFound // Reuse error for "already exists"
+                !PatientIdentities::<T>::contains_key(&who),
+                Error::<T>::PatientAlreadyExists
             );
-
-            // Convert to BoundedVec (clone did first for event)
-            let did_bounded = BoundedVec::try_from(did.clone())
-                .map_err(|_| Error::<T>::DataTooLarge)?;
-            let public_keys_bounded = BoundedVec::try_from(public_keys)
-                .map_err(|_| Error::<T>::DataTooLarge)?;
-
+            
+            // Validate public key (basic check - enhance for quantum-resistant later)
+            ensure!(
+                public_key != [0u8; 32],
+                Error::<T>::InvalidPublicKey
+            );
+            
+            // Get current timestamp
+            let now = Self::current_timestamp();
+            
+            // Create patient DID
             let patient_did = PatientDID {
-                did: did_bounded,
-                public_keys: public_keys_bounded,
+                patient_account: who.clone(),
+                public_key,
                 metadata_hash,
-                created_at: <frame_system::Pallet<T>>::block_number(),
-                updated_at: <frame_system::Pallet<T>>::block_number(),
+                created_at: now,
+                updated_at: now,
+                emergency_contact,
+                active: true,
             };
-
-            PatientDIDs::<T>::insert(&patient, patient_did);
-
+            
+            // Store patient DID
+            PatientIdentities::<T>::insert(&who, patient_did);
+            
+            // Emit event
             Self::deposit_event(Event::PatientRegistered {
-                patient,
-                did,
+                patient: who,
                 metadata_hash,
             });
-
+            
             Ok(())
         }
-
-        /// Register a patient DID (alias for backward compatibility)
-        #[pallet::call_index(7)]
-        #[pallet::weight(T::WeightInfo::register_did())]
-        pub fn register_did(
-            origin: OriginFor<T>,
-            did: Vec<u8>,
-            public_keys: Vec<PublicKey>,
-        ) -> DispatchResult {
-            // Use default metadata hash (zero hash) for backward compatibility
-            Self::register_patient(origin, did, public_keys, H256::default())
-        }
-
-        /// Update patient DID
+        
+        /// Update consent for a specific therapeutic modality
+        ///
+        /// Parameters:
+        /// - `modality`: The therapeutic modality
+        /// - `granted`: Whether consent is granted (true) or revoked (false)
+        /// - `expires_at`: Optional expiration timestamp
         #[pallet::call_index(1)]
-        #[pallet::weight(T::WeightInfo::update_did())]
-        pub fn update_did(
-            origin: OriginFor<T>,
-            public_keys: Vec<PublicKey>,
-        ) -> DispatchResult {
-            let patient = ensure_signed(origin)?;
-
-            let mut patient_did = PatientDIDs::<T>::get(&patient)
-                .ok_or(Error::<T>::DIDNotFound)?;
-
-            // Convert public_keys to BoundedVec
-            let public_keys_bounded = BoundedVec::try_from(public_keys)
-                .map_err(|_| Error::<T>::DataTooLarge)?;
-            patient_did.public_keys = public_keys_bounded;
-            patient_did.updated_at = <frame_system::Pallet<T>>::block_number();
-
-            PatientDIDs::<T>::insert(&patient, patient_did);
-
-            Self::deposit_event(Event::DIDUpdated { patient });
-
-            Ok(())
-        }
-
-        /// Issue zero-knowledge proof credential
-        #[pallet::call_index(2)]
-        #[pallet::weight(T::WeightInfo::issue_zk_credential())]
-        pub fn issue_zk_credential(
-            origin: OriginFor<T>,
-            patient: T::AccountId,
-            credential_type: CredentialType,
-            proof_hash: H256,
-        ) -> DispatchResult {
-            let issuer = ensure_signed(origin)?;
-
-            // Verify issuer has permission (simplified - in production, add proper checks)
-            ensure!(
-                PatientDIDs::<T>::contains_key(&patient),
-                Error::<T>::DIDNotFound
-            );
-
-            let metadata = ZKProofMetadata {
-                proof_hash,
-                issuer: issuer.clone(),
-                issued_at: <frame_system::Pallet<T>>::block_number(),
-                expires_at: None,
-            };
-
-            ZKCredentials::<T>::insert(&patient, &credential_type, metadata);
-
-            Self::deposit_event(Event::ZKCredentialIssued {
-                patient,
-                credential_type,
-            });
-
-            Ok(())
-        }
-
-        /// Update consent for specific therapeutic modality
-        #[pallet::call_index(3)]
         #[pallet::weight(T::WeightInfo::update_consent())]
         pub fn update_consent(
             origin: OriginFor<T>,
             modality: TherapeuticModality,
             granted: bool,
-            expires_at: Option<BlockNumberFor<T>>,
+            expires_at: Option<u64>,
         ) -> DispatchResult {
-            let patient = ensure_signed(origin)?;
-
-            // Ensure patient is registered
+            let who = ensure_signed(origin)?;
+            
+            // Ensure patient exists
+            let patient = PatientIdentities::<T>::get(&who)
+                .ok_or(Error::<T>::PatientNotFound)?;
+            
+            // Ensure patient is active
+            ensure!(patient.active, Error::<T>::PatientDeactivated);
+            
+            // Check maximum consent records limit
+            let consent_count = ConsentRecords::<T>::iter_prefix(&who).count() as u32;
             ensure!(
-                PatientDIDs::<T>::contains_key(&patient),
-                Error::<T>::DIDNotFound
+                consent_count < T::MaxConsentRecords::get(),
+                Error::<T>::TooManyConsentRecords
             );
-
+            
+            let now = Self::current_timestamp();
+            
+            // Create consent record
             let consent = ConsentRecord {
-                patient: patient.clone(),
-                modality,
+                modality: modality.clone(),
                 granted,
-                granted_at: <frame_system::Pallet<T>>::block_number(),
+                granted_at: now,
                 expires_at,
-                revoked: !granted,
             };
-
-            ConsentRecords::<T>::insert(&patient, &modality, consent.clone());
-
+            
+            // Store consent
+            ConsentRecords::<T>::insert(&who, &modality, consent);
+            
+            // Emit event
             Self::deposit_event(Event::ConsentUpdated {
-                patient,
+                patient: who,
                 modality,
                 granted,
             });
-
+            
             Ok(())
         }
-
-        /// Grant consent to a provider (backward compatibility)
-        #[pallet::call_index(8)]
-        #[pallet::weight(T::WeightInfo::grant_consent())]
-        pub fn grant_consent(
-            origin: OriginFor<T>,
-            provider: T::AccountId,
-            scope: ConsentScope,
-            expires_at: Option<BlockNumberFor<T>>,
-        ) -> DispatchResult {
-            // This is kept for backward compatibility
-            // In the new model, use grant_provider_access instead
-            Self::grant_provider_access(origin, provider, scope, expires_at)
-        }
-
+        
         /// Grant provider access to patient records
-        #[pallet::call_index(4)]
+        ///
+        /// Parameters:
+        /// - `provider`: The provider's account ID
+        /// - `access_level`: Level of access to grant
+        /// - `expires_at`: Optional expiration timestamp
+        #[pallet::call_index(2)]
         #[pallet::weight(T::WeightInfo::grant_provider_access())]
         pub fn grant_provider_access(
             origin: OriginFor<T>,
             provider: T::AccountId,
-            scope: ConsentScope,
-            expires_at: Option<BlockNumberFor<T>>,
+            access_level: AccessLevel,
+            expires_at: Option<u64>,
         ) -> DispatchResult {
-            let patient = ensure_signed(origin)?;
-
-            // Ensure patient is registered
+            let who = ensure_signed(origin)?;
+            
+            // Ensure patient exists
+            let patient = PatientIdentities::<T>::get(&who)
+                .ok_or(Error::<T>::PatientNotFound)?;
+            
+            // Ensure patient is active
+            ensure!(patient.active, Error::<T>::PatientDeactivated);
+            
+            // Ensure access doesn't already exist
             ensure!(
-                PatientDIDs::<T>::contains_key(&patient),
-                Error::<T>::DIDNotFound
+                !ProviderAccessList::<T>::contains_key(&who, &provider),
+                Error::<T>::ProviderAccessAlreadyGranted
             );
-
-            let access_record = ProviderAccessRecord {
-                patient: patient.clone(),
-                provider: provider.clone(),
-                scope: scope.clone(),
-                granted_at: <frame_system::Pallet<T>>::block_number(),
+            
+            // Check maximum providers limit
+            let provider_count = ProviderAccessList::<T>::iter_prefix(&who).count() as u32;
+            ensure!(
+                provider_count < T::MaxProvidersPerPatient::get(),
+                Error::<T>::TooManyProviders
+            );
+            
+            let now = Self::current_timestamp();
+            
+            // Create provider access record
+            let access = ProviderAccess {
+                provider_account: provider.clone(),
+                granted_at: now,
                 expires_at,
-                revoked: false,
+                access_level: access_level.clone(),
             };
-
-            ProviderAccess::<T>::insert(&patient, &provider, access_record);
-
+            
+            // Store provider access
+            ProviderAccessList::<T>::insert(&who, &provider, access);
+            
+            // Emit event
             Self::deposit_event(Event::ProviderAccessGranted {
-                patient,
+                patient: who,
                 provider,
-                scope,
+                access_level,
             });
-
+            
             Ok(())
         }
-
-        /// Revoke provider access
-        #[pallet::call_index(5)]
+        
+        /// Revoke provider access to patient records
+        ///
+        /// Parameters:
+        /// - `provider`: The provider's account ID to revoke
+        #[pallet::call_index(3)]
         #[pallet::weight(T::WeightInfo::revoke_provider_access())]
         pub fn revoke_provider_access(
             origin: OriginFor<T>,
             provider: T::AccountId,
         ) -> DispatchResult {
-            let patient = ensure_signed(origin)?;
-
-            let mut access_record = ProviderAccess::<T>::get(&patient, &provider)
-                .ok_or(Error::<T>::ConsentNotFound)?;
-
-            access_record.revoked = true;
-
-            ProviderAccess::<T>::insert(&patient, &provider, access_record);
-
+            let who = ensure_signed(origin)?;
+            
+            // Ensure patient exists
+            ensure!(
+                PatientIdentities::<T>::contains_key(&who),
+                Error::<T>::PatientNotFound
+            );
+            
+            // Ensure access exists
+            ensure!(
+                ProviderAccessList::<T>::contains_key(&who, &provider),
+                Error::<T>::ProviderAccessNotFound
+            );
+            
+            // Remove provider access
+            ProviderAccessList::<T>::remove(&who, &provider);
+            
+            // Emit event
             Self::deposit_event(Event::ProviderAccessRevoked {
-                patient,
+                patient: who,
                 provider,
             });
-
+            
             Ok(())
         }
-
-        /// Emergency access override
-        #[pallet::call_index(6)]
+        
+        /// Emergency access override (can be called by emergency contact or authorized personnel)
+        ///
+        /// Parameters:
+        /// - `patient`: The patient account to access
+        #[pallet::call_index(4)]
         #[pallet::weight(T::WeightInfo::emergency_access())]
         pub fn emergency_access(
             origin: OriginFor<T>,
             patient: T::AccountId,
-            reason: Vec<u8>,
-            duration_blocks: BlockNumberFor<T>,
         ) -> DispatchResult {
-            let requester = ensure_signed(origin)?;
-
-            // In production, verify requester has emergency access authority
-            // For now, we'll allow any signed account (can be restricted later)
-
-            // Ensure patient is registered
+            let who = ensure_signed(origin)?;
+            
+            // Get patient DID
+            let patient_did = PatientIdentities::<T>::get(&patient)
+                .ok_or(Error::<T>::PatientNotFound)?;
+            
+            // Verify caller is emergency contact
             ensure!(
-                PatientDIDs::<T>::contains_key(&patient),
-                Error::<T>::DIDNotFound
+                patient_did.emergency_contact == Some(who.clone()),
+                Error::<T>::NotAuthorized
             );
-
-            let reason_bounded = BoundedVec::try_from(reason)
-                .map_err(|_| Error::<T>::DataTooLarge)?;
-
-            let current_block = <frame_system::Pallet<T>>::block_number();
-            let expires_at = current_block + duration_blocks;
-
-            // Grant temporary emergency access
-            let emergency_access = ProviderAccessRecord {
-                patient: patient.clone(),
-                provider: requester.clone(),
-                scope: ConsentScope::FullAccess,
-                granted_at: current_block,
-                expires_at: Some(expires_at),
-                revoked: false,
+            
+            let now = Self::current_timestamp();
+            
+            // Grant emergency access (24 hour expiration)
+            let access = ProviderAccess {
+                provider_account: who.clone(),
+                granted_at: now,
+                expires_at: Some(now + 86400), // 24 hours in seconds
+                access_level: AccessLevel::Emergency,
             };
-
-            ProviderAccess::<T>::insert(&patient, &requester, emergency_access);
-
-            Self::deposit_event(Event::EmergencyAccessGranted {
+            
+            ProviderAccessList::<T>::insert(&patient, &who, access);
+            
+            // Emit event
+            Self::deposit_event(Event::EmergencyAccessActivated {
                 patient,
-                requester,
-                reason: reason_bounded.to_vec(),
-                expires_at,
+                provider: who,
             });
-
+            
             Ok(())
         }
-
-        /// Revoke consent (backward compatibility)
-        #[pallet::call_index(9)]
-        #[pallet::weight(T::WeightInfo::revoke_consent())]
-        pub fn revoke_consent(
+        
+        /// Deactivate patient identity (soft delete - preserves audit trail)
+        #[pallet::call_index(5)]
+        #[pallet::weight(T::WeightInfo::deactivate_patient())]
+        pub fn deactivate_patient(
             origin: OriginFor<T>,
-            provider: T::AccountId,
         ) -> DispatchResult {
-            Self::revoke_provider_access(origin, provider)
-        }
-
-        /// Issue cross-provider authentication token
-        #[pallet::call_index(10)]
-        #[pallet::weight(T::WeightInfo::issue_auth_token())]
-        pub fn issue_auth_token(
-            origin: OriginFor<T>,
-            provider: T::AccountId,
-            token_hash: H256,
-            expires_at: BlockNumberFor<T>,
-        ) -> DispatchResult {
-            let patient = ensure_signed(origin)?;
-
-            // Verify provider access exists
-            let access = ProviderAccess::<T>::get(&patient, &provider)
-                .ok_or(Error::<T>::ConsentNotFound)?;
-
-            ensure!(!access.revoked, Error::<T>::Unauthorized);
-
-            let token_data = AuthTokenData {
-                patient: patient.clone(),
-                provider: provider.clone(),
-                issued_at: <frame_system::Pallet<T>>::block_number(),
-                expires_at,
-            };
-
-            AuthTokens::<T>::insert(&token_hash, token_data);
-
-            Self::deposit_event(Event::AuthTokenIssued {
-                patient,
-                provider,
-                token_hash,
+            let who = ensure_signed(origin)?;
+            
+            // Get patient DID
+            let mut patient_did = PatientIdentities::<T>::get(&who)
+                .ok_or(Error::<T>::PatientNotFound)?;
+            
+            // Deactivate
+            patient_did.active = false;
+            patient_did.updated_at = Self::current_timestamp();
+            
+            // Update storage
+            PatientIdentities::<T>::insert(&who, patient_did);
+            
+            // Emit event
+            Self::deposit_event(Event::PatientDeactivated {
+                patient: who,
             });
-
-            Ok(())
-        }
-
-        /// Verify authentication token
-        #[pallet::call_index(11)]
-        #[pallet::weight(T::WeightInfo::verify_auth_token())]
-        pub fn verify_auth_token(
-            origin: OriginFor<T>,
-            token_hash: H256,
-        ) -> DispatchResult {
-            let _verifier = ensure_signed(origin)?;
-
-            let token_data = AuthTokens::<T>::get(&token_hash)
-                .ok_or(Error::<T>::InvalidAuthToken)?;
-
-            // Check if token expired
-            let current_block = <frame_system::Pallet<T>>::block_number();
-            ensure!(
-                current_block < token_data.expires_at,
-                Error::<T>::InvalidAuthToken
-            );
-
-            // Verify provider access is still valid
-            let access = ProviderAccess::<T>::get(&token_data.patient, &token_data.provider)
-                .ok_or(Error::<T>::Unauthorized)?;
-
-            ensure!(!access.revoked, Error::<T>::Unauthorized);
-
-            // Check if access expired
-            if let Some(expires_at) = access.expires_at {
-                ensure!(
-                    current_block < expires_at,
-                    Error::<T>::Unauthorized
-                );
-            }
-
+            
             Ok(())
         }
     }
+    
+    impl<T: Config> Pallet<T> {
+        /// Get current timestamp (uses block number converted to timestamp)
+        /// In production, integrate with pallet_timestamp for accurate timestamps
+        fn current_timestamp() -> u64 {
+            // Convert block number to approximate timestamp
+            // Assuming 6 second block time: block_number * 6
+            let block_number = <frame_system::Pallet<T>>::block_number();
+            // Use block number as base timestamp (can be enhanced with actual timestamp pallet)
+            block_number.saturated_into::<u64>() * 6
+        }
+        
+        /// Verify if a provider has access to a patient's records
+        pub fn verify_provider_access(
+            patient: &T::AccountId,
+            provider: &T::AccountId,
+        ) -> bool {
+            if let Some(access) = ProviderAccessList::<T>::get(patient, provider) {
+                // Check if access hasn't expired
+                let now = Self::current_timestamp();
+                if let Some(expires_at) = access.expires_at {
+                    if now > expires_at {
+                        return false;
+                    }
+                }
+                true
+            } else {
+                false
+            }
+        }
+        
+        /// Verify if patient has granted consent for a specific modality
+        pub fn verify_consent(
+            patient: &T::AccountId,
+            modality: &TherapeuticModality,
+        ) -> bool {
+            if let Some(consent) = ConsentRecords::<T>::get(patient, modality) {
+                if !consent.granted {
+                    return false;
+                }
+                
+                // Check if consent hasn't expired
+                let now = Self::current_timestamp();
+                if let Some(expires_at) = consent.expires_at {
+                    if now > expires_at {
+                        return false;
+                    }
+                }
+                true
+            } else {
+                false
+            }
+        }
+    }
+}
 
 /// Weight information for extrinsics
 pub trait WeightInfo {
     fn register_patient() -> Weight;
-    fn register_did() -> Weight;
-    fn update_did() -> Weight;
-    fn issue_zk_credential() -> Weight;
     fn update_consent() -> Weight;
     fn grant_provider_access() -> Weight;
     fn revoke_provider_access() -> Weight;
     fn emergency_access() -> Weight;
-    fn grant_consent() -> Weight;
-    fn revoke_consent() -> Weight;
-    fn issue_auth_token() -> Weight;
-    fn verify_auth_token() -> Weight;
+    fn deactivate_patient() -> Weight;
 }
-
-/// Patient DID structure
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
-#[scale_info(skip_type_params(T))]
-pub struct PatientDID<T: frame_system::Config> {
-    /// Decentralized Identifier string
-    pub did: BoundedVec<u8, ConstU32<256>>,
-    /// Public keys associated with the DID (quantum-resistant ready - ed25519 for now)
-    pub public_keys: BoundedVec<PublicKey, ConstU32<10>>,
-    /// Hash of patient metadata (NOT actual PHI data)
-    pub metadata_hash: H256,
-    /// Block number when DID was created
-    pub created_at: frame_system::pallet_prelude::BlockNumberFor<T>,
-    /// Block number when DID was last updated
-    pub updated_at: frame_system::pallet_prelude::BlockNumberFor<T>,
-}
-
-/// DID Document structure (backward compatibility alias)
-pub type DIDDocument<T> = PatientDID<T>;
-
-/// Public key structure for DID
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
-pub struct PublicKey {
-    /// Key type (e.g., "Ed25519", "Secp256k1")
-    pub key_type: BoundedVec<u8, ConstU32<64>>,
-    /// Public key bytes
-    pub public_key: BoundedVec<u8, ConstU32<512>>,
-    /// Key ID
-    pub key_id: BoundedVec<u8, ConstU32<128>>,
-}
-
-/// Zero-knowledge proof metadata
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
-#[scale_info(skip_type_params(T))]
-pub struct ZKProofMetadata<T: frame_system::Config> {
-    /// Hash of the zero-knowledge proof
-    pub proof_hash: sp_core::H256,
-    /// Account that issued the credential
-    pub issuer: T::AccountId,
-    /// Block number when credential was issued
-    pub issued_at: frame_system::pallet_prelude::BlockNumberFor<T>,
-    /// Block number when credential expires (None = never expires)
-    pub expires_at: Option<frame_system::pallet_prelude::BlockNumberFor<T>>,
-}
-
-/// Credential types for zero-knowledge proofs
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
-pub enum CredentialType {
-    /// Age verification (over 18, over 21, etc.)
-    AgeVerification,
-    /// Medical license verification
-    MedicalLicense,
-    /// Insurance eligibility
-    InsuranceEligibility,
-    /// Provider credential
-    ProviderCredential,
-    /// Custom credential type
-    Custom(BoundedVec<u8, ConstU32<256>>),
-}
-
-/// Consent scope
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
-pub enum ConsentScope {
-    /// Read-only access to health records
-    ReadRecords,
-    /// Write access to health records
-    WriteRecords,
-    /// Access to specific record types
-    SpecificRecords(BoundedVec<RecordType, ConstU32<50>>),
-    /// Full access
-    FullAccess,
-}
-
-/// Record types
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
-pub enum RecordType {
-    /// Lab results
-    LabResults,
-    /// Imaging
-    Imaging,
-    /// Medications
-    Medications,
-    /// Diagnoses
-    Diagnoses,
-    /// Vitals
-    Vitals,
-}
-
-/// Therapeutic modality types
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen, Copy)]
-pub enum TherapeuticModality {
-    /// Western Medicine
-    WesternMedicine,
-    /// Traditional Chinese Medicine (TCM)
-    TCM,
-    /// Ayurveda
-    Ayurveda,
-    /// Homeopathy
-    Homeopathy,
-    /// Other therapeutic modality
-    Other,
-}
-
-/// Consent record per therapeutic modality
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
-#[scale_info(skip_type_params(T))]
-pub struct ConsentRecord<T: frame_system::Config> {
-    /// Patient account ID
-    pub patient: T::AccountId,
-    /// Therapeutic modality
-    pub modality: TherapeuticModality,
-    /// Whether consent is granted
-    pub granted: bool,
-    /// Block number when consent was granted/updated
-    pub granted_at: frame_system::pallet_prelude::BlockNumberFor<T>,
-    /// Block number when consent expires (None = never expires)
-    pub expires_at: Option<frame_system::pallet_prelude::BlockNumberFor<T>>,
-    /// Whether consent has been revoked
-    pub revoked: bool,
-}
-
-/// Provider access record
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
-#[scale_info(skip_type_params(T))]
-pub struct ProviderAccessRecord<T: frame_system::Config> {
-    /// Patient account ID
-    pub patient: T::AccountId,
-    /// Provider account ID
-    pub provider: T::AccountId,
-    /// Scope of access
-    pub scope: ConsentScope,
-    /// Block number when access was granted
-    pub granted_at: frame_system::pallet_prelude::BlockNumberFor<T>,
-    /// Block number when access expires (None = never expires)
-    pub expires_at: Option<frame_system::pallet_prelude::BlockNumberFor<T>>,
-    /// Whether access has been revoked
-    pub revoked: bool,
-}
-
-/// Authentication token data
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
-#[scale_info(skip_type_params(T))]
-pub struct AuthTokenData<T: frame_system::Config> {
-    /// Patient account ID
-    pub patient: T::AccountId,
-    /// Provider account ID
-    pub provider: T::AccountId,
-    /// Block number when token was issued
-    pub issued_at: BlockNumberFor<T>,
-    /// Block number when token expires
-    pub expires_at: frame_system::pallet_prelude::BlockNumberFor<T>,
-}
-}
-
-pub use pallet::*;

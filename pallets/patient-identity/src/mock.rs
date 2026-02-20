@@ -1,7 +1,7 @@
 //! Mock runtime for testing
 
 use crate as pallet_patient_identity;
-use frame_support::traits::{ConstU128, ConstU32, ConstU64};
+use frame_support::traits::{ConstU128, ConstU32, ConstU64, ConstU8};
 use frame_system as system;
 use sp_core::H256;
 use sp_runtime::{
@@ -46,9 +46,9 @@ impl system::Config for Test {
 }
 
 impl pallet_patient_identity::Config for Test {
-    type Event = RuntimeEvent;
-    type PalletId = ConstU128<400>;
-    type Currency = ();
+    type RuntimeEvent = RuntimeEvent;
+    type MaxProvidersPerPatient = ConstU32<50>;
+    type MaxConsentRecords = ConstU32<10>;
     type WeightInfo = ();
 }
 

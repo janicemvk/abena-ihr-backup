@@ -5,139 +5,195 @@ use crate::*;
 use frame_support::{assert_err, assert_ok};
 
 #[test]
-fn register_did_works() {
+fn register_patient_works() {
     new_test_ext().execute_with(|| {
         let patient = 1u64;
-        let did = b"did:abena:patient123".to_vec();
-        let public_keys = vec![];
+        let public_key = [1u8; 32];
+        let metadata_hash = [2u8; 32];
 
-        assert_ok!(PatientIdentity::register_did(
+        assert_ok!(PatientIdentity::register_patient(
             RuntimeOrigin::signed(patient),
-            did.clone(),
-            public_keys
-        ));
-
-        let did_doc = PatientIdentity::patient_dids(patient);
-        assert!(did_doc.is_some());
-        assert_eq!(did_doc.unwrap().did, did);
-    });
-}
-
-#[test]
-fn update_did_works() {
-    new_test_ext().execute_with(|| {
-        let patient = 1u64;
-        let did = b"did:abena:patient123".to_vec();
-        let public_keys = vec![];
-
-        assert_ok!(PatientIdentity::register_did(
-            RuntimeOrigin::signed(patient),
-            did,
-            public_keys.clone()
-        ));
-
-        let new_keys = vec![PublicKey {
-            key_type: b"Ed25519".to_vec(),
-            public_key: vec![1, 2, 3, 4],
-            key_id: b"key1".to_vec(),
-        }];
-
-        assert_ok!(PatientIdentity::update_did(
-            RuntimeOrigin::signed(patient),
-            new_keys.clone()
-        ));
-
-        let did_doc = PatientIdentity::patient_dids(patient);
-        assert_eq!(did_doc.unwrap().public_keys, new_keys);
-    });
-}
-
-#[test]
-fn grant_and_revoke_consent_works() {
-    new_test_ext().execute_with(|| {
-        let patient = 1u64;
-        let provider = 2u64;
-        let scope = ConsentScope::ReadRecords;
-
-        assert_ok!(PatientIdentity::grant_consent(
-            RuntimeOrigin::signed(patient),
-            provider,
-            scope.clone(),
+            public_key,
+            metadata_hash,
             None
         ));
 
-        let consent = PatientIdentity::consent_records(patient, provider);
-        assert!(consent.is_some());
-        assert_eq!(consent.unwrap().scope, scope);
+        let patient_did = PatientIdentity::patient_identity(&patient);
+        assert!(patient_did.is_some());
+        let did = patient_did.unwrap();
+        assert_eq!(did.public_key, public_key);
+        assert_eq!(did.metadata_hash, metadata_hash);
+        assert!(did.active);
+    });
+}
 
-        assert_ok!(PatientIdentity::revoke_consent(
+#[test]
+fn register_patient_duplicate_fails() {
+    new_test_ext().execute_with(|| {
+        let patient = 1u64;
+        let public_key = [1u8; 32];
+        let metadata_hash = [2u8; 32];
+
+        assert_ok!(PatientIdentity::register_patient(
+            RuntimeOrigin::signed(patient),
+            public_key,
+            metadata_hash,
+            None
+        ));
+
+        assert_err!(
+            PatientIdentity::register_patient(
+                RuntimeOrigin::signed(patient),
+                public_key,
+                metadata_hash,
+                None
+            ),
+            Error::<Test>::PatientAlreadyExists
+        );
+    });
+}
+
+#[test]
+fn update_consent_works() {
+    new_test_ext().execute_with(|| {
+        let patient = 1u64;
+        let public_key = [1u8; 32];
+        let metadata_hash = [2u8; 32];
+
+        // Register patient first
+        assert_ok!(PatientIdentity::register_patient(
+            RuntimeOrigin::signed(patient),
+            public_key,
+            metadata_hash,
+            None
+        ));
+
+        // Grant consent for Western Medicine
+        assert_ok!(PatientIdentity::update_consent(
+            RuntimeOrigin::signed(patient),
+            TherapeuticModality::WesternMedicine,
+            true,
+            None
+        ));
+
+        // Verify consent
+        assert!(PatientIdentity::verify_consent(&patient, &TherapeuticModality::WesternMedicine));
+    });
+}
+
+#[test]
+fn grant_provider_access_works() {
+    new_test_ext().execute_with(|| {
+        let patient = 1u64;
+        let provider = 2u64;
+        let public_key = [1u8; 32];
+        let metadata_hash = [2u8; 32];
+
+        // Register patient first
+        assert_ok!(PatientIdentity::register_patient(
+            RuntimeOrigin::signed(patient),
+            public_key,
+            metadata_hash,
+            None
+        ));
+
+        // Grant provider access
+        assert_ok!(PatientIdentity::grant_provider_access(
+            RuntimeOrigin::signed(patient),
+            provider,
+            AccessLevel::Read,
+            None
+        ));
+
+        // Verify access
+        assert!(PatientIdentity::verify_provider_access(&patient, &provider));
+    });
+}
+
+#[test]
+fn revoke_provider_access_works() {
+    new_test_ext().execute_with(|| {
+        let patient = 1u64;
+        let provider = 2u64;
+        let public_key = [1u8; 32];
+        let metadata_hash = [2u8; 32];
+
+        // Register patient
+        assert_ok!(PatientIdentity::register_patient(
+            RuntimeOrigin::signed(patient),
+            public_key,
+            metadata_hash,
+            None
+        ));
+
+        // Grant access
+        assert_ok!(PatientIdentity::grant_provider_access(
+            RuntimeOrigin::signed(patient),
+            provider,
+            AccessLevel::Read,
+            None
+        ));
+
+        // Revoke access
+        assert_ok!(PatientIdentity::revoke_provider_access(
             RuntimeOrigin::signed(patient),
             provider
         ));
 
-        let consent_after = PatientIdentity::consent_records(patient, provider);
-        assert!(consent_after.is_some());
-        assert!(consent_after.unwrap().revoked);
+        // Verify access is revoked
+        assert!(!PatientIdentity::verify_provider_access(&patient, &provider));
     });
 }
 
 #[test]
-fn issue_zk_credential_works() {
-    new_test_ext().execute_with(|| {
-        let issuer = 1u64;
-        let patient = 2u64;
-        let did = b"did:abena:patient123".to_vec();
-
-        // Register DID first
-        assert_ok!(PatientIdentity::register_did(
-            RuntimeOrigin::signed(patient),
-            did,
-            vec![]
-        ));
-
-        let credential_type = CredentialType::AgeVerification;
-        let proof_hash = sp_core::H256::from_slice(&[1u8; 32]);
-
-        assert_ok!(PatientIdentity::issue_zk_credential(
-            RuntimeOrigin::signed(issuer),
-            patient,
-            credential_type.clone(),
-            proof_hash
-        ));
-
-        let credential = PatientIdentity::zk_credentials(patient, credential_type);
-        assert!(credential.is_some());
-    });
-}
-
-#[test]
-fn issue_auth_token_works() {
+fn emergency_access_works() {
     new_test_ext().execute_with(|| {
         let patient = 1u64;
-        let provider = 2u64;
+        let emergency_contact = 3u64;
+        let public_key = [1u8; 32];
+        let metadata_hash = [2u8; 32];
 
-        // Grant consent first
-        assert_ok!(PatientIdentity::grant_consent(
+        // Register patient with emergency contact
+        assert_ok!(PatientIdentity::register_patient(
             RuntimeOrigin::signed(patient),
-            provider,
-            ConsentScope::ReadRecords,
+            public_key,
+            metadata_hash,
+            Some(emergency_contact)
+        ));
+
+        // Emergency contact can activate emergency access
+        assert_ok!(PatientIdentity::emergency_access(
+            RuntimeOrigin::signed(emergency_contact),
+            patient
+        ));
+
+        // Verify emergency access
+        assert!(PatientIdentity::verify_provider_access(&patient, &emergency_contact));
+    });
+}
+
+#[test]
+fn deactivate_patient_works() {
+    new_test_ext().execute_with(|| {
+        let patient = 1u64;
+        let public_key = [1u8; 32];
+        let metadata_hash = [2u8; 32];
+
+        // Register patient
+        assert_ok!(PatientIdentity::register_patient(
+            RuntimeOrigin::signed(patient),
+            public_key,
+            metadata_hash,
             None
         ));
 
-        let token_hash = sp_core::H256::from_slice(&[5u8; 32]);
-        let expires_at = 100u64;
-
-        assert_ok!(PatientIdentity::issue_auth_token(
-            RuntimeOrigin::signed(patient),
-            provider,
-            token_hash,
-            expires_at
+        // Deactivate patient
+        assert_ok!(PatientIdentity::deactivate_patient(
+            RuntimeOrigin::signed(patient)
         ));
 
-        let token = PatientIdentity::auth_tokens(token_hash);
-        assert!(token.is_some());
-        assert_eq!(token.unwrap().patient, patient);
-        assert_eq!(token.unwrap().provider, provider);
+        // Verify patient is deactivated
+        let patient_did = PatientIdentity::patient_identity(&patient).unwrap();
+        assert!(!patient_did.active);
     });
 }
-
