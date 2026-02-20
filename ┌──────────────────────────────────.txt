@@ -1,0 +1,115 @@
+┌─────────────────────────────────────────────────────────────────────┐
+│                         FIGURE 1                                    │
+│           ABENA COIN CRYPTOCURRENCY INCENTIVE SYSTEM                │
+│                                                                     │
+│  ┌─────────────────────────────────────────────────────────────┐   │
+│  │ TIER 1: BEHAVIOR VERIFICATION SOURCES (2000)                     │
+│  │                                                                  │
+│  │  ┌────────────┐  ┌────────────┐  ┌────────────┐  ┌───────┐  │
+│  │  │ Wearable   │  │ Physician  │  │  Pharmacy  │  │  Lab  ││     │
+│  │  │  Devices   │  │Attestation │  │    Data    │  │Results││     │
+│  │  │  (2001)    │  │  (2002)    │  │  (2003)    │  │(2004) ││     │
+│  │  │            │  │            │  │            │  │       ││     │
+│  │  │ Apple Watch│  │ Dilithium  │  │ Medication │  │ A1C   ││     │
+│  │  │ Fitbit     │  │ Signature  │  │ Refill     │  │ down  ││     │
+│  │  │ Oura Ring  │  │ from MD    │  │ Tracking   │  │ 0.5%  ││     │
+│  │  └─────┬──────┘  └─────┬──────┘  └─────┬──────┘  └───┬───┘  │   │
+│  │        │                 │                │              │       
+│  │        └────────────────┴────────────────┴─────────────┘    │                            │                                    │   │
+│  │               Verified Behavior Data (2005)                  │   │
+│  │             (Cryptographically Signed)                       │   │
+│  └──────────────────────────┬──────────────────────────────────┘   │
+│                             │                                    
+│                             ▼                                      
+│  ┌─────────────────────────────────────────────────────────────┐   │
+│  │ TIER 2: SMART CONTRACT REWARD ENGINE (3000)                 │   │
+│  │                                                             │   │
+│  │  ┌───────────────────────────────────────────────────────┐ │   │
+│  │  │ Substrate Pallet: ABENA Coin Rewards (3001)           │ │   │
+│  │  │                                                       │ │   │
+│  │  │ fn submit_health_behavior() {                         │ │   │
+│  │  │   // 1. Verify behavior authenticity (3002)           │ │   │
+│  │  │   verify_device_signature() ✓                         │ │   │
+│  │  │                                                       │ │   │
+│  │  │   // 2. Check not duplicate (3003)                    │ │   │
+│  │  │   ensure!(!already_claimed()) ✓                       │     │
+│  │  │                                                      │ │   │
+│  │  │   // 3. Calculate reward (3004)                      │ │   │
+│  │  │   reward = match behavior_type {                     │ │   │
+│  │  │     Medication → 5 ABENA,                            │ │   │
+│  │  │     Exercise → 20 ABENA,                             │ │   │
+│  │  │     HealthyMeal → 10 ABENA                           │ │   │
+│  │  │   }                                                  │ │   │
+│  │  │                                                      │ │   │
+│  │  │   // 4. Transfer coins (3005)                        │ │   │
+│  │  │   transfer_from_pool(                                │ │   │
+│  │  │     patient_wallet, reward                           │ │   │
+│  │  │   )                                                  │ │   │
+│  │  │                                                      │ │   │
+│  │  │   // 5. Check achievements (3006)                    │ │   │
+│  │  │   if streak == 7 days {                              │ │   │
+│  │  │     unlock_achievement("Week Warrior")               │ │   │
+│  │  │     bonus = 50 ABENA                                 │ │   │
+│  │  │   }                                                  │ │   │
+│  │  │ }                                                    │ │   │
+│  │  └───────────────────────────────────────────────────────┘ │   │
+│  │                                                            │   │
+│  │  Rewards Pool Balance: 500,000,000 ABENA (3007)            │   │
+│  │  Released over 10 years                                    │   │
+│  └──────────────────────────┬──────────────────────────────────┘   │
+│                             │                                        │
+│                             ▼                                       │
+│  ┌─────────────────────────────────────────────────────────────┐   │
+│  │ TIER 3: PATIENT WALLET & MARKETPLACE (4000)                 │   │
+│  │                                                             │   │
+│  │  ┌──────────────────────────────────────────┐          │   │
+│  │  │ Patient Wallet (4001)                                    │              │   │
+│  │  │ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ │                │   │
+│  │  │ Balance: 25,847 ABENA                    │              │   │
+│  │  │ Value: $2,584.70 USD (@$0.10/coin)       │              │   │
+│  │  │                                          │              │   │
+│  │  │ Earning History (Last 7 Days):           │              │   │
+│  │  │ Mon: +65 ABENA (Med + Exercise + Meal)   │              │   │
+│  │  │ Tue: +60 ABENA                           │              │   │
+│  │  │ Wed: +65 ABENA                           │              │   │
+│  │  │ Thu: +70 ABENA (+ Achievement bonus)     │              │   │
+│  │  │ Fri: +60 ABENA                           │              │   │
+│  │  │ Sat: +40 ABENA                           │              │   │
+│  │  │ Sun: +50 ABENA                           │              │   │
+│  │  │ ────────────────                        │              │   │
+│  │  │ Week Total: +410 ABENA (4002)            │              │   │
+│  │  └──────────────────────────────────────────┘              │   │
+│  │                                                            │   │
+│  │  ┌──────────────────────────────────────────┐              │   │
+│  │  │ Rewards Marketplace (4003)                              │   │
+│  │  │ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ │                │
+│  │  │ REDEMPTION OPTIONS:                      │              │   │
+│  │  │                                          │              │   │
+│  │  │ 1️⃣ Health Products (4004)                                │              │   │
+│  │  │    • Verified Supplements: 500 ABENA     │              │   │
+│  │  │    • Yoga Mat: 200 ABENA                 │              │   │
+│  │  │    • Resistance Bands: 150 ABENA         │              │   │
+│  │  │                                          │              │   │
+│  │  │ 2️⃣ Health Services (4005)               │                               │                    │
+│  │  │    • Massage Session: 800 ABENA          │              │   │
+│  │  │    • Acupuncture: 600 ABENA              │              │   │
+│  │  │    • Nutrition Coaching: 1,000 ABENA     │              │   │
+│  │  │                                          │              │   │
+│  │  │ 3️⃣ Insurance Discount (4006)                          │              │
+│  │  │    • $50 monthly discount: 500 ABENA     │              │   │
+│  │  │                                          │              │   │
+│  │  │ 4️⃣ Charity Donation (4007)              │               │              │
+│  │  │    • American Heart Assoc: Any amount    │              │   │
+│  │  │                                          │              │   │
+│  │  │ 5️⃣ Cash Out (4008)                                      │              │
+│  │  │    • Sell on exchange → USD              │              │   │
+│  │  │    • Market rate: $0.10/ABENA            │              │   │
+│  │  └──────────────────────────────────────────┘              │   │
+│  └─────────────────────────────────────────────────────────────┘   │
+│                                                                     │
+│  TOKENOMICS (4100):                                                 │
+│  • Total Supply: 1,000,000,000 ABENA (fixed)                        │
+│  • Rewards Pool: 500,000,000 (50%)                                  │
+│  • Deflationary: 1% of transaction fees burned                      │
+│  • Governance: Stake 1,000+ ABENA to vote                           │
+└─────────────────────────────────────────────────────────────────────┘

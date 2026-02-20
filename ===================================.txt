@@ -1,0 +1,160 @@
+=========================================================================+
+|                            FIGURE 6                                     |
+|           POST-QUANTUM CRYPTOGRAPHY IN BLOCKCHAIN                       |
++=========================================================================+
+|                                                                         |
+| +====================================================================+  |
+| | COMPONENT 1: DIGITAL SIGNATURES (2700)                             |  |
+| |             CRYSTALS-Dilithium (NIST-Approved)                     |  |
+| +====================================================================+  |
+| |                                                                    |  |
+| | Key Generation (2701)                                              |  |
+| | +================================================================+ |  |
+| | | (public_key, secret_key) = dilithium_keygen()                  | |  |
+| | |                                                                | |  |
+| | | Public Key:  1,952 bytes                                       | |  |
+| | | Secret Key:  4,000 bytes                                       | |  |
+| | | Security Level: NIST Level 3 (AES-192)                         | |  |
+| | +================================================================+ |  |
+| |                                                                    |  |
+| | Signature Generation (2702)                                        |  |
+| | +================================================================+ |  |
+| | | message = attestation_record                                   | |  |
+| | | signature = dilithium_sign(message, sk)                        | |  |
+| | |                                                                | |  |
+| | | Signature Size: 2,420 bytes                                    | |  |
+| | | Algorithm: Module-LWE lattice problem                          | |  |
+| | +================================================================+ |  |
+| |                                                                    |  |
+| | Signature Verification (2703)                                      |  |
+| | +================================================================+ |  |
+| | | is_valid = dilithium_verify(                                   | |  |
+| | |     message, signature, pk                                     | |  |
+| | | )                                                              | |  |
+| | |                                                                | |  |
+| | | Returns: true or false                                         | |  |
+| | | Speed: 1.2 milliseconds                                        | |  |
+| | +================================================================+ |  |
+| |                                                                    |  |
+| | Quantum Resistance (2704)                                          |  |
+| | +================================================================+ |  |
+| | | Classical Attack:                                              | |  |
+| | |   Best known: Lattice reduction                                | |  |
+| | |   Complexity: 2^128 operations (secure)                        | |  |
+| | |                                                                | |  |
+| | | Quantum Attack (Shor's Algorithm):                             | |  |
+| | |   Does NOT work on lattice problems                            | |  |
+| | |                                                                | |  |
+| | | Quantum Attack (Grover's Algorithm):                           | |  |
+| | |   Reduces 2^128 -> 2^64 (still secure)                         | |  |
+| | |                                                                | |  |
+| | | Result: QUANTUM-RESISTANT                                      | |  |
+| | +================================================================+ |  |
+| +====================================================================+  |
+|                                                                         |
+| +====================================================================+  |
+| | COMPONENT 2: KEY ENCAPSULATION (2800)                              |  |
+| |             CRYSTALS-Kyber (NIST-Approved)                         |  |
+| +====================================================================+  |
+| |                                                                    |  |
+| | Key Generation (2801)                                              |  |
+| | +================================================================+ |  |
+| | | (public_key, secret_key) = kyber_keygen()                      | |  |
+| | |                                                                | |  |
+| | | Public Key:  1,184 bytes                                       | |  |
+| | | Secret Key:  2,400 bytes                                       | |  |
+| | | Security Level: NIST Level 3 (AES-192)                         | |  |
+| | +================================================================+ |  |
+| |                                                                    |  |
+| | Encapsulation (Encryption) (2802)                                  |  |
+| | +================================================================+ |  |
+| | | (ciphertext, shared_secret) =                                  | |  |
+| | |     kyber_encapsulate(public_key)                              | |  |
+| | |                                                                | |  |
+| | | Ciphertext: 1,088 bytes                                        | |  |
+| | | Shared Secret: 32 bytes (256-bit key)                          | |  |
+| | +================================================================+ |  |
+| |                                                                    |  |
+| | Decapsulation (Decryption) (2803)                                  |  |
+| | +================================================================+ |  |
+| | | shared_secret =                                                | |  |
+| | |     kyber_decapsulate(ciphertext, sk)                          | |  |
+| | |                                                                | |  |
+| | | Result: Same 32-byte shared secret                             | |  |
+| | | Use for: AES-256 encryption of patient data                    | |  |
+| | +================================================================+ |  |
+| |                                                                    |  |
+| | Healthcare Application (2804)                                      |  |
+| | +================================================================+ |  |
+| | | Patient Health Record Encryption:                              | |  |
+| | |                                                                | |  |
+| | | 1. Generate Kyber keypair for patient                          | |  |
+| | | 2. Store public key on blockchain                              | |  |
+| | | 3. Encapsulate -> Get shared secret                            | |  |
+| | | 4. encrypted_data = AES_256_GCM(                               | |  |
+| | |        patient_record, shared_secret                           | |  |
+| | |    )                                                           | |  |
+| | | 5. Store encrypted_data off-chain                              | |  |
+| | |                                                                | |  |
+| | | Only patient (with secret key) can decrypt                     | |  |
+| | +================================================================+ |  |
+| +====================================================================+  |
+|                                                                         |
+| +====================================================================+  |
+| | COMPONENT 3: HASH FUNCTIONS (2900)                                 |  |
+| |             SHA-3 (Keccak) and Blake3                              |  |
+| +====================================================================+  |
+| |                                                                    |  |
+| | SHA-3 for Block Linking (2901)                                     |  |
+| | +================================================================+ |  |
+| | | block_hash = SHA3-256(                                         | |  |
+| | |     previous_hash ||                                           | |  |
+| | |     transactions ||                                            | |  |
+| | |     timestamp ||                                               | |  |
+| | |     nonce                                                      | |  |
+| | | )                                                              | |  |
+| | |                                                                | |  |
+| | | Output: 256-bit (32-byte) hash                                 | |  |
+| | | Quantum Resistance: YES (Grover only 2x speed)                 | |  |
+| | +================================================================+ |  |
+| |                                                                    |  |
+| | Blake3 for Data Integrity (2902)                                   |  |
+| | +================================================================+ |  |
+| | | data_hash = Blake3(patient_record)                             | |  |
+| | |                                                                | |  |
+| | | Speed: 10x faster than SHA-3                                   | |  |
+| | | Output: 256-bit hash (configurable)                            | |  |
+| | | Use: High-speed data integrity checking                        | |  |
+| | +================================================================+ |  |
+| +====================================================================+  |
+|                                                                         |
+| +====================================================================+  |
+| | COMPARISON: CLASSICAL vs. POST-QUANTUM (3000)                      |  |
+| +====================================================================+  |
+| |                                                                    |  |
+| | +===============+================+=========================+       |  |
+| | | Property      | Classical      | Post-Quantum            |       |  |
+| | |               | (RSA/ECDSA)    | (Dilithium/Kyber)       |       |  |
+| | +===============+================+=========================+       |  |
+| | | Public Key    | 256 bytes      | 1,952 bytes             |       |  |
+| | | Size          | (ECDSA)        | (Dilithium)             |       |  |
+| | +===============+================+=========================+       |  |
+| | | Signature     | 64 bytes       | 2,420 bytes             |       |  |
+| | | Size          | (ECDSA)        | (Dilithium)             |       |  |
+| | +===============+================+=========================+       |  |
+| | | Security vs   | BROKEN         | SECURE                  |       |  |
+| | | Shor's Algo   | (polynomial)   | (exponential)           |       |  |
+| | +===============+================+=========================+       |  |
+| | | Security vs   | BROKEN         | SECURE                  |       |  |
+| | | Quantum (2030)| (10 years)     | (50+ years)             |       |  |
+| | +===============+================+=========================+       |  |
+| | | Speed         | 0.5 ms         | 1.2 ms                  |       |  |
+| | | (Signature)   | (faster)       | (acceptable)            |       |  |
+| | +===============+================+=========================+       |  |
+| | | Standardized  | YES            | YES (NIST 2024)         |       |  |
+| | +===============+================+=========================+       |  |
+| | | Recommended   | DEPRECATED     | REQUIRED                |       |  |
+| | | for Healthcare| (quantum risk) | (future-proof)          |       |  |
+| | +===============+================+=========================+       |  |
+| +====================================================================+  |
++=========================================================================+

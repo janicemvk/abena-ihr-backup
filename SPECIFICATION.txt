@@ -1,0 +1,1780 @@
+SPECIFICATION
+TITLE OF THE INVENTION
+BLOCKCHAIN-BASED HEALTH BEHAVIOR INCENTIVE SYSTEM WITH CRYPTOCURRENCY REWARDS AND SUPPLY CHAIN VERIFICATION FOR DIETARY SUPPLEMENTS
+
+CROSS-REFERENCE TO RELATED APPLICATIONS
+This application claims priority to:
+
+U.S. Provisional Application No. [NUMBER], filed July 23, 2025, titled "MULTI-SYSTEM INTEGRATIVE HEALTHCARE MONITORING AND ANALYSIS SYSTEM"
+U.S. Provisional Application No. [NUMBER], filed November 3, 2025, titled "QUANTUM-ENHANCED INTEGRATIVE HEALTHCARE RECOMMENDATION SYSTEM WITH ENDOCANNABINOID BIOMARKER ANALYSIS"
+U.S. Provisional Application No. [NUMBER], filed [DATE], titled "QUANTUM-BLOCKCHAIN INTEGRATION FOR VERIFIABLE HEALTHCARE COMPUTING"
+
+
+BACKGROUND OF THE INVENTION
+Field of the Invention
+This invention relates generally to blockchain technology, cryptocurrency systems, gamification for healthcare, and supply chain verification, and more specifically to systems and methods for incentivizing healthy behaviors through blockchain-based cryptocurrency rewards, and for verifying authenticity and quality of dietary supplements through immutable blockchain-tracked supply chains.
+Description of Related Art
+Healthcare Adherence Crisis:
+Patient non-adherence to treatment regimens is a critical problem in healthcare:
+
+Medication adherence rates: 50% or lower for chronic diseases
+Annual cost of non-adherence: $300 billion in the U.S. alone
+Preventable hospitalizations: 125,000 deaths per year attributable to medication non-adherence
+Lifestyle intervention compliance: <30% for diet and exercise recommendations
+
+Traditional approaches to improving adherence have limited effectiveness:
+
+Reminder systems: Phone calls, text messages, pill organizers (compliance improvement: 5-15%)
+Patient education: Knowledge alone doesn't change behavior (compliance improvement: 10-20%)
+Physician counseling: Time-intensive, not scalable (compliance improvement: 15-25%)
+
+Gamification in Healthcare:
+Gamification—applying game design elements to non-game contexts—has shown promise for behavior change:
+
+Fitness apps with badges and leaderboards increase exercise by 20-40%
+Smoking cessation apps with achievement systems improve quit rates by 15-30%
+Diabetes management apps with point systems improve glucose control
+
+However, existing gamification systems have critical limitations:
+
+No Tangible Value: Digital badges and points have no real-world utility
+Centralized Control: Companies can arbitrarily change reward systems
+No Portability: Achievements locked to single platform, cannot transfer
+Trust Issues: Users cannot verify if rewards are fairly distributed
+No Financial Incentive: Points cannot be redeemed for valuable goods/services
+
+Blockchain and Cryptocurrency:
+Blockchain technology and cryptocurrencies address these limitations:
+
+Bitcoin, Ethereum, and other cryptocurrencies have real monetary value
+Blockchain provides transparent, verifiable, immutable record of transactions
+Decentralized systems eliminate single point of control
+Smart contracts enable automated, trustless reward distribution
+
+However, no prior art system has successfully applied cryptocurrency incentives to healthcare adherence with:
+
+Integration with electronic health records (EHRs)
+Physician-verified behavior completion
+HIPAA-compliant privacy
+Meaningful health outcome tracking
+
+Dietary Supplement Quality Crisis:
+The dietary supplement industry faces severe quality and authenticity problems:
+Industry Statistics:
+
+Market size: $196 billion globally (2024)
+U.S. consumption: 77% of adults take supplements
+Quality problems: 25-30% of supplements adulterated or contaminated
+Mislabeling: 40-60% of herbal supplements contain unlisted ingredients
+
+Quality Issues:
+
+Contamination: Heavy metals (lead, arsenic, cadmium, mercury), pesticides, microbes
+Adulteration: Cheaper substitute ingredients, synthetic drugs added to "natural" products
+Potency: Actual ingredient content differs from label claims (often 20-80% variance)
+Counterfeit Products: Fake supplements sold as genuine brands (estimated 10-15% of market)
+Lack of Traceability: No reliable way to track supplement from farm to consumer
+
+Regulatory Limitations:
+
+FDA does not pre-approve dietary supplements (unlike drugs)
+Good Manufacturing Practices (GMP) compliance is self-reported
+Testing is often limited to final product, not raw materials
+No mandatory third-party verification
+Supply chain opacity enables fraud
+
+Consequences:
+
+Patient safety: Adverse events from contaminated supplements (>23,000 ER visits/year in U.S.)
+Healthcare provider liability: Physicians recommend supplements without quality assurance
+Insurance issues: Cannot reimburse for supplements without verification
+Research validity: Clinical studies using low-quality supplements produce unreliable results
+
+Prior Art in Supply Chain Verification:
+Blockchain has been applied to various supply chain tracking applications:
+
+Food safety: Walmart uses IBM Food Trust for produce traceability
+Pharmaceuticals: MediLedger for prescription drug tracking
+Luxury goods: LVMH uses blockchain to verify authentic handbags
+Diamonds: De Beers tracks diamonds from mine to retail
+
+However, no prior art applies blockchain to dietary supplement verification with:
+
+Quality assurance (COA - Certificate of Analysis) integration
+Consumer-facing verification (QR code scanning)
+Integration with healthcare platforms (EHR, treatment protocols)
+Automated drug-herb interaction checking upon supplement verification
+
+The Gap:
+There exists no integrated system combining:
+
+Cryptocurrency rewards for verified health behaviors with EHR integration
+Blockchain supply chain verification for dietary supplements
+Automated quality checking and interaction detection
+HIPAA-compliant patient data handling
+Physician oversight and verification mechanisms
+
+This invention fills this gap with a comprehensive blockchain-based health incentive and supplement verification platform.
+
+SUMMARY OF THE INVENTION
+The present invention provides systems and methods for incentivizing healthy behaviors through blockchain-based cryptocurrency rewards (ABENA Coin) and for verifying quality and authenticity of dietary supplements through immutable blockchain-tracked supply chains.
+Principal Objects:
+
+To provide a cryptocurrency-based reward system that incentivizes medication adherence, exercise completion, healthy eating, preventive screening, and other health-promoting behaviors
+To create gamification mechanisms (achievements, streaks, leaderboards, challenges) backed by cryptocurrency with real monetary value
+To enable patients to redeem earned cryptocurrency for health products, health services, insurance premium reductions, or charitable donations
+To implement blockchain-based supply chain tracking for dietary supplements from manufacturer to consumer with quality assurance verification
+To provide consumer-facing verification of supplement authenticity, lab testing results, and ingredient sourcing via QR code scanning
+To integrate supplement verification with automated drug-herb interaction checking to prevent adverse events
+To establish HIPAA-compliant privacy for health behavior tracking while maintaining transparency of cryptocurrency distribution
+
+Summary of Key Innovations:
+Innovation 1: ABENA Coin - Native Healthcare Cryptocurrency
+A blockchain-native cryptocurrency token designed specifically for healthcare incentives:
+
+Implementation: ERC-20 compatible token on Substrate blockchain
+Initial Distribution: Pre-mined supply allocated to patient rewards pool, development team, advisors, and reserves
+Earning Mechanisms: Patients earn ABENA Coins by completing verified health behaviors
+Redemption: Coins redeemable for health products/services, insurance discounts, or cash equivalent
+Governance: Decentralized governance enables community control over reward policies
+Value Backing: Token value backed by platform utility (required for premium features) and market demand
+
+Innovation 2: Gamification with Blockchain Verification
+Comprehensive gamification system with cryptographically verifiable achievement tracking:
+Components:
+
+Experience Points (XP): Earned for all health activities, displayed publicly (anonymized)
+Achievements: 50+ achievements (e.g., "30-Day Medication Streak", "First Yoga Session", "Annual Physical Complete")
+Streaks: Consecutive day counters for medication adherence, exercise, healthy eating
+Leaderboards: Anonymous rankings (no PHI) motivate friendly competition
+Challenges: Time-limited group challenges with bonus rewards
+Levels: Bronze → Silver → Gold → Platinum tiers based on cumulative XP
+
+Blockchain Integration:
+
+All achievements stored on blockchain (immutable, verifiable)
+Smart contracts automatically distribute ABENA Coins upon achievement unlock
+Patients can prove their health achievements to insurers (for premium discounts)
+Physicians can verify patient compliance through blockchain records
+
+Innovation 3: Health Behavior Verification System
+Multi-source verification of health behavior completion:
+Verification Sources:
+
+Wearable Devices: Apple Watch, Fitbit, Oura Ring (exercise, sleep, heart rate)
+Smart Pill Bottles: AdhereTech, Pillsy (medication adherence)
+Physician Attestation: Doctor digitally signs completion of preventive screening
+Lab Results: Automatic verification when labs improve (e.g., A1C reduction for diabetes)
+Self-Report + Random Audit: Patient reports behavior, random audits verify subset
+Pharmacy Fill Data: Medication refill on schedule = adherence bonus
+
+Verification Workflow:
+Patient completes behavior (e.g., takes medication)
+    ↓
+Smart pill bottle detects bottle opening
+    ↓
+Device sends cryptographic attestation to ABENA platform
+    ↓
+Platform verifies device signature (authentic device, not spoofed)
+    ↓
+Platform checks patient's medication schedule (was dose due?)
+    ↓
+If verified: Smart contract automatically awards ABENA Coins
+    ↓
+Patient wallet updated, achievement unlocked (if applicable)
+    ↓
+Blockchain records transaction (immutable proof)
+Innovation 4: Rewards Marketplace
+A decentralized marketplace where patients redeem ABENA Coins:
+Redemption Categories:
+
+Health Products (30-50% of redemptions expected):
+
+Dietary supplements (verified via blockchain supply chain)
+Fitness equipment (resistance bands, yoga mats, foam rollers)
+Health monitoring devices (blood pressure cuffs, glucometers, pulse oximeters)
+Healthy food (organic produce, grass-fed meat, wild-caught fish)
+
+
+Health Services (20-30%):
+
+Massage therapy sessions
+Acupuncture treatments
+Nutritional counseling
+Mental health therapy
+Chiropractic care
+Personal training sessions
+
+
+Insurance Premium Reductions (10-20%):
+
+Partner with insurance companies
+Patient proves health achievements via blockchain
+Insurer provides premium discount (e.g., 500 ABENA Coins = $50 monthly discount)
+
+
+Charitable Donations (5-10%):
+
+Donate coins to health-focused nonprofits
+American Heart Association, American Cancer Society, etc.
+Tax deductible (IRS compliance)
+
+
+Cash Conversion (5-15%):
+
+Sell ABENA Coins on cryptocurrency exchanges
+Convert to USD, EUR, or other fiat currencies
+Provides real monetary value to rewards
+
+
+
+Marketplace Architecture:
+
+Smart contracts escrow coins until product/service delivered
+Reputation system for vendors (blockchain-verified reviews)
+Dispute resolution via decentralized arbitration
+HIPAA compliance: Marketplace doesn't access patient health data
+
+Innovation 5: Blockchain Supply Chain for Dietary Supplements
+Comprehensive tracking of supplements from raw material to consumer:
+Supply Chain Stages:
+
+Raw Material Sourcing:
+
+Herb farm records harvest (date, location, organic certification)
+GPS coordinates + photos uploaded to blockchain
+Farmer's digital signature (Dilithium quantum-resistant)
+
+
+Manufacturing:
+
+Manufacturer receives raw materials, records batch number
+Manufacturing date, facility location, GMP certification uploaded
+Batch assigned unique identifier (e.g., "HERB-St-Johns-Wort-2026-02-15-001")
+
+
+Quality Testing:
+
+Independent lab tests batch for:
+
+Heavy metals (lead, arsenic, cadmium, mercury)
+Microbiology (E. coli, Salmonella, mold, yeast)
+Potency (active ingredient matches label claim)
+Adulterants (synthetic drugs, undeclared ingredients)
+
+
+Certificate of Analysis (COA) hash stored on blockchain
+Lab's digital signature proves authenticity
+
+
+Packaging:
+
+Bottles filled, labeled, QR codes printed
+Each QR code linked to blockchain batch record
+Tamper-evident seals applied
+
+
+Distribution:
+
+Shipment from manufacturer → distributor recorded
+Temperature monitoring (if temperature-sensitive)
+GPS tracking of shipment
+Receipt confirmation from distributor
+
+
+Retail:
+
+Shipment from distributor → retailer/pharmacy recorded
+Store location, receipt date logged
+
+
+Consumer Purchase:
+
+Patient scans QR code before purchase
+Verifies: Authenticity, lab results, expiration date, recall status
+Makes informed decision
+
+
+
+Blockchain Data Structure:
+Supplement Record (On-Chain):
+{
+  supplement_id: "HERB-St-Johns-Wort-2026-02-15-001",
+  product_name: "St. John's Wort Extract 300mg",
+  manufacturer: {
+    did: "did:abena:mfg:0x...",
+    name: "Quality Herbs Inc",
+    gmp_certified: true,
+    certifications: ["Organic", "Non-GMO", "Kosher"]
+  },
+  raw_materials: [
+    {
+      botanical_name: "Hypericum perforatum",
+      source_farm: "Oregon Herb Farm",
+      harvest_date: "2026-01-15",
+      organic_cert_hash: "0x4d8a9f3c..."
+    }
+  ],
+  manufacturing: {
+    batch_number: "2026-02-15-001",
+    manufacture_date: "2026-02-15",
+    facility: "Portland, OR",
+    expiration_date: "2028-02-15"
+  },
+  quality_testing: {
+    lab_name: "Independent Testing Lab",
+    test_date: "2026-02-20",
+    coa_hash: "0x9f2d3a1c...",  // Full COA stored off-chain, hash on-chain
+    results: {
+      heavy_metals: {
+        lead: "< 0.5 ppm",
+        arsenic: "< 0.1 ppm",
+        cadmium: "< 0.2 ppm",
+        mercury: "< 0.05 ppm",
+        status: "PASS"
+      },
+      microbiology: {
+        total_plate_count: "< 10,000 CFU/g",
+        yeast_mold: "< 1,000 CFU/g",
+        e_coli: "Negative",
+        salmonella: "Negative",
+        status: "PASS"
+      },
+      potency: {
+        hypericin_content: "0.32%",
+        label_claim: "0.3%",
+        variance: "+6.7%",
+        status: "PASS"
+      },
+      adulterants: {
+        synthetic_drugs: "None detected",
+        status: "PASS"
+      }
+    }
+  },
+  supply_chain_events: [
+    {
+      event: "Manufactured",
+      timestamp: "2026-02-15T10:00:00Z",
+      location: "Portland, OR",
+      signed_by: "did:abena:mfg:0x...",
+      signature: "Dilithium3_signature"
+    },
+    {
+      event: "Lab Tested",
+      timestamp: "2026-02-20T14:00:00Z",
+      location: "San Diego, CA",
+      signed_by: "did:abena:lab:0x...",
+      signature: "Dilithium3_signature"
+    },
+    {
+      event: "Shipped to Distributor",
+      timestamp: "2026-02-22T09:00:00Z",
+      carrier: "FedEx",
+      tracking: "1234567890",
+      signed_by: "did:abena:mfg:0x..."
+    },
+    {
+      event: "Received by Distributor",
+      timestamp: "2026-02-25T11:00:00Z",
+      location: "Los Angeles, CA",
+      signed_by: "did:abena:dist:0x..."
+    },
+    {
+      event: "Shipped to Retailer",
+      timestamp: "2026-02-27T08:00:00Z",
+      destination: "Whole Foods, Santa Monica",
+      signed_by: "did:abena:dist:0x..."
+    }
+  ],
+  qr_code_url: "https://verify.abena.health/supplement/HERB-St-Johns-Wort-2026-02-15-001",
+  blockchain_hash: "0x7a3f9d2e..."
+}
+Innovation 6: Consumer Verification App
+Mobile application enabling instant supplement verification:
+User Flow:
+
+Patient picks up supplement bottle in store
+Opens ABENA mobile app, scans QR code
+App queries blockchain with supplement_id
+App displays:
+
+✅ Authenticity: Genuine product from verified manufacturer
+✅ Lab Results: All quality tests passed (shows detailed COA)
+✅ Supply Chain: Complete tracking from farm to store
+✅ Expiration: Valid until 2028-02-15 (2 years remaining)
+✅ Recall Status: No recalls issued
+
+
+App checks patient's current medications (from ABENA platform)
+App triggers drug-herb interaction analysis
+WARNING: "St. John's Wort interacts with your Warfarin - DO NOT PURCHASE"
+Patient avoids dangerous supplement, prevents adverse event
+
+Innovation 7: Integration of Cryptocurrency Rewards + Supplement Verification
+Unique integration creating synergistic value:
+Integration Points:
+
+Earn Coins for Scanning Supplements:
+
+Patient scans supplement before purchase → Earns 10 ABENA Coins
+Incentivizes verification, improves patient safety
+Gamification: "Scanned 50 supplements" achievement
+
+
+Discount Verified Supplements with Coins:
+
+Supplements verified on blockchain cost 10-20% less (in ABENA Coins)
+Unverified supplements: Cannot purchase with ABENA Coins
+Creates market demand for verified supplements
+Manufacturers incentivized to join blockchain system
+
+
+Bonus for Purchasing Verified Supplements:
+
+Patient buys verified supplement → Earns 50 ABENA Coins
+Patient buys unverified supplement → No bonus
+Creates positive feedback loop (verification → rewards → more verification)
+
+
+Interaction Checking Earns Rewards:
+
+Patient scans supplement, ABENA detects interaction, patient doesn't buy → Earns 100 coins (prevented adverse event!)
+Quantifiable safety improvement
+
+
+Manufacturer Incentives:
+
+Manufacturers who join blockchain verification get:
+
+Featured placement in ABENA marketplace
+Access to ABENA's patient network (77% of adults take supplements)
+Quality differentiation (verified vs. unverified)
+
+
+Manufacturers stake ABENA Coins as quality bond (lost if recall)
+
+
+
+
+DETAILED DESCRIPTION OF THE INVENTION
+1. ABENA COIN - CRYPTOCURRENCY ARCHITECTURE
+1.1 Token Economics
+Token Specification:
+Name: ABENA Coin
+Symbol: ABENA
+Standard: Compatible with Substrate native tokens
+Blockchain: ABENA Substrate blockchain (can bridge to Ethereum/Polkadot)
+Total Supply: 1,000,000,000 ABENA (1 billion, fixed supply)
+Decimals: 18 (smallest unit: 0.000000000000000001 ABENA)
+Initial Distribution:
+Category                      Allocation       Amount              Vesting
+─────────────────────────────────────────────────────────────────────────────
+Patient Rewards Pool          50%              500,000,000         Released over 10 years
+Development Team              15%              150,000,000         4-year vesting, 1-year cliff
+Advisors                      5%               50,000,000          2-year vesting
+Strategic Partnerships        10%              100,000,000         Released per partnership
+Community Governance          10%              100,000,000         Released per governance votes
+Reserve/Contingency           10%              100,000,000         Multi-sig controlled
+─────────────────────────────────────────────────────────────────────────────
+TOTAL                         100%             1,000,000,000
+Patient Rewards Pool Release Schedule:
+Year 1: 100,000,000 ABENA (20% of pool)
+Year 2: 80,000,000 ABENA (16%)
+Year 3: 70,000,000 ABENA (14%)
+Year 4: 60,000,000 ABENA (12%)
+Year 5: 50,000,000 ABENA (10%)
+Year 6-10: 140,000,000 ABENA (28% total, 5.6% per year)
+
+Total over 10 years: 500,000,000 ABENA
+
+Rationale: Front-loaded to bootstrap early adoption, tapers to ensure long-term sustainability
+Earning Rates (Subject to Governance Adjustment):
+Health Behavior                         ABENA Coins     Frequency
+──────────────────────────────────────────────────────────────────────────
+Medication Adherence (1 dose)           5               Per dose
+Exercise Session (30+ min)              20              Per session
+Healthy Meal Logged                     10              Per meal (max 3/day)
+Annual Physical Exam                    500             Once per year
+Preventive Screening (colonoscopy)      1,000           Per guideline schedule
+Lab Improvement (A1C -0.5%)             200             Per milestone
+Weight Loss (5 lbs)                     100             Per 5 lbs (up to goal)
+Smoking Cessation (30 days)             1,000           Per 30-day streak
+Sleep (7-9 hours)                       5               Per night
+Stress Reduction (meditation 10 min)    15              Per session
+Supplement Verification Scan            10              Per scan
+No Interaction Detected Bonus           100             Per prevented adverse event
+──────────────────────────────────────────────────────────────────────────
+Example Patient Earning:
+Daily Routine (Compliant Patient):
+- Morning medication: 5 ABENA
+- Breakfast (healthy): 10 ABENA
+- Lunch (healthy): 10 ABENA
+- Exercise (30 min walk): 20 ABENA
+- Dinner (healthy): 10 ABENA
+- Sleep (8 hours): 5 ABENA
+
+DAILY TOTAL: 60 ABENA
+
+Monthly: 60 × 30 = 1,800 ABENA
+Yearly: 1,800 × 12 = 21,600 ABENA
+
+Plus bonuses:
+- Annual physical: 500 ABENA
+- Preventive screening: 1,000 ABENA
+- Achievements/streaks: ~2,000 ABENA/year
+
+TOTAL YEARLY: ~25,000 ABENA
+
+At market value of $0.10/coin (conservative): $2,500/year
+At market value of $1.00/coin (optimistic): $25,000/year
+Value Drivers:
+
+Utility Value: ABENA Coins required for premium platform features
+
+Advanced health analytics: 100 ABENA/month
+Personalized quantum treatment optimization: 500 ABENA/analysis
+Family health account (5 members): 200 ABENA/month
+
+
+Redemption Demand: Patients redeem for valuable products/services
+
+Creates continuous buy pressure (marketplace vendors accumulate ABENA)
+
+
+Scarcity: Fixed supply (1 billion), deflationary over time
+
+1% of transaction fees burned (destroyed) → supply decreases
+
+
+Network Effects: More patients → More valuable (Metcalfe's Law)
+Speculation: Cryptocurrency traders buy ABENA on exchanges
+
+1.2 Smart Contract Distribution System
+Automated Reward Distribution:
+rust// Substrate Pallet: ABENA Coin Rewards
+
+#[pallet::storage]
+pub type HealthBehaviors<T: Config> = StorageMap
+    _,
+    Blake2_128Concat,
+    BehaviorID,
+    HealthBehavior<T::AccountId>
+>;
+
+pub struct HealthBehavior<AccountId> {
+    behavior_type: BehaviorType,  // Medication, Exercise, Diet, etc.
+    patient_did: AccountId,
+    reward_amount: u128,  // ABENA coins (in smallest unit)
+    verification_source: VerificationSource,
+    timestamp: u64,
+    verified: bool,
+}
+
+pub enum BehaviorType {
+    MedicationAdherence,
+    ExerciseSession,
+    HealthyMeal,
+    PreventiveScreening,
+    LabImprovement,
+    WeightLoss,
+    SmokingCessation,
+    Sleep,
+    StressReduction,
+    SupplementScan,
+}
+
+pub enum VerificationSource {
+    WearableDevice(DeviceSignature),
+    PhysicianAttestation(DilithiumSignature),
+    PharmacyData(PharmacyID),
+    LabResults(LabID),
+    SelfReportAudited,
+}
+
+#[pallet::call]
+impl<T: Config> Pallet<T> {
+    /// Submit health behavior for verification and reward
+    #[pallet::weight(10_000)]
+    pub fn submit_health_behavior(
+        origin: OriginFor<T>,
+        behavior: HealthBehaviorSubmission
+    ) -> DispatchResult {
+        let patient = ensure_signed(origin)?;
+        
+        // 1. Verify behavior authenticity
+        let is_verified = Self::verify_behavior(&behavior)?;
+        ensure!(is_verified, Error::<T>::BehaviorNotVerified);
+        
+        // 2. Check if behavior already claimed (prevent double-claiming)
+        ensure!(
+            !Self::is_behavior_claimed(&patient, &behavior),
+            Error::<T>::BehaviorAlreadyClaimed
+        );
+        
+        // 3. Calculate reward amount
+        let reward_amount = Self::calculate_reward(&behavior.behavior_type);
+        
+        // 4. Check rewards pool has sufficient balance
+        let pool_balance = Self::rewards_pool_balance();
+        ensure!(
+            pool_balance >= reward_amount,
+            Error::<T>::InsufficientRewardsPool
+        );
+        
+        // 5. Transfer ABENA coins from rewards pool to patient
+        Self::transfer_from_pool(
+            patient.clone(),
+            reward_amount
+        )?;
+        
+        // 6. Store behavior record on-chain (audit trail)
+        let behavior_id = Self::generate_behavior_id();
+        let behavior_record = HealthBehavior {
+            behavior_type: behavior.behavior_type,
+            patient_did: patient.clone(),
+            reward_amount,
+            verification_source: behavior.verification_source,
+            timestamp: Self::current_timestamp(),
+            verified: true,
+        };
+        HealthBehaviors::<T>::insert(&behavior_id, behavior_record);
+        
+        // 7. Check for achievement unlocks
+        Self::check_achievements(patient.clone(), &behavior.behavior_type)?;
+        
+        // 8. Update patient XP (experience points)
+        Self::add_experience_points(patient.clone(), reward_amount / 10)?;
+        
+        // 9. Emit event
+        Self::deposit_event(Event::BehaviorRewarded {
+            patient,
+            behavior_type: behavior.behavior_type,
+            reward_amount,
+            behavior_id
+        });
+        
+        Ok(())
+    }
+}
+Verification Logic:
+rustimpl<T: Config> Pallet<T> {
+    fn verify_behavior(
+        behavior: &HealthBehaviorSubmission
+    ) -> Result<bool, Error<T>> {
+        match &behavior.verification_source {
+            VerificationSource::WearableDevice(device_sig) => {
+                // Verify device signature (e.g., Apple Watch signed data)
+                let device_public_key = Self::get_device_public_key(&device_sig.device_id)?;
+                let is_valid = Self::verify_device_signature(
+                    &behavior.data,
+                    &device_sig.signature,
+                    &device_public_key
+                );
+                Ok(is_valid)
+            },
+            
+            VerificationSource::PhysicianAttestation(physician_sig) => {
+                // Verify physician's Dilithium signature
+                let physician_public_key = Self::get_physician_public_key(
+                    &physician_sig.physician_did
+                )?;
+                let is_valid = dilithium_verify(
+                    &behavior.data,
+                    &physician_sig.signature,
+                    &physician_public_key
+                );
+                Ok(is_valid)
+            },
+            
+            VerificationSource::PharmacyData(pharmacy_id) => {
+                // Query pharmacy API to verify medication fill
+                let pharmacy_confirmed = Self::query_pharmacy_offchain(
+                    pharmacy_id,
+                    &behavior.patient_did,
+                    &behavior.medication
+                )?;
+                Ok(pharmacy_confirmed)
+            },
+            
+            VerificationSource::LabResults(lab_id) => {
+                // Verify lab results show improvement
+                let lab_result = Self::get_lab_result(lab_id)?;
+                let previous_result = Self::get_previous_lab_result(
+                    &behavior.patient_did,
+                    &lab_result.test_type
+                )?;
+                let improved = lab_result.value < previous_result.value;
+                Ok(improved)
+            },
+            
+            VerificationSource::SelfReportAudited => {
+                // Random audit: 10% of self-reported behaviors audited
+                let should_audit = Self::random_audit_selection();
+                if should_audit {
+                    // Schedule manual review
+                    Self::schedule_audit(&behavior)?;
+                    Ok(false)  // Pending audit
+                } else {
+                    // Accept self-report
+                    Ok(true)
+                }
+            }
+        }
+    }
+}
+```
+
+**1.3 Token Utility and Value Accrual**
+
+**Platform Utility (Creates Buy Demand):**
+```
+Premium Features Requiring ABENA Coins:
+
+1. Quantum Treatment Optimization: 500 ABENA per analysis
+   - VQE algorithm for personalized treatment
+   - Patient must spend coins to access quantum computing
+
+2. Advanced Analytics Dashboard: 100 ABENA/month
+   - Predictive health modeling
+   - Multi-modal correlation analysis
+   - Trend visualization
+
+3. Family Account (5 members): 200 ABENA/month
+   - Shared health tracking
+   - Family leaderboard
+   - Group challenges
+
+4. Priority Support: 50 ABENA/month
+   - 24/7 customer service
+   - Dedicated health coach
+   - Faster response times
+
+5. Data Export: 1,000 ABENA one-time
+   - Export complete health history
+   - Portable to other platforms
+
+6. Genomic Analysis Integration: 2,000 ABENA one-time
+   - Upload 23andMe, Ancestry DNA
+   - Personalized recommendations based on genetics
+```
+
+**Deflationary Mechanism:**
+```
+Transaction Fee Structure:
+
+Every ABENA transaction incurs 2% fee:
+- 1% burned (destroyed, reducing total supply)
+- 1% to validator rewards pool (incentivizes network security)
+
+Example:
+- Patient transfers 1,000 ABENA to marketplace vendor
+- Fee: 20 ABENA (2%)
+- Burned: 10 ABENA (permanently removed from circulation)
+- Validators: 10 ABENA (distributed to block producers)
+- Vendor receives: 980 ABENA
+
+Over time:
+- Year 1: ~10M ABENA burned (1% of supply)
+- Year 5: ~40M ABENA burned (4% of supply)
+- Year 10: ~70M ABENA burned (7% of supply)
+
+Remaining supply after 10 years: ~930M ABENA
+Effect: Scarcity increases, value per coin appreciates
+```
+
+**Staking for Governance (Creates Lock-up Demand):**
+```
+Governance Participation:
+
+To vote on platform decisions, patients must stake ABENA:
+- Minimum stake: 1,000 ABENA
+- Voting power: Proportional to stake (1,000 ABENA = 1,000 votes)
+- Lock-up period: 30 days (cannot transfer while staked)
+
+Governance Decisions:
+- Reward amounts (e.g., increase exercise reward from 20 → 25 ABENA)
+- New behaviors to incentivize (e.g., add "Therapy Session" = 50 ABENA)
+- Marketplace vendor approval
+- Platform feature priorities
+- Treasury allocation
+
+Incentive to Stake:
+- Stakers receive 5% APY (annual percentage yield)
+- Paid from transaction fees
+- Example: Stake 10,000 ABENA → Earn 500 ABENA/year
+
+Expected Lock-up: 10-20% of circulating supply staked
+Effect: Reduces liquid supply, increases scarcity
+```
+
+---
+
+#### **2. GAMIFICATION SYSTEM**
+
+**2.1 Achievement System**
+
+**Achievement Categories:**
+```
+MEDICATION ADHERENCE ACHIEVEMENTS:
+
+1. "First Dose" - Take first dose of prescribed medication (10 ABENA bonus)
+2. "Week Warrior" - 7-day medication streak (50 ABENA)
+3. "Month Master" - 30-day medication streak (200 ABENA)
+4. "Quarter Champion" - 90-day medication streak (750 ABENA)
+5. "Year Legend" - 365-day medication streak (5,000 ABENA)
+6. "Perfect Week" - 100% adherence for 7 days (100 ABENA)
+7. "Never Miss" - 100% adherence for 30 days (500 ABENA)
+8. "Pharmacy Regular" - Pick up prescription on time 10 times (300 ABENA)
+
+EXERCISE ACHIEVEMENTS:
+
+9. "First Steps" - Complete first exercise session (20 ABENA)
+10. "5K Walker" - Walk 5 kilometers in one session (50 ABENA)
+11. "Marathon Month" - Exercise 20+ times in one month (400 ABENA)
+12. "Daily Mover" - Exercise every day for 30 days (1,000 ABENA)
+13. "Strength Builder" - Complete 50 strength training sessions (500 ABENA)
+14. "Yogi" - Complete 25 yoga sessions (400 ABENA)
+15. "Cardio King/Queen" - 100 cardio sessions (800 ABENA)
+
+NUTRITION ACHIEVEMENTS:
+
+16. "Healthy Start" - Log first healthy meal (10 ABENA)
+17. "Clean Week" - 7 days of healthy eating (150 ABENA)
+18. "Sugar-Free Month" - 30 days no added sugar (600 ABENA)
+19. "Hydration Hero" - Drink 8 glasses water/day for 30 days (300 ABENA)
+20. "Vegetable Victor" - Eat 5+ servings vegetables/day for 7 days (200 ABENA)
+
+PREVENTIVE CARE ACHIEVEMENTS:
+
+21. "Annual Check" - Complete annual physical exam (500 ABENA)
+22. "Screening Star" - Complete age-appropriate cancer screening (1,000 ABENA)
+23. "Vaccination Veteran" - Get flu shot on time (200 ABENA)
+24. "Dental Devotee" - Dental cleaning every 6 months (300 ABENA)
+25. "Vision Guardian" - Annual eye exam (250 ABENA)
+
+HEALTH OUTCOMES ACHIEVEMENTS:
+
+26. "Glucose Guardian" - A1C below 7% (diabetes) (1,500 ABENA)
+27. "Blood Pressure Boss" - BP < 120/80 for 90 days (800 ABENA)
+28. "Cholesterol Champion" - LDL < 100 mg/dL (500 ABENA)
+29. "Weight Warrior" - Reach healthy BMI (2,000 ABENA)
+30. "Smoke-Free" - Quit smoking for 365 days (10,000 ABENA)
+
+SUPPLEMENT VERIFICATION ACHIEVEMENTS:
+
+31. "First Scan" - Scan first supplement QR code (10 ABENA)
+32. "Safety Scout" - Scan 10 supplements (100 ABENA)
+33. "Verification Vigilante" - Scan 50 supplements (500 ABENA)
+34. "Interaction Avoider" - Avoid 5 interactions via scanning (500 ABENA)
+35. "Quality Seeker" - Purchase only verified supplements for 30 days (1,000 ABENA)
+
+COMMUNITY ACHIEVEMENTS:
+
+36. "Team Player" - Join group challenge (50 ABENA)
+37. "Challenge Champion" - Win group challenge (500 ABENA)
+38. "Leaderboard Leader" - Top 10 on monthly leaderboard (1,000 ABENA)
+39. "Helpful Helper" - Give encouragement to 10 patients (200 ABENA)
+40. "Mentor" - Mentor new patient for 30 days (1,500 ABENA)
+
+MILESTONE ACHIEVEMENTS:
+
+41. "Bronze Level" - Reach 10,000 XP (1,000 ABENA)
+42. "Silver Level" - Reach 50,000 XP (5,000 ABENA)
+43. "Gold Level" - Reach 100,000 XP (15,000 ABENA)
+44. "Platinum Level" - Reach 250,000 XP (50,000 ABENA)
+45. "Diamond Level" - Reach 500,000 XP (100,000 ABENA)
+
+SPECIAL ACHIEVEMENTS:
+
+46. "Early Adopter" - Join ABENA in first 1,000 users (5,000 ABENA)
+47. "Referral King/Queen" - Refer 10 patients who complete onboarding (2,000 ABENA)
+48. "Data Contributor" - Contribute de-identified data to research (1,000 ABENA)
+49. "Beta Tester" - Test new features and provide feedback (500 ABENA)
+50. "Perfect Year" - 365 days of 100% adherence across all behaviors (50,000 ABENA)
+Blockchain Storage:
+rust#[pallet::storage]
+pub type Achievements<T: Config> = StorageMap
+    _,
+    Blake2_128Concat,
+    (T::AccountId, AchievementID),
+    Achievement<T::BlockNumber>
+>;
+
+pub struct Achievement<BlockNumber> {
+    achievement_id: AchievementID,
+    patient_did: T::AccountId,
+    unlocked_at_block: BlockNumber,
+    unlocked_at_time: u64,
+    bonus_awarded: u128,  // ABENA coins
+    public: bool,  // Can be displayed on public profile
+}
+
+impl<T: Config> Pallet<T> {
+    fn check_achievements(
+        patient: T::AccountId,
+        behavior_type: &BehaviorType
+    ) -> DispatchResult {
+        // Example: Check for "Week Warrior" (7-day medication streak)
+        if behavior_type == &BehaviorType::MedicationAdherence {
+            let streak = Self::get_current_streak(patient.clone())?;
+            
+            if streak == 7 && !Self::has_achievement(patient.clone(), "Week Warrior") {
+                // Unlock achievement
+                Self::unlock_achievement(
+                    patient.clone(),
+                    "Week Warrior",
+                    50  // Bonus ABENA
+                )?;
+            }
+            
+            if streak == 30 && !Self::has_achievement(patient.clone(), "Month Master") {
+                Self::unlock_achievement(
+                    patient.clone(),
+                    "Month Master",
+                    200
+                )?;
+            }
+            
+            // Check other achievements...
+        }
+        
+        Ok(())
+    }
+}
+2.2 Leaderboard System
+Privacy-Preserving Leaderboards:
+Challenge: HIPAA prohibits public display of patient health information
+Solution: Anonymous leaderboards with patient pseudonyms
+rust#[pallet::storage]
+pub type Leaderboard<T: Config> = StorageMap
+    _,
+    Blake2_128Concat,
+    LeaderboardType,
+    Vec<LeaderboardEntry<T::AccountId>>
+>;
+
+pub struct LeaderboardEntry<AccountId> {
+    patient_did: AccountId,  // Real DID (not shown publicly)
+    public_pseudonym: Vec<u8>,  // "Health Warrior #7842"
+    score: u128,  // XP or coins earned
+    rank: u32,
+}
+
+pub enum LeaderboardType {
+    GlobalXP,  // All-time XP
+    MonthlyXP,  // XP earned this month
+    WeeklyXP,  // XP earned this week
+    MedicationAdherence,  // % adherence
+    ExerciseFrequency,  // Sessions per month
+    WeightLoss,  // Pounds lost
+    CommunityEngagement,  // Helping other patients
+}
+
+impl<T: Config> Pallet<T> {
+    pub fn update_leaderboard(
+        patient: T::AccountId,
+        leaderboard_type: LeaderboardType,
+        new_score: u128
+    ) -> DispatchResult {
+        // Get current leaderboard
+        let mut leaderboard = Leaderboard::<T>::get(&leaderboard_type)
+            .unwrap_or_default();
+        
+        // Find patient's entry or create new
+        let mut entry = leaderboard.iter_mut()
+            .find(|e| e.patient_did == patient)
+            .cloned();
+        
+        if let Some(mut e) = entry {
+            // Update score
+            e.score = new_score;
+            
+            // Remove old entry
+            leaderboard.retain(|x| x.patient_did != patient);
+            
+            // Re-insert
+            leaderboard.push(e);
+        } else {
+            // New entry
+            let pseudonym = Self::generate_pseudonym(patient.clone());
+            leaderboard.push(LeaderboardEntry {
+                patient_did: patient,
+                public_pseudonym: pseudonym,
+                score: new_score,
+                rank: 0,  // Will be calculated
+            });
+        }
+        
+        // Sort by score (descending)
+        leaderboard.sort_by(|a, b| b.score.cmp(&a.score));
+        
+        // Assign ranks
+        for (idx, entry) in leaderboard.iter_mut().enumerate() {
+            entry.rank = (idx + 1) as u32;
+        }
+        
+        // Store updated leaderboard
+        Leaderboard::<T>::insert(&leaderboard_type, leaderboard);
+        
+        Ok(())
+    }
+    
+    fn generate_pseudonym(patient: T::AccountId) -> Vec<u8> {
+        // Hash patient DID to generate consistent pseudonym
+        let hash = blake2_256(&patient.encode());
+        let number = u32::from_be_bytes([hash[0], hash[1], hash[2], hash[3]]);
+        format!("Health Warrior #{}", number).into_bytes()
+    }
+}
+```
+
+**Public Leaderboard Display:**
+```
+MONTHLY XP LEADERBOARD (February 2026)
+
+Rank    Player              XP Earned    Achievements    Level
+────────────────────────────────────────────────────────────────
+1       Health Warrior #3421   45,280    23 🏆          Gold
+2       Wellness Pro #8192     42,150    19 🏆          Gold
+3       Fitness Fan #1055      38,920    21 🏆          Silver
+4       Med Master #5577       35,440    16 🏆          Silver
+5       Active Adam #9821      33,100    18 🏆          Silver
+...
+48      [YOU]                  12,890    8 🏆           Bronze
+
+Top 50 = 500 ABENA bonus
+Top 10 = 1,000 ABENA bonus
+#1 = 5,000 ABENA bonus
+2.3 Streaks
+Streak Tracking:
+rust#[pallet::storage]
+pub type Streaks<T: Config> = StorageMap
+    _,
+    Blake2_128Concat,
+    (T::AccountId, StreakType),
+    Streak
+>;
+
+pub struct Streak {
+    streak_type: StreakType,
+    current_streak: u32,  // Days
+    longest_streak: u32,  // All-time record
+    last_activity_date: u64,  // Unix timestamp
+}
+
+pub enum StreakType {
+    MedicationAdherence,
+    Exercise,
+    HealthyEating,
+    Sleep,
+    Meditation,
+}
+
+impl<T: Config> Pallet<T> {
+    pub fn update_streak(
+        patient: T::AccountId,
+        streak_type: StreakType
+    ) -> DispatchResult {
+        let today = Self::current_date();
+        
+        let mut streak = Streaks::<T>::get((patient.clone(), streak_type.clone()))
+            .unwrap_or(Streak {
+                streak_type: streak_type.clone(),
+                current_streak: 0,
+                longest_streak: 0,
+                last_activity_date: 0,
+            });
+        
+        let last_date = Self::timestamp_to_date(streak.last_activity_date);
+        
+        if today == last_date {
+            // Already logged today, no change
+            return Ok(());
+        } else if today == last_date + 1 {
+            // Consecutive day, increment streak
+            streak.current_streak += 1;
+            streak.last_activity_date = Self::date_to_timestamp(today);
+            
+            // Update longest if applicable
+            if streak.current_streak > streak.longest_streak {
+                streak.longest_streak = streak.current_streak;
+            }
+            
+            // Award streak bonuses
+            if streak.current_streak % 7 == 0 {
+                // 7-day streak milestone
+                let bonus = streak.current_streak / 7 * 50;
+                Self::award_streak_bonus(patient.clone(), bonus)?;
+            }
+        } else {
+            // Streak broken, reset
+            streak.current_streak = 1;
+            streak.last_activity_date = Self::date_to_timestamp(today);
+        }
+        
+        // Store updated streak
+        Streaks::<T>::insert((patient, streak_type), streak);
+        
+        Ok(())
+    }
+}
+
+3. SUPPLY CHAIN VERIFICATION FOR DIETARY SUPPLEMENTS
+3.1 Manufacturer Onboarding
+Manufacturer Registration:
+rust#[pallet::storage]
+pub type Manufacturers<T: Config> = StorageMap
+    _,
+    Blake2_128Concat,
+    ManufacturerDID,
+    Manufacturer<T::AccountId>
+>;
+
+pub struct Manufacturer<AccountId> {
+    did: ManufacturerDID,  // Decentralized Identifier
+    legal_name: Vec<u8>,
+    location: Vec<u8>,
+    certifications: Vec<Certification>,
+    gmp_certified: bool,  // Good Manufacturing Practices
+    registered_at: u64,
+    verified_by_abena: bool,
+    quality_bond: u128,  // ABENA coins staked (forfeited if recall)
+}
+
+pub struct Certification {
+    cert_type: CertificationType,
+    cert_number: Vec<u8>,
+    issuer: Vec<u8>,
+    expiration_date: u64,
+    cert_hash: H256,  // Hash of certificate document
+}
+
+pub enum CertificationType {
+    GMP,  // Good Manufacturing Practices
+    Organic,  // USDA Organic
+    NonGMO,
+    Kosher,
+    Halal,
+    ISO22000,  // Food Safety Management
+    NSFCertified,  // NSF International
+}
+
+#[pallet::call]
+impl<T: Config> Pallet<T> {
+    #[pallet::weight(10_000)]
+    pub fn register_manufacturer(
+        origin: OriginFor<T>,
+        registration_data: ManufacturerRegistration
+    ) -> DispatchResult {
+        let account = ensure_signed(origin)?;
+        
+        // 1. Verify GMP certification (required)
+        ensure!(
+            registration_data.certifications.iter()
+                .any(|c| c.cert_type == CertificationType::GMP),
+            Error::<T>::GMPCertificationRequired
+        );
+        
+        // 2. Require quality bond (stake ABENA coins)
+        let quality_bond = 100_000 * 10_pow(18);  // 100,000 ABENA
+        Self::stake_quality_bond(account.clone(), quality_bond)?;
+        
+        // 3. Generate DID
+        let did = Self::generate_manufacturer_did(&registration_data);
+        
+        // 4. Create manufacturer record
+        let manufacturer = Manufacturer {
+            did: did.clone(),
+            legal_name: registration_data.legal_name,
+            location: registration_data.location,
+            certifications: registration_data.certifications,
+            gmp_certified: true,
+            registered_at: Self::current_timestamp(),
+            verified_by_abena: false,  // Manual verification pending
+            quality_bond,
+        };
+        
+        // 5. Store on blockchain
+        Manufacturers::<T>::insert(&did, manufacturer);
+        
+        // 6. Emit event
+        Self::deposit_event(Event::ManufacturerRegistered {
+            did,
+            legal_name: registration_data.legal_name
+        });
+        
+        Ok(())
+    }
+}
+3.2 Batch Creation and Tracking
+Supplement Batch Registration:
+rust#[pallet::storage]
+pub type SupplementBatches<T: Config> = StorageMap
+    _,
+    Blake2_128Concat,
+    BatchID,
+    SupplementBatch<T::AccountId>
+>;
+
+pub struct SupplementBatch<AccountId> {
+    batch_id: BatchID,
+    product_name: Vec<u8>,
+    manufacturer_did: ManufacturerDID,
+    manufacture_date: u64,
+    expiration_date: u64,
+    batch_size: u32,  // Number of units
+    raw_materials: Vec<RawMaterial>,
+    quality_tests: Vec<QualityTest>,
+    supply_chain_events: Vec<SupplyChainEvent<AccountId>>,
+    qr_code_url: Vec<u8>,
+    recall_status: RecallStatus,
+}
+
+pub struct RawMaterial {
+    botanical_name: Vec<u8>,
+    common_name: Vec<u8>,
+    source_farm: Vec<u8>,
+    harvest_date: u64,
+    organic_certified: bool,
+    gps_coordinates: Option<(f64, f64)>,
+    cert_hash: H256,
+}
+
+pub struct QualityTest {
+    test_type: TestType,
+    lab_name: Vec<u8>,
+    test_date: u64,
+    coa_hash: H256,  // Certificate of Analysis
+    result: TestResult,
+}
+
+pub enum TestType {
+    HeavyMetals,
+    Microbiology,
+    Potency,
+    Adulterants,
+    Pesticides,
+}
+
+pub struct TestResult {
+    status: TestStatus,  // Pass, Fail, Warning
+    details: Vec<TestParameter>,
+}
+
+pub enum TestStatus {
+    Pass,
+    Fail,
+    Warning,
+}
+
+pub struct TestParameter {
+    parameter_name: Vec<u8>,  // "Lead", "E. coli", "Hypericin %"
+    measured_value: Vec<u8>,  // "< 0.5 ppm", "Negative", "0.32%"
+    reference_range: Vec<u8>,  // "< 0.5 ppm", "Negative", "0.3-0.5%"
+    pass: bool,
+}
+
+pub struct SupplyChainEvent<AccountId> {
+    event_type: EventType,
+    timestamp: u64,
+    location: Vec<u8>,
+    actor_did: AccountId,
+    signature: Vec<u8>,  // Dilithium signature
+    notes: Option<Vec<u8>>,
+}
+
+pub enum EventType {
+    Manufactured,
+    LabTested,
+    ShippedToDistributor,
+    ReceivedByDistributor,
+    ShippedToRetailer,
+    ReceivedByRetailer,
+    Recalled,
+}
+
+pub enum RecallStatus {
+    Active,
+    Recalled(Vec<u8>),  // Recall reason
+}
+
+#[pallet::call]
+impl<T: Config> Pallet<T> {
+    /// Manufacturer creates new supplement batch
+    #[pallet::weight(10_000)]
+    pub fn create_batch(
+        origin: OriginFor<T>,
+        batch_data: BatchCreationData
+    ) -> DispatchResult {
+        let manufacturer = ensure_signed(origin)?;
+        
+        // 1. Verify caller is registered manufacturer
+        let mfg_record = Manufacturers::<T>::get(&manufacturer)
+            .ok_or(Error::<T>::NotRegisteredManufacturer)?;
+        
+        ensure!(mfg_record.verified_by_abena, Error::<T>::NotVerified);
+        
+        // 2. Generate unique batch ID
+        let batch_id = Self::generate_batch_id(&batch_data);
+        
+        // 3. Verify batch doesn't already exist
+        ensure!(
+            !SupplementBatches::<T>::contains_key(&batch_id),
+            Error::<T>::BatchAlreadyExists
+        );
+        
+        // 4. Create supply chain event (Manufactured)
+        let mfg_event = SupplyChainEvent {
+            event_type: EventType::Manufactured,
+            timestamp: Self::current_timestamp(),
+            location: mfg_record.location.clone(),
+            actor_did: manufacturer.clone(),
+            signature: batch_data.manufacturer_signature.clone(),
+            notes: None,
+        };
+        
+        // 5. Create batch record
+        let batch = SupplementBatch {
+            batch_id: batch_id.clone(),
+            product_name: batch_data.product_name,
+            manufacturer_did: manufacturer,
+            manufacture_date: batch_data.manufacture_date,
+            expiration_date: batch_data.expiration_date,
+            batch_size: batch_data.batch_size,
+            raw_materials: batch_data.raw_materials,
+            quality_tests: vec![],  // Will be added by lab
+            supply_chain_events: vec![mfg_event],
+            qr_code_url: format!(
+                "https://verify.abena.health/supplement/{}",
+                batch_id.to_string()
+            ).into_bytes(),
+            recall_status: RecallStatus::Active,
+        };
+        
+        // 6. Store on blockchain
+        SupplementBatches::<T>::insert(&batch_id, batch);
+        
+        // 7. Emit event
+        Self::deposit_event(Event::BatchCreated {
+            batch_id,
+            manufacturer: manufacturer.clone(),
+            product_name: batch_data.product_name
+        });
+        
+        Ok(())
+    }
+    
+    /// Lab uploads test results for batch
+    #[pallet::weight(10_000)]
+    pub fn upload_test_results(
+        origin: OriginFor<T>,
+        batch_id: BatchID,
+        test_data: QualityTestData
+    ) -> DispatchResult {
+        let lab = ensure_signed(origin)?;
+        
+        // 1. Verify caller is registered lab
+        let lab_record = Labs::<T>::get(&lab)
+            .ok_or(Error::<T>::NotRegisteredLab)?;
+        
+        // 2. Get batch
+        SupplementBatches::<T>::try_mutate(&batch_id, |maybe_batch| -> DispatchResult {
+            let batch = maybe_batch.as_mut().ok_or(Error::<T>::BatchNotFound)?;
+            
+            // 3. Create quality test record
+            let quality_test = QualityTest {
+                test_type: test_data.test_type,
+                lab_name: lab_record.name.clone(),
+                test_date: Self::current_timestamp(),
+                coa_hash: test_data.coa_hash,
+                result: test_data.result.clone(),
+            };
+            
+            // 4. Add to batch
+            batch.quality_tests.push(quality_test);
+            
+            // 5. Create supply chain event
+            let test_event = SupplyChainEvent {
+                event_type: EventType::LabTested,
+                timestamp: Self::current_timestamp(),
+                location: lab_record.location.clone(),
+                actor_did: lab,
+                signature: test_data.lab_signature,
+                notes: Some(format!("Test: {:?}", test_data.test_type).into_bytes()),
+            };
+            
+            batch.supply_chain_events.push(test_event);
+            
+            // 6. Check if any tests failed
+            if test_data.result.status == TestStatus::Fail {
+                // Initiate recall
+                batch.recall_status = RecallStatus::Recalled(
+                    format!("Failed {:?} test", test_data.test_type).into_bytes()
+                );
+                
+                Self::deposit_event(Event::BatchRecalled {
+                    batch_id: batch_id.clone(),
+                    reason: format!("Failed quality test").into_bytes()
+                });
+            }
+            
+            Ok(())
+        })?;
+        
+        Self::deposit_event(Event::TestResultsUploaded {
+            batch_id,
+            test_type: test_data.test_type
+        });
+        
+        Ok(())
+    }
+}
+3.3 Consumer Verification
+QR Code Scanning and Verification:
+rust#[pallet::call]
+impl<T: Config> Pallet<T> {
+    /// Patient scans supplement QR code for verification
+    /// This is called by ABENA mobile app
+    #[pallet::weight(5_000)]
+    pub fn verify_supplement(
+        origin: OriginFor<T>,
+        batch_id: BatchID
+    ) -> DispatchResult {
+        let patient = ensure_signed(origin)?;
+        
+        // 1. Retrieve batch from blockchain
+        let batch = SupplementBatches::<T>::get(&batch_id)
+            .ok_or(Error::<T>::BatchNotFound)?;
+        
+        // 2. Check recall status
+        if let RecallStatus::Recalled(reason) = &batch.recall_status {
+            // Batch is recalled!
+            Self::deposit_event(Event::RecalledProductScanned {
+                patient: patient.clone(),
+                batch_id: batch_id.clone(),
+                reason: reason.clone()
+            });
+            
+            // Award bonus for not purchasing recalled product
+            Self::award_coins(patient.clone(), 100 * 10_pow(18))?;  // 100 ABENA
+            
+            return Err(Error::<T>::ProductRecalled.into());
+        }
+        
+        // 3. Check expiration
+        let now = Self::current_timestamp();
+        if now > batch.expiration_date {
+            return Err(Error::<T>::ProductExpired.into());
+        }
+        
+        // 4. Award coins for scanning (incentive)
+        Self::award_coins(patient.clone(), 10 * 10_pow(18))?;  // 10 ABENA
+        
+        // 5. Check drug-herb interactions (if patient has medications)
+        let has_interaction = Self::check_drug_herb_interactions(
+            patient.clone(),
+            &batch.product_name
+        )?;
+        
+        if has_interaction {
+            // WARNING: Interaction detected!
+            Self::deposit_event(Event::InteractionDetected {
+                patient: patient.clone(),
+                supplement: batch.product_name.clone()
+            });
+            
+            // Award bonus for avoiding dangerous interaction
+            Self::award_coins(patient.clone(), 100 * 10_pow(18))?;  // 100 ABENA
+        }
+        
+        // 6. Record scan event (analytics)
+        Self::record_scan_event(patient.clone(), batch_id.clone())?;
+        
+        // 7. Return verification result to app (off-chain)
+        Self::deposit_event(Event::SupplementVerified {
+            patient,
+            batch_id,
+            manufacturer: batch.manufacturer_did,
+            expiration: batch.expiration_date,
+            tests_passed: batch.quality_tests.iter().all(|t| t.result.status == TestStatus::Pass),
+            interaction_detected: has_interaction
+        });
+        
+        Ok(())
+    }
+    
+    fn check_drug_herb_interactions(
+        patient: T::AccountId,
+        supplement_name: &Vec<u8>
+    ) -> Result<bool, Error<T>> {
+        // 1. Get patient's current medications
+        let medications = PatientMedications::<T>::get(&patient)
+            .unwrap_or_default();
+        
+        if medications.is_empty() {
+            return Ok(false);  // No medications, no interactions
+        }
+        
+        // 2. Query interaction database
+        for medication in medications {
+            let interaction_exists = InteractionDatabase::<T>::get((
+                medication.clone(),
+                supplement_name.clone()
+            ));
+            
+            if let Some(interaction) = interaction_exists {
+                if interaction.severity == InteractionSeverity::Major {
+                    return Ok(true);  // Dangerous interaction found
+                }
+            }
+        }
+        
+        Ok(false)  // No dangerous interactions
+    }
+}
+```
+
+**Mobile App Display:**
+```
+[User scans QR code on St. John's Wort bottle]
+
+╔═══════════════════════════════════════════════════════════╗
+║           SUPPLEMENT VERIFICATION RESULT                  ║
+╠═══════════════════════════════════════════════════════════╣
+║                                                           ║
+║  Product: St. John's Wort Extract 300mg                  ║
+║  Manufacturer: Quality Herbs Inc ✓ Verified              ║
+║  Batch: HERB-StJohnsWort-2026-02-15-001                  ║
+║                                                           ║
+║  ✅ AUTHENTICITY: Genuine product confirmed              ║
+║  ✅ LAB RESULTS: All quality tests passed                ║
+║  ✅ EXPIRATION: Valid until 2028-02-15 (2 years left)    ║
+║  ✅ RECALL STATUS: No recalls issued                     ║
+║                                                           ║
+║  ⚠️  WARNING: DRUG INTERACTION DETECTED                  ║
+║                                                           ║
+║  St. John's Wort interacts with your current medication: ║
+║  • Warfarin (blood thinner)                              ║
+║                                                           ║
+║  Risk: Reduced blood thinner effectiveness,              ║
+║        increased bleeding risk                            ║
+║                                                           ║
+║  Recommendation: DO NOT PURCHASE                         ║
+║  Consult physician before use                            ║
+║                                                           ║
+║  ✨ You earned 100 ABENA Coins for avoiding this         ║
+║     potentially dangerous interaction!                    ║
+║                                                           ║
+║  [View Lab Results]  [Supply Chain]  [Close]             ║
+╚═══════════════════════════════════════════════════════════╝
+```
+
+---
+
+### **CLAIMS**
+
+**Independent Claim 1 (Cryptocurrency Health Incentives):**
+
+A blockchain-based health behavior incentive system, comprising:
+
+(a) a native cryptocurrency token (ABENA Coin) implemented on a blockchain ledger with fixed total supply;
+
+(b) a behavior verification module configured to:
+    (i) receive health behavior completion data from multiple sources including wearable devices, physician attestations, pharmacy data, and laboratory results,
+    (ii) cryptographically verify authenticity of said behavior completion data through digital signature verification,
+    (iii) prevent duplicate claiming of rewards for same behavior;
+
+(c) an automated reward distribution module implemented as blockchain smart contracts configured to:
+    (i) calculate reward amounts based on behavior type and predefined reward schedules,
+    (ii) automatically transfer cryptocurrency tokens from rewards pool to patient wallets upon verified behavior completion,
+    (iii) record all reward transactions immutably on blockchain;
+
+(d) a gamification module configured to:
+    (i) track patient achievements, streaks, and experience points,
+    (ii) unlock achievements stored on blockchain with corresponding cryptocurrency bonuses,
+    (iii) maintain privacy-preserving leaderboards using patient pseudonyms;
+
+(e) a rewards marketplace configured to enable patients to redeem earned cryptocurrency for health products, health services, insurance premium reductions, or charitable donations;
+
+wherein said system incentivizes medication adherence, exercise completion, healthy eating, preventive screening, and other health-promoting behaviors through cryptocurrency rewards with real monetary value.
+
+**Dependent Claim 2 (Wearable Device Integration):**
+
+The system of Claim 1, wherein said behavior verification module integrates with wearable devices including Apple Watch, Fitbit, Oura Ring, and other fitness trackers, and verifies device authenticity through cryptographic signature validation before accepting behavior data.
+
+**Dependent Claim 3 (Physician Attestation):**
+
+The system of Claim 1, wherein physicians digitally sign behavior completion attestations using post-quantum cryptographic signatures (CRYSTALS-Dilithium, FALCON, or SPHINCS+), and said signatures are verified on-chain before distributing rewards.
+
+**Dependent Claim 4 (Deflationary Mechanism):**
+
+The system of Claim 1, wherein said cryptocurrency token implements a deflationary mechanism where a percentage of transaction fees are permanently destroyed (burned), reducing total circulating supply over time and increasing scarcity.
+
+**Dependent Claim 5 (Governance Staking):**
+
+The system of Claim 1, further comprising a decentralized governance system wherein patients stake cryptocurrency tokens to gain voting power over platform decisions including reward amounts, new incentivized behaviors, and marketplace vendor approval.
+
+**Independent Claim 6 (Blockchain Supply Chain for Supplements):**
+
+A blockchain-based dietary supplement verification system, comprising:
+
+(a) a manufacturer registration module configured to:
+    (i) register supplement manufacturers on blockchain with decentralized identifiers (DIDs),
+    (ii) verify Good Manufacturing Practices (GMP) certification,
+    (iii) require quality bond in cryptocurrency staked by manufacturer;
+
+(b) a batch tracking module configured to:
+    (i) assign unique identifiers to supplement batches,
+    (ii) record manufacturing date, expiration date, raw material sourcing, and batch size on blockchain,
+    (iii) track supply chain events from manufacturer through distributor to retailer with timestamps and digital signatures;
+
+(c) a quality testing module configured to:
+    (i) accept Certificate of Analysis (COA) uploads from independent laboratories,
+    (ii) store cryptographic hashes of COA documents on blockchain,
+    (iii) record test results for heavy metals, microbiology, potency, and adulterants,
+    (iv) automatically flag batches that fail quality testing;
+
+(d) a consumer verification module configured to:
+    (i) generate QR codes linking to blockchain batch records,
+    (ii) enable consumers to scan QR codes with mobile device,
+    (iii) display authenticity verification, lab test results, and supply chain tracking,
+    (iv) check for product recalls;
+
+wherein said system provides immutable, transparent, and verifiable supplement quality assurance from raw material to consumer.
+
+**Dependent Claim 7 (Drug-Herb Interaction Checking):**
+
+The system of Claim 6, further comprising an interaction detection module configured to:
+(a) access patient's current medication list from electronic health record;
+(b) upon consumer scanning of supplement QR code, automatically check for drug-herb interactions;
+(c) warn consumer if dangerous interaction detected;
+(d) award cryptocurrency bonus if consumer avoids purchasing interacting supplement.
+
+**Dependent Claim 8 (Recall Management):**
+
+The system of Claim 6, wherein said quality testing module automatically updates batch recall status on blockchain when quality tests fail, and said consumer verification module prevents purchase of recalled products by displaying prominent warnings.
+
+**Dependent Claim 9 (GPS Tracking):**
+
+The system of Claim 6, wherein said batch tracking module records GPS coordinates of raw material farms, manufacturing facilities, and distribution centers, providing geographic traceability throughout supply chain.
+
+**Independent Claim 10 (Integrated Rewards + Verification System):**
+
+An integrated health incentive and supplement verification system, comprising:
+
+(a) the cryptocurrency-based health behavior incentive system of Claim 1;
+
+(b) the blockchain-based supplement verification system of Claim 6;
+
+(c) an integration module configured to:
+    (i) award cryptocurrency rewards to patients for scanning supplement QR codes prior to purchase,
+    (ii) provide cryptocurrency discounts for purchasing blockchain-verified supplements,
+    (iii) award bonus cryptocurrency when patient avoids purchasing supplement with detected drug-herb interaction,
+    (iv) restrict redemption of cryptocurrency rewards to verified supplements only;
+
+wherein said integrated system creates synergistic incentives for supplement verification and patient safety.
+
+**Dependent Claim 11 (Manufacturer Incentives):**
+
+The integrated system of Claim 10, wherein manufacturers participating in blockchain verification system receive preferential placement in cryptocurrency rewards marketplace, access to patient network, and quality differentiation benefits.
+
+**Independent Claim 12 (Method for Cryptocurrency Health Rewards):**
+
+A method for incentivizing health behaviors using blockchain-based cryptocurrency, comprising:
+
+(a) implementing a native cryptocurrency token on a blockchain ledger;
+
+(b) receiving health behavior completion data from a patient via wearable device, physician attestation, pharmacy record, or laboratory result;
+
+(c) cryptographically verifying authenticity of said behavior completion data through digital signature validation;
+
+(d) determining a reward amount based on behavior type and predefined reward schedule;
+
+(e) automatically transferring cryptocurrency tokens from a rewards pool to said patient's wallet via blockchain smart contract;
+
+(f) recording said transfer immutably on blockchain;
+
+(g) checking for achievement unlocks and awarding bonus cryptocurrency if achievement criteria met;
+
+(h) enabling said patient to redeem earned cryptocurrency for health products, health services, insurance discounts, or charitable donations in a rewards marketplace;
+
+wherein said method increases medication adherence, exercise compliance, and preventive care completion through tangible cryptocurrency incentives.
+
+**Dependent Claim 13 (Smart Pill Bottle Verification):**
+
+The method of Claim 12, wherein said health behavior completion data originates from a smart pill bottle that detects bottle opening and transmits cryptographically signed attestation of medication consumption.
+
+**Dependent Claim 14 (Lab Result Improvement Rewards):**
+
+The method of Claim 12, wherein said health behavior comprises improvement in laboratory test results (A1C reduction, cholesterol reduction, blood pressure reduction), and reward amount is proportional to degree of improvement.
+
+**Independent Claim 15 (Method for Blockchain Supplement Verification):**
+
+A method for verifying dietary supplement quality and authenticity, comprising:
+
+(a) registering a supplement manufacturer on blockchain with unique decentralized identifier (DID) and verified Good Manufacturing Practices (GMP) certification;
+
+(b) creating a unique batch identifier for a supplement batch and recording manufacturing date, expiration date, and raw material sources on blockchain;
+
+(c) uploading Certificate of Analysis (COA) from independent laboratory testing said batch for heavy metals, microbiology, potency, and adulterants;
+
+(d) storing cryptographic hash of COA document on blockchain with laboratory's digital signature;
+
+(e) tracking supply chain events including shipment from manufacturer to distributor to retailer, each event digitally signed and timestamped;
+
+(f) generating a QR code encoding said batch identifier;
+
+(g) enabling a consumer to scan said QR code with mobile device and retrieve batch record from blockchain;
+
+(h) displaying to consumer: authenticity verification, laboratory test results, supply chain tracking, expiration date, and recall status;
+
+(i) upon consumer scanning, automatically checking for drug-herb interactions between said supplement and consumer's current medications;
+
+(j) warning consumer if dangerous interaction detected;
+
+wherein said method provides verifiable supplement quality assurance and prevents adverse drug-herb interactions.
+
+**Dependent Claim 16 (Temperature Monitoring):**
+
+The method of Claim 15, wherein said supply chain tracking includes temperature monitoring for temperature-sensitive supplements, and alerts are generated if temperature exceeds acceptable range during shipment.
+
+**Dependent Claim 17 (Cryptocurrency Rewards for Scanning):**
+
+The method of Claim 15, further comprising awarding cryptocurrency tokens to said consumer for scanning supplement QR code, creating financial incentive for pre-purchase verification.
+
+**Dependent Claim 18 (Quality Bond Forfeiture):**
+
+The method of Claim 15, wherein said manufacturer stakes cryptocurrency tokens as quality bond during registration, and said quality bond is forfeited if supplement batch fails quality testing or is subject to recall.
+
+**Independent Claim 19 (Achievement Unlocking System):**
+
+A blockchain-based achievement system for healthcare gamification, comprising:
+
+(a) a plurality of predefined achievements stored on blockchain, each achievement associated with specific completion criteria and cryptocurrency reward amount;
+
+(b) a monitoring module configured to track patient health behaviors across multiple categories including medication adherence, exercise, nutrition, preventive care, and health outcomes;
+
+(c) an achievement evaluation module configured to:
+    (i) compare patient's cumulative behaviors against achievement completion criteria,
+    (ii) unlock achievements when criteria met,
+    (iii) store achievement unlock events immutably on blockchain with timestamp;
+
+(d) an automated reward module configured to transfer cryptocurrency bonus to patient wallet upon achievement unlock;
+
+(e) a public achievement display module configured to display unlocked achievements on patient's profile using privacy-preserving pseudonyms;
+
+wherein said achievement system motivates sustained health behavior change through incremental milestone rewards.
+
+**Dependent Claim 20 (Streak-Based Achievements):**
+
+The system of Claim 19, wherein achievements include streak-based achievements requiring consecutive days of behavior completion (7-day streak, 30-day streak, 365-day streak), with progressively increasing cryptocurrency rewards for longer streaks.
+
+---
+
+### **ABSTRACT**
+
+A comprehensive blockchain-based system for incentivizing healthy behaviors through cryptocurrency rewards and verifying dietary supplement quality through immutable supply chain tracking. The system implements ABENA Coin, a native cryptocurrency token, which patients earn by completing verified health behaviors including medication adherence, exercise, healthy eating, and preventive screenings. Health behaviors are verified through multiple sources (wearable devices, physician attestations, pharmacy data, laboratory results) with cryptographic signature validation. Smart contracts automatically distribute cryptocurrency rewards, track achievements and streaks, and maintain privacy-preserving leaderboards. Patients redeem earned cryptocurrency for health products, health services, insurance discounts, or charitable donations. The system integrates blockchain-based supplement verification enabling manufacturers to record batch information, quality testing results (heavy metals, microbiology, potency, adulterants), and supply chain events immutably. Consumers scan QR codes to verify supplement authenticity, view lab results, and check for drug-herb interactions with automated warnings. The integrated system awards cryptocurrency for scanning supplements and avoiding dangerous interactions, creating synergistic incentives for patient safety and supplement quality assurance. Post-quantum cryptographic signatures (CRYSTALS-Dilithium) ensure long-term security.
+
+---
+

@@ -1,0 +1,82 @@
+DIAGRAM 7: VERIFICATION WORKFLOW (THIRD-PARTY)
+Purpose: Show how anyone can verify attestations
+ASCII Diagram:
+THIRD-PARTY VERIFICATION PROCESS
+═══════════════════════════════════════════════════════════
+
+WHO CAN VERIFY?
+- FDA inspectors
+- Insurance auditors
+- Peer reviewers
+- Patients
+- Researchers
+- Anyone with internet access
+
+┌─────────────────────────────────────────────────────────┐
+│  STEP 1: RETRIEVE ATTESTATION FROM BLOCKCHAIN           │
+│  ───────────────────────────────────────────────────   │
+│  Input: Attestation ID (e.g., 0x7a3f9d2e...)           │
+│  Query: blockchain.get_attestation(attestation_id)      │
+│  Output: Complete attestation record                    │
+└────────────────────┬────────────────────────────────────┘
+                     │
+                     ▼
+┌─────────────────────────────────────────────────────────┐
+│  STEP 2: VERIFY DIGITAL SIGNATURE                       │
+│  ───────────────────────────────────────────────────   │
+│  Retrieve: ABENA's public key (from blockchain)         │
+│  Verify: Dilithium_Verify(public_key, data, signature) │
+│  Result: ✓ SIGNATURE VALID or ✗ SIGNATURE INVALID      │
+└────────────────────┬────────────────────────────────────┘
+                     │
+                     ▼
+┌─────────────────────────────────────────────────────────┐
+│  STEP 3: VERIFY QUANTUM JOB (EXTERNAL ORACLE)           │
+│  ───────────────────────────────────────────────────   │
+│  Query IBM Quantum API:                                 │
+│    job = ibm_service.job("d5skpr8husoc73epvu20")       │
+│  Check:                                                 │
+│    - Does job exist? ✓                                  │
+│    - Status = COMPLETED? ✓                              │
+│    - Backend = ibm_fez? ✓                               │
+│  Result: ✓ IBM CONFIRMS or ✗ IBM DENIES                │
+└────────────────────┬────────────────────────────────────┘
+                     │
+                     ▼
+┌─────────────────────────────────────────────────────────┐
+│  STEP 4: VERIFY CIRCUIT HASH (OPTIONAL)                │
+│  ───────────────────────────────────────────────────   │
+│  If verifier has original circuit:                      │
+│    computed_hash = SHA-256(circuit.qasm())             │
+│    Compare: computed_hash == attestation.circuit_hash  │
+│  Result: ✓ CIRCUIT MATCHES or ✗ CIRCUIT MISMATCH       │
+└────────────────────┬────────────────────────────────────┘
+                     │
+                     ▼
+┌─────────────────────────────────────────────────────────┐
+│  STEP 5: VERIFY RESULTS HASH (OPTIONAL)                │
+│  ───────────────────────────────────────────────────   │
+│  If verifier has original results:                      │
+│    computed_hash = SHA-256(results)                    │
+│    Compare: computed_hash == attestation.results_hash  │
+│  Result: ✓ RESULTS MATCH or ✗ RESULTS MISMATCH         │
+└────────────────────┬────────────────────────────────────┘
+                     │
+                     ▼
+┌─────────────────────────────────────────────────────────┐
+│  STEP 6: GENERATE VERIFICATION REPORT                   │
+│  ───────────────────────────────────────────────────   │
+│  ✓ Signature Valid: YES                                 │
+│  ✓ IBM Job Confirmed: YES                               │
+│  ✓ Circuit Verified: YES                                │
+│  ✓ Results Verified: YES                                │
+│                                                         │
+│  OVERALL STATUS: ✅ VERIFIED                            │
+│                                                         │
+│  Verified By: FDA Inspector John Doe                    │
+│  Verification Date: 2026-02-15 14:30:00 UTC            │
+└─────────────────────────────────────────────────────────┘
+
+VERIFICATION WITHOUT QUANTUM HARDWARE ✓
+NO RE-EXECUTION REQUIRED ✓
+INDEPENDENT THIRD-PARTY CONFIRMATION ✓

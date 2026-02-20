@@ -1,0 +1,61 @@
+Patent 4 Fig 2
+
++=======================================================================+
+|                           FIGURE 2                                    |
+|        BLOCKCHAIN SUPPLEMENT SUPPLY CHAIN                             |
++=======================================================================+
+|                                                                       |
+| STAGE 1: RAW MATERIAL (5000)                                          |
+| +=================================================================+   |
+| | Herb Farm Oregon (5001): Hypericum perforatum                   |   |
+| | Harvest: 2026-01-15 | GPS: 45.5231N, 122.6765W                  |   |
+| | Organic Cert: USDA #12345 VERIFIED (5002)                       |   |
+| | Farmer DID: did:abena:farm:0x4d8a... Dilithium: VALID (5003)    |   |
+| +=================================================================+   |
+|                              |                                        |
+| STAGE 2: MANUFACTURING (5100)                                         |
+| +=================================================================+   |
+| | Quality Herbs Inc Portland (5101)                               |   |
+| | Batch: HERB-StJohnsWort-2026-02-15-001                          |   |
+| | Mfg: 2026-02-15 | Exp: 2028-02-15 | Size: 10,000 bottles        |   |
+| | GMP: YES (5102) | 300mg per cap, 0.3% Hypericin                 |   |
+| | Mfg DID: did:abena:mfg:0x9f2d... (5103)                         |   |
+| | Quality Bond: 100,000 ABENA staked (5104)                       |   |
+| +=================================================================+   |
+|                              |                                        |
+| STAGE 3: QUALITY TESTING (5200)                                       |
+| +=================================================================+   |
+| | ConsumerLab San Diego (5201) | Test: 2026-02-20 (5202)          |   |
+| | [PASS] Heavy Metals: Pb<0.5, As<0.1, Cd<0.2, Hg<0.05 (5203)     |   |
+| | [PASS] Microbiology: TPC<10K, YM<1K, Ecoli-, Salm- (5204)       |   |
+| | [PASS] Potency: 0.32% Hypericin (Label 0.3%, +6.7%) (5205)      |   |
+| | [PASS] Adulterants: None (5206)                                 |   |
+| | COA Hash: 0x7a3f9d2e... Dilithium: VALID (5207)                 |   |
+| +=================================================================+   |
+|                              |                                        |
+| STAGE 4: DISTRIBUTION (5300)                                          |
+| +=================================================================+   |
+| | Distributor LA (5301) | FedEx #1234567890 (5302)                |   |
+| | Temp: 68-72F maintained (5303)                                  |   |
+| | Signed: distributor DID (5304)                                  |   |
+| +=================================================================+   |
+|                              |                                        |
+| STAGE 5: RETAIL (5400)                                                |
+| +=================================================================+   |
+| | Whole Foods Santa Monica (5401)                                 |   |
+| | QR Code: HERB-StJohnsWort-2026-02-15-001 (5402)                 |   |
+| | URL: https://verify.abena.health/supplement/HERB-St...          |   |
+| +=================================================================+   |
+|                              |                                        |
+| STAGE 6: CONSUMER SCAN (5500)                                         |
+| +=================================================================+   |
+| | Patient Scans (5501)                                            |   |
+| | [PASS] Authentic | [PASS] GMP | [PASS] Lab Tests All Passed    |   |
+| | [PASS] Supply Chain | [PASS] Exp 2028-02-15 | [PASS] No Recall |   |
+| | [ALERT] INTERACTION: St John's Wort + Warfarin (5502)           |   |
+| | Risk: Bleeding | [STOP] DO NOT PURCHASE                         |   |
+| | [REWARD] +100 ABENA for avoiding interaction (5503)             |   |
+| +=================================================================+   |
+|                                                                       |
+| BENEFITS (5600): Authentic | Quality | Safe | Traceable | Incentive  |
++=======================================================================+

@@ -1,0 +1,39 @@
+[package]
+name = "abena-node"
+version = "4.0.0-dev"
+description = "ABENA Healthcare Blockchain Node"
+authors = ["ABENA Healthcare Platform"]
+license = "Unlicense"
+repository = "https://github.com/abena-healthcare/abena-blockchain"
+edition = "2021"
+build = "build.rs"
+
+[build-dependencies]
+substrate-build-script-utils = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2407" }
+
+[dependencies]
+abena-runtime = { path = "../runtime", package = "abena-runtime" }
+clap = { version = "4.0", features = ["derive"] }
+codec = { package = "parity-scale-codec", version = "3.4.0", default-features = false }
+log = { version = "0.4", default-features = false }
+sc-cli = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2407", default-features = false }
+sc-client-api = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2407", default-features = false }
+sc-consensus-aura = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2407", default-features = false }
+sc-executor = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2407", default-features = false }
+sc-network = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2407", default-features = false }
+sc-service = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2407", default-features = false }
+sc-transaction-pool = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2407", default-features = false }
+serde = { version = "1.0", optional = true, features = ["derive"] }
+tokio = { version = "1.0", default-features = false, features = ["macros", "rt", "rt-multi-thread"] }
+
+[features]
+default = ["std"]
+runtime-benchmarks = ["abena-runtime/runtime-benchmarks"]
+std = [
+    "codec/std",
+    "serde/std",
+    "tokio/rt",
+    "tokio/rt-multi-thread",
+    "log/std",
+]
+

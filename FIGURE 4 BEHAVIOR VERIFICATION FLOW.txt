@@ -1,0 +1,55 @@
+FIGURE 4: BEHAVIOR VERIFICATION FLOW
++=======================================================================+
+|                           FIGURE 4                                    |
+|              BEHAVIOR VERIFICATION WORKFLOW                           |
++=======================================================================+
+|                                                                       |
+| STEP 1: PATIENT ACTION (6500)                                         |
+| +=================================================================+   |
+| | Patient takes medication at 8:00 AM (6501)                      |   |
+| +=================================================================+   |
+|                              |                                        |
+| STEP 2: DEVICE DETECTION (6600)                                       |
+| +=================================================================+   |
+| | Smart Pill Bottle detects bottle opening (6601)                 |   |
+| | Timestamp: 2026-02-15T08:00:00Z                                 |   |
+| | Device ID: bottle_12345                                         |   |
+| +=================================================================+   |
+|                              |                                        |
+| STEP 3: CRYPTOGRAPHIC SIGNATURE (6700)                                |
+| +=================================================================+   |
+| | Device generates signature (6701):                              |   |
+| | data = {patient_id, med_name, timestamp, device_id}             |   |
+| | signature = device_private_key.sign(data)                       |   |
+| | Transmit to ABENA platform via API                              |   |
+| +=================================================================+   |
+|                              |                                        |
+| STEP 4: SMART CONTRACT VERIFICATION (6800)                            |
+| +=================================================================+   |
+| | Blockchain smart contract (6801):                               |   |
+| | 1. Verify device signature -> [PASS] VALID (6802)               |   |
+| | 2. Check not duplicate -> [PASS] NOT CLAIMED (6803)             |   |
+| | 3. Check medication schedule -> [PASS] DOSE DUE (6804)          |   |
+| +=================================================================+   |
+|                              |                                        |
+| STEP 5: REWARD DISTRIBUTION (6900)                                    |
+| +=================================================================+   |
+| | Calculate reward: Medication = 5 ABENA (6901)                   |   |
+| | transfer_from_pool(patient_wallet, 5 ABENA) (6902)              |   |
+| | Patient balance: 25,842 -> 25,847 ABENA (6903)                  |   |
+| +=================================================================+   |
+|                              |                                        |
+| STEP 6: ACHIEVEMENT CHECK (7000)                                      |
+| +=================================================================+   |
+| | Check streaks: Medication streak now = 43 days (7001)           |   |
+| | No new achievement unlocked (next at 90 days) (7002)            |   |
+| +=================================================================+   |
+|                              |                                        |
+| STEP 7: BLOCKCHAIN RECORD (7100)                                      |
+| +=================================================================+   |
+| | Transaction recorded on blockchain (7101)                       |   |
+| | Block: #45,893 | Tx Hash: 0x8d4e3f2a... (7102)                  |   |
+| | Event: BehaviorRewarded(patient, Medication, 5) (7103)          |   |
+| | IMMUTABLE AUDIT TRAIL (7104)                                    |   |
+| +=================================================================+   |
++=======================================================================+

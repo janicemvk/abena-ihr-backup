@@ -1,0 +1,86 @@
+DIAGRAM 4: CRYPTOGRAPHIC HASHING PROCESS
+Purpose: Explain how hashing works (for non-technical audiences)
+Visual Concept:
+INPUT 1: QUANTUM CIRCUIT
+┌──────────────────────────┐
+│  QASM Code:              │
+│  OPENQASM 2.0;           │
+│  qreg q[8];              │
+│  creg c[8];              │
+│  h q[0];                 │
+│  h q[1];                 │
+│  ... (1000 lines)        │
+│                          │
+│  SIZE: 50 KB             │
+└────────────┬─────────────┘
+             │
+             ▼
+        SHA-256 HASH
+             │
+             ▼
+┌──────────────────────────┐
+│  Circuit Hash:           │
+│  0x4d8a9f3c2b1e...       │
+│  SIZE: 32 bytes          │
+└──────────────────────────┘
+
+
+INPUT 2: PATIENT DATA
+┌──────────────────────────┐
+│  Medications:            │
+│  - Warfarin 5mg          │
+│  - Metformin 1000mg      │
+│  Supplements:            │
+│  - Fish Oil 1000mg       │
+│  Genetics:               │
+│  - BRCA1 positive        │
+│                          │
+│  SIZE: 2 KB              │
+└────────────┬─────────────┘
+             │
+             ▼
+  ANONYMIZATION + SHA-256
+             │
+             ▼
+┌──────────────────────────┐
+│  Input Hash:             │
+│  0x9f2d3a1c8e7b...       │
+│  SIZE: 32 bytes          │
+└──────────────────────────┘
+
+
+INPUT 3: QUANTUM RESULTS
+┌──────────────────────────┐
+│  Measurement Outcomes:   │
+│  |1111⟩: 517/1024        │
+│  |1011⟩: 162/1024        │
+│  |1110⟩: 97/1024         │
+│  ... (16 states)         │
+│                          │
+│  SIZE: 1 KB              │
+└────────────┬─────────────┘
+             │
+             ▼
+        SHA-256 HASH
+             │
+             ▼
+┌──────────────────────────┐
+│  Results Hash:           │
+│  0x3c1e9f8d2a7b...       │
+│  SIZE: 32 bytes          │
+└──────────────────────────┘
+
+
+COMBINE ALL THREE HASHES
+             │
+             ▼
+┌──────────────────────────┐
+│  ATTESTATION RECORD      │
+│  - Circuit Hash (32B)    │
+│  - Input Hash (32B)      │
+│  - Results Hash (32B)    │
+│  + Metadata (150B)       │
+│                          │
+│  TOTAL: 250 bytes        │
+│  (vs. 50+ KB original)   │
+└──────────────────────────┘

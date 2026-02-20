@@ -1,0 +1,66 @@
+DIAGRAM 6 BLOCKCHAIN STORAGE PROCESS
+Purpose: Show how attestations are written to blockchain
+ASCII Diagram:
+BLOCKCHAIN STORAGE LIFECYCLE
+═══════════════════════════════════════════════════════════════
+
+STEP 1: ATTESTATION SUBMISSION
+┌──────────────────────────────────────────────────────────┐
+│  ABENA Platform                                          │
+│  ───────────────                                         │
+│  Signed Attestation + Transaction Fee                    │
+└────────────────────────┬─────────────────────────────────┘
+                         │
+                         ▼
+                    VALIDATOR NODE
+                         │
+                         ▼
+STEP 2: VALIDATION
+┌──────────────────────────────────────────────────────────┐
+│  Validator Checks:                                       │
+│  ────────────────────                                    │
+│  ✓ Is signature valid? (Dilithium verification)         │
+│  ✓ Is format correct?                                    │
+│  ✓ Is attestation_id unique? (no duplicates)            │
+│  ✓ Is transaction fee sufficient?                       │
+└────────────────────────┬─────────────────────────────────┘
+                         │
+                    IF VALID ✓
+                         │
+                         ▼
+STEP 3: BLOCK INCLUSION
+┌──────────────────────────────────────────────────────────┐
+│  BLOCK #45,892                                           │
+│  ─────────────                                           │
+│  Previous Hash: 0x8f3d2a9c1e7b...                        │
+│  Timestamp:     2026-01-27 21:10:15 UTC                  │
+│  Transactions:                                           │
+│    1. Transfer 100 tokens                                │
+│    2. Store Attestation (← OUR TRANSACTION)              │
+│    3. Update patient record                              │
+│  Block Hash:    0x2d9f3c1a8e7b...                        │
+└────────────────────────┬─────────────────────────────────┘
+                         │
+                         ▼
+STEP 4: CONSENSUS
+┌──────────────────────────────────────────────────────────┐
+│  Validators Vote:                                        │
+│  ────────────────                                        │
+│  Validator 1: ✓ Approve Block                           │
+│  Validator 2: ✓ Approve Block                           │
+│  Validator 3: ✓ Approve Block                           │
+│  Validator 4: ✓ Approve Block                           │
+│                                                          │
+│  Consensus Reached: 4/4 validators agree                │
+└────────────────────────┬─────────────────────────────────┘
+                         │
+                         ▼
+STEP 5: FINALIZATION
+┌──────────────────────────────────────────────────────────┐
+│  Block #45,892 FINALIZED                                 │
+│  ─────────────────────                                   │
+│  Cannot be altered or reversed                           │
+│  Attestation permanently stored                          │
+│  Public verification URL:                                │
+│  https://explorer.io/attestation/0x7a3f9d2e...          │
+└──────────────────────────────────────────────────────────┘

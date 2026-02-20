@@ -1,0 +1,66 @@
+
+
+*Figure1 ABENA Coin System Architecture
+`
+
+
+┌─────────────────────────────────────────────────────────────┐
+│     FIGURE 1: CRYPTOCURRENCY INCENTIVE ARCHITECTURE         │
+│                                                             │
+│  ┌────────────────────────────────────────────────────────┐│
+│  │ TIER 1: BEHAVIOR VERIFICATION (2000)                   ││
+│  │                                                        ││
+│  │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌───────┐││
+│  │  │Wearable  │  │Physician │  │ Pharmacy │  │  Lab  │││
+│  │  │ Device   │  │Attestation│  │  Data    │  │Results│││
+│  │  │  (2001)  │  │  (2002)   │  │  (2003)  │  │(2004) │││
+│  │  └────┬─────┘  └────┬──────┘  └────┬─────┘  └───┬───┘││
+│  │       └─────────────┴──────────────┴────────────┘    ││
+│  │                          │                            ││
+│  │           Verified Behavior Data (2005)              ││
+│  └───────────────────────────┼────────────────────────────┘│
+│                              │                             │
+│                              ▼                             │
+│  ┌────────────────────────────────────────────────────────┐│
+│  │ TIER 2: REWARD DISTRIBUTION (3000)                     ││
+│  │                                                        ││
+│  │  ┌───────────────────────────────────────┐            ││
+│  │  │ Smart Contract (3001)                 │            ││
+│  │  │ - Calculate Reward                    │            ││
+│  │  │ - Verify Not Duplicate                │            ││
+│  │  │ - Check Rewards Pool Balance          │            ││
+│  │  │ - Transfer ABENA Coins                │            ││
+│  │  └─────────────────┬─────────────────────┘            ││
+│  │                    │                                   ││
+│  │         ABENA Coin Transfer (3002)                    ││
+│  └────────────────────┼──────────────────────────────────┘│
+│                       │                                    │
+│                       ▼                                    │
+│  ┌────────────────────────────────────────────────────────┐│
+│  │ TIER 3: PATIENT WALLET (4000)                          ││
+│  │                                                        ││
+│  │  Balance: 25,847 ABENA (4001)                         ││
+│  │  Value: $2,584.70 USD (4002)                          ││
+│  │                                                        ││
+│  │  Recent Earnings:                                     ││
+│  │  + 20 ABENA - Exercise (4003)                         ││
+│  │  + 5 ABENA - Medication (4004)                        ││
+│  │  + 100 ABENA - Achievement (4005)                     ││
+│  │                                                        ││
+│  │  [Redeem in Marketplace] (4006)                       ││
+│  └────────────────────────────────────────────────────────┘│
+└─────────────────────────────────────────────────────────────┘
+```
+
+Element Key:
+- 2000: Behavior Verification Tier
+- 2001: Wearable Device Source
+- 2002: Physician Attestation Source
+- 2003: Pharmacy Data Source
+- 2004: Lab Results Source
+- 2005: Verified Behavior Data
+- 3000: Reward Distribution Tier
+- 3001: Smart Contract Module
+- 3002: ABENA Coin Transfer
+- 4000: Patient Wallet
+- 4001-4006: Wallet components

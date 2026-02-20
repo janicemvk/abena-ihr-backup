@@ -1,0 +1,45 @@
+FIGURE 3: GAMIFICATION SYSTEM
++=======================================================================+
+|                           FIGURE 3                                    |
+|              GAMIFICATION ACHIEVEMENT SYSTEM                          |
++=======================================================================+
+|                                                                       |
+| PLAYER PROFILE (6000)                                                 |
+| +=================================================================+   |
+| | Health Warrior #7842                                            |   |
+| | Level: Gold (6001) | XP: 127,450 / 150,000                      |   |
+| | Next Level: Platinum (6002)                                     |   |
+| | Progress: [================>    ] 85%                           |   |
+| +=================================================================+   |
+|                                                                       |
+| RECENT ACHIEVEMENTS (6100)                                            |
+| +=========+  +=========+  +=========+  +=========+                    |
+| | Month   |  | Perfect |  |   5K    |  |  Early  |                    |
+| | Master  |  |  Week   |  | Walker  |  | Adopter |                    |
+| | +200    |  |  +100   |  |  +50    |  | +5,000  |                    |
+| | ABENA   |  | ABENA   |  | ABENA   |  |  ABENA  |                    |
+| +=========+  +=========+  +=========+  +=========+                    |
+|                                                                       |
+| CURRENT STREAKS (6200)                                                |
+| +=================================================================+   |
+| | Medication: 42 days (fire) (6201)                               |   |
+| | Exercise: 12 days (fire) (6202)                                 |   |
+| | Healthy Eating: 7 days (fire) (6203)                            |   |
+| | Sleep: 18 days (fire) (6204)                                    |   |
+| +=================================================================+   |
+|                                                                       |
+| LEADERBOARD (6300)                                                    |
+| +=================================================================+   |
+| | Rank: #48 out of 10,000 players                                 |   |
+| | Top 1% (medal)                                                  |   |
+| | Monthly Bonus: 500 ABENA                                        |   |
+| +=================================================================+   |
+|                                                                       |
+| ACHIEVEMENT CATEGORIES (6400)                                         |
+| Medication: Week Warrior, Month Master, Year Legend                   |
+| Exercise: First Steps, 5K Walker, Marathon Month                      |
+| Nutrition: Healthy Start, Clean Week, Sugar-Free Month                |
+| Preventive: Annual Check, Screening Star, Vaccination Veteran         |
+| Health Outcomes: Glucose Guardian, BP Boss, Cholesterol Champion      |
+| Community: Team Player, Challenge Champion, Leaderboard Leader        |
++=======================================================================+

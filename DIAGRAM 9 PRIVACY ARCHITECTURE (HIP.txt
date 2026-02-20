@@ -1,0 +1,91 @@
+DIAGRAM 9: PRIVACY ARCHITECTURE (HIPAA COMPLIANCE)
+Purpose: Explain how patient data stays private while blockchain is public
+ASCII Diagram:
+PRIVACY-PRESERVING QUANTUM ATTESTATION
+═══════════════════════════════════════════════════════════════
+
+SENSITIVE PATIENT DATA (Never Touches Blockchain!)
+┌───────────────────────────────────────────────────────────┐
+│  Patient: John Doe                                        │
+│  DOB: 1970-05-15                                          │
+│  SSN: 123-45-6789                                         │
+│  Address: 123 Main St                                     │
+│  Phone: (555) 123-4567                                    │
+│                                                           │
+│  Medical History:                                         │
+│  - Medications: Warfarin, Metformin, Lisinopril          │
+│  - Allergies: Penicillin                                  │
+│  - Conditions: Type 2 Diabetes, Hypertension             │
+│  - Genetic: BRCA1 mutation                                │
+└──────────────────────┬────────────────────────────────────┘
+                       │
+                       ▼
+            ANONYMIZATION PROCESS
+┌───────────────────────────────────────────────────────────┐
+│  Step 1: Hash Patient ID with Cryptographic Salt         │
+│  ───────────────────────────────────────────────────────  │
+│  patient_id_hash = SHA-256("John Doe" + salt_123456)     │
+│  → Result: 0x9f2d3a1c8e7b...                              │
+│                                                           │
+│  Step 2: Remove All PII from Quantum Input                │
+│  ───────────────────────────────────────────────────────  │
+│  Keep Only: Drug classes, generic data, de-identified    │
+│  Remove: Name, DOB, SSN, address, phone                   │
+└──────────────────────┬────────────────────────────────────┘
+                       │
+                       ▼
+PUBLIC BLOCKCHAIN (What Everyone Sees)
+┌───────────────────────────────────────────────────────────┐
+│  ATTESTATION 0x7a3f9d2e...                                │
+│  ──────────────────────────                               │
+│  patient_id_hash: 0x9f2d3a1c8e7b... (ANONYMOUS!)          │
+│  circuit_hash: 0x4d8a9f3c2b1e...                          │
+│  input_hash: 0x9f2d3a1c8e7b... (DE-IDENTIFIED!)           │
+│  result_hash: 0x3c1e9f8d2a7b...                           │
+│  quantum_job_id: "d5skpr8husoc73epvu20"                   │
+│  timestamp: 2026-01-27 21:10:15 UTC                       │
+│                                                           │
+│  NO PATIENT NAME ✓                                        │
+│  NO MEDICAL DETAILS ✓                                     │
+│  NO PHI EXPOSED ✓                                         │
+└──────────────────────┬────────────────────────────────────┘
+                       │
+                       ▼
+OFF-CHAIN SECURE DATABASE (HIPAA-Compliant)
+┌───────────────────────────────────────────────────────────┐
+│  MAPPING TABLE (Access Restricted)                       │
+│  ──────────────────────────────────────────────────────  │
+│  patient_id_hash → Real Patient ID                        │
+│  ──────────────────────────────────────────────────────  │
+│  0x9f2d3a1c8e7b... → John Doe (Patient #12345)           │
+│  0x3c1e9f8d2a7b... → Jane Smith (Patient #12346)         │
+│                                                           │
+│  Only Authorized Users Can Access This Mapping:          │
+│  - Patient's physician (with login)                       │
+│  - ABENA platform (with credentials)                      │
+│  - NOT public, NOT on blockchain                          │
+└───────────────────────────────────────────────────────────┘
+
+HOW PHYSICIAN VERIFIES PATIENT'S ATTESTATION
+┌───────────────────────────────────────────────────────────┐
+│  Physician logs into ABENA platform                       │
+│  Selects patient: John Doe                                │
+│                                                           │
+│  ABENA computes:                                          │
+│    patient_id_hash = SHA-256("John Doe" + salt_123456)   │
+│    → 0x9f2d3a1c8e7b...                                    │
+│                                                           │
+│  ABENA queries blockchain:                                │
+│    attestations WHERE patient_id_hash = 0x9f2d3a...      │
+│                                                           │
+│  Result: Physician sees all attestations for John Doe    │
+│  BUT: Public cannot identify John Doe from blockchain    │
+└───────────────────────────────────────────────────────────┘
+
+PRIVACY GUARANTEES
+═══════════════════════════════════════════════════════════════
+ HIPAA Compliant: No PHI on public blockchain
+ Patient Privacy: Only hashes visible publicly
+ Verifiable: Authorized parties can confirm ownership
+ Auditable: Regulators can verify with permission
+ Quantum-Proof: Even quantum computers can't reverse hashes

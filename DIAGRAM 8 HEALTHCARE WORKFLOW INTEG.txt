@@ -1,0 +1,97 @@
+DIAGRAM 8: HEALTHCARE WORKFLOW INTEGRATION
+Purpose: Show ABENA platform with quantum attestations in clinical context
+ASCII Diagram:
+CLINICAL WORKFLOW WITH QUANTUM ATTESTATIONS
+═══════════════════════════════════════════════════════════════
+
+PATIENT VISIT
+┌──────────────────────┐
+│  Patient arrives     │
+│  with complex case   │
+│                      │
+│  - 5 medications     │
+│  - 3 supplements     │
+│  - Genetic markers   │
+│  - TCM diagnosis     │
+└──────┬───────────────┘
+       │
+       ▼
+PHYSICIAN REQUESTS QUANTUM OPTIMIZATION
+┌──────────────────────┐
+│  "Optimize treatment │
+│  protocol for this   │
+│  patient"            │
+└──────┬───────────────┘
+       │
+       ▼
+ABENA PLATFORM EXECUTES
+┌──────────────────────────────────────────────────────┐
+│  1. Anonymize patient data                           │
+│  2. Construct 8-qubit quantum circuit                │
+│  3. Submit to IBM Quantum (Job: d5skpr8hu...)        │
+│  4. Receive quantum measurement results              │
+│  5. Generate attestation + signature                 │
+│  6. Store attestation on blockchain                  │
+│  7. Link attestation to patient EHR (off-chain)      │
+└──────┬───────────────────────────────────────────────┘
+       │
+       ▼
+TREATMENT RECOMMENDATION DELIVERED
+┌──────────────────────────────────────────────────────┐
+│  RECOMMENDATION:                                     │
+│  ────────────────                                    │
+│  Keep: Warfarin 5mg, Metformin 1000mg               │
+│  Add:  Fish Oil 1000mg                               │
+│  Remove: St. John's Wort (interaction detected!)    │
+│  Expected improvement: 78% probability               │
+│                                                      │
+│   QUANTUM ATTESTATION: 0x7a3f9d2e...              │
+│   View Proof: [Click to verify on blockchain]     │
+└──────┬───────────────────────────────────────────────┘
+       │
+       ▼
+PHYSICIAN REVIEWS & APPROVES
+┌──────────────────────┐
+│  Physician can:      │
+│  - View treatment    │
+│  - Verify attestation│
+│  - Approve protocol  │
+└──────┬───────────────┘
+       │
+       ▼
+PATIENT RECEIVES TREATMENT
+┌──────────────────────┐
+│  Patient starts      │
+│  optimized protocol  │
+│                      │
+│  Outcome tracked via │
+│  blockchain audit    │
+│  trail               │
+└──────────────────────┘
+
+IF ADVERSE EVENT OCCURS
+┌──────────────────────────────────────────────────────┐
+│  LAWSUIT DEFENSE:                                    │
+│  ────────────────                                    │
+│  "We used quantum-optimized treatment protocol       │
+│  with cryptographic proof (Attestation 0x7a3f9d2e)   │
+│                                                      │
+│  Verification shows:                                 │
+│  ✓ Quantum algorithm ran on IBM hardware            │
+│  ✓ Drug interaction analysis performed              │
+│  ✓ Treatment was state-of-the-art                   │
+│  ✓ Physician followed quantum recommendation        │
+│                                                      │
+│  Result: Liability protection                     │
+└──────────────────────────────────────────────────────┘
+
+IF INSURANCE AUDIT OCCURS
+┌──────────────────────────────────────────────────────┐
+│  REIMBURSEMENT PROOF:                                │
+│  ─────────────────                                   │
+│  "We charged premium for quantum-enhanced treatment  │
+│  planning. Proof: Attestation 0x7a3f9d2e shows     │
+│  quantum analysis on IBM hardware"                   │
+│                                                      │
+│  Insurance verifies attestation → Approves payment  │
+└──────────────────────────────────────────────────────┘
