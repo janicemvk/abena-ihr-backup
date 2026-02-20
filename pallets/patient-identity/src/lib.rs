@@ -30,6 +30,8 @@ pub mod pallet {
     use frame_system::pallet_prelude::*;
     use sp_std::vec::Vec;
     use sp_core::H256;
+    use sp_runtime::traits::UniqueSaturatedInto;
+    use crate::WeightInfo;
     
     /// Therapeutic modalities supported in ABENA
     #[derive(Encode, Decode, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
@@ -62,7 +64,7 @@ pub mod pallet {
     }
     
     /// Patient Decentralized Identifier (DID)
-    #[derive(Encode, Decode, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo)]
+    #[derive(Encode, Decode, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     #[scale_info(skip_type_params(T))]
     pub struct PatientDID<T: Config> {
         /// Unique patient identifier
@@ -82,7 +84,7 @@ pub mod pallet {
     }
     
     /// Provider access record
-    #[derive(Encode, Decode, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo)]
+    #[derive(Encode, Decode, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     #[scale_info(skip_type_params(T))]
     pub struct ProviderAccess<T: Config> {
         /// Provider account ID
@@ -509,7 +511,9 @@ pub mod pallet {
             // Assuming 6 second block time: block_number * 6
             let block_number = <frame_system::Pallet<T>>::block_number();
             // Use block number as base timestamp (can be enhanced with actual timestamp pallet)
-            block_number.saturated_into::<u64>() * 6
+            // Convert BlockNumber to u64 for timestamp calculation
+            let block_u64: u64 = block_number.unique_saturated_into();
+            block_u64 * 6
         }
         
         /// Verify if a provider has access to a patient's records

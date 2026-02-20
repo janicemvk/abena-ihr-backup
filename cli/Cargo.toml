@@ -1,0 +1,23 @@
+[package]
+name = "abena-cli"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "abena-cli"
+path = "src/main.rs"
+
+[dependencies]
+subxt = { version = "0.35", default-features = false, features = [
+    "sp-runtime",
+    "substrate-compat",
+    "jsonrpsee",
+] }
+tokio = { version = "1", features = ["full"] }
+clap = { version = "4.5", features = ["derive"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+sp-core = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2407", default-features = false }
+sp-runtime = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2407", default-features = false }
+hex = "0.4"
+

@@ -1,7 +1,7 @@
 //! Mock runtime for testing
 
 use crate as pallet_patient_identity;
-use frame_support::traits::{ConstU128, ConstU32, ConstU64, ConstU8};
+use frame_support::traits::{ConstU128, ConstU32, ConstU64, ConstU16};
 use frame_system as system;
 use sp_core::H256;
 use sp_runtime::{
@@ -40,16 +40,22 @@ impl system::Config for Test {
     type OnNewAccount = ();
     type OnKilledAccount = ();
     type SystemWeightInfo = ();
-    type SS58Prefix = ConstU8<42>;
+    type SS58Prefix = ConstU16<42>;
     type OnSetCode = ();
     type MaxConsumers = ConstU32<16>;
+    type RuntimeTask = ();
+    type SingleBlockMigrations = ();
+    type MultiBlockMigrator = ();
+    type PreInherents = ();
+    type PostInherents = ();
+    type PostTransactions = ();
 }
 
 impl pallet_patient_identity::Config for Test {
     type RuntimeEvent = RuntimeEvent;
     type MaxProvidersPerPatient = ConstU32<50>;
     type MaxConsentRecords = ConstU32<10>;
-    type WeightInfo = ();
+    type WeightInfo = pallet_patient_identity::weights::SubstrateWeight<Test>;
 }
 
 pub fn new_test_ext() -> sp_io::TestExternalities {
