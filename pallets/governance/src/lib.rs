@@ -320,6 +320,7 @@ pub type InterventionId = u64;
 #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 #[scale_info(skip_type_params(T))]
 #[scale_info(skip_type_params(T))]
+#[scale_info(skip_type_params(T))]
 pub struct GuidelineProposal<T: frame_system::Config> {
     /// Proposal identifier
     pub proposal_id: ProposalId,
@@ -337,6 +338,7 @@ pub struct GuidelineProposal<T: frame_system::Config> {
 
 /// Protocol proposal
 #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[scale_info(skip_type_params(T))]
 #[scale_info(skip_type_params(T))]
 #[scale_info(skip_type_params(T))]
 pub struct ProtocolProposal<T: frame_system::Config> {
@@ -393,6 +395,7 @@ pub enum EmergencyInterventionType {
 
 /// Emergency intervention
 #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[scale_info(skip_type_params(T))]
 #[scale_info(skip_type_params(T))]
 #[scale_info(skip_type_params(T))]
 pub struct EmergencyIntervention<T: frame_system::Config> {

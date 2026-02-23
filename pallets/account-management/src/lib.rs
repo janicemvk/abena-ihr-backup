@@ -11,7 +11,7 @@ use sp_runtime::RuntimeDebug;
 use frame_system::pallet_prelude::BlockNumberFor;
 use frame_support::weights::Weight;
 use sp_runtime::BoundedVec;
-use frame_support::traits::ConstU32;
+use frame_support::traits::{ConstU32, Currency};
 
 #[cfg(test)]
 mod mock;
@@ -211,7 +211,7 @@ pub mod pallet {
                 .ok_or(Error::<T>::AccountNotFound)?;
 
             let old_tier = account_info.tier;
-            account_info.tier = new_tier;
+            account_info.tier = new_tier.clone();
 
             AccountInfos::<T>::insert(&account, account_info);
 
@@ -244,10 +244,12 @@ pub mod pallet {
             let credential_data_bounded = BoundedVec::try_from(credential_data)
                 .map_err(|_| Error::<T>::ContentTooLarge)?;
 
+            let credential_type_clone = credential_type.clone();
+            
             let verification = CredentialVerification {
                 account: account.clone(),
                 credential_id,
-                credential_type,
+                credential_type: credential_type_clone.clone(),
                 credential_data: credential_data_bounded,
                 status: VerificationStatus::Pending,
                 submitted_at: <frame_system::Pallet<T>>::block_number(),
@@ -260,7 +262,7 @@ pub mod pallet {
             Self::deposit_event(Event::CredentialSubmitted {
                 account,
                 credential_id,
-                credential_type,
+                credential_type: credential_type_clone,
             });
 
             Ok(())
@@ -434,6 +436,7 @@ pub trait WeightInfo {
 
 /// Account tier
 #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Copy, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub enum AccountTier {
     /// Patient account
     Patient,
@@ -508,11 +511,14 @@ pub struct CredentialVerification<T: frame_system::Config> {
 /// Deposit information
 #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 #[scale_info(skip_type_params(T))]
-pub struct DepositInfo<T: frame_system::Config> {
+pub struct DepositInfo<T: frame_system::Config> 
+where
+    T: pallet::Config,
+{
     /// Account that made the deposit
     pub account: T::AccountId,
-    /// Total deposit amount
-    pub total_deposit: u128,
+    /// Total deposit amount  
+    pub total_deposit: <<T as pallet::Config>::Currency as Currency<T::AccountId>>::Balance,
     /// Block when first deposit was made
     pub deposited_at: BlockNumberFor<T>,
 }

@@ -557,7 +557,6 @@ pub mod pallet {
                 false
             }
         }
-    }
 }
 
 /// Weight information for extrinsics
