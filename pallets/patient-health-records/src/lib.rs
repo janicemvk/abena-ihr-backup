@@ -1,7 +1,9 @@
-//! # Patient Health Records Pallet
+//! # ABENA Patient Health Records Pallet
 //!
-//! A pallet for managing patient health records with quantum-resistant encryption.
-//! This pallet provides secure storage and access control for healthcare data.
+//! Encrypted, on-chain health record metadata and access control for the ABENA IHR.
+//! Uses quantum-resistant encryption options (e.g. Kyber, Dilithium) for future-proof
+//! security. Stores encrypted payloads and permissions; full record hashes are in
+//! the Health Record Hash pallet with IPFS for off-chain storage.
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
@@ -370,7 +372,7 @@ pub enum EncryptionAlgorithm {
 }
 
 /// Encryption metadata record
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo)]
+#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub struct EncryptionMetadataRecord {
     /// Encryption algorithm used
     pub algorithm: EncryptionAlgorithm,
@@ -382,3 +384,4 @@ pub struct EncryptionMetadataRecord {
     pub metadata: BoundedVec<u8, ConstU32<512>>,
 }
 
+pub use pallet::*;

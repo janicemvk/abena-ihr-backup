@@ -1,8 +1,10 @@
-//! ABENA Patient Identity Pallet
+//! # ABENA Patient Identity Pallet
 //!
-//! Manages decentralized patient identities for the ABENA Integrative Health Record system.
-//! Provides quantum-resistant identity management, consent tracking, and access control
-//! for multi-modality healthcare (Western, TCM, Ayurveda, etc.)
+//! Core identity layer for the **ABENA Integrative Health Record (IHR)** blockchain.
+//! Manages decentralized patient identities (DIDs), modality-specific consent, and
+//! provider access control for integrative healthcare across Western, TCM, Ayurveda,
+//! Homeopathy, and Naturopathy. Designed for quantum-resistant identity and
+//! emergency access overrides.
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
@@ -502,7 +504,7 @@ pub mod pallet {
             Ok(())
         }
     }
-    
+
     impl<T: Config> Pallet<T> {
         /// Get current timestamp (uses block number converted to timestamp)
         /// In production, integrate with pallet_timestamp for accurate timestamps
@@ -557,6 +559,7 @@ pub mod pallet {
                 false
             }
         }
+    }
 }
 
 /// Weight information for extrinsics

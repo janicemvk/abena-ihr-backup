@@ -1,12 +1,15 @@
-//! # Fee Management Pallet
+//! # ABENA Fee Management Pallet
 //!
-//! A pallet for institution subscription registry, rate limiting by account type,
-//! usage metering and tracking, and validator reward distribution.
+//! Subscription tiers, rate limiting by account type (patient/provider/institution),
+//! usage metering, and validator reward distribution for the ABENA network. Supports
+//! institution-level subscriptions and per-account-type rate limits for fair usage.
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
 use codec::{Encode, Decode, MaxEncodedLen};
+use frame_support::RuntimeDebugNoBound;
 use scale_info::TypeInfo;
+use sp_runtime::traits::Zero;
 use sp_runtime::RuntimeDebug;
 use frame_system::pallet_prelude::BlockNumberFor;
 use frame_support::weights::Weight;
@@ -29,14 +32,15 @@ pub mod pallet {
         pallet_prelude::*,
         traits::{Currency, ReservableCurrency, ExistenceRequirement},
         traits::ConstU32,
+        RuntimeDebugNoBound,
     };
     use frame_system::pallet_prelude::*;
     use scale_info::TypeInfo;
     use sp_std::vec::Vec;
-    use sp_runtime::traits::{Zero, Saturating};
+    use sp_runtime::traits::{Zero, Saturating, SaturatedConversion, CheckedDiv};
     use codec::MaxEncodedLen;
     use sp_runtime::BoundedVec;
-    use super::{SubscriptionId, InstitutionSubscription, AccountType, RateLimit, UsageRecord, ValidatorReward, SubscriptionStatus};
+    use super::{SubscriptionId, InstitutionSubscription, AccountType, RateLimit, UsageRecord, ValidatorReward, SubscriptionStatus, SubscriptionPlan, OperationType};
     use crate::WeightInfo;
 
     /// Balance type alias
@@ -202,7 +206,7 @@ pub mod pallet {
             let subscription = InstitutionSubscription {
                 subscription_id,
                 institution: institution.clone(),
-                plan,
+                plan: plan.clone(),
                 start_block: <frame_system::Pallet<T>>::block_number(),
                 end_block: <frame_system::Pallet<T>>::block_number() + duration_blocks,
                 status: SubscriptionStatus::Active,
@@ -280,8 +284,10 @@ pub mod pallet {
             
             if total_blocks > Zero::zero() && remaining_blocks > Zero::zero() {
                 let fee = Self::calculate_subscription_fee(&subscription.plan, total_blocks);
-                let refund = fee.saturating_mul(remaining_blocks.into()) / total_blocks.into();
-                
+                let rem: BalanceOf<T> = remaining_blocks.saturated_into::<u64>().saturated_into();
+                let tot: BalanceOf<T> = total_blocks.saturated_into::<u64>().saturated_into();
+                let refund = fee.checked_div(&tot).map(|f| f.saturating_mul(rem)).unwrap_or_else(Zero::zero);
+
                 // Unreserve and transfer refund
                 T::Currency::unreserve(&institution, fee);
                 // Note: In production, you'd calculate actual refund based on used time
@@ -306,7 +312,7 @@ pub mod pallet {
             max_requests: u32,
             time_window_blocks: BlockNumberFor<T>,
         ) -> DispatchResult {
-            ensure_root(origin)?;
+            frame_system::ensure_root(origin)?;
 
             let rate_limit = RateLimit {
                 max_requests,
@@ -332,7 +338,7 @@ pub mod pallet {
             operation_type: OperationType,
             count: u32,
         ) -> DispatchResult {
-            ensure_root(origin)?;
+            frame_system::ensure_root(origin)?;
 
             let current_block = <frame_system::Pallet<T>>::block_number();
             
@@ -377,9 +383,10 @@ pub mod pallet {
         #[pallet::call_index(5)]
         #[pallet::weight(T::WeightInfo::check_rate_limit())]
         pub fn check_rate_limit(
-            account: &T::AccountId,
+            origin: OriginFor<T>,
             account_type: AccountType,
-        ) -> Result<(), Error<T>> {
+        ) -> DispatchResult {
+            let account = ensure_signed(origin)?;
             let rate_limit = RateLimits::<T>::get(&account_type);
             let current_block = <frame_system::Pallet<T>>::block_number();
             
@@ -387,11 +394,13 @@ pub mod pallet {
             let window_start = current_block.saturating_sub(rate_limit.time_window_blocks);
             let mut total_requests = 0u32;
 
-            // Sum up usage in the time window
-            for block in window_start..=current_block {
-                if let Some(record) = UsageRecords::<T>::get(account, &block) {
+            // Sum up usage in the time window (no Step for BlockNumber in no_std)
+            let mut block = window_start;
+            while block <= current_block {
+                if let Some(record) = UsageRecords::<T>::get(&account, &block) {
                     total_requests = total_requests.saturating_add(record.total_operations);
                 }
+                block = block.saturating_add(1u32.saturated_into());
             }
 
             if total_requests >= rate_limit.max_requests {
@@ -399,7 +408,7 @@ pub mod pallet {
                     account: account.clone(),
                     account_type,
                 });
-                return Err(Error::<T>::RateLimitExceeded);
+                return Err(Error::<T>::RateLimitExceeded.into());
             }
 
             Ok(())
@@ -413,7 +422,7 @@ pub mod pallet {
             validator: T::AccountId,
             amount: BalanceOf<T>,
         ) -> DispatchResult {
-            ensure_root(origin)?;
+            frame_system::ensure_root(origin)?;
 
             // Add to validator's reward pool
             ValidatorRewards::<T>::mutate(&validator, |rewards| {
@@ -459,15 +468,17 @@ pub mod pallet {
             plan: &SubscriptionPlan,
             duration_blocks: BlockNumberFor<T>,
         ) -> BalanceOf<T> {
-            let base_fee = match plan {
-                SubscriptionPlan::Basic => BalanceOf::<T>::from(1000u128),
-                SubscriptionPlan::Professional => BalanceOf::<T>::from(5000u128),
-                SubscriptionPlan::Enterprise => BalanceOf::<T>::from(20000u128),
+            let base_fee: BalanceOf<T> = match plan {
+                SubscriptionPlan::Basic => 1000u128.saturated_into(),
+                SubscriptionPlan::Professional => 5000u128.saturated_into(),
+                SubscriptionPlan::Enterprise => 20000u128.saturated_into(),
             };
 
             // Fee per block (simplified calculation)
-            let fee_per_block = base_fee / BalanceOf::<T>::from(10000u128);
-            fee_per_block.saturating_mul(duration_blocks.into())
+            let divisor: BalanceOf<T> = 10000u128.saturated_into();
+            let fee_per_block = base_fee.checked_div(&divisor).unwrap_or_else(Zero::zero);
+            let duration_balance: BalanceOf<T> = duration_blocks.saturated_into::<u64>().saturated_into();
+            fee_per_block.saturating_mul(duration_balance)
         }
     }
 }
@@ -541,13 +552,25 @@ pub enum AccountType {
 }
 
 /// Rate limit configuration
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebugNoBound, TypeInfo, MaxEncodedLen)]
 #[scale_info(skip_type_params(T))]
 pub struct RateLimit<T: frame_system::Config> {
     /// Maximum number of requests allowed
     pub max_requests: u32,
     /// Time window in blocks
     pub time_window_blocks: BlockNumberFor<T>,
+}
+
+impl<T: frame_system::Config> Default for RateLimit<T>
+where
+    frame_system::pallet_prelude::BlockNumberFor<T>: Zero,
+{
+    fn default() -> Self {
+        Self {
+            max_requests: 0,
+            time_window_blocks: Zero::zero(),
+        }
+    }
 }
 
 /// Operation type for usage tracking
@@ -596,3 +619,4 @@ pub struct ValidatorReward<T: frame_system::Config> {
     pub distributed_at: BlockNumberFor<T>,
 }
 
+pub use pallet::*;

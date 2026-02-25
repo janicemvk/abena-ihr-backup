@@ -1,7 +1,7 @@
 [package]
 name = "pallet-patient-health-records"
 version = "4.0.0-dev"
-description = "Patient Health Records Pallet with Quantum-Resistant Encryption"
+description = "ABENA Patient Health Records - Encrypted storage, quantum-resistant options"
 edition = "2021"
 
 [package.metadata.docs.rs]

@@ -181,3 +181,4 @@ verify_consent(patient, modality) -> bool
 
 All requirements have been implemented exactly as specified. The pallet is ready for use!
 
+

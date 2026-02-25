@@ -1,6 +1,6 @@
 //! Weights for ABENA runtime
 
-use frame_support::weights::Weight;
+use frame_support::weights::{RuntimeDbWeight as FrameRuntimeDbWeight, Weight};
 
 /// Weight functions needed for the runtime.
 pub trait WeightInfo {
@@ -27,6 +27,14 @@ impl WeightInfo for RuntimeDbWeight {
 
     fn db_write() -> Weight {
         Weight::from_parts(100_000_000, 0)
+    }
+}
+
+/// Wrapper so that `type DbWeight` satisfies `Get<frame_support::weights::RuntimeDbWeight>`.
+pub struct RuntimeDbWeightGet;
+impl frame_support::traits::Get<FrameRuntimeDbWeight> for RuntimeDbWeightGet {
+    fn get() -> FrameRuntimeDbWeight {
+        FrameRuntimeDbWeight { read: 25_000_000, write: 100_000_000 }
     }
 }
 

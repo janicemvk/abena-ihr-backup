@@ -1,7 +1,7 @@
 [package]
 name = "pallet-health-record-hash"
 version = "4.0.0-dev"
-description = "Health Record Hash Pallet for Cryptographic Record Hashes"
+description = "ABENA Health Record Hash Pallet - SHA-3 hashes, audit trail, multi-sig, IPFS links"
 edition = "2021"
 
 [package.metadata.docs.rs]

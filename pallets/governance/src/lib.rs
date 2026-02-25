@@ -1,7 +1,9 @@
-//! # Governance Pallet
+//! # ABENA Governance Pallet
 //!
-//! A pallet for clinical guideline updates, protocol approval voting,
-//! stakeholder consensus mechanisms, and emergency intervention procedures.
+//! On-chain governance for the ABENA IHR: clinical guideline proposals, treatment
+//! protocol approval voting, stakeholder consensus, and emergency intervention
+//! procedures. Supports guideline and protocol lifecycle with voting periods and
+//! audit trails for integrative care standards.
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
@@ -319,8 +321,6 @@ pub type InterventionId = u64;
 /// Clinical guideline proposal
 #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 #[scale_info(skip_type_params(T))]
-#[scale_info(skip_type_params(T))]
-#[scale_info(skip_type_params(T))]
 pub struct GuidelineProposal<T: frame_system::Config> {
     /// Proposal identifier
     pub proposal_id: ProposalId,
@@ -338,8 +338,6 @@ pub struct GuidelineProposal<T: frame_system::Config> {
 
 /// Protocol proposal
 #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
-#[scale_info(skip_type_params(T))]
-#[scale_info(skip_type_params(T))]
 #[scale_info(skip_type_params(T))]
 pub struct ProtocolProposal<T: frame_system::Config> {
     /// Proposal identifier
@@ -396,8 +394,6 @@ pub enum EmergencyInterventionType {
 /// Emergency intervention
 #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 #[scale_info(skip_type_params(T))]
-#[scale_info(skip_type_params(T))]
-#[scale_info(skip_type_params(T))]
 pub struct EmergencyIntervention<T: frame_system::Config> {
     /// Intervention identifier
     pub intervention_id: InterventionId,
@@ -411,3 +407,4 @@ pub struct EmergencyIntervention<T: frame_system::Config> {
     pub executed_at: BlockNumberFor<T>,
 }
 
+pub use pallet::*;

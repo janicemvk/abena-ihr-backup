@@ -13,6 +13,10 @@ members = [
     "pallets/fee-management",
     "pallets/access-control",
     "pallets/account-management",
+    "pallets/data-separation",
+    "pallets/quantum-results",
+    "pallets/data-marketplace",
+    "anonymization",
 ]
 resolver = "2"
 

@@ -1,7 +1,7 @@
 [package]
 name = "pallet-quantum-computing"
 version = "4.0.0-dev"
-description = "Quantum Computing Integration Pallet"
+description = "ABENA Quantum Results Pallet - IBM Quantum attestation, VQE/QML/QAOA, patient record linking"
 edition = "2021"
 
 [package.metadata.docs.rs]

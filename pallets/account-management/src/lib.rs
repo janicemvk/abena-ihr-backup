@@ -1,7 +1,9 @@
-//! # Account Management Pallet
+//! # ABENA Account Management Pallet
 //!
-//! A pallet for tiered account types (patient/provider/institution),
-//! credential verification, and deposit management.
+//! Tiered account types for the ABENA IHR: Patient, Provider, and Institution.
+//! Handles credential verification (licenses, certifications, accreditation),
+//! deposit management for providers/institutions, and account lifecycle. Foundation
+//! for role-based access across ABENA pallets.
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
@@ -33,7 +35,7 @@ pub mod pallet {
     use frame_system::pallet_prelude::*;
     use scale_info::TypeInfo;
     use sp_std::vec::Vec;
-    use sp_runtime::traits::Zero;
+    use sp_runtime::traits::{Zero, Saturating};
     use codec::MaxEncodedLen;
     use sp_runtime::BoundedVec;
     use super::{AccountTier, AccountInfo, CredentialVerification, DepositInfo, VerificationStatus, CredentialType};
@@ -328,7 +330,7 @@ pub mod pallet {
                 Error::<T>::CredentialAlreadyVerified
             );
 
-            let reason_bounded = BoundedVec::try_from(reason)
+            let reason_bounded: BoundedVec<u8, ConstU32<1024>> = BoundedVec::try_from(reason)
                 .map_err(|_| Error::<T>::ContentTooLarge)?;
 
             verification.status = VerificationStatus::Rejected;
@@ -435,7 +437,6 @@ pub trait WeightInfo {
 }
 
 /// Account tier
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 #[derive(Clone, Copy, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub enum AccountTier {
     /// Patient account
@@ -523,3 +524,4 @@ where
     pub deposited_at: BlockNumberFor<T>,
 }
 
+pub use pallet::*;

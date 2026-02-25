@@ -1,7 +1,9 @@
-//! # Access Control Pallet
+//! # ABENA Access Control Pallet
 //!
-//! A pallet for patient authorization (free reads), institutional permissions,
-//! emergency access protocols, and audit logging.
+//! Patient-centric access for the ABENA IHR: patient authorizations (free reads for
+//! own data), institutional permissions, emergency access with reason and expiry,
+//! and immutable audit logging. Integrates with health record and identity pallets
+//! for consistent authorization.
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
@@ -187,7 +189,7 @@ pub mod pallet {
             let authorization = PatientAuthorization {
                 patient: patient.clone(),
                 resource_id,
-                permission_type,
+                permission_type: permission_type.clone(),
                 granted_at: <frame_system::Pallet<T>>::block_number(),
                 expires_at: None, // Free reads don't expire
             };
@@ -254,7 +256,7 @@ pub mod pallet {
             let permission = InstitutionalPermission {
                 institution: institution.clone(),
                 resource_id,
-                access_level,
+                access_level: access_level.clone(),
                 granted_by: granter.clone(),
                 granted_at: <frame_system::Pallet<T>>::block_number(),
                 expires_at,
@@ -386,43 +388,40 @@ pub mod pallet {
         #[pallet::call_index(6)]
         #[pallet::weight(T::WeightInfo::check_read_access())]
         pub fn check_read_access(
-            account: &T::AccountId,
+            origin: OriginFor<T>,
             resource_id: H256,
-        ) -> Result<bool, Error<T>> {
+        ) -> DispatchResult {
+            let account = ensure_signed(origin)?;
             // Patients get free reads
-            if PatientAuthorizations::<T>::contains_key(account, &resource_id) {
-                return Ok(true);
+            if PatientAuthorizations::<T>::contains_key(&account, &resource_id) {
+                return Ok(());
             }
 
             // Check institutional permissions
-            if let Some(permission) = InstitutionalPermissions::<T>::get(account, &resource_id) {
+            if let Some(permission) = InstitutionalPermissions::<T>::get(&account, &resource_id) {
                 let current_block = <frame_system::Pallet<T>>::block_number();
-                
-                // Check if expired
                 if let Some(expires_at) = permission.expires_at {
                     if current_block > expires_at {
-                        return Ok(false);
+                        return Err(Error::<T>::Unauthorized.into());
                     }
                 }
-
-                // Check access level
                 match permission.access_level {
                     AccessLevel::Read | AccessLevel::Write | AccessLevel::Full => {
-                        return Ok(true);
+                        return Ok(());
                     },
-                    _ => return Ok(false),
+                    _ => {},
                 }
             }
 
             // Check emergency access
-            if let Some(emergency) = EmergencyAccessRecords::<T>::get(account, &resource_id) {
+            if let Some(emergency) = EmergencyAccessRecords::<T>::get(&account, &resource_id) {
                 let current_block = <frame_system::Pallet<T>>::block_number();
                 if current_block <= emergency.expires_at {
-                    return Ok(true);
+                    return Ok(());
                 }
             }
 
-            Ok(false)
+            Err(Error::<T>::Unauthorized.into())
         }
     }
 
@@ -442,7 +441,7 @@ pub mod pallet {
             let audit_log = AuditLog {
                 log_id,
                 account: account.clone(),
-                action: action_bounded,
+                action: action_bounded.clone(),
                 resource_id,
                 timestamp: <frame_system::Pallet<T>>::block_number(),
             };
@@ -577,3 +576,4 @@ pub struct AuditLog<T: frame_system::Config> {
     pub timestamp: BlockNumberFor<T>,
 }
 
+pub use pallet::*;

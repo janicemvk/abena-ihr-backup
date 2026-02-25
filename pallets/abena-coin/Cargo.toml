@@ -1,7 +1,7 @@
 [package]
 name = "pallet-abena-coin"
 version = "4.0.0-dev"
-description = "ABENA Coin Native Token Pallet for Gamification"
+description = "ABENA Coin - Gamification token, wellness achievements, mint/burn, rewards"
 edition = "2021"
 
 [package.metadata.docs.rs]

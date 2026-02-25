@@ -1,7 +1,7 @@
 [package]
 name = "pallet-patient-identity"
 version = "4.0.0-dev"
-description = "Patient Identity Pallet with DID and Zero-Knowledge Proofs"
+description = "ABENA Patient Identity - DIDs, modality consent, provider access, emergency override"
 edition = "2021"
 
 [package.metadata.docs.rs]

@@ -155,3 +155,4 @@ subxt codegen --url ws://127.0.0.1:9944 > src/runtime_types.rs
 - Validate all inputs before submitting transactions
 - Always verify transaction results
 
+

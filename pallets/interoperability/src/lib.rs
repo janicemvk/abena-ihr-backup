@@ -1,7 +1,9 @@
-//! # Interoperability Pallet
+//! # ABENA Interoperability Pallet
 //!
-//! A pallet for HL7 FHIR data bridges, cross-chain health data exchange,
-//! insurance claim verification, and pharmacy/lab integrations.
+//! HL7 FHIR bridges, cross-chain health data exchange, insurance claim verification,
+//! and pharmacy/lab integrations for the ABENA IHR. Enables mapping of FHIR resources
+//! to on-chain hashes, secure exchange with other chains, and integration with
+//! pharmacy and lab systems for integrative care workflows.
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
@@ -35,7 +37,9 @@ pub mod pallet {
     use sp_std::vec::Vec;
     use sp_core::H256;
     use codec::MaxEncodedLen;
-    use sp_runtime::BoundedVec;    /// Configuration trait for the pallet.
+    use sp_runtime::BoundedVec;
+
+    /// Configuration trait for the pallet.
     #[pallet::config]
     pub trait Config: frame_system::Config {
         /// The overarching event type.
@@ -280,7 +284,7 @@ pub mod pallet {
 
             let integration = PharmacyIntegration {
                 pharmacy_id,
-                pharmacy_name: pharmacy_name_bounded,
+                pharmacy_name: pharmacy_name_bounded.clone(),
                 endpoint: endpoint_bounded,
                 registered_at: <frame_system::Pallet<T>>::block_number(),
                 active: true,
@@ -290,7 +294,7 @@ pub mod pallet {
 
             Self::deposit_event(Event::PharmacyIntegrationRegistered {
                 pharmacy_id,
-                pharmacy_name: pharmacy_name_bounded.clone().into(),
+                pharmacy_name: pharmacy_name_bounded.into(),
             });
 
             Ok(())
@@ -315,7 +319,7 @@ pub mod pallet {
 
             let integration = LabIntegration {
                 lab_id,
-                lab_name: lab_name_bounded,
+                lab_name: lab_name_bounded.clone(),
                 endpoint: endpoint_bounded,
                 registered_at: <frame_system::Pallet<T>>::block_number(),
                 active: true,
@@ -325,7 +329,7 @@ pub mod pallet {
 
             Self::deposit_event(Event::LabIntegrationRegistered {
                 lab_id,
-                lab_name: lab_name_bounded.clone().into(),
+                lab_name: lab_name_bounded.into(),
             });
 
             Ok(())

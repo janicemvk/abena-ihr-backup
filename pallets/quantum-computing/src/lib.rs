@@ -1,7 +1,10 @@
-//! # Quantum Computing Integration Pallet
+//! # ABENA Quantum Results Pallet
 //!
-//! A pallet for integrating quantum computing results and managing
-//! quantum computing jobs and results on the blockchain.
+//! Attests and stores quantum computation results (e.g. from IBM Quantum) for the
+//! ABENA IHR. Supports algorithm types VQE, QML, QAOA; links results to patient
+//! records via hashes; timestamps all analyses. Integration points can represent
+//! IBM Quantum or other providers; signature verification can be extended for
+//! IBM cryptographic attestations.
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
@@ -31,6 +34,7 @@ pub mod pallet {
         traits::ConstU32,
     };
     use frame_system::pallet_prelude::*;
+    use sp_core::H256;
     use sp_std::vec::Vec;
     /// Configuration trait for the pallet.
     #[pallet::config]
@@ -150,7 +154,7 @@ pub mod pallet {
     /// Extrinsics for the pallet
     #[pallet::call]
     impl<T: Config> Pallet<T> {
-        /// Submit a quantum computing job
+        /// Submit a quantum computing job (ABENA: optionally link to patient/record)
         #[pallet::call_index(0)]
         #[pallet::weight(T::WeightInfo::submit_job())]
         pub fn submit_job(
@@ -158,6 +162,8 @@ pub mod pallet {
             job_type: QuantumJobType,
             parameters: Vec<u8>,
             integration_point_id: Option<IntegrationPointId>,
+            patient: Option<T::AccountId>,
+            health_record_hash: Option<H256>,
         ) -> DispatchResult {
             let submitter = ensure_signed(origin)?;
 
@@ -183,7 +189,7 @@ pub mod pallet {
             let parameters_bounded = BoundedVec::try_from(parameters)
                 .map_err(|_| Error::<T>::DataTooLarge)?;
 
-            // Create job
+            // Create job (ABENA: store patient/record link when provided)
             let job = QuantumJob {
                 id: job_id,
                 submitter: submitter.clone(),
@@ -192,6 +198,8 @@ pub mod pallet {
                 status: JobStatus::Pending,
                 created_at: <frame_system::Pallet<T>>::block_number(),
                 updated_at: <frame_system::Pallet<T>>::block_number(),
+                patient,
+                health_record_hash,
             };
 
             QuantumJobs::<T>::insert(&job_id, job);
@@ -235,6 +243,8 @@ pub mod pallet {
             // Update job status
             job.status = JobStatus::Completed;
             job.updated_at = <frame_system::Pallet<T>>::block_number();
+            let patient = job.patient.clone();
+            let health_record_hash = job.health_record_hash;
             QuantumJobs::<T>::insert(&job_id, job);
 
             // Convert result_data to BoundedVec
@@ -247,6 +257,8 @@ pub mod pallet {
                 result_data: result_data_bounded,
                 result_hash,
                 stored_at: <frame_system::Pallet<T>>::block_number(),
+                patient,
+                health_record_hash,
             };
 
             QuantumResults::<T>::insert(&job_id, result.clone());
@@ -396,7 +408,7 @@ pub type Hash = sp_core::H256;
 /// Integration point ID type
 pub type IntegrationPointId = u32;
 
-/// Quantum computing job structure
+/// Quantum computing job structure (ABENA: optional link to patient/record)
 #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 #[scale_info(skip_type_params(T))]
 pub struct QuantumJob<T: frame_system::Config> {
@@ -404,7 +416,7 @@ pub struct QuantumJob<T: frame_system::Config> {
     pub id: JobId,
     /// Account that submitted the job
     pub submitter: T::AccountId,
-    /// Type of quantum computing job
+    /// Type of quantum computing job (VQE, QML, QAOA, etc.)
     pub job_type: QuantumJobType,
     /// Job parameters (encoded)
     pub parameters: BoundedVec<u8, ConstU32<4096>>,
@@ -414,9 +426,13 @@ pub struct QuantumJob<T: frame_system::Config> {
     pub created_at: BlockNumberFor<T>,
     /// Block number when job was last updated
     pub updated_at: BlockNumberFor<T>,
+    /// Optional: patient account when job is tied to a health record (ABENA)
+    pub patient: Option<T::AccountId>,
+    /// Optional: health record hash this job relates to (ABENA)
+    pub health_record_hash: Option<sp_core::H256>,
 }
 
-/// Quantum computing result structure
+/// Quantum computing result structure (ABENA: links to patient record)
 #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 #[scale_info(skip_type_params(T))]
 pub struct QuantumResult<T: frame_system::Config> {
@@ -426,8 +442,12 @@ pub struct QuantumResult<T: frame_system::Config> {
     pub result_data: BoundedVec<u8, ConstU32<8192>>,
     /// Hash of the result for verification
     pub result_hash: Hash,
-    /// Block number when result was stored
+    /// Block number when result was stored (timestamp for ABENA audit)
     pub stored_at: BlockNumberFor<T>,
+    /// Optional: patient account when result is tied to a health record (ABENA)
+    pub patient: Option<T::AccountId>,
+    /// Optional: health record hash this result relates to (ABENA)
+    pub health_record_hash: Option<sp_core::H256>,
 }
 
 /// Integration point for external quantum computing services
@@ -450,14 +470,20 @@ pub struct IntegrationPoint<T: frame_system::Config> {
     pub active: bool,
 }
 
-/// Types of quantum computing jobs
+/// Types of quantum computing jobs (ABENA: includes standard algorithm classes)
 #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub enum QuantumJobType {
-    /// Quantum simulation
+    /// Variational Quantum Eigensolver (VQE) - e.g. molecular/chemistry
+    VQE,
+    /// Quantum Machine Learning (QML)
+    QML,
+    /// Quantum Approximate Optimization Algorithm (QAOA)
+    QAOA,
+    /// Generic quantum simulation
     Simulation,
-    /// Quantum optimization
+    /// Quantum optimization (other than QAOA)
     Optimization,
-    /// Quantum machine learning
+    /// Quantum machine learning (alias; use QML for consistency)
     MachineLearning,
     /// Quantum cryptography
     Cryptography,
