@@ -29,7 +29,6 @@ pub mod weights;
 pub mod pallet {
     use frame_support::{
         pallet_prelude::*,
-        traits::{Currency, ReservableCurrency},
         traits::ConstU32,
     };
     use frame_system::pallet_prelude::*;
@@ -45,8 +44,6 @@ pub mod pallet {
         type RuntimeEvent: From<Event<Self>> + IsType<<Self as frame_system::Config>::RuntimeEvent>;
         /// The pallet ID for reserving funds
         type PalletId: Get<frame_support::PalletId>;
-        /// The currency type for deposits
-        type Currency: Currency<Self::AccountId> + ReservableCurrency<Self::AccountId>;
         /// Weight information for extrinsics
         type WeightInfo: crate::WeightInfo;
     }

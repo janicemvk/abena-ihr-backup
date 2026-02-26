@@ -1,49 +1,38 @@
-//! RPC for ABENA node
+//! RPC implementations for the ABENA node.
 
-use abena_runtime::opaque::Block;
-use jsonrpc_core;
+use abena_runtime::{opaque::Block, AccountId, Balance, BlockNumber, Hash, Nonce};
+use jsonrpsee::RpcModule;
 use sc_rpc_api::DenyUnsafe;
+use sc_transaction_pool_api::TransactionPool;
 use sp_api::ProvideRuntimeApi;
-use sp_blockchain::{Error as BlockChainError, HeaderMetadata, HeaderBackend};
 use sp_block_builder::BlockBuilder;
+use sp_blockchain::{Error as BlockChainError, HeaderBackend, HeaderMetadata};
 use std::sync::Arc;
 
+pub use sc_rpc_api::DenyUnsafe as RpcDenyUnsafe;
+
+/// Full client dependencies.
 pub struct FullDeps<C, P> {
+    /// The client instance to use.
     pub client: Arc<C>,
+    /// Transaction pool instance.
     pub pool: Arc<P>,
+    /// Whether to deny unsafe calls.
     pub deny_unsafe: DenyUnsafe,
 }
 
+/// Instantiate all full RPC extensions.
 pub fn create_full<C, P>(
     deps: FullDeps<C, P>,
-) -> jsonrpc_core::IoHandler<sc_rpc_api::Metadata>
+) -> Result<RpcModule<()>, Box<dyn std::error::Error + Send + Sync>>
 where
     C: ProvideRuntimeApi<Block>,
     C: HeaderBackend<Block> + HeaderMetadata<Block, Error = BlockChainError> + 'static,
     C: Send + Sync + 'static,
     C::Api: BlockBuilder<Block>,
-    P: sc_transaction_pool::ChainApi<Block = Block> + 'static,
+    P: TransactionPool + 'static,
 {
-    use sc_rpc::Chain;
-    use sc_rpc::ChainSpec;
-    use sc_rpc::System;
-    use sc_rpc::state::StateApi;
-
-    let mut io = jsonrpc_core::IoHandler::default();
-    let FullDeps {
-        client,
-        pool,
-        deny_unsafe,
-    } = deps;
-
-    io.extend_with(System::to_delegate(System::new(
-        client.clone(),
-        pool.clone(),
-        deny_unsafe,
-    )));
-    io.extend_with(Chain::to_delegate(Chain::new(client.clone())));
-    io.extend_with(StateApi::to_delegate(StateApi::new(client.clone(), deny_unsafe)));
-
-    io
+    let mut module = RpcModule::new(());
+    // Additional RPC methods can be added here as the pallet ecosystem grows.
+    Ok(module)
 }
-

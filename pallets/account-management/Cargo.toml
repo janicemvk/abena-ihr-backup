@@ -20,8 +20,9 @@ sp-runtime = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "po
 sp-std = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2407", default-features = false }
 
 [dev-dependencies]
-sp-core = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2407", default-features = false }
-sp-io = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2407", default-features = false }
+sp-core = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2407", features = ["std"] }
+sp-io = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2407", features = ["std"] }
+pallet-balances = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2407", features = ["std"] }
 
 [features]
 default = ["std"]

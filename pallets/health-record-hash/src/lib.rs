@@ -710,12 +710,13 @@ pub mod pallet {
                 let _ = log.try_push(rec);
             });
 
-            ensure!(granted, Error::<T>::AccessDenied);
-
+            // Always emit an event and return Ok so the log entry is never rolled back.
+            // Callers determine whether access was granted via the event's `granted` field
+            // or by inspecting the last entry in AccessLog.
             Self::deposit_event(Event::RecordAccessed {
                 record_id,
                 accessor,
-                granted: true,
+                granted,
                 emergency: false,
             });
             Ok(())

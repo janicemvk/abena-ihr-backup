@@ -6,3 +6,4 @@ Key lifecycle and storage for ABENA post-quantum cryptography: derivation, rotat
 - Key derivation (KDF) for Kyber/Dilithium keys
 - Rotation and versioning (aligned with `EncryptionMetadata` in `patient-health-records`)
 - Secure storage interfaces (HSM / enclave integration points)
+

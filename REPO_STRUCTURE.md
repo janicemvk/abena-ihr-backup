@@ -61,3 +61,4 @@ Present in repo and used by runtime:
 - `pallets/fee-management/` – fee and economic parameters
 
 These support the same Tier 3 / records model; the target diagram focuses on the core records-related pallets.
+

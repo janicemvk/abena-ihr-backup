@@ -1,7 +1,7 @@
 //! Mock runtime for testing data-separation pallet (includes patient-identity and balances for escrow)
 
 use crate as pallet_data_separation;
-use frame_support::traits::{ConstU32, ConstU64, ConstU128, ConstU8};
+use frame_support::traits::{ConstU16, ConstU32, ConstU64, ConstU128};
 use frame_system as system;
 use sp_core::H256;
 use sp_runtime::{
@@ -41,13 +41,19 @@ impl system::Config for Test {
     type OnNewAccount = ();
     type OnKilledAccount = ();
     type SystemWeightInfo = ();
-    type SS58Prefix = ConstU8<42>;
+    type SS58Prefix = ConstU16<42>;
     type OnSetCode = ();
     type MaxConsumers = ConstU32<16>;
+    type RuntimeTask = ();
+    type SingleBlockMigrations = ();
+    type MultiBlockMigrator = ();
+    type PreInherents = ();
+    type PostInherents = ();
+    type PostTransactions = ();
 }
 
 impl pallet_balances::Config for Test {
-    type MaxLocks = ();
+    type MaxLocks = ConstU32<50>;
     type MaxReserves = ();
     type ReserveIdentifier = [u8; 8];
     type Balance = u128;
@@ -56,25 +62,27 @@ impl pallet_balances::Config for Test {
     type ExistentialDeposit = ConstU128<1>;
     type AccountStore = System;
     type WeightInfo = ();
-    type FreezeIdentifier = ();
-    type MaxFreezes = ();
+    type FreezeIdentifier = RuntimeFreezeReason;
+    type MaxFreezes = ConstU32<0>;
+    type RuntimeHoldReason = RuntimeHoldReason;
+    type RuntimeFreezeReason = RuntimeFreezeReason;
 }
 
 impl pallet_patient_identity::Config for Test {
     type RuntimeEvent = RuntimeEvent;
-    type WeightInfo = ();
+    type WeightInfo = pallet_patient_identity::weights::SubstrateWeight<Test>;
     type MaxProvidersPerPatient = ConstU32<50>;
     type MaxConsentRecords = ConstU32<10>;
 }
 
-struct DataPricingConfig;
+pub struct DataPricingConfig;
 impl frame_support::traits::Get<pallet_data_separation::DataPricing> for DataPricingConfig {
     fn get() -> pallet_data_separation::DataPricing {
         pallet_data_separation::DataPricing::default_prices()
     }
 }
 
-struct ViolationPenaltyConfig;
+pub struct ViolationPenaltyConfig;
 impl frame_support::traits::Get<u128> for ViolationPenaltyConfig {
     fn get() -> u128 {
         1_000_000
@@ -93,11 +101,15 @@ impl pallet_data_separation::Config for Test {
 }
 
 pub fn new_test_ext() -> sp_io::TestExternalities {
-    let mut t = system::GenesisConfig::<Test>::default().build_storage().unwrap();
-    pallet_balances::GenesisConfig::<Test> {
-        balances: vec![(1, 1_000_000), (2, 1_000_000), (3, 1_000_000)],
+    let mut t = RuntimeGenesisConfig {
+        balances: pallet_balances::GenesisConfig {
+            balances: vec![(1, 1_000_000), (2, 1_000_000), (3, 1_000_000)],
+        },
+        ..Default::default()
     }
-    .assimilate_storage(&mut t)
+    .build_storage()
     .unwrap();
-    t.into()
+    let mut ext: sp_io::TestExternalities = t.into();
+    ext.execute_with(|| System::set_block_number(1));
+    ext
 }

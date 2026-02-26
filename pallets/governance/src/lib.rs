@@ -55,6 +55,7 @@ pub mod pallet {
 
     /// Clinical guideline proposals
     #[pallet::storage]
+    #[pallet::getter(fn guideline_proposals)]
     pub type GuidelineProposals<T: Config> = StorageMap<
         _,
         Blake2_128Concat,
@@ -65,6 +66,7 @@ pub mod pallet {
 
     /// Protocol approval proposals
     #[pallet::storage]
+    #[pallet::getter(fn protocol_proposals)]
     pub type ProtocolProposals<T: Config> = StorageMap<
         _,
         Blake2_128Concat,
@@ -76,6 +78,7 @@ pub mod pallet {
     /// Votes for proposals
     /// Maps (proposal_id, voter) to vote
     #[pallet::storage]
+    #[pallet::getter(fn votes)]
     pub type Votes<T: Config> = StorageDoubleMap<
         _,
         Blake2_128Concat,
@@ -88,6 +91,7 @@ pub mod pallet {
 
     /// Emergency interventions
     #[pallet::storage]
+    #[pallet::getter(fn emergency_interventions)]
     pub type EmergencyInterventions<T: Config> = StorageMap<
         _,
         Blake2_128Concat,

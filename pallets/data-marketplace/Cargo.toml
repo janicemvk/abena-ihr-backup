@@ -22,6 +22,7 @@ sp-std = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkad
 pallet-patient-identity = { path = "../patient-identity", default-features = false, optional = true }
 
 [dev-dependencies]
+pallet-patient-identity = { path = "../patient-identity", default-features = false }
 sp-core = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2407", default-features = false }
 sp-io = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2407", default-features = false }
 

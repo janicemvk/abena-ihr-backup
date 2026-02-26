@@ -1,7 +1,10 @@
 //! Mock runtime for testing
 
 use crate as pallet_access_control;
-use frame_support::traits::{ConstU32, ConstU64, ConstU8};
+use frame_support::{
+    traits::{ConstU16, ConstU32, ConstU64},
+    weights::Weight,
+};
 use frame_system as system;
 use sp_core::H256;
 use sp_runtime::{
@@ -40,9 +43,25 @@ impl system::Config for Test {
     type OnNewAccount = ();
     type OnKilledAccount = ();
     type SystemWeightInfo = ();
-    type SS58Prefix = ConstU8<42>;
+    type SS58Prefix = ConstU16<42>;
     type OnSetCode = ();
     type MaxConsumers = ConstU32<16>;
+    type RuntimeTask = ();
+    type SingleBlockMigrations = ();
+    type MultiBlockMigrator = ();
+    type PreInherents = ();
+    type PostInherents = ();
+    type PostTransactions = ();
+}
+
+impl crate::WeightInfo for () {
+    fn grant_patient_authorization() -> Weight { Weight::zero() }
+    fn revoke_patient_authorization() -> Weight { Weight::zero() }
+    fn grant_institutional_permission() -> Weight { Weight::zero() }
+    fn revoke_institutional_permission() -> Weight { Weight::zero() }
+    fn grant_emergency_access() -> Weight { Weight::zero() }
+    fn revoke_emergency_access() -> Weight { Weight::zero() }
+    fn check_read_access() -> Weight { Weight::zero() }
 }
 
 impl pallet_access_control::Config for Test {
@@ -51,6 +70,10 @@ impl pallet_access_control::Config for Test {
 }
 
 pub fn new_test_ext() -> sp_io::TestExternalities {
-    system::GenesisConfig::<Test>::default().build_storage().unwrap().into()
+    let mut ext: sp_io::TestExternalities = system::GenesisConfig::<Test>::default()
+        .build_storage()
+        .unwrap()
+        .into();
+    ext.execute_with(|| System::set_block_number(1));
+    ext
 }
-

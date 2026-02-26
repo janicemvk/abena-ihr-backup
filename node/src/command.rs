@@ -1,10 +1,9 @@
-//! Command execution for ABENA node
+//! Command execution for ABENA node.
 
 use crate::chain_spec;
 use crate::cli::{Cli, Subcommand};
-use sc_cli::{ChainSpec, RuntimeVersion, SubstrateCli};
-use sc_service::PartialComponents;
-use std::sync::Arc;
+use clap::Parser;
+use sc_cli::SubstrateCli;
 
 impl SubstrateCli for Cli {
     fn impl_name() -> String {
@@ -16,7 +15,7 @@ impl SubstrateCli for Cli {
     }
 
     fn description() -> String {
-        "ABENA Healthcare Blockchain Node".into()
+        env!("CARGO_PKG_DESCRIPTION").into()
     }
 
     fn author() -> String {
@@ -40,10 +39,6 @@ impl SubstrateCli for Cli {
             )?),
         })
     }
-
-    fn native_runtime_version(_: &Box<dyn ChainSpec>) -> &'static RuntimeVersion {
-        &abena_runtime::VERSION
-    }
 }
 
 pub fn run() -> sc_cli::Result<()> {
@@ -57,46 +52,32 @@ pub fn run() -> sc_cli::Result<()> {
         Some(Subcommand::CheckBlock(cmd)) => {
             let runner = cli.create_runner(cmd)?;
             runner.async_run(|config| {
-                let PartialComponents {
-                    client,
-                    task_manager,
-                    import_queue,
-                    ..
-                } = crate::service::new_partial(&config)?;
+                let crate::service::NewPartial { client, task_manager, import_queue, .. } =
+                    crate::service::new_partial(&config)?;
                 Ok((cmd.run(client, import_queue), task_manager))
             })
         }
         Some(Subcommand::ExportBlocks(cmd)) => {
             let runner = cli.create_runner(cmd)?;
             runner.async_run(|config| {
-                let PartialComponents {
-                    client,
-                    task_manager,
-                    ..
-                } = crate::service::new_partial(&config)?;
+                let crate::service::NewPartial { client, task_manager, .. } =
+                    crate::service::new_partial(&config)?;
                 Ok((cmd.run(client, config.database), task_manager))
             })
         }
         Some(Subcommand::ExportState(cmd)) => {
             let runner = cli.create_runner(cmd)?;
             runner.async_run(|config| {
-                let PartialComponents {
-                    client,
-                    task_manager,
-                    ..
-                } = crate::service::new_partial(&config)?;
+                let crate::service::NewPartial { client, task_manager, .. } =
+                    crate::service::new_partial(&config)?;
                 Ok((cmd.run(client, config.chain_spec), task_manager))
             })
         }
         Some(Subcommand::ImportBlocks(cmd)) => {
             let runner = cli.create_runner(cmd)?;
             runner.async_run(|config| {
-                let PartialComponents {
-                    client,
-                    task_manager,
-                    import_queue,
-                    ..
-                } = crate::service::new_partial(&config)?;
+                let crate::service::NewPartial { client, task_manager, import_queue, .. } =
+                    crate::service::new_partial(&config)?;
                 Ok((cmd.run(client, import_queue), task_manager))
             })
         }
@@ -107,24 +88,20 @@ pub fn run() -> sc_cli::Result<()> {
         Some(Subcommand::Revert(cmd)) => {
             let runner = cli.create_runner(cmd)?;
             runner.async_run(|config| {
-                let PartialComponents {
-                    client,
-                    task_manager,
-                    backend,
-                    ..
-                } = crate::service::new_partial(&config)?;
-                Ok((cmd.run(client, backend), task_manager))
+                let crate::service::NewPartial { client, task_manager, backend, .. } =
+                    crate::service::new_partial(&config)?;
+                Ok((cmd.run(client, backend, None), task_manager))
             })
         }
+        #[cfg(feature = "runtime-benchmarks")]
         Some(Subcommand::Benchmark(cmd)) => {
-            if cfg!(feature = "runtime-benchmarks") {
-                let runner = cli.create_runner(cmd)?;
-                runner.sync_run(|config| cmd.run::<sp_runtime::traits::Hashing>(config))
-            } else {
-                Err("Benchmarking wasn't enabled when building the node. \
-                    You can enable it with `--features runtime-benchmarks`."
-                    .into())
-            }
+            use crate::service::{FullBackend, FullClient};
+            let runner = cli.create_runner(cmd)?;
+            runner.sync_run(|config| {
+                let crate::service::NewPartial { client, backend, .. } =
+                    crate::service::new_partial(&config)?;
+                cmd.run::<abena_runtime::Block, FullClient>(client, backend)
+            })
         }
         None => {
             let runner = cli.create_runner(&cli.run)?;
@@ -134,4 +111,3 @@ pub fn run() -> sc_cli::Result<()> {
         }
     }
 }
-

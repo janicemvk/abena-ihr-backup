@@ -84,7 +84,7 @@ sc-transaction-pool = { git = "https://github.com/paritytech/polkadot-sdk", tag 
 sc-transaction-pool-api = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2407" }
 
 # RPC
-jsonrpsee = { version = "0.22", features = ["server"] }
+jsonrpsee = { version = "0.23.2", features = ["server"] }
 substrate-frame-rpc-system = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2407" }
 pallet-transaction-payment-rpc = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2407" }
 
@@ -108,7 +108,6 @@ panic = "abort"
 inherits = "release"
 debug = true
 
-# Patch sc-network to fix enum conflict - will add once we find correct commit
-# [patch."https://github.com/paritytech/polkadot-sdk"]
-# sc-network = { git = "https://github.com/paritytech/polkadot-sdk", rev = "..." }
+# sp-io #[no_mangle] panic handler fix applied directly to the git checkout source
+# (matches polkadot-stable2407-9 patch)
 

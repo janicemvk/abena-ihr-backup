@@ -1,7 +1,10 @@
 //! Mock runtime for testing
 
 use crate as pallet_interoperability;
-use frame_support::traits::{ConstU32, ConstU64};
+use frame_support::{
+    traits::{ConstU16, ConstU32, ConstU64},
+    weights::Weight,
+};
 use frame_system as system;
 use sp_core::H256;
 use sp_runtime::{
@@ -40,20 +43,35 @@ impl system::Config for Test {
     type OnNewAccount = ();
     type OnKilledAccount = ();
     type SystemWeightInfo = ();
-    type SS58Prefix = ConstU8<42>;
+    type SS58Prefix = ConstU16<42>;
     type OnSetCode = ();
     type MaxConsumers = ConstU32<16>;
+    type RuntimeTask = ();
+    type SingleBlockMigrations = ();
+    type MultiBlockMigrator = ();
+    type PreInherents = ();
+    type PostInherents = ();
+    type PostTransactions = ();
+}
+
+impl crate::WeightInfo for () {
+    fn map_fhir_resource() -> Weight { Weight::zero() }
+    fn initiate_cross_chain_exchange() -> Weight { Weight::zero() }
+    fn verify_insurance_claim() -> Weight { Weight::zero() }
+    fn register_pharmacy() -> Weight { Weight::zero() }
+    fn register_lab() -> Weight { Weight::zero() }
 }
 
 impl pallet_interoperability::Config for Test {
-    type Event = RuntimeEvent;
+    type RuntimeEvent = RuntimeEvent;
     type WeightInfo = ();
 }
 
 pub fn new_test_ext() -> sp_io::TestExternalities {
-    system::GenesisConfig::<Test>::default()
+    let mut ext: sp_io::TestExternalities = system::GenesisConfig::<Test>::default()
         .build_storage()
         .unwrap()
-        .into()
+        .into();
+    ext.execute_with(|| System::set_block_number(1));
+    ext
 }
-

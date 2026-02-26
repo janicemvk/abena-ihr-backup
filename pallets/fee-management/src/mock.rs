@@ -1,7 +1,10 @@
 //! Mock runtime for testing
 
 use crate as pallet_fee_management;
-use frame_support::traits::{ConstU32, ConstU64, ConstU8};
+use frame_support::{
+    traits::{ConstU16, ConstU32, ConstU64, ConstU128},
+    weights::Weight,
+};
 use frame_system as system;
 use sp_core::H256;
 use sp_runtime::{
@@ -41,13 +44,19 @@ impl system::Config for Test {
     type OnNewAccount = ();
     type OnKilledAccount = ();
     type SystemWeightInfo = ();
-    type SS58Prefix = ConstU8<42>;
+    type SS58Prefix = ConstU16<42>;
     type OnSetCode = ();
     type MaxConsumers = ConstU32<16>;
+    type RuntimeTask = ();
+    type SingleBlockMigrations = ();
+    type MultiBlockMigrator = ();
+    type PreInherents = ();
+    type PostInherents = ();
+    type PostTransactions = ();
 }
 
 impl pallet_balances::Config for Test {
-    type MaxLocks = ();
+    type MaxLocks = ConstU32<50>;
     type MaxReserves = ();
     type ReserveIdentifier = [u8; 8];
     type Balance = u128;
@@ -56,10 +65,21 @@ impl pallet_balances::Config for Test {
     type ExistentialDeposit = ConstU128<1>;
     type AccountStore = System;
     type WeightInfo = ();
-    type FreezeIdentifier = ();
-    type MaxFreezes = ();
-    type HoldIdentifier = ();
-    type MaxHolds = ();
+    type FreezeIdentifier = RuntimeFreezeReason;
+    type MaxFreezes = ConstU32<0>;
+    type RuntimeHoldReason = RuntimeHoldReason;
+    type RuntimeFreezeReason = RuntimeFreezeReason;
+}
+
+impl crate::WeightInfo for () {
+    fn create_subscription() -> Weight { Weight::zero() }
+    fn renew_subscription() -> Weight { Weight::zero() }
+    fn cancel_subscription() -> Weight { Weight::zero() }
+    fn set_rate_limit() -> Weight { Weight::zero() }
+    fn record_usage() -> Weight { Weight::zero() }
+    fn check_rate_limit() -> Weight { Weight::zero() }
+    fn distribute_validator_reward() -> Weight { Weight::zero() }
+    fn claim_validator_rewards() -> Weight { Weight::zero() }
 }
 
 impl pallet_fee_management::Config for Test {
@@ -69,12 +89,15 @@ impl pallet_fee_management::Config for Test {
 }
 
 pub fn new_test_ext() -> sp_io::TestExternalities {
-    let mut t = system::GenesisConfig::<Test>::default().build_storage().unwrap();
-    pallet_balances::GenesisConfig::<Test> {
-        balances: vec![(1, 1000000), (2, 1000000), (3, 1000000)],
+    let mut t = RuntimeGenesisConfig {
+        balances: pallet_balances::GenesisConfig {
+            balances: vec![(1, 1_000_000), (2, 1_000_000), (3, 1_000_000)],
+        },
+        ..Default::default()
     }
-    .assimilate_storage(&mut t)
+    .build_storage()
     .unwrap();
-    t.into()
+    let mut ext: sp_io::TestExternalities = t.into();
+    ext.execute_with(|| System::set_block_number(1));
+    ext
 }
-

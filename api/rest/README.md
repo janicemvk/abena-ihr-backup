@@ -8,3 +8,4 @@ REST API layer for the ABENA blockchain: chain state, extrinsics submission, and
 - Query by patient ID, record ID, block range
 
 Integrates with `runtime` and `node` (RPC).
+

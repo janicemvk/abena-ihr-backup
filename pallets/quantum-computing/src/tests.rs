@@ -16,7 +16,9 @@ fn submit_job_works() {
             RuntimeOrigin::signed(submitter),
             job_type.clone(),
             parameters.clone(),
-            None
+            None,
+            None,
+            None,
         ));
 
         let job = QuantumComputing::quantum_jobs(1);
@@ -38,7 +40,9 @@ fn store_result_works() {
             RuntimeOrigin::signed(submitter),
             job_type,
             parameters,
-            None
+            None,
+            None,
+            None,
         ));
 
         let result_data = vec![10, 20, 30];
@@ -129,7 +133,9 @@ fn query_result_works() {
             RuntimeOrigin::signed(submitter),
             job_type,
             parameters,
-            None
+            None,
+            None,
+            None,
         ));
 
         let result_data = vec![10, 20, 30];

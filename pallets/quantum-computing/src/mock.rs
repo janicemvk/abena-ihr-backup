@@ -1,7 +1,11 @@
 //! Mock runtime for testing
 
 use crate as pallet_quantum_computing;
-use frame_support::traits::{ConstU128, ConstU32, ConstU64};
+use frame_support::{
+    traits::{ConstU16, ConstU32, ConstU64},
+    weights::Weight,
+    PalletId,
+};
 use frame_system as system;
 use sp_core::H256;
 use sp_runtime::{
@@ -40,21 +44,43 @@ impl system::Config for Test {
     type OnNewAccount = ();
     type OnKilledAccount = ();
     type SystemWeightInfo = ();
-    type SS58Prefix = ConstU8<42>;
+    type SS58Prefix = ConstU16<42>;
     type OnSetCode = ();
     type MaxConsumers = ConstU32<16>;
+    type RuntimeTask = ();
+    type SingleBlockMigrations = ();
+    type MultiBlockMigrator = ();
+    type PreInherents = ();
+    type PostInherents = ();
+    type PostTransactions = ();
+}
+
+pub struct TestPalletId;
+impl frame_support::traits::Get<PalletId> for TestPalletId {
+    fn get() -> PalletId {
+        PalletId(*b"test/qcp")
+    }
+}
+
+impl crate::WeightInfo for () {
+    fn submit_job() -> Weight { Weight::zero() }
+    fn store_result() -> Weight { Weight::zero() }
+    fn register_integration_point() -> Weight { Weight::zero() }
+    fn update_integration_point() -> Weight { Weight::zero() }
+    fn query_result() -> Weight { Weight::zero() }
 }
 
 impl pallet_quantum_computing::Config for Test {
-    type Event = RuntimeEvent;
-    type PalletId = ConstU128<300>;
+    type RuntimeEvent = RuntimeEvent;
+    type PalletId = TestPalletId;
     type WeightInfo = ();
 }
 
 pub fn new_test_ext() -> sp_io::TestExternalities {
-    system::GenesisConfig::<Test>::default()
+    let mut ext: sp_io::TestExternalities = system::GenesisConfig::<Test>::default()
         .build_storage()
         .unwrap()
-        .into()
+        .into();
+    ext.execute_with(|| System::set_block_number(1));
+    ext
 }
-

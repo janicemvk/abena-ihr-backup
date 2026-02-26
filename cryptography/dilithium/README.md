@@ -6,3 +6,4 @@ CRYSTALS-Dilithium digital signatures for ABENA: attestations, consent, and reco
 - Sign/verify for quantum attestations, provider signatures, patient consent
 - Integration with `quantum-computing` and `patient-identity` pallets
 - Algorithm/parameter alignment with pallet encryption metadata
+

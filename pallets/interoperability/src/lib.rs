@@ -54,6 +54,7 @@ pub mod pallet {
     /// FHIR resource mappings
     /// Maps (patient_id, resource_type) to FHIR resource hash
     #[pallet::storage]
+    #[pallet::getter(fn fhir_resources)]
     pub type FHIRResources<T: Config> = StorageDoubleMap<
         _,
         Blake2_128Concat,
@@ -66,6 +67,7 @@ pub mod pallet {
 
     /// Cross-chain data exchange records
     #[pallet::storage]
+    #[pallet::getter(fn cross_chain_exchanges)]
     pub type CrossChainExchanges<T: Config> = StorageMap<
         _,
         Blake2_128Concat,
@@ -76,6 +78,7 @@ pub mod pallet {
 
     /// Insurance claim verifications
     #[pallet::storage]
+    #[pallet::getter(fn insurance_claims)]
     pub type InsuranceClaims<T: Config> = StorageMap<
         _,
         Blake2_128Concat,
@@ -86,6 +89,7 @@ pub mod pallet {
 
     /// Pharmacy integrations
     #[pallet::storage]
+    #[pallet::getter(fn pharmacy_integrations)]
     pub type PharmacyIntegrations<T: Config> = StorageMap<
         _,
         Blake2_128Concat,
@@ -96,6 +100,7 @@ pub mod pallet {
 
     /// Lab integrations
     #[pallet::storage]
+    #[pallet::getter(fn lab_integrations)]
     pub type LabIntegrations<T: Config> = StorageMap<
         _,
         Blake2_128Concat,

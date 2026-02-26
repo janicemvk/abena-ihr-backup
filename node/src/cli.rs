@@ -1,11 +1,11 @@
-//! CLI for ABENA node
+//! CLI for ABENA node.
 
-use sc_cli::{RunCmd, SubstrateCli};
 use clap::Parser;
+use sc_cli::RunCmd;
 
 #[derive(Debug, Parser)]
 pub struct Cli {
-    #[clap(subcommand)]
+    #[command(subcommand)]
     pub subcommand: Option<Subcommand>,
 
     #[clap(flatten)]
@@ -35,8 +35,8 @@ pub enum Subcommand {
     /// Revert the chain to a previous state.
     Revert(sc_cli::RevertCmd),
 
-    /// The custom benchmark subcommand benchmarking runtime pallets.
-    #[clap(name = "benchmark", about = "Benchmark runtime pallets.")]
+    /// Benchmark runtime pallets.
+    #[cfg(feature = "runtime-benchmarks")]
+    #[command(subcommand)]
     Benchmark(frame_benchmarking_cli::BenchmarkCmd),
 }
-

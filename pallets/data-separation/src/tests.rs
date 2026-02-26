@@ -1,23 +1,21 @@
 //! Tests for data-separation pallet
 
-use crate::mock::{new_test_ext, Test};
+use crate::mock::{new_test_ext, RuntimeOrigin, Test};
 use crate::pallet::{
     DataTier, AnonymizationLevel, DataViolation, DataQuery, DemographicFilter,
     LicensePurpose, PrivacyGuarantee,
 };
 use frame_support::{assert_ok, assert_err};
-use frame_system::Origin;
 use pallet_patient_identity::Pallet as PatientIdentity;
 use sp_core::H256;
 use sp_runtime::BoundedVec;
 
-type RuntimeOrigin = Origin<Test>;
 type DataSeparation = crate::pallet::Pallet<Test>;
 
 fn register_patient(account: u64) {
     let public_key = [1u8; 32];
     let metadata_hash = [2u8; 32];
-    assert_ok!(PatientIdentity::register_patient(
+    assert_ok!(PatientIdentity::<Test>::register_patient(
         RuntimeOrigin::signed(account),
         public_key,
         metadata_hash,
@@ -61,12 +59,11 @@ fn register_data_asset_works() {
         ));
 
         let asset_id = DataSeparation::generate_asset_id(&patient, &data_hash);
-        let asset = DataSeparation::data_assets(asset_id);
-        assert!(asset.is_some());
-        assert_eq!(asset.unwrap().owner, patient);
-        assert_eq!(asset.unwrap().data_hash, data_hash);
-        assert_eq!(asset.unwrap().compensation_earned, 0);
-        assert_eq!(asset.unwrap().min_compensation, 100);
+        let asset = DataSeparation::data_assets(asset_id).expect("asset should exist");
+        assert_eq!(asset.owner, patient);
+        assert_eq!(asset.data_hash, data_hash);
+        assert_eq!(asset.compensation_earned, 0);
+        assert_eq!(asset.min_compensation, 100);
     });
 }
 
@@ -170,8 +167,8 @@ fn commercial_entity_and_violation_flow() {
             RuntimeOrigin::root(),
             license_id,
         ));
-        assert!(DataSeparation::banned_entities(licensee));
-        assert!(!DataSeparation::commercial_entities(licensee));
+        assert!(DataSeparation::banned_entities(licensee).is_some());
+        assert!(DataSeparation::commercial_entities(licensee).is_none());
         assert!(DataSeparation::violation_reports(license_id).is_none());
         assert!(DataSeparation::license_escrow(license_id).is_none());
     });

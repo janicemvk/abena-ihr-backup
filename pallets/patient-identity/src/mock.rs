@@ -1,7 +1,10 @@
-//! Mock runtime for testing
+//! Mock runtime for pallet-patient-identity tests
+//!
+//! Minimal test runtime with u64 for AccountId and simple types.
+//! No Currency or Timestamp pallets - pallet uses block number for timestamps.
 
 use crate as pallet_patient_identity;
-use frame_support::traits::{ConstU128, ConstU32, ConstU64, ConstU16};
+use frame_support::traits::{ConstU16, ConstU32, ConstU64};
 use frame_system as system;
 use sp_core::H256;
 use sp_runtime::{
@@ -9,11 +12,11 @@ use sp_runtime::{
     BuildStorage,
 };
 
-type Block = frame_system::mocking::MockBlock<Test>;
+/// Block type for mock runtime
+pub type Block = frame_system::mocking::MockBlock<Test>;
 
 frame_support::construct_runtime!(
-    pub enum Test
-    {
+    pub enum Test {
         System: frame_system,
         PatientIdentity: pallet_patient_identity,
     }
@@ -53,11 +56,12 @@ impl system::Config for Test {
 
 impl pallet_patient_identity::Config for Test {
     type RuntimeEvent = RuntimeEvent;
-    type MaxProvidersPerPatient = ConstU32<50>;
-    type MaxConsentRecords = ConstU32<10>;
+    type MaxProvidersPerPatient = ConstU32<5>;
+    type MaxConsentRecords = ConstU32<5>;
     type WeightInfo = pallet_patient_identity::weights::SubstrateWeight<Test>;
 }
 
+/// Build test externalities
 pub fn new_test_ext() -> sp_io::TestExternalities {
     system::GenesisConfig::<Test>::default()
         .build_storage()
@@ -65,3 +69,8 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
         .into()
 }
 
+/// Advance to block n (sets block number for timestamp calculations).
+/// Timestamp = block_number * 6 (seconds).
+pub fn run_to_block(n: u32) {
+    frame_system::Pallet::<Test>::set_block_number(n.into());
+}

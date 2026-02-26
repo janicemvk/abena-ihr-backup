@@ -122,10 +122,10 @@ fn execute_emergency_intervention_works() {
             reason.clone()
         ));
 
-        let intervention = Governance::emergency_interventions(intervention_id);
-        assert!(intervention.is_some());
-        assert_eq!(intervention.unwrap().intervention_type, intervention_type);
-        assert_eq!(intervention.unwrap().reason, reason);
+        let intervention = Governance::emergency_interventions(intervention_id)
+            .expect("intervention should exist");
+        assert_eq!(intervention.intervention_type, intervention_type);
+        assert_eq!(intervention.reason, reason);
     });
 }
 

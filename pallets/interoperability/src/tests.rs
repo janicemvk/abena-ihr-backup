@@ -45,10 +45,10 @@ fn initiate_cross_chain_exchange_works() {
             data_hash
         ));
 
-        let exchange = Interoperability::cross_chain_exchanges(exchange_id);
-        assert!(exchange.is_some());
-        assert_eq!(exchange.unwrap().source_chain, source_chain);
-        assert_eq!(exchange.unwrap().target_chain, target_chain);
+        let exchange = Interoperability::cross_chain_exchanges(exchange_id)
+            .expect("exchange should exist");
+        assert_eq!(exchange.source_chain, source_chain);
+        assert_eq!(exchange.target_chain, target_chain);
     });
 }
 
@@ -67,10 +67,10 @@ fn verify_insurance_claim_works() {
             claim_hash
         ));
 
-        let claim = Interoperability::insurance_claims(claim_id);
-        assert!(claim.is_some());
-        assert_eq!(claim.unwrap().patient, patient);
-        assert!(claim.unwrap().verified);
+        let claim = Interoperability::insurance_claims(claim_id)
+            .expect("claim should exist");
+        assert_eq!(claim.patient, patient);
+        assert!(claim.verified);
     });
 }
 

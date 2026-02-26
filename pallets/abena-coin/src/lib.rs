@@ -1179,14 +1179,17 @@ pub struct AchievementRecord<T: Config> {
                 if now < cliff_end {
                     continue;
                 }
-                let vesting_end = schedule.start_block.saturating_add(schedule.vesting_duration);
+                // vesting_duration runs AFTER the cliff, so end = start + cliff + vesting.
+                let vesting_end = cliff_end.saturating_add(schedule.vesting_duration);
                 let blocks_elapsed = now.min(vesting_end).saturating_sub(cliff_end);
                 let blocks_balance: BalanceOf<T> = blocks_elapsed.saturated_into::<u64>().saturated_into();
-                let releasable = schedule
+                // Compute total tokens releasable so far (cumulative), capped at total_amount.
+                let total_releasable = schedule
                     .release_per_block
-                    .saturating_mul(blocks_balance);
-                let remaining = schedule.total_amount.saturating_sub(schedule.released_amount);
-                let to_release = core::cmp::min(releasable, remaining);
+                    .saturating_mul(blocks_balance)
+                    .min(schedule.total_amount);
+                // Incremental = cumulative releasable - already released.
+                let to_release = total_releasable.saturating_sub(schedule.released_amount);
                 if to_release.is_zero() {
                     continue;
                 }
@@ -1393,8 +1396,12 @@ pub struct AchievementRecord<T: Config> {
             let status = PatientAchievements::<T>::get(&account, achievement_id);
 
             if !def.repeatable {
-                if status.is_some() {
-                    return Err(Error::<T>::AchievementAlreadyClaimed.into());
+                // A status entry may exist because verify_achievement wrote it before the
+                // first claim. Only reject if the player has already claimed at least once.
+                if let Some(ref st) = status {
+                    if st.claim_count > 0 {
+                        return Err(Error::<T>::AchievementAlreadyClaimed.into());
+                    }
                 }
             }
 
@@ -1737,7 +1744,8 @@ pub struct AchievementRecord<T: Config> {
                 .checked_div(&total)
                 .unwrap_or_else(Zero::zero);
             let required = params.approval_threshold_permille;
-            ensure!(threshold >= required.saturated_into(), Error::<T>::ProposalDidNotPass);
+            // Strictly greater than the threshold permille (e.g. >500 = clear majority).
+            ensure!(threshold > required.saturated_into(), Error::<T>::ProposalDidNotPass);
 
             prop.status = ProposalStatus::Executed;
             if let (Some(amount), Some(beneficiary)) = (prop.requested_amount.clone(), prop.beneficiary.clone()) {

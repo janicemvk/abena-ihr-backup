@@ -20,6 +20,9 @@ mod mock;
 #[cfg(test)]
 mod tests;
 
+#[cfg(feature = "runtime-benchmarks")]
+mod benchmarking;
+
 pub mod offchain;
 pub mod weights;
 
@@ -28,7 +31,6 @@ pub mod pallet {
     use frame_support::pallet_prelude::*;
     use frame_system::offchain::SubmitTransaction;
     use frame_system::pallet_prelude::*;
-    use sp_core::offchain::{Duration, HttpRequestStatus};
     use sp_runtime::traits::{Hash, Verify, Zero};
     use sp_runtime::transaction_validity::{
         InvalidTransaction, TransactionSource, TransactionValidity, ValidTransaction,
@@ -368,94 +370,6 @@ pub mod pallet {
     impl<T: Config> Hooks<BlockNumberFor<T>> for Pallet<T> {
         fn offchain_worker(block_number: BlockNumberFor<T>) {
             Self::offchain_worker_impl(block_number);
-
-            use sp_io::offchain;
-
-            if block_number % T::OffchainWorkerInterval::get() != Zero::zero() {
-                return;
-            }
-            let queue = QuantumJobQueue::<T>::get();
-            if queue.is_empty() {
-                return;
-            }
-            // API token: node operator sets via offchain::local_storage_set(PERSENT, b"ibm_quantum_api_token", token_bytes)
-            // and we could add header via http_request_add_header for Authorization (not done here for minimal impl).
-            for pending in queue.iter() {
-                if pending.status != JobCompletionStatus::Pending
-                    && pending.status != JobCompletionStatus::Running
-                {
-                    continue;
-                }
-                let Some(ref ctx) = pending.attestation_context else { continue };
-                let job_id_str = sp_std::str::from_utf8(pending.job_id.as_slice()).unwrap_or("");
-                if job_id_str.is_empty() {
-                    continue;
-                }
-                let base = b"https://api.quantum-computing.ibm.com/api/v2/jobs/";
-                let mut url_buf = [0u8; 128];
-                let blen = base.len().min(url_buf.len());
-                url_buf[..blen].copy_from_slice(&base[..blen]);
-                let jlen = pending.job_id.len().min(url_buf.len().saturating_sub(blen));
-                url_buf[blen..blen + jlen].copy_from_slice(&pending.job_id[..jlen]);
-                let url = sp_std::str::from_utf8(&url_buf[..blen + jlen]).unwrap_or("");
-                let request = match offchain::http_request_start("GET", url, &[]) {
-                    Ok(id) => id,
-                    Err(_) => continue,
-                };
-                let timeout = offchain::timestamp().add(Duration::from_millis(8000));
-                let ids = [request];
-                let statuses = offchain::http_response_wait(&ids, Some(timeout));
-                let status = match statuses.first() {
-                    Some(s) => s,
-                    None => continue,
-                };
-                if *status == HttpRequestStatus::Finished(200) {
-                        let mut body = Vec::new();
-                        let mut buf = [0u8; 4096];
-                        loop {
-                            match offchain::http_response_read_body(request, &mut buf, Some(timeout)) {
-                                Ok(0) => break,
-                                Ok(n) => body.extend_from_slice(&buf[..n as usize]),
-                                Err(_) => break,
-                            }
-                        }
-                        let body_str = sp_std::str::from_utf8(&body).unwrap_or("");
-                        let completed = body_str.contains("\"status\":\"COMPLETED\"")
-                            || body_str.contains("\"status\": \"COMPLETED\"");
-                        let failed = body_str.contains("\"status\":\"FAILED\"")
-                            || body_str.contains("\"status\": \"FAILED\"");
-                        if failed {
-                            QuantumJobQueue::<T>::mutate(|q| {
-                                q.retain(|p| p.job_id_hash != pending.job_id_hash);
-                            });
-                            continue;
-                        }
-                        if !completed {
-                            continue;
-                        }
-                        let result_hash = T::Hashing::hash_of(&body);
-                        let sig: BoundedVec<u8, SignatureMaxLen> = BoundedVec::default();
-                        let clinical_b = ctx.linked_clinical_module.clone();
-                        let call = Call::submit_attestation_unsigned {
-                            job_id: pending.job_id.to_vec(),
-                            patient_pseudonym: ctx.patient_pseudonym,
-                            algorithm_type: ctx.algorithm_type.clone(),
-                            algorithm_version: ctx.algorithm_version,
-                            parameters_hash: ctx.parameters_hash,
-                            result_hash,
-                            ibm_signature: sig.to_vec(),
-                            execution_timestamp: ctx.execution_timestamp,
-                            circuit_depth: ctx.circuit_depth,
-                            qubit_count: ctx.qubit_count,
-                            shots: ctx.shots,
-                            linked_clinical_module: clinical_b.map(|b| b.to_vec()),
-                        };
-                        let _ = SubmitTransaction::<T, Call<T>>::submit_unsigned_transaction(call.into());
-                        QuantumJobQueue::<T>::mutate(|q| {
-                            q.retain(|p| p.job_id_hash != pending.job_id_hash);
-                        });
-                }
-            }
         }
     }
 
@@ -989,9 +903,20 @@ pub mod pallet {
             gate_fidelity_micro: u32,
             mitigation_factor_micro: u32,
         ) -> u32 {
-            let err = readout_error_micro.saturating_add(1_000_000_u32.saturating_sub(gate_fidelity_micro));
-            let reduced = err.saturating_mul(mitigation_factor_micro).saturating_div(1_000_000);
-            1_000_000_u32.saturating_sub(reduced.min(1_000_000))
+            // Total hardware error = readout error + gate infidelity, capped at 1_000_000.
+            let gate_infidelity = 1_000_000_u32.saturating_sub(gate_fidelity_micro);
+            let total_error = readout_error_micro
+                .saturating_add(gate_infidelity)
+                .min(1_000_000);
+
+            // Mitigation factor reduces the effective error:
+            //   mitigated_error = total_error × (1 – mitigation_factor)
+            // Use u64 for the intermediate product to avoid overflow.
+            let unmit = 1_000_000_u32.saturating_sub(mitigation_factor_micro);
+            let mitigated_error =
+                ((total_error as u64 * unmit as u64) / 1_000_000_u64) as u32;
+
+            1_000_000_u32.saturating_sub(mitigated_error)
         }
 
         /// Query all quantum result (job) hashes for a patient pseudonym.

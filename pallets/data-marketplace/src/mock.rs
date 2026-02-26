@@ -1,25 +1,25 @@
-//! Mock runtime for testing
+//! Mock runtime for pallet-data-marketplace tests
+//!
+//! Minimal test runtime with System, PatientIdentity, and DataMarketplace.
+//! Balances can be added when the pallet Config is extended for payments.
 
-use crate as pallet_patient_health_records;
-use frame_support::{
-    traits::{ConstU16, ConstU32, ConstU64},
-    weights::Weight,
-    PalletId,
-};
+use crate as pallet_data_marketplace;
+use frame_support::traits::{ConstU16, ConstU32, ConstU64};
 use frame_system as system;
+use pallet_patient_identity;
 use sp_core::H256;
 use sp_runtime::{
     traits::{BlakeTwo256, IdentityLookup},
     BuildStorage,
 };
 
-type Block = frame_system::mocking::MockBlock<Test>;
+pub type Block = frame_system::mocking::MockBlock<Test>;
 
 frame_support::construct_runtime!(
-    pub enum Test
-    {
+    pub enum Test {
         System: frame_system,
-        PatientHealthRecords: pallet_patient_health_records,
+        PatientIdentity: pallet_patient_identity,
+        DataMarketplace: pallet_data_marketplace,
     }
 );
 
@@ -55,32 +55,32 @@ impl system::Config for Test {
     type PostTransactions = ();
 }
 
-pub struct TestPalletId;
-impl frame_support::traits::Get<PalletId> for TestPalletId {
-    fn get() -> PalletId {
-        PalletId(*b"test/phr")
-    }
-}
-
-impl crate::WeightInfo for () {
-    fn create_health_record() -> Weight { Weight::zero() }
-    fn update_health_record() -> Weight { Weight::zero() }
-    fn grant_access() -> Weight { Weight::zero() }
-    fn revoke_access() -> Weight { Weight::zero() }
-    fn update_encryption_metadata() -> Weight { Weight::zero() }
-}
-
-impl pallet_patient_health_records::Config for Test {
+impl pallet_patient_identity::Config for Test {
     type RuntimeEvent = RuntimeEvent;
-    type PalletId = TestPalletId;
+    type MaxProvidersPerPatient = ConstU32<50>;
+    type MaxConsentRecords = ConstU32<10>;
+    type WeightInfo = pallet_patient_identity::weights::SubstrateWeight<Test>;
+}
+
+impl pallet_data_marketplace::Config for Test {
+    type RuntimeEvent = RuntimeEvent;
     type WeightInfo = ();
 }
 
+impl frame_system::offchain::SendTransactionTypes<pallet_data_marketplace::Call<Test>> for Test {
+    type OverarchingCall = RuntimeCall;
+    type Extrinsic = frame_system::mocking::MockUncheckedExtrinsic<Test>;
+}
+
+/// Build test externalities
 pub fn new_test_ext() -> sp_io::TestExternalities {
-    let mut ext: sp_io::TestExternalities = system::GenesisConfig::<Test>::default()
+    system::GenesisConfig::<Test>::default()
         .build_storage()
         .unwrap()
-        .into();
-    ext.execute_with(|| System::set_block_number(1));
-    ext
+        .into()
+}
+
+/// Advance to block n (for event tests)
+pub fn run_to_block(n: u32) {
+    frame_system::Pallet::<Test>::set_block_number(n.into());
 }

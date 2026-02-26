@@ -2,6 +2,9 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
+#[cfg(feature = "std")]
+include!(concat!(env!("OUT_DIR"), "/wasm_binary.rs"));
+
 pub mod constants;
 pub mod weights;
 
@@ -308,7 +311,6 @@ parameter_types! {
 impl pallet_patient_health_records::Config for Runtime {
     type RuntimeEvent = Event;
     type PalletId = PatientHealthRecordsPalletId;
-    type Currency = Balances;
     type WeightInfo = pallet_patient_health_records::weights::SubstrateWeight<Runtime>;
 }
 
@@ -611,7 +613,6 @@ impl_runtime_apis! {
         }
     }
 
-    #[cfg(feature = "std")]
     impl sp_genesis_builder::GenesisBuilder<Block> for Runtime {
         fn build_state(json: sp_std::vec::Vec<u8>) -> sp_genesis_builder::Result {
             frame_support::genesis_builder_helper::build_state::<RuntimeGenesisConfig>(json)

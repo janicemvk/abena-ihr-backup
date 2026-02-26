@@ -14,3 +14,4 @@ Off-chain clinical assessment and decision-support modules (e.g. symptom checker
 - `module-150-integrative-protocols` – multi-modality integrative care protocols
 
 Add concrete modules under this directory as they are implemented.
+

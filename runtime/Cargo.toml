@@ -59,6 +59,13 @@ pallet-data-separation = { path = "../pallets/data-separation", default-features
 pallet-quantum-results = { path = "../pallets/quantum-results", default-features = false }
 pallet-data-marketplace = { path = "../pallets/data-marketplace", default-features = false }
 
+[build-dependencies]
+substrate-wasm-builder = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2407" }
+
+[dev-dependencies]
+sp-io = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2407" }
+sp-core = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2407" }
+
 [features]
 default = ["std"]
 runtime-benchmarks = [

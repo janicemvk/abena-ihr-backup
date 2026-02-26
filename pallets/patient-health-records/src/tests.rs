@@ -2,7 +2,7 @@
 
 use crate::mock::*;
 use crate::*;
-use frame_support::{assert_err, assert_ok};
+use frame_support::{assert_err, assert_ok, BoundedVec, traits::ConstU32};
 
 #[test]
 fn create_health_record_works() {
@@ -11,9 +11,9 @@ fn create_health_record_works() {
         let encrypted_data = vec![1, 2, 3, 4, 5];
         let metadata = EncryptionMetadataRecord {
             algorithm: EncryptionAlgorithm::Kyber,
-            parameters: vec![],
-            kdf: vec![],
-            metadata: vec![],
+            parameters: BoundedVec::default(),
+            kdf: BoundedVec::default(),
+            metadata: BoundedVec::default(),
         };
 
         assert_ok!(PatientHealthRecords::create_health_record(
@@ -35,9 +35,9 @@ fn update_health_record_requires_authorization() {
         let encrypted_data = vec![1, 2, 3, 4, 5];
         let metadata = EncryptionMetadataRecord {
             algorithm: EncryptionAlgorithm::Kyber,
-            parameters: vec![],
-            kdf: vec![],
-            metadata: vec![],
+            parameters: BoundedVec::default(),
+            kdf: BoundedVec::default(),
+            metadata: BoundedVec::default(),
         };
 
         assert_ok!(PatientHealthRecords::create_health_record(
@@ -73,9 +73,9 @@ fn grant_and_revoke_access_works() {
         let encrypted_data = vec![1, 2, 3, 4, 5];
         let metadata = EncryptionMetadataRecord {
             algorithm: EncryptionAlgorithm::Kyber,
-            parameters: vec![],
-            kdf: vec![],
-            metadata: vec![],
+            parameters: BoundedVec::default(),
+            kdf: BoundedVec::default(),
+            metadata: BoundedVec::default(),
         };
 
         assert_ok!(PatientHealthRecords::create_health_record(
