@@ -1,0 +1,22 @@
+{
+  "name": "@abena/ehr-connectors",
+  "version": "4.0.0-dev",
+  "description": "EHR integration connectors for ABENA - Epic, Cerner, Allscripts, HL7v2",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "clean": "rimraf dist"
+  },
+  "keywords": ["abena", "ehr", "hl7", "fhir", "epic", "cerner"],
+  "author": "ABENA Healthcare Platform",
+  "license": "Unlicense",
+  "dependencies": {
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "rimraf": "^5.0.0",
+    "typescript": "^5.0.0"
+  }
+}

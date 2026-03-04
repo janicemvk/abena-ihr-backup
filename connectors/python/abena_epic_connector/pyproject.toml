@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "abena-epic-connector"
+version = "4.0.0.dev"
+description = "Epic FHIR to ABENA blockchain bridge"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "requests>=2.28.0",
+    "websockets>=12.0",
+    "jsonrpcclient>=4.0.0",
+    "jsonrpcserver>=5.0.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "pytest-asyncio", "black", "mypy"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["abena_epic_connector*"]

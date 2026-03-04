@@ -188,3 +188,173 @@ fn banned_entity_cannot_register_or_request_license() {
         );
     });
 }
+
+#[test]
+fn register_commercial_entity_works() {
+    new_test_ext().execute_with(|| {
+        let licensee = 2u64;
+        assert_ok!(DataSeparation::register_commercial_entity(RuntimeOrigin::signed(licensee)));
+        assert!(DataSeparation::commercial_entities(licensee).is_some());
+    });
+}
+
+#[test]
+fn set_anonymization_preferences_fails_below_min_k() {
+    new_test_ext().execute_with(|| {
+        // MinKAnonymity = 2 in mock; k_min = 1 should fail
+        assert_err!(
+            DataSeparation::set_anonymization_preferences(
+                RuntimeOrigin::signed(1), 1, 0, false
+            ),
+            crate::pallet::Error::<Test>::InvalidPreference
+        );
+    });
+}
+
+#[test]
+fn register_quasi_identifier_data_works() {
+    new_test_ext().execute_with(|| {
+        let patient = 1u64;
+        register_patient(patient);
+        let data_hash = [2u8; 32];
+        assert_ok!(DataSeparation::register_data_asset(
+            RuntimeOrigin::signed(patient),
+            data_hash,
+            DataTier::QuasiIdentifiers,
+            AnonymizationLevel::LDiversity(3),
+            vec![LicensePurpose::InsuranceActuary],
+            200u128,
+            None,
+        ));
+        let asset_id = DataSeparation::generate_asset_id(&patient, &data_hash);
+        let asset = DataSeparation::data_assets(asset_id).unwrap();
+        assert_eq!(asset.data_tier, DataTier::QuasiIdentifiers);
+    });
+}
+
+#[test]
+fn calculate_compensation_updates_usage() {
+    new_test_ext().execute_with(|| {
+        let patient  = 1u64;
+        let licensee = 2u64;
+        register_patient(patient);
+        assert_ok!(DataSeparation::register_commercial_entity(RuntimeOrigin::signed(licensee)));
+
+        let data_hash = [3u8; 32];
+        let allowed = vec![LicensePurpose::AcademicResearch];
+        assert_ok!(DataSeparation::register_data_asset(
+            RuntimeOrigin::signed(patient),
+            data_hash,
+            DataTier::ClinicalData,
+            AnonymizationLevel::Full,
+            allowed,
+            50u128,
+            None,
+        ));
+
+        // license_data to create a license in the Licenses map (used by calculate_compensation)
+        let asset_id = DataSeparation::generate_asset_id(&patient, &data_hash);
+        assert_ok!(DataSeparation::license_data(
+            RuntimeOrigin::signed(licensee),
+            DataQuery {
+                conditions: BoundedVec::default(),
+                demographics: DemographicFilter {
+                    age_min: None, age_max: None, gender_allowed: BoundedVec::default(),
+                },
+                data_fields: BoundedVec::default(),
+                min_records: 0,
+            },
+            LicensePurpose::AcademicResearch,
+            50u128,
+            1000u64,
+            BoundedVec::default(),
+            vec![asset_id],
+        ));
+        let license_id = DataSeparation::next_license_id().saturating_sub(1);
+        assert_ok!(DataSeparation::calculate_compensation(
+            RuntimeOrigin::signed(3),
+            license_id,
+            patient,
+        ));
+    });
+}
+
+#[test]
+fn license_data_works() {
+    new_test_ext().execute_with(|| {
+        let patient  = 1u64;
+        let licensee = 2u64;
+        register_patient(patient);
+        assert_ok!(DataSeparation::register_commercial_entity(RuntimeOrigin::signed(licensee)));
+
+        let data_hash = [4u8; 32];
+        assert_ok!(DataSeparation::register_data_asset(
+            RuntimeOrigin::signed(patient),
+            data_hash,
+            DataTier::ClinicalData,
+            AnonymizationLevel::KAnonymity(2),
+            vec![LicensePurpose::DrugDevelopment],
+            0u128,
+            None,
+        ));
+
+        let asset_id = DataSeparation::generate_asset_id(&patient, &data_hash);
+        assert_ok!(DataSeparation::license_data(
+            RuntimeOrigin::signed(licensee),
+            DataQuery {
+                conditions: BoundedVec::default(),
+                demographics: DemographicFilter {
+                    age_min: None, age_max: None, gender_allowed: BoundedVec::default(),
+                },
+                data_fields: BoundedVec::default(),
+                min_records: 0,
+            },
+            LicensePurpose::DrugDevelopment,
+            10u128,
+            500u64,
+            BoundedVec::default(),
+            vec![asset_id],
+        ));
+    });
+}
+
+#[test]
+fn verify_privacy_guarantees_emits_event() {
+    new_test_ext().execute_with(|| {
+        let patient  = 1u64;
+        let licensee = 2u64;
+        register_patient(patient);
+        assert_ok!(DataSeparation::register_commercial_entity(RuntimeOrigin::signed(licensee)));
+
+        assert_ok!(DataSeparation::register_data_asset(
+            RuntimeOrigin::signed(patient),
+            [5u8; 32],
+            DataTier::ClinicalData,
+            AnonymizationLevel::Full,
+            vec![LicensePurpose::CannabisResearch],
+            0u128,
+            None,
+        ));
+        let asset_id = DataSeparation::generate_asset_id(&patient, &[5u8; 32]);
+        assert_ok!(DataSeparation::license_data(
+            RuntimeOrigin::signed(licensee),
+            DataQuery {
+                conditions: BoundedVec::default(),
+                demographics: DemographicFilter {
+                    age_min: None, age_max: None, gender_allowed: BoundedVec::default(),
+                },
+                data_fields: BoundedVec::default(),
+                min_records: 0,
+            },
+            LicensePurpose::CannabisResearch,
+            0u128,
+            100u64,
+            BoundedVec::default(),
+            vec![asset_id],
+        ));
+        let license_id = DataSeparation::next_license_id().saturating_sub(1);
+        assert_ok!(DataSeparation::verify_privacy_guarantees(
+            RuntimeOrigin::signed(3), license_id
+        ));
+    });
+}

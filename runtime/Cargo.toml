@@ -58,6 +58,10 @@ pallet-account-management = { path = "../pallets/account-management", default-fe
 pallet-data-separation = { path = "../pallets/data-separation", default-features = false }
 pallet-quantum-results = { path = "../pallets/quantum-results", default-features = false }
 pallet-data-marketplace = { path = "../pallets/data-marketplace", default-features = false }
+pallet-permissioned-validators = { path = "../pallets/permissioned-validators", default-features = false }
+pallet-private-channels = { path = "../pallets/private-channels", default-features = false }
+pallet-enterprise-identity = { path = "../pallets/enterprise-identity", default-features = false }
+pallet-consortium-governance = { path = "../pallets/consortium-governance", default-features = false }
 
 [build-dependencies]
 substrate-wasm-builder = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2407" }
@@ -85,6 +89,10 @@ runtime-benchmarks = [
     "pallet-account-management/runtime-benchmarks",
     "pallet-data-separation/runtime-benchmarks",
     "pallet-data-marketplace/runtime-benchmarks",
+    "pallet-permissioned-validators/runtime-benchmarks",
+    "pallet-private-channels/runtime-benchmarks",
+    "pallet-enterprise-identity/runtime-benchmarks",
+    "pallet-consortium-governance/runtime-benchmarks",
 ]
 try-runtime = [
     "frame-try-runtime",
@@ -145,5 +153,9 @@ std = [
     "pallet-data-separation/std",
     "pallet-quantum-results/std",
     "pallet-data-marketplace/std",
+    "pallet-permissioned-validators/std",
+    "pallet-private-channels/std",
+    "pallet-enterprise-identity/std",
+    "pallet-consortium-governance/std",
 ]
 

@@ -16,7 +16,12 @@ members = [
     "pallets/data-separation",
     "pallets/quantum-results",
     "pallets/data-marketplace",
+    "pallets/permissioned-validators",
+    "pallets/private-channels",
+    "pallets/enterprise-identity",
+    "pallets/consortium-governance",
     "anonymization",
+    "services/fhir-api",
 ]
 resolver = "2"
 

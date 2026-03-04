@@ -18,3 +18,19 @@ Thumbs.db
 # Logs
 *.log
 
+# Node.js
+node_modules/
+**/node_modules/
+
+# Build outputs
+cli/dist/
+**/dist/
+
+# Backups and local data
+backups/
+*.backup
+
+# Environment and secrets
+.env
+.env.local
+.env.*.local

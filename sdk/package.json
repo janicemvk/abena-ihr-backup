@@ -1,0 +1,33 @@
+{
+  "name": "@abena/healthcare-sdk",
+  "version": "4.0.0-dev",
+  "description": "ABENA Healthcare SDK - Substrate blockchain client for patient identity, health records, quantum analysis, and tokens",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rimraf dist",
+    "prepublishOnly": "npm run clean && npm run build"
+  },
+  "keywords": ["healthcare", "blockchain", "substrate", "polkadot", "ABENA", "IHR"],
+  "author": "ABENA Healthcare Platform",
+  "license": "Unlicense",
+  "dependencies": {
+    "@polkadot/api": "^14.0.0",
+    "@polkadot/keyring": "^14.0.0",
+    "@polkadot/util": "^14.0.0",
+    "@polkadot/util-crypto": "^14.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "rimraf": "^5.0.0",
+    "typescript": "^5.0.0"
+  },
+  "files": ["dist/**/*", "README.md"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/abena-healthcare/abena-blockchain.git",
+    "directory": "sdk"
+  }
+}

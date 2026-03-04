@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ABENA Blockchain — Pallet Validation Status</title>
+  <style>
+    :root {
+      --bg:        #0d1117;
+      --surface:   #161b22;
+      --border:    #21262d;
+      --border2:   #30363d;
+      --text:      #e6edf3;
+      --muted:     #8b949e;
+      --green:     #3fb950;
+      --green-dim: #1a3a22;
+      --yellow:    #d29922;
+      --yellow-dim:#2d2209;
+      --orange:    #f0883e;
+      --orange-dim:#2d1a09;
+      --red:       #f85149;
+      --red-dim:   #2d1216;
+      --blue:      #58a6ff;
+      --blue-dim:  #0d2149;
+      --purple:    #bc8cff;
+      --accent:    #1f6feb;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      font-size: 14px; line-height: 1.6; min-height: 100vh;
+    }
+    header {
+      background: linear-gradient(135deg, #0d1117 0%, #1a1f2e 50%, #0d1117 100%);
+      border-bottom: 1px solid var(--border2);
+      padding: 32px 40px 0;
+      position: relative; overflow: hidden;
+    }
+    header::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 20% 50%, rgba(31,111,235,0.08) 0%, transparent 60%),
+                  radial-gradient(ellipse at 80% 50%, rgba(188,140,255,0.05) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .header-inner { max-width: 1100px; margin: 0 auto; position: relative; }
+    .header-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+    .header-title { display: flex; align-items: center; gap: 14px; }
+    .logo {
+      width: 44px; height: 44px;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      border-radius: 10px; display: flex; align-items: center; justify-content: center;
+      font-size: 22px; flex-shrink: 0;
+    }
+    h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+    h1 span { color: var(--blue); }
+    .subtitle { color: var(--muted); font-size: 13px; margin-top: 2px; }
+    .header-meta { text-align: right; }
+    .last-updated { font-size: 12px; color: var(--muted); }
+    .version-badge {
+      display: inline-block; background: var(--blue-dim);
+      border: 1px solid rgba(88,166,255,0.3); color: var(--blue);
+      border-radius: 20px; padding: 2px 10px; font-size: 11px; font-weight: 600; margin-top: 6px;
+    }
+    .summary-bar {
+      max-width: 1100px; margin: 24px auto 0;
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+    }
+    .stat-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 16px 18px;
+    }
+    .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat-value { font-size: 28px; font-weight: 700; margin: 4px 0 2px; line-height: 1; }
+    .stat-sub { font-size: 12px; color: var(--muted); }
+    .stat-card.green .stat-value { color: var(--green); }
+    .stat-card.blue  .stat-value { color: var(--blue); }
+    .stat-card.yellow .stat-value { color: var(--yellow); }
+    .stat-card.purple .stat-value { color: var(--purple); }
+    .progress-wrap { max-width: 1100px; margin: 20px auto 0; padding: 0 40px; }
+    .progress-section {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 18px 20px;
+    }
+    .progress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .progress-title { font-size: 13px; font-weight: 600; }
+    .progress-pct { font-size: 13px; color: var(--muted); }
+    .progress-track { height: 8px; background: var(--border2); border-radius: 4px; overflow: hidden; display: flex; gap: 2px; }
+    .progress-seg { height: 100%; border-radius: 2px; transition: width 0.6s ease; }
+    .progress-legend { display: flex; gap: 16px; margin-top: 10px; flex-wrap: wrap; }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+    .legend-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+    main { max-width: 1100px; margin: 28px auto; padding: 0 40px 60px; }
+    .section-header {
+      display: flex; align-items: center; gap: 10px;
+      margin: 32px 0 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border);
+    }
+    .section-icon { font-size: 18px; }
+    .section-title { font-size: 16px; font-weight: 700; }
+    .section-count {
+      background: var(--border2); color: var(--muted);
+      border-radius: 20px; padding: 1px 9px; font-size: 12px; font-weight: 600;
+    }
+    .table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      background: #1c2128; padding: 10px 14px; text-align: left;
+      font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+      color: var(--muted); border-bottom: 1px solid var(--border2);
+    }
+    tbody tr { border-bottom: 1px solid var(--border); }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: rgba(255,255,255,0.02); }
+    td { padding: 11px 14px; vertical-align: middle; }
+    .pallet-name code {
+      background: var(--border); padding: 2px 7px; border-radius: 4px;
+      font-size: 12px; font-family: "SFMono-Regular", Consolas, monospace; font-weight: 600;
+    }
+    .badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap;
+    }
+    .badge-green  { background: var(--green-dim);  color: var(--green);  border: 1px solid rgba(63,185,80,0.3); }
+    .badge-yellow { background: var(--yellow-dim); color: var(--yellow); border: 1px solid rgba(210,153,34,0.3); }
+    .badge-orange { background: var(--orange-dim); color: var(--orange); border: 1px solid rgba(240,136,62,0.3); }
+    .badge-red    { background: var(--red-dim);    color: var(--red);    border: 1px solid rgba(248,81,73,0.3); }
+    .badge-blue   { background: var(--blue-dim);   color: var(--blue);   border: 1px solid rgba(88,166,255,0.3); }
+    .badge-muted  { background: var(--border);     color: var(--muted);  border: 1px solid var(--border2); }
+    .detail-note { font-size: 11px; color: var(--muted); margin-top: 3px; }
+    .test-meta { font-size: 12px; color: var(--muted); }
+    .eta-week { display: inline-block; background: var(--border); padding: 2px 8px; border-radius: 4px; font-size: 11px; color: var(--muted); }
+    .bench-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 4px; }
+    .bench-card { border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; background: var(--surface); }
+    .bench-card-title { font-size: 13px; font-weight: 700; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+    .bench-item { display: flex; flex-direction: column; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+    .bench-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .bench-pallet { font-family: monospace; font-size: 12px; }
+    .bench-complete-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 10px; margin-top: 4px; }
+    .bench-complete-item {
+      text-align: center; padding: 10px; background: var(--green-dim);
+      border: 1px solid rgba(63,185,80,0.2); border-radius: 8px;
+    }
+    .node-table th, .node-table td { padding: 10px 14px; }
+    footer {
+      border-top: 1px solid var(--border); padding: 20px 40px;
+      max-width: 1100px; margin: 0 auto;
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
+    }
+    .footer-left { font-size: 12px; color: var(--muted); }
+    .footer-right { display: flex; gap: 16px; }
+    .footer-link { font-size: 12px; color: var(--blue); text-decoration: none; }
+    .footer-link:hover { text-decoration: underline; }
+    @media (max-width: 768px) {
+      header { padding: 20px; }
+      .summary-bar { grid-template-columns: repeat(2, 1fr); }
+      main { padding: 0 16px 40px; }
+      .bench-grid { grid-template-columns: 1fr; }
+      .bench-complete-grid { grid-template-columns: repeat(2, 1fr); }
+      .header-meta { display: none; }
+      .progress-wrap { padding: 0 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="app"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+//  DATA — edit this section to update the page
+//  Last updated: 2026-03-03
+// ═══════════════════════════════════════════════════════════════
+
+const META = {
+  lastUpdated: "March 3, 2026",
+  sdkVersion:  "polkadot-stable2407",
+  rustVersion: "Rust 1.93.0",
+  githubUrl:   "https://github.com/janicemvk/abena-ihr-backup",
+  rpcUrl:      "ws://127.0.0.1:9944",
+  prometheusUrl: "http://127.0.0.1:9615",
+};
+
+// Node / infrastructure status rows
+const NODE_STATUS = [
+  { component: "Release Binary",      status: "ok",      label: "Built",              detail: "target/release/abena-node.exe · 30.7 MB · compiled in 26m 48s" },
+  { component: "Dev Chain",           status: "ok",      label: "Producing Blocks",   detail: "--dev --tmp · Aura consensus · 6 s block time" },
+  { component: "JSON-RPC / WS",       status: "ok",      label: "Running",            detail: "ws://127.0.0.1:9944" },
+  { component: "Prometheus Metrics",  status: "ok",      label: "Running",            detail: "http://127.0.0.1:9615" },
+  { component: "Rust Toolchain",      status: "ok",      label: "Stable",             detail: "Rust 1.93.0 · polkadot-stable2407" },
+  { component: "WASM Runtime",        status: "ok",      label: "Generated",          detail: "substrate-wasm-builder · GenesisBuilder exported" },
+];
+
+// ── PALLET DATA ────────────────────────────────────────────────
+// testStatus:  "passed" | "suite_ready" | "basic" | "minimal" | "stub"
+// benchStatus: "complete" | "macro_only" | "stub" | "none"
+//
+// testStatus values map to coloured badges automatically.
+// benchStatus values map to coloured badges automatically.
+//
+// To mark a pallet as fully validated, set testStatus:"passed"
+// and update testedDate.
+
+const PALLETS = [
+  // ── VALIDATED ────────────────────────────────────────────────
+  {
+    name:        "patient-identity",
+    testStatus:  "passed",
+    testedDate:  "2026-02-26",
+    testFns:     47,
+    testLines:   991,
+    benchStatus: "complete",
+    benchFns:    6,
+    benchLines:  187,
+    benchNote:   "register_patient · update_consent · grant_provider_access · revoke_provider_access · verify_provider_access · verify_consent",
+    eta:         "—",
+  },
+  {
+    name:        "abena-coin",
+    testStatus:  "passed",
+    testedDate:  "2026-02-26",
+    testFns:     130,
+    testLines:   2211,
+    benchStatus: "complete",
+    benchFns:    3,
+    benchLines:  272,
+    benchNote:   "",
+    eta:         "—",
+  },
+
+  // ── VALIDATED (2026-03-03) ────────────────────────────────────
+  {
+    name:        "health-record-hash",
+    testStatus:  "passed",
+    testedDate:  "2026-03-03",
+    testFns:     94,
+    testLines:   1958,
+    benchStatus: "complete",
+    benchFns:    3,
+    benchLines:  233,
+    benchNote:   "store_record_hash · update_record_hash · verify_record_integrity",
+    eta:         "—",
+  },
+  {
+    name:        "treatment-protocol",
+    testStatus:  "passed",
+    testedDate:  "2026-03-03",
+    testFns:     93,
+    testLines:   1893,
+    benchStatus: "complete",
+    benchFns:    9,
+    benchLines:  326,
+    benchNote:   "register_protocol · initiate_treatment · record_step_completion · complete_treatment",
+    eta:         "—",
+  },
+  {
+    name:        "quantum-results",
+    testStatus:  "passed",
+    testedDate:  "2026-03-03",
+    testFns:     61,
+    testLines:   1287,
+    benchStatus: "complete",
+    benchFns:    4,
+    benchLines:  223,
+    benchNote:   "attest_quantum_result · enqueue_quantum_job · register_ibm_backend · verify_job_completion",
+    eta:         "—",
+  },
+
+  // ── COMPREHENSIVE SUITES READY ────────────────────────────────
+  {
+    name:        "data-marketplace",
+    testStatus:  "suite_ready",
+    testedDate:  null,
+    testFns:     20,
+    testLines:   438,
+    benchStatus: "complete",
+    benchFns:    6,
+    benchLines:  217,
+    benchNote:   "",
+    eta:         "Week 2",
+  },
+  // ── NEWLY COMPLETED 2026-02-23 ────────────────────────────────
+  {
+    name:        "access-control",
+    testStatus:  "suite_ready",
+    testedDate:  "2026-02-23",
+    testFns:     36,
+    testLines:   320,
+    benchStatus: "complete",
+    benchFns:    7,
+    benchLines:  130,
+    benchNote:   "grant/revoke patient auth · grant/revoke institutional perm · grant/revoke emergency access · check_read_access",
+    eta:         "Week 2",
+  },
+  {
+    name:        "account-management",
+    testStatus:  "suite_ready",
+    testedDate:  "2026-02-23",
+    testFns:     36,
+    testLines:   310,
+    benchStatus: "complete",
+    benchFns:    7,
+    benchLines:  125,
+    benchNote:   "register_account · update_account_tier · submit/verify/reject credential · make/withdraw deposit",
+    eta:         "Week 2",
+  },
+  {
+    name:        "fee-management",
+    testStatus:  "suite_ready",
+    testedDate:  "2026-02-23",
+    testFns:     32,
+    testLines:   290,
+    benchStatus: "complete",
+    benchFns:    8,
+    benchLines:  140,
+    benchNote:   "create/renew/cancel subscription · set_rate_limit · record_usage · check_rate_limit · distribute/claim validator rewards",
+    eta:         "Week 2",
+  },
+  {
+    name:        "governance",
+    testStatus:  "suite_ready",
+    testedDate:  "2026-02-23",
+    testFns:     27,
+    testLines:   260,
+    benchStatus: "complete",
+    benchFns:    4,
+    benchLines:  110,
+    benchNote:   "create_guideline_proposal · create_protocol_proposal · cast_vote · execute_emergency_intervention",
+    eta:         "Week 2",
+  },
+  {
+    name:        "interoperability",
+    testStatus:  "suite_ready",
+    testedDate:  "2026-02-23",
+    testFns:     25,
+    testLines:   250,
+    benchStatus: "complete",
+    benchFns:    5,
+    benchLines:  115,
+    benchNote:   "map_fhir_resource · initiate_cross_chain_exchange · verify_insurance_claim · register_pharmacy · register_lab",
+    eta:         "Week 2",
+  },
+  {
+    name:        "patient-health-records",
+    testStatus:  "suite_ready",
+    testedDate:  "2026-02-23",
+    testFns:     33,
+    testLines:   350,
+    benchStatus: "complete",
+    benchFns:    5,
+    benchLines:  120,
+    benchNote:   "create_health_record · update_health_record · grant_access · revoke_access · update_encryption_metadata",
+    eta:         "Week 2",
+  },
+  {
+    name:        "quantum-computing",
+    testStatus:  "suite_ready",
+    testedDate:  "2026-02-23",
+    testFns:     27,
+    testLines:   270,
+    benchStatus: "complete",
+    benchFns:    5,
+    benchLines:  130,
+    benchNote:   "submit_job · store_result · register_integration_point · update_integration_point · query_result",
+    eta:         "Week 2",
+  },
+  {
+    name:        "data-separation",
+    testStatus:  "suite_ready",
+    testedDate:  "2026-02-23",
+    testFns:     14,
+    testLines:   320,
+    benchStatus: "complete",
+    benchFns:    5,
+    benchLines:  175,
+    benchNote:   "register_data_asset · set_anonymization_preferences · license_data · calculate_compensation · verify_privacy_guarantees",
+    eta:         "Week 2",
+  },
+
+  // ── ADDED 2026-02-27 ────────────────────────────────────────────────
+  {
+    name:        "permissioned-validators",
+    testStatus:  "suite_ready",
+    testedDate:  "2026-02-26",
+    testFns:     35,
+    testLines:   650,
+    benchStatus: "stub",
+    benchFns:    0,
+    benchLines:  0,
+    benchNote:   null,
+    eta:         "—",
+  },
+  {
+    name:        "private-channels",
+    testStatus:  "suite_ready",
+    testedDate:  "2026-02-26",
+    testFns:     40,
+    testLines:   780,
+    benchStatus: "stub",
+    benchFns:    0,
+    benchLines:  0,
+    benchNote:   null,
+    eta:         "—",
+  },
+  {
+    name:        "enterprise-identity",
+    testStatus:  "basic",
+    testedDate:  "2026-02-26",
+    testFns:     3,
+    testLines:   120,
+    benchStatus: "complete",
+    benchFns:    2,
+    benchLines:  55,
+    benchNote:   "register_enterprise_user · revoke_enterprise_user",
+    eta:         "Week 2",
+  },
+  {
+    name:        "consortium-governance",
+    testStatus:  "stub",
+    testedDate:  null,
+    testFns:     0,
+    testLines:   0,
+    benchStatus: "complete",
+    benchFns:    5,
+    benchLines:  112,
+    benchNote:   "register_consortium_member · remove_consortium_member · propose · vote · close_and_execute",
+    eta:         "Week 2",
+  },
+];
+
+// ═══════════════════════════════════════════════════════════════
+//  RENDER ENGINE — no need to edit below this line
+// ═══════════════════════════════════════════════════════════════
+
+// Badge configs
+const TEST_BADGE = {
+  passed:      { cls: "badge-green",  icon: "✓", label: "Passed" },
+  suite_ready: { cls: "badge-blue",   icon: "⏳", label: "Suite ready" },
+  basic:       { cls: "badge-yellow", icon: "⚠", label: "Basic" },
+  minimal:     { cls: "badge-orange", icon: "⚠", label: "Minimal" },
+  stub:        { cls: "badge-red",    icon: "✗", label: "Stub" },
+};
+const BENCH_BADGE = {
+  complete:   { cls: "badge-green",  icon: "✓", label: "Complete" },
+  macro_only: { cls: "badge-orange", icon: "⚠", label: "Shell only" },
+  stub:       { cls: "badge-orange", icon: "⚠", label: "Stub" },
+  none:       { cls: "badge-red",    icon: "✗", label: "None" },
+};
+
+function badge(cfg, extra) {
+  return `<span class="badge ${cfg.cls}">${cfg.icon} ${cfg.label}${extra ? ' ' + extra : ''}</span>`;
+}
+
+function testCell(p) {
+  const b = TEST_BADGE[p.testStatus];
+  const date = p.testedDate ? `<div class="detail-note">Confirmed ${p.testedDate}</div>` : '';
+  return `${badge(b)}<div class="test-meta">${p.testFns} fns · ${p.testLines.toLocaleString()} lines</div>${date}`;
+}
+
+function benchCell(p) {
+  const b = BENCH_BADGE[p.benchStatus];
+  const extra = p.benchStatus === 'complete'
+    ? `<span class="test-meta" style="margin-left:4px">${p.benchFns} fns · ${p.benchLines} lines</span>`
+    : '';
+  const note = p.benchNote ? `<div class="detail-note">${p.benchNote}</div>` : '';
+  return badge(b) + extra + note;
+}
+
+function row(p) {
+  const eta = p.eta === '—' ? '<span style="color:var(--muted)">—</span>'
+                             : `<span class="eta-week">${p.eta}</span>`;
+  return `<tr>
+    <td class="pallet-name"><code>${p.name}</code></td>
+    <td>${testCell(p)}</td>
+    <td>${benchCell(p)}</td>
+    <td>${eta}</td>
+  </tr>`;
+}
+
+function section(icon, title, pallets) {
+  if (!pallets.length) return '';
+  const count = `<span class="section-count">${pallets.length} pallet${pallets.length > 1 ? 's' : ''}</span>`;
+  return `
+    <div class="section-header">
+      <span class="section-icon">${icon}</span>
+      <span class="section-title">${title}</span>
+      ${count}
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>Pallet</th><th>Tests</th><th>Benchmarks</th><th>ETA</th>
+        </tr></thead>
+        <tbody>${pallets.map(row).join('')}</tbody>
+      </table>
+    </div>`;
+}
+
+// Computed stats
+const total        = PALLETS.length;
+const validated    = PALLETS.filter(p => p.testStatus === 'passed').length;
+const comprehensive= PALLETS.filter(p => p.testFns >= 50).length;
+const benchDone    = PALLETS.filter(p => p.benchStatus === 'complete').length;
+const benchMissing = PALLETS.filter(p => p.benchStatus === 'none');
+const benchShell   = PALLETS.filter(p => p.benchStatus === 'macro_only' || p.benchStatus === 'stub');
+
+// Group pallets for sections
+const groups = [
+  { icon: '✅', title: 'Validated & Working',
+    pallets: PALLETS.filter(p => p.testStatus === 'passed') },
+  { icon: '🔄', title: 'Comprehensive Suites Ready — Needs Test Run',
+    pallets: PALLETS.filter(p => p.testStatus === 'suite_ready') },
+  { icon: '⚠️', title: 'Basic Tests — Expansion Needed',
+    pallets: PALLETS.filter(p => p.testStatus === 'basic') },
+  { icon: '🔧', title: 'Stubs Only — Full Implementation Needed',
+    pallets: PALLETS.filter(p => p.testStatus === 'minimal' || p.testStatus === 'stub') },
+];
+
+// Progress bar segments (% of total)
+const pctValidated    = (validated / total * 100).toFixed(1);
+const pctSuiteReady   = (PALLETS.filter(p => p.testStatus === 'suite_ready').length / total * 100).toFixed(1);
+const pctBasic        = (PALLETS.filter(p => p.testStatus === 'basic').length / total * 100).toFixed(1);
+const pctStub         = (PALLETS.filter(p => ['minimal','stub'].includes(p.testStatus)).length / total * 100).toFixed(1);
+
+function nodeStatusRow(n) {
+  const cls = n.status === 'ok' ? 'badge-green' : n.status === 'warn' ? 'badge-yellow' : 'badge-red';
+  const icon = n.status === 'ok' ? '✓' : n.status === 'warn' ? '⚠' : '✗';
+  return `<tr>
+    <td>${n.component}</td>
+    <td><span class="badge ${cls}">${icon} ${n.label}</span></td>
+    <td style="color:var(--muted);font-size:12px">${n.detail}</td>
+  </tr>`;
+}
+
+// ── BUILD PAGE ─────────────────────────────────────────────────
+document.getElementById('app').innerHTML = `
+
+<header>
+  <div class="header-inner">
+    <div class="header-top">
+      <div class="header-title">
+        <div class="logo">⛓</div>
+        <div>
+          <h1>ABENA <span>Blockchain</span></h1>
+          <div class="subtitle">Integrative Health Records — Pallet Validation Status</div>
+        </div>
+      </div>
+      <div class="header-meta">
+        <div class="last-updated">Last updated: ${META.lastUpdated}</div>
+        <div class="version-badge">${META.sdkVersion}</div>
+      </div>
+    </div>
+
+    <div class="summary-bar">
+      <div class="stat-card green">
+        <div class="stat-label">Runtime Integrated</div>
+        <div class="stat-value">${total}<span style="font-size:16px;color:var(--muted)">/${total}</span></div>
+        <div class="stat-sub">All pallets in construct_runtime!</div>
+      </div>
+      <div class="stat-card blue">
+        <div class="stat-label">Validated &amp; Working</div>
+        <div class="stat-value">${validated}<span style="font-size:16px;color:var(--muted)">/${total}</span></div>
+        <div class="stat-sub">Tests run &amp; confirmed passing</div>
+      </div>
+      <div class="stat-card yellow">
+        <div class="stat-label">Comprehensive Tests</div>
+        <div class="stat-value">${comprehensive}<span style="font-size:16px;color:var(--muted)">/${total}</span></div>
+        <div class="stat-sub">50+ test functions each</div>
+      </div>
+      <div class="stat-card purple">
+        <div class="stat-label">Benchmarks Complete</div>
+        <div class="stat-value">${benchDone}<span style="font-size:16px;color:var(--muted)">/${total}</span></div>
+        <div class="stat-sub">Real benchmark functions present</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="progress-wrap">
+  <div class="progress-section">
+    <div class="progress-header">
+      <span class="progress-title">Overall Validation Progress</span>
+      <span class="progress-pct">${validated} of ${total} fully validated · ${pctValidated}% complete</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-seg" style="width:${pctValidated}%;background:var(--green)" title="Validated: ${validated}"></div>
+      <div class="progress-seg" style="width:${pctSuiteReady}%;background:var(--blue)"  title="Suite ready"></div>
+      <div class="progress-seg" style="width:${pctBasic}%;background:var(--yellow)"    title="Basic tests"></div>
+      <div class="progress-seg" style="width:${pctStub}%;background:#3d2b2b"           title="Stubs/minimal"></div>
+    </div>
+    <div class="progress-legend">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Validated (${validated})</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div>Suite ready (${PALLETS.filter(p=>p.testStatus==='suite_ready').length})</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--yellow)"></div>Basic tests (${PALLETS.filter(p=>p.testStatus==='basic').length})</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#3d2b2b"></div>Stubs / minimal (${PALLETS.filter(p=>['minimal','stub'].includes(p.testStatus)).length})</div>
+    </div>
+  </div>
+</div>
+
+<main>
+
+  ${groups.map(g => section(g.icon, g.title, g.pallets)).join('')}
+
+  <!-- Benchmark detail -->
+  <div class="section-header" style="margin-top:40px">
+    <span class="section-icon">📊</span>
+    <span class="section-title">Benchmark Status Detail</span>
+  </div>
+
+  <div class="bench-grid">
+
+    <div class="bench-card">
+      <div class="bench-card-title">
+        <span class="badge badge-red">✗ Entirely Missing</span>
+        <span style="color:var(--muted);font-size:12px;font-weight:400">No benchmarking.rs · ${benchMissing.length} pallets</span>
+      </div>
+      ${benchMissing.map(p => `
+        <div class="bench-item">
+          <span class="bench-pallet">${p.name}</span>
+          <span class="detail-note">${p.benchNote}</span>
+        </div>`).join('')}
+    </div>
+
+    <div class="bench-card">
+      <div class="bench-card-title">
+        <span class="badge badge-orange">⚠ Needs More Than Minimal Work</span>
+        <span style="color:var(--muted);font-size:12px;font-weight:400">File exists, 0 fns · ${benchShell.length} pallets</span>
+      </div>
+      ${benchShell.map(p => `
+        <div class="bench-item">
+          <span class="bench-pallet">${p.name} <span style="color:var(--muted)">(${p.benchLines} lines)</span></span>
+          <span class="detail-note">${p.benchNote}</span>
+        </div>`).join('')}
+    </div>
+
+    <div class="bench-card" style="grid-column:1/-1">
+      <div class="bench-card-title">
+        <span class="badge badge-green">✓ Benchmarks Complete</span>
+        <span style="color:var(--muted);font-size:12px;font-weight:400">${benchDone} pallets · real benchmark functions present</span>
+      </div>
+      <div class="bench-complete-grid">
+        ${PALLETS.filter(p => p.benchStatus === 'complete').map(p => `
+          <div class="bench-complete-item">
+            <div style="font-family:monospace;font-size:12px;color:var(--green)">${p.name}</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:3px">${p.benchFns} fns · ${p.benchLines} lines</div>
+          </div>`).join('')}
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Node status -->
+  <div class="section-header" style="margin-top:40px">
+    <span class="section-icon">🖥</span>
+    <span class="section-title">Node Status</span>
+  </div>
+  <div class="table-wrap">
+    <table class="node-table">
+      <thead><tr><th>Component</th><th>Status</th><th>Details</th></tr></thead>
+      <tbody>${NODE_STATUS.map(nodeStatusRow).join('')}</tbody>
+    </table>
+  </div>
+
+</main>
+
+<footer>
+  <div class="footer-left">ABENA Blockchain · ${META.sdkVersion} · ${META.rustVersion}</div>
+  <div class="footer-right">
+    <a class="footer-link" href="https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A9944" target="_blank">Polkadot.js Apps ↗</a>
+    <a class="footer-link" href="${META.githubUrl}" target="_blank">GitHub ↗</a>
+  </div>
+</footer>
+`;
+</script>
+</body>
+</html>

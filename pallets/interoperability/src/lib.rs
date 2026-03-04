@@ -174,6 +174,7 @@ pub mod pallet {
             resource_type: FHIRResourceType,
             fhir_resource_hash: H256,
             blockchain_record_id: Vec<u8>,
+            data_standard: DataStandard,
         ) -> DispatchResult {
             let _mapper = ensure_signed(origin)?;
 
@@ -185,6 +186,7 @@ pub mod pallet {
                 fhir_resource_hash,
                 blockchain_record_id: blockchain_record_id_bounded,
                 mapped_at: <frame_system::Pallet<T>>::block_number(),
+                data_standard,
             };
 
             FHIRResources::<T>::insert(&patient, &resource_type, mapping);
@@ -362,6 +364,22 @@ pub type PharmacyId = u32;
 /// Lab ID type
 pub type LabId = u32;
 
+/// Healthcare data standard for interoperability
+#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[allow(non_camel_case_types)] // HL7, FHIR, IHE, XDS are industry-standard acronyms
+pub enum DataStandard {
+    /// HL7 FHIR R4
+    HL7_FHIR_R4,
+    /// HL7 Version 2.x
+    HL7_V2,
+    /// CDA (Clinical Document Architecture)
+    CDA,
+    /// DICOM (medical imaging)
+    DICOM,
+    /// IHE XDS (Cross-Enterprise Document Sharing)
+    IHE_XDS,
+}
+
 /// FHIR resource type
 #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub enum FHIRResourceType {
@@ -375,6 +393,8 @@ pub enum FHIRResourceType {
     Condition,
     /// Procedure resource
     Procedure,
+    /// DiagnosticReport resource
+    DiagnosticReport,
     /// Other resource type
     Other(BoundedVec<u8, ConstU32<256>>),
 }
@@ -385,10 +405,12 @@ pub enum FHIRResourceType {
 pub struct FHIRResourceMapping<T: frame_system::Config> {
     /// Hash of the FHIR resource
     pub fhir_resource_hash: sp_core::H256,
-    /// Blockchain record ID
+    /// Blockchain record ID (e.g. IPFS CID)
     pub blockchain_record_id: BoundedVec<u8, ConstU32<256>>,
     /// Block number when mapped
     pub mapped_at: BlockNumberFor<T>,
+    /// Data standard (HL7 FHIR R4, HL7 V2, CDA, DICOM, IHE XDS)
+    pub data_standard: DataStandard,
 }
 
 /// Cross-chain exchange

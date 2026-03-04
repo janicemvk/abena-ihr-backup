@@ -1,0 +1,21 @@
+[package]
+name = "fhir-api"
+version = "4.0.0-dev"
+description = "ABENA FHIR REST API - Off-chain bridge for HL7 FHIR ↔ blockchain"
+authors = ["ABENA Healthcare Platform"]
+license = "Unlicense"
+edition = "2021"
+
+[[bin]]
+name = "fhir-api"
+path = "src/main.rs"
+
+[dependencies]
+axum = { version = "0.7", features = ["json"] }
+tower-http = { version = "0.5", features = ["cors"] }
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+jsonrpsee = { version = "0.23", features = ["http-client"] }

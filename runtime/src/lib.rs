@@ -1,6 +1,7 @@
 //! ABENA Healthcare Blockchain Runtime
 
 #![cfg_attr(not(feature = "std"), no_std)]
+#![recursion_limit = "256"]
 
 #[cfg(feature = "std")]
 include!(concat!(env!("OUT_DIR"), "/wasm_binary.rs"));
@@ -50,6 +51,10 @@ pub use pallet_account_management;
 pub use pallet_data_separation;
 pub use pallet_quantum_results;
 pub use pallet_data_marketplace;
+pub use pallet_permissioned_validators;
+pub use pallet_private_channels;
+pub use pallet_enterprise_identity;
+pub use pallet_consortium_governance;
 
 /// An index to a block.
 pub type BlockNumber = u32;
@@ -177,6 +182,10 @@ construct_runtime!(
         DataSeparation: pallet_data_separation,
         QuantumResults: pallet_quantum_results,
         DataMarketplace: pallet_data_marketplace,
+        PermissionedValidators: pallet_permissioned_validators,
+        PrivateChannels: pallet_private_channels,
+        EnterpriseIdentity: pallet_enterprise_identity,
+        ConsortiumGovernance: pallet_consortium_governance,
     }
 );
 
@@ -436,6 +445,93 @@ impl pallet_data_marketplace::Config for Runtime {
     type WeightInfo = ();
 }
 
+parameter_types! {
+    pub const MaxPermissionedValidators: u32 = 100;
+    pub const MaxRegisteredInstitutions: u32 = 500;
+}
+
+parameter_types! {
+    pub const MaxMembersPerChannel: u32 = 50;
+    pub const MaxChannelsPerMember: u32 = 20;
+    pub const MaxEntriesPerChannel: u32 = 10_000;
+}
+
+impl pallet_private_channels::Config for Runtime {
+    type RuntimeEvent = Event;
+    type MaxMembersPerChannel = MaxMembersPerChannel;
+    type MaxChannelsPerMember = MaxChannelsPerMember;
+    type MaxEntriesPerChannel = MaxEntriesPerChannel;
+    type WeightInfo = pallet_private_channels::weights::SubstrateWeight<Runtime>;
+}
+
+impl pallet_enterprise_identity::Config for Runtime {
+    type RuntimeEvent = Event;
+    type WeightInfo = pallet_enterprise_identity::weights::SubstrateWeight<Runtime>;
+    type RegisterOrigin = frame_system::EnsureRoot<AccountId>;
+}
+
+parameter_types! {
+    pub const ConsortiumVotingPeriod: u32 = 100_800; // ~7 days at 6s/block
+    pub const ConsortiumEmergencyVotingPeriod: u32 = 14_400; // ~24 hours at 6s/block
+    pub const ConsortiumApprovalThreshold: Permill = Permill::from_percent(67); // 2/3 for normal
+    pub const ConsortiumEmergencyApprovalThreshold: Permill = Permill::from_percent(75); // 75% for emergency
+}
+
+impl pallet_consortium_governance::Config for Runtime {
+    type RuntimeEvent = Event;
+    type WeightInfo = pallet_consortium_governance::weights::SubstrateWeight<Runtime>;
+    type RegisterOrigin = frame_system::EnsureRoot<AccountId>;
+    type VotingPeriod = ConsortiumVotingPeriod;
+    type EmergencyVotingPeriod = ConsortiumEmergencyVotingPeriod;
+    type ApprovalThreshold = ConsortiumApprovalThreshold;
+    type EmergencyApprovalThreshold = ConsortiumEmergencyApprovalThreshold;
+}
+
+/// Bridges propose_new_validator to consortium-governance: builds the add_validator call
+/// and submits it via ConsortiumGovernance::propose for weighted consortium vote.
+struct AbenaValidatorProposalSubmitter;
+
+impl pallet_permissioned_validators::ValidatorProposalSubmitter<Runtime> for AbenaValidatorProposalSubmitter {
+    fn submit_validator_proposal(
+        origin: <Runtime as frame_system::Config>::RuntimeOrigin,
+        candidate: AccountId,
+        institution_name: sp_std::vec::Vec<u8>,
+        role: pallet_permissioned_validators::ValidatorRole,
+        consortium_id: u32,
+    ) -> frame_support::dispatch::DispatchResult {
+        use pallet_consortium_governance::MaxProposalCallLen;
+        use sp_runtime::BoundedVec;
+
+        let inner_call = pallet_permissioned_validators::Call::<Runtime>::add_validator {
+            validator: candidate,
+            institution_name,
+            role,
+            consortium_id,
+        };
+        let runtime_call = Call::PermissionedValidators(inner_call);
+        let encoded = runtime_call.encode();
+
+        let bounded = BoundedVec::<u8, MaxProposalCallLen>::try_from(encoded)
+            .map_err(|_| frame_support::dispatch::DispatchError::Other("Proposal call too large"))?;
+
+        pallet_consortium_governance::Pallet::<Runtime>::propose(
+            origin,
+            bounded,
+            pallet_consortium_governance::ProposalPriority::Normal,
+        )
+    }
+}
+
+impl pallet_permissioned_validators::Config for Runtime {
+    type RuntimeEvent = Event;
+    /// Only Root (Sudo) or a future governance collective may change validators/mode.
+    type AdminOrigin = frame_system::EnsureRoot<AccountId>;
+    type MaxValidators = MaxPermissionedValidators;
+    type MaxInstitutions = MaxRegisteredInstitutions;
+    type WeightInfo = pallet_permissioned_validators::weights::SubstrateWeight<Runtime>;
+    type ValidatorProposalSubmitter = AbenaValidatorProposalSubmitter;
+}
+
 /// The address format for describing accounts.
 pub type Address = MultiAddress<AccountId, ()>;
 /// Block header type as expected by this runtime.
@@ -496,6 +592,9 @@ mod benches {
         [pallet_fee_management, FeeManagement]
         [pallet_access_control, AccessControl]
         [pallet_account_management, AccountManagement]
+        [pallet_permissioned_validators, PermissionedValidators]
+        [pallet_private_channels, PrivateChannels]
+        [pallet_enterprise_identity, EnterpriseIdentity]
     );
 }
 
