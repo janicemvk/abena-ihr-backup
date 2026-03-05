@@ -1,6 +1,3 @@
-//! ABENA Healthcare Blockchain Runtime
-
-#![cfg_attr(not(feature = "std"), no_std)]
 #![recursion_limit = "256"]
 
 #[cfg(feature = "std")]
@@ -26,6 +23,8 @@ use sp_runtime::{
 };
 use sp_std::prelude::*;
 use sp_version::RuntimeVersion;
+
+use codec::Encode;
 
 pub use sp_consensus_aura::sr25519::AuthorityId as AuraId;
 pub use sp_runtime::{MultiAddress, Perbill, Permill};
@@ -498,7 +497,7 @@ impl pallet_permissioned_validators::ValidatorProposalSubmitter<Runtime> for Abe
         institution_name: sp_std::vec::Vec<u8>,
         role: pallet_permissioned_validators::ValidatorRole,
         consortium_id: u32,
-    ) -> frame_support::dispatch::DispatchResult {
+    ) -> sp_runtime::DispatchResult {
         use pallet_consortium_governance::MaxProposalCallLen;
         use sp_runtime::BoundedVec;
 
@@ -512,8 +511,7 @@ impl pallet_permissioned_validators::ValidatorProposalSubmitter<Runtime> for Abe
         let encoded = runtime_call.encode();
 
         let bounded = BoundedVec::<u8, MaxProposalCallLen>::try_from(encoded)
-            .map_err(|_| frame_support::dispatch::DispatchError::Other("Proposal call too large"))?;
-
+        .map_err(|_| sp_runtime::DispatchError::Other("Proposal call too large"))?;
         pallet_consortium_governance::Pallet::<Runtime>::propose(
             origin,
             bounded,
