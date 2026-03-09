@@ -1,0 +1,16 @@
+[package]
+name = "ring"
+version = "0.0.6"
+edition = "2021"
+description = "Shim crate: re-exports w3f-ring-proof for Polkadot SDK compatibility"
+license = "MIT/Apache-2.0"
+
+[dependencies]
+w3f-ring-proof = { git = "https://github.com/w3f/ring-proof", default-features = false }
+
+[features]
+default = ["std"]
+std = ["w3f-ring-proof/std"]
+parallel = ["w3f-ring-proof/parallel"]
+# bandersnatch_vrfs may request getrandom; w3f-ring-proof doesn't have it, no-op
+getrandom = []

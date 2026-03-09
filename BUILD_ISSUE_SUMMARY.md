@@ -19,7 +19,7 @@
 - ❌ `polkadot-v1.4.0` - fflonk issue
 - ❌ `polkadot-v1.5.0` - fflonk issue  
 - ❌ `polkadot-v1.6.0+` - fflonk issue
-- ❌ `polkadot-stable2407-1/2` - enum conflict + fflonk issue
+- ❌ `polkadot-v1.9.0-1/2` - enum conflict + fflonk issue
 
 ## Root Cause
 

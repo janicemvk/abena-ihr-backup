@@ -6,9 +6,10 @@ include!(concat!(env!("OUT_DIR"), "/wasm_binary.rs"));
 pub mod constants;
 pub mod weights;
 
+use frame_support::genesis_builder_helper::{build_config, create_default_config};
 use frame_support::{
     construct_runtime, parameter_types,
-    traits::{ConstBool, ConstU128, ConstU32, ConstU64, ConstU8, Everything},
+    traits::{ConstBool, ConstU32, ConstU64, ConstU8, Everything},
     weights::{constants::WEIGHT_REF_TIME_PER_SECOND, Weight},
     PalletId,
 };
@@ -252,7 +253,7 @@ impl pallet_aura::Config for Runtime {
     type MaxAuthorities = ConstU32<32>;
     type DisabledValidators = ();
     type AllowMultipleBlocksPerSlot = ConstBool<false>;
-    type SlotDuration = ConstU64<{ SLOT_DURATION }>;
+    type SlotDuration = pallet_aura::MinimumPeriodTimesTwo<Runtime>;
 }
 
 impl pallet_timestamp::Config for Runtime {
@@ -488,7 +489,7 @@ impl pallet_consortium_governance::Config for Runtime {
 
 /// Bridges propose_new_validator to consortium-governance: builds the add_validator call
 /// and submits it via ConsortiumGovernance::propose for weighted consortium vote.
-struct AbenaValidatorProposalSubmitter;
+pub struct AbenaValidatorProposalSubmitter;
 
 impl pallet_permissioned_validators::ValidatorProposalSubmitter<Runtime> for AbenaValidatorProposalSubmitter {
     fn submit_validator_proposal(
@@ -675,11 +676,11 @@ impl_runtime_apis! {
 
     impl sp_consensus_aura::AuraApi<Block, AuraId> for Runtime {
         fn slot_duration() -> sp_consensus_aura::SlotDuration {
-            sp_consensus_aura::SlotDuration::from_millis(MILLISECS_PER_BLOCK)
+            sp_consensus_aura::SlotDuration::from_millis(Aura::slot_duration())
         }
 
         fn authorities() -> Vec<AuraId> {
-            pallet_aura::Authorities::<Runtime>::get().to_vec()
+            Aura::authorities().into_inner()
         }
     }
 
@@ -711,16 +712,12 @@ impl_runtime_apis! {
     }
 
     impl sp_genesis_builder::GenesisBuilder<Block> for Runtime {
-        fn build_state(json: sp_std::vec::Vec<u8>) -> sp_genesis_builder::Result {
-            frame_support::genesis_builder_helper::build_state::<RuntimeGenesisConfig>(json)
+        fn create_default_config() -> sp_std::vec::Vec<u8> {
+            create_default_config::<RuntimeGenesisConfig>()
         }
 
-        fn get_preset(name: &Option<sp_genesis_builder::PresetId>) -> Option<sp_std::vec::Vec<u8>> {
-            frame_support::genesis_builder_helper::get_preset::<RuntimeGenesisConfig>(name, |_| None)
-        }
-
-        fn preset_names() -> sp_std::vec::Vec<sp_genesis_builder::PresetId> {
-            vec![]
+        fn build_config(json: sp_std::vec::Vec<u8>) -> sp_genesis_builder::Result {
+            build_config::<RuntimeGenesisConfig>(json)
         }
     }
 }

@@ -19,7 +19,7 @@
 ### Project Configuration
 
 - **Workspace**: 8 pallets + runtime + node
-- **Dependencies**: Polkadot SDK (tag: `polkadot-stable2409`)
+- **Dependencies**: Polkadot SDK (tag: `polkadot-v1.9.0`)
 - **Rust Edition**: 2021
 - **Build Profile**: Release (optimized)
 

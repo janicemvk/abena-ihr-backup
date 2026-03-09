@@ -11,7 +11,7 @@
 ## ❌ Remaining Issues:
 
 ### Issue 1: Enum Index Conflict
-**Versions Affected**: `polkadot-stable2407`, `polkadot-stable2409-1`
+**Versions Affected**: `polkadot-v1.9.0`, `polkadot-v1.9.0-1`
 **Error**: `Consensus` and `RemoteCallResponse` both have index `6`
 **Location**: `substrate/client/network/src/protocol/message.rs`
 
@@ -21,7 +21,7 @@
 
 ## Current Status:
 
-- **SDK Version**: `polkadot-stable2409-1` (with consistent versions)
+- **SDK Version**: `polkadot-v1.9.0-1` (with consistent versions)
 - **Status**: Enum conflict still present
 - **Your Code**: All 8 pallets correctly implemented ✓
 
@@ -29,11 +29,11 @@
 
 | Version | fflonk Issue | Enum Conflict | Status |
 |---------|-------------|---------------|--------|
-| polkadot-stable2409 | ❌ | ✅ | Failed - enum conflict |
-| polkadot-stable2409-1 | ❌ | ✅ | Failed - enum conflict |
-| polkadot-stable2407-2 | ❌ | ✅ | Failed - enum conflict |
-| polkadot-stable2407-1 | ❌ | ✅ | Failed - enum conflict |
-| polkadot-stable2407 | ✅ | ❌ | Failed - enum conflict (but no fflonk!) |
+| polkadot-v1.9.0 | ❌ | ✅ | Failed - enum conflict |
+| polkadot-v1.9.0-1 | ❌ | ✅ | Failed - enum conflict |
+| polkadot-v1.9.0-2 | ❌ | ✅ | Failed - enum conflict |
+| polkadot-v1.9.0-1 | ❌ | ✅ | Failed - enum conflict |
+| polkadot-v1.9.0 | ✅ | ❌ | Failed - enum conflict (but no fflonk!) |
 | polkadot-v1.9.0 | ❌ | ✅ | Failed - fflonk |
 | polkadot-v1.8.0 | ❌ | ✅ | Failed - fflonk |
 | polkadot-v1.7.2 | ❌ | ✅ | Failed - fflonk |
@@ -43,7 +43,7 @@
 
 ## Key Finding:
 
-**`polkadot-stable2407` (base tag) works for fflonk but has enum conflict!**
+**`polkadot-v1.9.0` (base tag) works for fflonk but has enum conflict!**
 
 This suggests the enum conflict might be fixable with a patch or by using a different approach.
 

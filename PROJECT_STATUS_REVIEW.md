@@ -82,7 +82,7 @@ All pallets are fully implemented with tests, benchmarking, and weights:
 
 **Location**: `substrate/client/network/src/protocol/message.rs` in Polkadot SDK
 
-**Root Cause**: Bug in Polkadot SDK version `polkadot-stable2407-1`
+**Root Cause**: Bug in Polkadot SDK version `polkadot-v1.9.0-1`
 
 **Status**: This is a bug in the SDK itself, not in your code. All your pallets are correctly implemented.
 
@@ -91,7 +91,7 @@ All pallets are fully implemented with tests, benchmarking, and weights:
 ### Immediate Priority: Fix Build Issue
 1. **Switch to a compatible Polkadot SDK version**
    - Try `polkadot-v1.5.0` (stable release without enum conflicts)
-   - Or try `polkadot-stable2407` (base tag without suffix)
+   - Or try `polkadot-v1.9.0` (base tag without suffix)
 
 ### After Build Succeeds:
 2. **Verify Build**
@@ -130,5 +130,5 @@ All pallets are fully implemented with tests, benchmarking, and weights:
 
 ## 🔧 Next Action
 
-**Immediate**: Update `Cargo.toml` files to use `polkadot-v1.5.0` instead of `polkadot-stable2407-1` to resolve the enum conflict.
+**Immediate**: Update `Cargo.toml` files to use `polkadot-v1.5.0` instead of `polkadot-v1.9.0-1` to resolve the enum conflict.
 

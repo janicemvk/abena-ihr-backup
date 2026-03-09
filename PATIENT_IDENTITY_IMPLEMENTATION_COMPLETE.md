@@ -148,7 +148,7 @@ All comprehensive errors implemented:
   - `sp-std` (for no_std compatibility)
   - `sp-runtime` (for runtime types)
 - ✅ Both `std` and `no-std` features configured
-- ✅ Compatible with Polkadot SDK v1.0.0+ (using polkadot-stable2407)
+- ✅ Compatible with Polkadot SDK v1.0.0+ (using polkadot-v1.9.0)
 
 ### ✅ Tests
 

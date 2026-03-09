@@ -3,7 +3,7 @@
 ## ✅ What We Just Fixed
 
 ### Updated Polkadot SDK Version
-- **Changed from**: `polkadot-stable2407-1` (has enum index conflict bug)
+- **Changed from**: `polkadot-v1.9.0-1` (has enum index conflict bug)
 - **Changed to**: `polkadot-v1.5.0` (stable release without known issues)
 
 ### Files Updated
@@ -111,7 +111,7 @@ cargo test -p pallet-patient-identity
 If `polkadot-v1.5.0` doesn't work, try:
 - `polkadot-v1.4.0`
 - `polkadot-v1.6.0`
-- `polkadot-stable2407` (base tag without suffix)
+- `polkadot-v1.9.0` (base tag without suffix)
 
 ### Get Help
 - Check Polkadot SDK GitHub issues

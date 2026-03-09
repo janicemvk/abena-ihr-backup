@@ -17,9 +17,9 @@ This is happening in: `substrate/client/network/src/protocol/message.rs`
 2. ✅ **OpenSSL Fixed** - Using vcpkg (working)
 3. ✅ **protoc Configured** - Protocol Buffers path set (working)
 4. ❌ **Polkadot SDK Versions** - Multiple tags have issues:
-   - `polkadot-stable2409` - Enum index conflict
-   - `polkadot-stable2407-2` - Enum index conflict
-   - `polkadot-stable2407-1` - Enum index conflict
+   - `polkadot-v1.9.0` - Enum index conflict
+   - `polkadot-v1.9.0-2` - Enum index conflict
+   - `polkadot-v1.9.0-1` - Enum index conflict
    - `polkadot-v1.9.0` - Missing fflonk dependency
    - `polkadot-v1.8.0` - Missing fflonk dependency
    - `polkadot-v1.7.2` - Missing fflonk dependency
@@ -34,7 +34,7 @@ This is happening in: `substrate/client/network/src/protocol/message.rs`
 ## Next Options
 
 ### Option 1: Try Base Tag (No Suffix)
-Try `polkadot-stable2407` (without `-1` or `-2`)
+Try `polkadot-v1.9.0` (without `-1` or `-2`)
 
 ### Option 2: Try Earlier Stable Version
 Try `polkadot-v1.5.0` or `polkadot-v1.4.0` (may not have these issues)
@@ -47,7 +47,7 @@ Switch from Polkadot SDK to Substrate directly (more work)
 
 ## Recommendation
 
-Try `polkadot-stable2407` (base tag) first, then if that fails, try `polkadot-v1.5.0`.
+Try `polkadot-v1.9.0` (base tag) first, then if that fails, try `polkadot-v1.5.0`.
 
 
 

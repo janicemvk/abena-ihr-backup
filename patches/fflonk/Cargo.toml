@@ -1,0 +1,14 @@
+[package]
+name = "fflonk"
+version = "0.0.5"
+edition = "2021"
+description = "Shim crate: re-exports w3f-pcs for Polkadot SDK compatibility"
+license = "MIT/Apache-2.0"
+
+[dependencies]
+w3f-pcs = { git = "https://github.com/w3f/fflonk", default-features = false }
+
+[features]
+default = []
+std = ["w3f-pcs/std"]
+parallel = ["w3f-pcs/parallel"]

@@ -3,9 +3,9 @@
 ## ✅ Attempted Solutions
 
 ### 1. Different Polkadot SDK Versions
-- ✅ `polkadot-stable2409` - **Result**: Enum index conflict (Consensus/RemoteCallResponse both index 6)
-- ✅ `polkadot-stable2407-2` - **Result**: Enum index conflict
-- ✅ `polkadot-stable2407-1` - **Result**: Enum index conflict
+- ✅ `polkadot-v1.9.0` - **Result**: Enum index conflict (Consensus/RemoteCallResponse both index 6)
+- ✅ `polkadot-v1.9.0-2` - **Result**: Enum index conflict
+- ✅ `polkadot-v1.9.0-1` - **Result**: Enum index conflict
 - ✅ `polkadot-v1.9.0` - **Result**: fflonk dependency not found
 - ✅ `polkadot-v1.8.0` - **Result**: fflonk dependency not found
 - ✅ `polkadot-v1.7.2` - **Result**: fflonk dependency not found

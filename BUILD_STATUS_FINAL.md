@@ -16,9 +16,9 @@
 **Location**: `substrate/client/network/src/protocol/message.rs` in Polkadot SDK
 
 **Affected Versions**:
-- `polkadot-stable2407-1` ❌
-- `polkadot-stable2407-2` ❌
-- `polkadot-stable2409` ❌
+- `polkadot-v1.9.0-1` ❌
+- `polkadot-v1.9.0-2` ❌
+- `polkadot-v1.9.0` ❌
 
 **This is a bug in the Polkadot SDK itself, not your code.**
 

@@ -1,7 +1,14 @@
-﻿# Find the sc-network source file in Cargo's git cache
-$sdkPath = Get-ChildItem -Path "$env:USERPROFILE\.cargo\git\checkouts\polkadot-sdk-*" -Recurse -Directory | 
-    Where-Object { $_.FullName -like "*polkadot-stable2407*" } | 
-    Select-Object -First 1
+# Find the sc-network source file in Cargo's git cache
+$checkoutsDir = Join-Path $env:USERPROFILE ".cargo\git\checkouts"
+$sdkDirs = Get-ChildItem -Path $checkoutsDir -Directory -Filter "polkadot-sdk-*" -ErrorAction SilentlyContinue
+$sdkPath = $null
+foreach ($dir in $sdkDirs) {
+    $revDirs = Get-ChildItem -Path $dir.FullName -Directory -ErrorAction SilentlyContinue
+    if ($revDirs) {
+        $sdkPath = $revDirs[0]  # Use first rev (e.g. 3c3d6fc)
+        break
+    }
+}
 
 if (-not $sdkPath) {
     Write-Host "SDK not found. Run 'cargo build' first to download dependencies." -ForegroundColor Yellow
@@ -21,24 +28,31 @@ Write-Host "Patching: $messageFile" -ForegroundColor Cyan
 # Read the file
 $content = Get-Content $messageFile -Raw
 
-# Find RemoteCallResponse and change its index from 6 to 7
-# Look for the pattern with index = 6 before RemoteCallResponse
-if ($content -match '(?s)(\s+#\[codec\(index = 6\)\]\s+RemoteCallResponse)') {
-    $content = $content -replace '(\s+#\[codec\(index = 6\)\]\s+RemoteCallResponse)', '        #[codec(index = 7)]
-        RemoteCallResponse'
-    Set-Content -Path $messageFile -Value $content -NoNewline
-    Write-Host "✓ Fixed enum conflict: Changed RemoteCallResponse index from 6 to 7" -ForegroundColor Green
-} else {
-    Write-Host "Pattern not found. Searching for RemoteCallResponse..." -ForegroundColor Yellow
-    if ($content -match 'RemoteCallResponse') {
-        Write-Host "Found RemoteCallResponse. Checking current index..." -ForegroundColor Yellow
-        # Try alternative pattern
-        if ($content -match '(?s)(RemoteCallResponse.*?index = )(\d+)') {
-            $currentIndex = $matches[2]
-            Write-Host "Current index: $currentIndex" -ForegroundColor Yellow
-        }
-        Write-Host "Manual edit may be needed." -ForegroundColor Yellow
-    } else {
-        Write-Host "RemoteCallResponse not found in file." -ForegroundColor Red
+# Consensus has index 6; variants after it get implicit 6,7,8... causing duplicate.
+# Add explicit indices to RemoteCallRequest through RemoteReadChildRequest.
+$replacements = @(
+    @{ Pattern = '(\s+/// Remote method call request\.\r?\n)(\s+RemoteCallRequest)'; Replacement = "`$1    #[codec(index = 7)]`n`$2" }
+    @{ Pattern = '(\s+/// Remote method call response\.\r?\n)(\s+RemoteCallResponse)'; Replacement = "`$1    #[codec(index = 8)]`n`$2" }
+    @{ Pattern = '(\s+/// Remote storage read request\.\r?\n)(\s+RemoteReadRequest)'; Replacement = "`$1    #[codec(index = 9)]`n`$2" }
+    @{ Pattern = '(\s+/// Remote storage read response\.\r?\n)(\s+RemoteReadResponse)'; Replacement = "`$1    #[codec(index = 10)]`n`$2" }
+    @{ Pattern = '(\s+/// Remote header request\.\r?\n)(\s+RemoteHeaderRequest)'; Replacement = "`$1    #[codec(index = 11)]`n`$2" }
+    @{ Pattern = '(\s+/// Remote header response\.\r?\n)(\s+RemoteHeaderResponse)'; Replacement = "`$1    #[codec(index = 12)]`n`$2" }
+    @{ Pattern = '(\s+/// Remote changes request\.\r?\n)(\s+RemoteChangesRequest)'; Replacement = "`$1    #[codec(index = 13)]`n`$2" }
+    @{ Pattern = '(\s+/// Remote changes response\.\r?\n)(\s+RemoteChangesResponse)'; Replacement = "`$1    #[codec(index = 14)]`n`$2" }
+    @{ Pattern = '(\s+/// Remote child storage read request\.\r?\n)(\s+RemoteReadChildRequest)'; Replacement = "`$1    #[codec(index = 15)]`n`$2" }
+)
+
+$modified = $false
+foreach ($r in $replacements) {
+    if ($content -match $r.Pattern) {
+        $content = $content -replace $r.Pattern, $r.Replacement
+        $modified = $true
     }
+}
+
+if ($modified) {
+    Set-Content -Path $messageFile -Value $content -NoNewline
+    Write-Host "✓ Fixed enum conflict: Added explicit codec indices" -ForegroundColor Green
+} else {
+    Write-Host 'Patterns not found - file may already be patched.' -ForegroundColor Yellow
 }

@@ -1,0 +1,7 @@
+[package]
+name = "abena-build-fix"
+version = "0.1.0"
+edition = "2021"
+description = "Windows build fixes for Polkadot SDK (mermaid symlink)"
+
+[dependencies]
