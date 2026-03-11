@@ -1,0 +1,1 @@
+target/release/abena-node filter=lfs diff=lfs merge=lfs -text
