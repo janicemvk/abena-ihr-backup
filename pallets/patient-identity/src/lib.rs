@@ -8,7 +8,7 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use codec::{Encode, Decode, MaxEncodedLen};
+use codec::{Encode, Decode, DecodeWithMemTracking, MaxEncodedLen};
 use scale_info::TypeInfo;
 use sp_runtime::RuntimeDebug;
 use frame_system::pallet_prelude::BlockNumberFor;
@@ -28,6 +28,7 @@ pub use pallet::*;
 
 #[frame_support::pallet]
 pub mod pallet {
+    use codec::DecodeWithMemTracking;
     use frame_support::pallet_prelude::*;
     use frame_system::pallet_prelude::*;
     use sp_std::vec::Vec;
@@ -36,7 +37,7 @@ pub mod pallet {
     use crate::WeightInfo;
     
     /// Therapeutic modalities supported in ABENA
-    #[derive(Encode, Decode, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Encode, Decode, DecodeWithMemTracking, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     pub enum TherapeuticModality {
         /// Western Medicine
         WesternMedicine,
@@ -53,7 +54,7 @@ pub mod pallet {
     }
     
     /// Patient consent record for a specific modality
-    #[derive(Encode, Decode, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Encode, Decode, DecodeWithMemTracking, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     pub struct ConsentRecord {
         /// Therapeutic modality
         pub modality: TherapeuticModality,
@@ -66,7 +67,7 @@ pub mod pallet {
     }
     
     /// Patient Decentralized Identifier (DID)
-    #[derive(Encode, Decode, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Encode, Decode, DecodeWithMemTracking, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     #[scale_info(skip_type_params(T))]
     pub struct PatientDID<T: Config> {
         /// Unique patient identifier
@@ -86,7 +87,7 @@ pub mod pallet {
     }
     
     /// Provider access record
-    #[derive(Encode, Decode, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Encode, Decode, DecodeWithMemTracking, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     #[scale_info(skip_type_params(T))]
     pub struct ProviderAccess<T: Config> {
         /// Provider account ID
@@ -100,7 +101,7 @@ pub mod pallet {
     }
     
     /// Access levels for providers
-    #[derive(Encode, Decode, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Encode, Decode, DecodeWithMemTracking, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     pub enum AccessLevel {
         /// Read-only access
         Read,

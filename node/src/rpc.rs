@@ -1,6 +1,6 @@
 //! RPC implementations for the ABENA node.
 
-use abena_runtime::{opaque::Block, AccountId, Balance, BlockNumber, Hash, Nonce};
+use abena_runtime::opaque::Block;
 use jsonrpsee::RpcModule;
 use sc_rpc_api::DenyUnsafe;
 use sc_transaction_pool_api::TransactionPool;
@@ -9,7 +9,6 @@ use sp_block_builder::BlockBuilder;
 use sp_blockchain::{Error as BlockChainError, HeaderBackend, HeaderMetadata};
 use std::sync::Arc;
 
-pub use sc_rpc_api::DenyUnsafe as RpcDenyUnsafe;
 
 /// Full client dependencies.
 pub struct FullDeps<C, P> {
@@ -23,7 +22,7 @@ pub struct FullDeps<C, P> {
 
 /// Instantiate all full RPC extensions.
 pub fn create_full<C, P>(
-    deps: FullDeps<C, P>,
+    _deps: FullDeps<C, P>,
 ) -> Result<RpcModule<()>, Box<dyn std::error::Error + Send + Sync>>
 where
     C: ProvideRuntimeApi<Block>,
@@ -32,7 +31,7 @@ where
     C::Api: BlockBuilder<Block>,
     P: TransactionPool + 'static,
 {
-    let mut module = RpcModule::new(());
+    let module = RpcModule::new(());
     // Additional RPC methods can be added here as the pallet ecosystem grows.
     Ok(module)
 }

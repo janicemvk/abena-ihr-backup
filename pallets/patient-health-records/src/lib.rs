@@ -7,7 +7,7 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use codec::{Encode, Decode, MaxEncodedLen};
+use codec::{Encode, Decode, DecodeWithMemTracking, MaxEncodedLen};
 use scale_info::TypeInfo;
 use sp_runtime::RuntimeDebug;
 use frame_system::pallet_prelude::BlockNumberFor;
@@ -331,7 +331,7 @@ pub trait WeightInfo {
 }
 
 /// Encrypted health record structure
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 #[scale_info(skip_type_params(T))]
 pub struct EncryptedHealthRecord<T: frame_system::Config> {
     /// Encrypted health data (using quantum-resistant encryption)
@@ -343,7 +343,7 @@ pub struct EncryptedHealthRecord<T: frame_system::Config> {
 }
 
 /// Permission levels for accessing health records
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub enum PermissionLevel {
     /// Read-only access
     Read,
@@ -354,7 +354,7 @@ pub enum PermissionLevel {
 }
 
 /// Encryption algorithm identifiers for quantum-resistant encryption
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub enum EncryptionAlgorithm {
     /// Unknown/unspecified algorithm
     Unknown,
@@ -369,7 +369,7 @@ pub enum EncryptionAlgorithm {
 }
 
 /// Encryption metadata record
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub struct EncryptionMetadataRecord {
     /// Encryption algorithm used
     pub algorithm: EncryptionAlgorithm,

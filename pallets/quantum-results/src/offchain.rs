@@ -22,7 +22,7 @@ use crate::pallet::{
     Call, Config, JobCompletionStatus, Pallet, QuantumJobQueue, SignatureMaxLen,
 };
 use frame_support::traits::Get;
-use frame_system::offchain::SubmitTransaction;
+use frame_system::offchain::{CreateBare, SubmitTransaction};
 use sp_core::offchain::{Duration, HttpRequestStatus};
 use sp_runtime::traits::{Hash, Zero};
 use frame_system::pallet_prelude::BlockNumberFor;
@@ -161,7 +161,8 @@ impl<T: Config> Pallet<T> {
                 linked_clinical_module: ctx.linked_clinical_module.clone().map(|b| b.to_vec()),
             };
 
-            let _ = SubmitTransaction::<T, Call<T>>::submit_unsigned_transaction(call.into());
+            let xt = T::create_bare(call.into());
+            let _ = SubmitTransaction::<T, Call<T>>::submit_transaction(xt);
 
             // Remove from queue (on-chain mutate inside offchain worker is safe for StorageValue).
             QuantumJobQueue::<T>::mutate(|q| {

@@ -7,7 +7,7 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use codec::{Encode, Decode, MaxEncodedLen};
+use codec::{Encode, Decode, DecodeWithMemTracking, MaxEncodedLen};
 use scale_info::TypeInfo;
 use sp_runtime::RuntimeDebug;
 use frame_system::pallet_prelude::BlockNumberFor;
@@ -323,7 +323,7 @@ pub type ProposalId = u64;
 pub type InterventionId = u64;
 
 /// Clinical guideline proposal
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 #[scale_info(skip_type_params(T))]
 pub struct GuidelineProposal<T: frame_system::Config> {
     /// Proposal identifier
@@ -341,7 +341,7 @@ pub struct GuidelineProposal<T: frame_system::Config> {
 }
 
 /// Protocol proposal
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 #[scale_info(skip_type_params(T))]
 pub struct ProtocolProposal<T: frame_system::Config> {
     /// Proposal identifier
@@ -359,7 +359,7 @@ pub struct ProtocolProposal<T: frame_system::Config> {
 }
 
 /// Vote
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub enum Vote {
     /// Approve
     Approve,
@@ -370,7 +370,7 @@ pub enum Vote {
 }
 
 /// Proposal status
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub enum ProposalStatus {
     /// Proposal is active and accepting votes
     Active,
@@ -383,7 +383,7 @@ pub enum ProposalStatus {
 }
 
 /// Emergency intervention type
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub enum EmergencyInterventionType {
     /// Suspend protocol
     SuspendProtocol,
@@ -396,7 +396,7 @@ pub enum EmergencyInterventionType {
 }
 
 /// Emergency intervention
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 #[scale_info(skip_type_params(T))]
 pub struct EmergencyIntervention<T: frame_system::Config> {
     /// Intervention identifier

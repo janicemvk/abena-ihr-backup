@@ -6,7 +6,7 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use codec::{Encode, Decode, MaxEncodedLen};
+use codec::{Encode, Decode, DecodeWithMemTracking, MaxEncodedLen};
 use frame_support::RuntimeDebugNoBound;
 use scale_info::TypeInfo;
 use sp_runtime::traits::Zero;
@@ -499,7 +499,7 @@ pub trait WeightInfo {
 pub type SubscriptionId = u64;
 
 /// Subscription plan types
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub enum SubscriptionPlan {
     /// Basic plan - limited features
     Basic,
@@ -510,7 +510,7 @@ pub enum SubscriptionPlan {
 }
 
 /// Institution subscription
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 #[scale_info(skip_type_params(T))]
 pub struct InstitutionSubscription<T: frame_system::Config> {
     /// Subscription identifier
@@ -530,7 +530,7 @@ pub struct InstitutionSubscription<T: frame_system::Config> {
 }
 
 /// Subscription status
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub enum SubscriptionStatus {
     /// Subscription is active
     Active,
@@ -541,7 +541,7 @@ pub enum SubscriptionStatus {
 }
 
 /// Account type for rate limiting
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen, Copy)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen, Copy)]
 pub enum AccountType {
     /// Patient account
     Patient,
@@ -552,7 +552,7 @@ pub enum AccountType {
 }
 
 /// Rate limit configuration
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebugNoBound, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebugNoBound, TypeInfo, MaxEncodedLen)]
 #[scale_info(skip_type_params(T))]
 pub struct RateLimit<T: frame_system::Config> {
     /// Maximum number of requests allowed
@@ -574,7 +574,7 @@ where
 }
 
 /// Operation type for usage tracking
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub enum OperationType {
     /// Read operation
     Read,
@@ -585,7 +585,7 @@ pub enum OperationType {
 }
 
 /// Usage record
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 #[scale_info(skip_type_params(T))]
 pub struct UsageRecord<T: frame_system::Config> {
     /// Block when period started
@@ -597,7 +597,7 @@ pub struct UsageRecord<T: frame_system::Config> {
 }
 
 /// Operation counts by type
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen, Default)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen, Default)]
 pub struct OperationCounts {
     /// Number of read operations
     pub reads: u32,
@@ -608,7 +608,7 @@ pub struct OperationCounts {
 }
 
 /// Validator reward information
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 #[scale_info(skip_type_params(T))]
 pub struct ValidatorReward<T: frame_system::Config> {
     /// Validator account

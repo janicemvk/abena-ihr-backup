@@ -51,18 +51,19 @@ impl system::Config for Test {
     type PostTransactions = ();
 }
 
-/// Implement SendTransactionTypes so the OCW-capable pallet compiles in the mock.
-/// Uses `TestXt` from sp_runtime::testing as the extrinsic type.
-impl<LocalCall> frame_system::offchain::SendTransactionTypes<LocalCall> for Test
+/// Implement CreateBare so the OCW-capable pallet compiles in the mock.
+impl<LocalCall> frame_system::offchain::CreateBare<LocalCall> for Test
 where
     RuntimeCall: From<LocalCall>,
 {
-    type OverarchingCall = RuntimeCall;
     type Extrinsic = TestXt<RuntimeCall, ()>;
+    type RuntimeCall = RuntimeCall;
+    fn create_bare(call: RuntimeCall) -> Self::Extrinsic {
+        TestXt::new_unsigned(call)
+    }
 }
 
 impl pallet_quantum_results::Config for Test {
-    type RuntimeEvent = RuntimeEvent;
     type WeightInfo = ();
     /// Run off-chain worker every 10 blocks (irrelevant for unit tests, needed for Config).
     type OffchainWorkerInterval = ConstU64<10>;

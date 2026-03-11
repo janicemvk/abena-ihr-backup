@@ -29,7 +29,6 @@ pub mod weights;
 #[frame_support::pallet]
 pub mod pallet {
     use frame_support::pallet_prelude::*;
-    use frame_system::offchain::SubmitTransaction;
     use frame_system::pallet_prelude::*;
     use sp_runtime::traits::{Hash, Verify, Zero};
     use sp_runtime::transaction_validity::{
@@ -49,7 +48,7 @@ pub mod pallet {
     pub type MaxJobsPerPatient = ConstU32<128>;
 
     /// Quantum algorithm type
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     pub enum QuantumAlgorithm {
         VQE,              // Variational Quantum Eigensolver
         QML,              // Quantum Machine Learning
@@ -60,7 +59,7 @@ pub mod pallet {
     }
 
     /// Quantum attestation: immutable record of a quantum computation (FDA 21 CFR Part 11 audit trail).
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     #[scale_info(skip_type_params(T))]
     pub struct QuantumAttestation<T: Config> {
         pub job_id: BoundedVec<u8, JobIdMaxLen>,
@@ -80,7 +79,7 @@ pub mod pallet {
     }
 
     /// Algorithm metadata for version control and compliance.
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     #[scale_info(skip_type_params(T))]
     pub struct AlgorithmMetadata<T: Config> {
         pub algorithm_hash: T::Hash,
@@ -92,7 +91,7 @@ pub mod pallet {
     }
 
     /// IBM Quantum backend (e.g. ibm_brisbane, ibm_kyoto).
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     #[scale_info(skip_type_params(T))]
     pub struct IBMBackendInfo<T: Config> {
         pub backend_id: BoundedVec<u8, ConstU32<32>>,
@@ -104,7 +103,7 @@ pub mod pallet {
     }
 
     /// Job completion status from IBM API.
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     pub enum JobCompletionStatus {
         Pending,
         Running,
@@ -113,7 +112,7 @@ pub mod pallet {
     }
 
     /// Context needed by off-chain worker to submit attestation after IBM job completes.
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     #[scale_info(skip_type_params(T))]
     pub struct PendingAttestationContext<T: Config> {
         pub patient_pseudonym: T::Hash,
@@ -128,7 +127,7 @@ pub mod pallet {
     }
 
     /// Pending job awaiting verification (in queue). Includes job_id for IBM API and optional context for attestation.
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     #[scale_info(skip_type_params(T))]
     pub struct PendingJob<T: Config> {
         pub job_id: BoundedVec<u8, JobIdMaxLen>,
@@ -140,7 +139,7 @@ pub mod pallet {
     }
 
     /// Circuit transpilation and hardware metadata.
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     #[scale_info(skip_type_params(T))]
     pub struct CircuitMetadata<T: Config> {
         pub job_id_hash: T::Hash,
@@ -153,7 +152,7 @@ pub mod pallet {
     }
 
     /// Result quality and error mitigation metrics.
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     #[scale_info(skip_type_params(T))]
     pub struct QualityMetrics<T: Config> {
         pub job_id_hash: T::Hash,
@@ -175,8 +174,7 @@ pub mod pallet {
     pub struct Pallet<T>(_);
 
     #[pallet::config]
-    pub trait Config: frame_system::Config + frame_system::offchain::SendTransactionTypes<Call<Self>> {
-        type RuntimeEvent: From<Event<Self>> + IsType<<Self as frame_system::Config>::RuntimeEvent>;
+    pub trait Config: frame_system::Config<RuntimeEvent: From<Event<Self>>> + frame_system::offchain::CreateBare<Call<Self>> {
         type WeightInfo: crate::weights::WeightInfo;
         /// Run off-chain worker every N blocks (e.g. 10).
         #[pallet::constant]

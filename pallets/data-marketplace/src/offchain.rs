@@ -5,7 +5,7 @@
 //! privacy), then submits finalize_data_license and distribute_compensation as
 //! unsigned transactions.
 
-use frame_system::offchain::{SendTransactionTypes, SubmitTransaction};
+use frame_system::offchain::{CreateBare, SubmitTransaction};
 use frame_system::pallet_prelude::BlockNumberFor;
 use sp_runtime::traits::{Hash, SaturatedConversion};
 use sp_std::vec::Vec;
@@ -18,7 +18,7 @@ const MAX_CONCURRENT_JOBS: u32 = 5;
 /// Entry point for the data marketplace off-chain worker.
 pub fn offchain_worker<T>(block_number: BlockNumberFor<T>)
 where
-    T: crate::pallet::Config + SendTransactionTypes<Call<T>>,
+    T: crate::pallet::Config + frame_system::offchain::CreateBare<Call<T>>,
     <T as frame_system::Config>::Hash: Copy,
 {
     let block_num: u32 = block_number.saturated_into();
@@ -31,7 +31,7 @@ where
 
 fn process_pending_licenses<T>() -> Result<(), &'static str>
 where
-    T: crate::pallet::Config + SendTransactionTypes<Call<T>>,
+    T: crate::pallet::Config + frame_system::offchain::CreateBare<Call<T>>,
     <T as frame_system::Config>::Hash: Copy,
 {
     let pending = get_pending_license_ids::<T>()?;
@@ -64,7 +64,7 @@ fn process_single_license<T>(
     license_id: T::Hash,
 ) -> Result<(), &'static str>
 where
-    T: crate::pallet::Config + SendTransactionTypes<Call<T>>,
+    T: crate::pallet::Config + frame_system::offchain::CreateBare<Call<T>>,
     <T as frame_system::Config>::Hash: Copy,
 {
     let license = DataLicenses::<T>::get(&license_id).ok_or("License not found")?;
@@ -90,14 +90,15 @@ where
         license_id,
         dataset_hash,
     };
-    SubmitTransaction::<T, Call<T>>::submit_unsigned_transaction(call.into())
-        .map_err(|_| "Submit finalize failed")?;
+    let xt = T::create_bare(call.into());
+    SubmitTransaction::<T, Call<T>>::submit_transaction(xt).map_err(|_| "Submit finalize failed")?;
 
     let comp_call = Call::<T>::distribute_compensation {
         license_id,
         asset_ids: matching_assets,
     };
-    let _ = SubmitTransaction::<T, Call<T>>::submit_unsigned_transaction(comp_call.into());
+    let xt = T::create_bare(comp_call.into());
+    let _ = SubmitTransaction::<T, Call<T>>::submit_transaction(xt);
 
     Ok(())
 }

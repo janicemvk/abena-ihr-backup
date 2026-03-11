@@ -8,7 +8,7 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use codec::{Encode, Decode, MaxEncodedLen};
+use codec::{Encode, Decode, DecodeWithMemTracking, MaxEncodedLen};
 use scale_info::TypeInfo;
 use sp_runtime::RuntimeDebug;
 use frame_system::pallet_prelude::BlockNumberFor;
@@ -37,7 +37,7 @@ pub mod pallet {
     use scale_info::TypeInfo;
     use sp_std::vec::Vec;
     use sp_core::H256;
-    use codec::{Encode, Decode, MaxEncodedLen};
+    use codec::{Encode, Decode, DecodeWithMemTracking, MaxEncodedLen};
     use sp_runtime::RuntimeDebug;
 
     /// Configuration trait for the pallet.
@@ -52,14 +52,14 @@ pub mod pallet {
     // ---------- Spec types: protocol definitions & steps ----------
 
     /// Clinical condition (e.g. diabetes, hypertension).
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     pub struct ClinicalCondition {
         pub code: BoundedVec<u8, ConstU32<32>>,
         pub description: BoundedVec<u8, ConstU32<128>>,
     }
 
     /// Therapeutic modality.
-    #[derive(Clone, Copy, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Copy, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     pub enum TherapeuticModality {
         Western,
         TCM,
@@ -69,7 +69,7 @@ pub mod pallet {
     }
 
     /// Evidence level for protocol (highest to lowest).
-    #[derive(Clone, Copy, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Copy, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     pub enum EvidenceLevel {
         SystematicReview,
         RandomizedControlled,
@@ -80,14 +80,14 @@ pub mod pallet {
     }
 
     /// Success criteria (bounded).
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     pub struct SuccessCriteria {
         pub description: BoundedVec<u8, ConstU32<256>>,
         pub measurable: bool,
     }
 
     /// Intervention type per step.
-    #[derive(Clone, Copy, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Copy, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     pub enum InterventionType {
         Pharmaceutical,
         Botanical,
@@ -99,56 +99,56 @@ pub mod pallet {
     }
 
     /// Medication (name, dosage reference).
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     pub struct Medication {
         pub name: BoundedVec<u8, ConstU32<128>>,
         pub dosage_ref: BoundedVec<u8, ConstU32<64>>,
     }
 
     /// Herb formula reference.
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     pub struct HerbFormula {
         pub name: BoundedVec<u8, ConstU32<128>>,
         pub components_ref: BoundedVec<u8, ConstU32<256>>,
     }
 
     /// Procedure reference.
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     pub struct Procedure {
         pub code: BoundedVec<u8, ConstU32<32>>,
         pub description: BoundedVec<u8, ConstU32<128>>,
     }
 
     /// Frequency (e.g. daily, twice weekly).
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     pub struct Frequency {
         pub times_per_day: u8,
         pub days_per_week: u8,
     }
 
     /// Prerequisite (e.g. complete step N).
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     pub struct Prerequisite {
         pub step_number: u32,
         pub condition_met: bool,
     }
 
     /// Milestone check for step success.
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     pub struct MilestoneCheck {
         pub metric: BoundedVec<u8, ConstU32<64>>,
         pub target_value: BoundedVec<u8, ConstU32<64>>,
     }
 
     /// Next-step condition (branch).
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     pub struct StepCondition {
         pub condition_type: BoundedVec<u8, ConstU32<32>>,
         pub next_step: u32,
     }
 
     /// Single treatment step in a protocol.
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     pub struct TreatmentStep {
         pub step_number: u32,
         pub intervention_type: InterventionType,
@@ -163,7 +163,7 @@ pub mod pallet {
     }
 
     /// Protocol definition (evidence-based, multi-modality).
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     #[scale_info(skip_type_params(T))]
     pub struct ProtocolDefinition<T: Config> {
         pub protocol_id: T::Hash,
@@ -179,7 +179,7 @@ pub mod pallet {
     }
 
     /// Interaction severity.
-    #[derive(Clone, Copy, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Copy, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     pub enum InteractionSeverity {
         Contraindicated,
         Major,
@@ -188,7 +188,7 @@ pub mod pallet {
     }
 
     /// Interaction rule (drug-drug, herb-drug).
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     pub struct InteractionRule {
         pub rule_id: u32,
         pub substance_a: BoundedVec<u8, ConstU32<128>>,
@@ -199,7 +199,7 @@ pub mod pallet {
     }
 
     /// Active treatment execution state.
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     #[scale_info(skip_type_params(T))]
     pub struct TreatmentExecution<T: Config> {
         pub patient: T::AccountId,
@@ -212,7 +212,7 @@ pub mod pallet {
         pub outcome: Option<Outcome<T>>,
     }
 
-    #[derive(Clone, Copy, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Copy, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     pub enum TreatmentExecutionStatus {
         Active,
         Completed,
@@ -221,7 +221,7 @@ pub mod pallet {
     }
 
     /// Outcome record.
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     #[scale_info(skip_type_params(T))]
     pub struct Outcome<T: Config> {
         pub success: bool,
@@ -953,7 +953,7 @@ pub type ProtocolId = u64;
 pub type GuidelineId = u32;
 
 /// Treatment protocol
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 #[scale_info(skip_type_params(T))]
 pub struct TreatmentProtocol<T: frame_system::Config> {
     /// Patient account ID
@@ -973,7 +973,7 @@ pub struct TreatmentProtocol<T: frame_system::Config> {
 }
 
 /// Treatment definition
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub struct Treatment {
     /// Treatment type
     pub treatment_type: TreatmentType,
@@ -986,7 +986,7 @@ pub struct Treatment {
 }
 
 /// Treatment type
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub enum TreatmentType {
     /// Medication
     Medication,
@@ -1001,7 +1001,7 @@ pub enum TreatmentType {
 }
 
 /// Treatment modality
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub enum Modality {
     /// Western medicine
     Western,
@@ -1016,7 +1016,7 @@ pub enum Modality {
 }
 
 /// Protocol status
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub enum ProtocolStatus {
     /// Protocol is active
     Active,
@@ -1029,7 +1029,7 @@ pub enum ProtocolStatus {
 }
 
 /// Clinical guideline (manual Debug impl to avoid requiring T: Debug)
-#[derive(Clone, Encode, Decode, PartialEq, Eq, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, TypeInfo, MaxEncodedLen)]
 #[scale_info(skip_type_params(T))]
 pub struct ClinicalGuideline<T: frame_system::Config> {
     /// Guideline name
@@ -1054,7 +1054,7 @@ impl<T: frame_system::Config> core::fmt::Debug for ClinicalGuideline<T> {
 }
 
 /// Contraindication status
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub struct ContraindicationStatus {
     /// Whether contraindications were detected
     pub has_contraindications: bool,

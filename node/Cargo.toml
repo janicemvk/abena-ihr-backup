@@ -51,7 +51,11 @@ sp-runtime = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "po
 sp-timestamp = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2512" }
 
 # RPC
-jsonrpsee = { version = "0.23", features = ["server"] }
+jsonrpsee = { version = "0.24.10", features = ["server"] }
+
+# Fix rustls-platform-verifier: ensure webpki::Error implements std::error::Error
+# (resolves E0277 when building with Rust 1.85+)
+rustls-webpki = "0.102"
 
 # Benchmarking CLI (feature-gated)
 frame-benchmarking-cli = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2512", optional = true }

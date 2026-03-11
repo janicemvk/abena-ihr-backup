@@ -8,7 +8,7 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use codec::{Encode, Decode, MaxEncodedLen};
+use codec::{Encode, Decode, DecodeWithMemTracking, MaxEncodedLen};
 use scale_info::TypeInfo;
 use sp_runtime::RuntimeDebug;
 use frame_system::pallet_prelude::BlockNumberFor;
@@ -409,7 +409,7 @@ pub type Hash = sp_core::H256;
 pub type IntegrationPointId = u32;
 
 /// Quantum computing job structure (ABENA: optional link to patient/record)
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 #[scale_info(skip_type_params(T))]
 pub struct QuantumJob<T: frame_system::Config> {
     /// Unique job identifier
@@ -433,7 +433,7 @@ pub struct QuantumJob<T: frame_system::Config> {
 }
 
 /// Quantum computing result structure (ABENA: links to patient record)
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 #[scale_info(skip_type_params(T))]
 pub struct QuantumResult<T: frame_system::Config> {
     /// Associated job ID
@@ -451,7 +451,7 @@ pub struct QuantumResult<T: frame_system::Config> {
 }
 
 /// Integration point for external quantum computing services
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 #[scale_info(skip_type_params(T))]
 pub struct IntegrationPoint<T: frame_system::Config> {
     /// Unique integration point identifier
@@ -471,7 +471,7 @@ pub struct IntegrationPoint<T: frame_system::Config> {
 }
 
 /// Types of quantum computing jobs (ABENA: includes standard algorithm classes)
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub enum QuantumJobType {
     /// Variational Quantum Eigensolver (VQE) - e.g. molecular/chemistry
     VQE,
@@ -494,7 +494,7 @@ pub enum QuantumJobType {
 }
 
 /// Status of a quantum computing job
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub enum JobStatus {
     /// Job is pending execution
     Pending,
@@ -509,7 +509,7 @@ pub enum JobStatus {
 }
 
 /// Capabilities of a quantum computing integration point
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub enum QuantumCapability {
     /// Supports quantum simulation
     Simulation,

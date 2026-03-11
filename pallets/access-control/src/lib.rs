@@ -7,7 +7,7 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use codec::{Encode, Decode, MaxEncodedLen};
+use codec::{Encode, Decode, DecodeWithMemTracking, MaxEncodedLen};
 use scale_info::TypeInfo;
 use sp_runtime::RuntimeDebug;
 use frame_system::pallet_prelude::BlockNumberFor;
@@ -474,7 +474,7 @@ pub trait WeightInfo {
 pub type PermissionId = u64;
 
 /// Permission type
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub enum PermissionType {
     /// Read permission
     Read,
@@ -485,7 +485,7 @@ pub enum PermissionType {
 }
 
 /// Access level
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub enum AccessLevel {
     /// Read-only access
     Read,
@@ -496,7 +496,7 @@ pub enum AccessLevel {
 }
 
 /// Patient authorization
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 #[scale_info(skip_type_params(T))]
 pub struct PatientAuthorization<T: frame_system::Config> {
     /// Patient account
@@ -512,7 +512,7 @@ pub struct PatientAuthorization<T: frame_system::Config> {
 }
 
 /// Institutional permission
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 #[scale_info(skip_type_params(T))]
 pub struct InstitutionalPermission<T: frame_system::Config> {
     /// Institution account
@@ -530,7 +530,7 @@ pub struct InstitutionalPermission<T: frame_system::Config> {
 }
 
 /// Emergency access reason
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub enum EmergencyAccessReason {
     /// Life-threatening emergency
     LifeThreatening,
@@ -543,7 +543,7 @@ pub enum EmergencyAccessReason {
 }
 
 /// Emergency access record
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 #[scale_info(skip_type_params(T))]
 pub struct EmergencyAccess<T: frame_system::Config> {
     /// Requester account
@@ -561,7 +561,7 @@ pub struct EmergencyAccess<T: frame_system::Config> {
 }
 
 /// Audit log entry
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 #[scale_info(skip_type_params(T))]
 pub struct AuditLog<T: frame_system::Config> {
     /// Log entry identifier

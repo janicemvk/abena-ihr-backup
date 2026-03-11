@@ -15,7 +15,7 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use codec::{Decode, Encode, MaxEncodedLen};
+use codec::{Decode, DecodeWithMemTracking, Encode, MaxEncodedLen};
 use frame_support::traits::ConstU32;
 use scale_info::TypeInfo;
 use sp_runtime::{BoundedVec, RuntimeDebug};
@@ -46,7 +46,7 @@ pub type EnterpriseId = u64;
 pub type CertFingerprint = [u8; 32];
 
 /// OAuth/OIDC provider variants.
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub enum OAuthProvider {
     AzureAD,
     Google,
@@ -55,7 +55,7 @@ pub enum OAuthProvider {
 }
 
 /// Identity provider type for enterprise SSO.
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub enum IdentityProvider {
     /// Microsoft Active Directory
     ActiveDirectory {
@@ -76,7 +76,7 @@ pub enum IdentityProvider {
 }
 
 /// Enterprise user metadata (from IdP).
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub struct EnterpriseUser {
     /// Enterprise/organization ID
     pub enterprise_id: EnterpriseId,
@@ -87,7 +87,7 @@ pub struct EnterpriseUser {
 }
 
 /// Enterprise identity: links blockchain account to enterprise IdP user.
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 #[scale_info(skip_type_params(T))]
 pub struct EnterpriseIdentity<T: frame_system::Config> {
     /// Blockchain account ID

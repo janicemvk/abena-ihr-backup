@@ -2,9 +2,9 @@
 
 use abena_runtime::{self, opaque::Block, RuntimeApi};
 use sc_consensus_aura::{ImportQueueParams, SlotProportion, StartAuraParams};
+use sc_service::RpcMethods;
 use sc_service::{error::Error as ServiceError, Configuration, TaskManager};
 use sc_telemetry::{Telemetry, TelemetryWorker};
-use sc_transaction_pool_api::OffchainTransactionPoolFactory;
 use sp_consensus_aura::sr25519::AuthorityPair as AuraPair;
 use std::sync::Arc;
 
@@ -22,7 +22,12 @@ pub struct NewPartial {
     pub keystore_container: sc_service::KeystoreContainer,
     pub select_chain: FullSelectChain,
     pub import_queue: sc_consensus::DefaultImportQueue<Block>,
-    pub transaction_pool: Arc<sc_transaction_pool::FullPool<Block, FullClient>>,
+    pub transaction_pool: Arc<
+        sc_transaction_pool::BasicPool<
+            sc_transaction_pool::FullChainApi<FullClient, Block>,
+            Block,
+        >,
+    >,
     pub telemetry: Option<Telemetry>,
 }
 
@@ -64,13 +69,13 @@ pub fn new_partial(config: &Configuration) -> Result<NewPartial, ServiceError> {
 
     let select_chain = sc_consensus::LongestChain::new(backend.clone());
 
-    let transaction_pool = sc_transaction_pool::BasicPool::new_full(
-        config.transaction_pool.clone(),
+    let transaction_pool = Arc::new(sc_transaction_pool::BasicPool::new_full(
+        sc_transaction_pool::Options::default(),
         config.role.is_authority().into(),
         config.prometheus_registry(),
         task_manager.spawn_essential_handle(),
         client.clone(),
-    );
+    ));
 
     let slot_duration = sc_consensus_aura::slot_duration(&*client)?;
 
@@ -126,9 +131,9 @@ pub fn new_full(config: Configuration) -> Result<TaskManager, ServiceError> {
             Block,
             <Block as sp_runtime::traits::Block>::Hash,
         >,
-    >::new(&config.network);
+    >::new(&config.network, config.prometheus_registry().cloned());
 
-    let (network, system_rpc_tx, tx_handler_controller, network_starter, sync_service) =
+    let (network, system_rpc_tx, tx_handler_controller, sync_service) =
         sc_service::build_network(sc_service::BuildNetworkParams {
             config: &config,
             net_config,
@@ -137,7 +142,7 @@ pub fn new_full(config: Configuration) -> Result<TaskManager, ServiceError> {
             spawn_handle: task_manager.spawn_handle(),
             import_queue,
             block_announce_validator_builder: None,
-            warp_sync_params: None,
+            warp_sync_config: None,
             block_relay: None,
             metrics: sc_network::NotificationMetrics::new(
                 config.prometheus_config.as_ref().map(|cfg| &cfg.registry),
@@ -152,7 +157,11 @@ pub fn new_full(config: Configuration) -> Result<TaskManager, ServiceError> {
     let rpc_extensions_builder = {
         let client = client.clone();
         let pool = transaction_pool.clone();
-        Box::new(move |deny_unsafe, _| {
+        let deny_unsafe = match config.rpc.methods {
+            RpcMethods::Safe => sc_rpc_api::DenyUnsafe::Yes,
+            RpcMethods::Unsafe | RpcMethods::Auto => sc_rpc_api::DenyUnsafe::No,
+        };
+        Box::new(move |_executor| {
             let deps = crate::rpc::FullDeps {
                 client: client.clone(),
                 pool: pool.clone(),
@@ -175,6 +184,7 @@ pub fn new_full(config: Configuration) -> Result<TaskManager, ServiceError> {
         sync_service: sync_service.clone(),
         config,
         telemetry: telemetry.as_mut(),
+        tracing_execute_block: None,
     })?;
 
     if role.is_authority() {
@@ -220,6 +230,5 @@ pub fn new_full(config: Configuration) -> Result<TaskManager, ServiceError> {
             .spawn_blocking("aura", Some("block-authoring"), aura);
     }
 
-    network_starter.start_network();
     Ok(task_manager)
 }

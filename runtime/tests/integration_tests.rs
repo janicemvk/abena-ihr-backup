@@ -109,12 +109,15 @@ mod mock {
         type RuntimeFreezeReason = RuntimeFreezeReason;
     }
 
-    impl<LocalCall> frame_system::offchain::SendTransactionTypes<LocalCall> for Test
+    impl<LocalCall> frame_system::offchain::CreateBare<LocalCall> for Test
     where
         RuntimeCall: From<LocalCall>,
     {
-        type OverarchingCall = RuntimeCall;
         type Extrinsic = TestXt<RuntimeCall, ()>;
+        type RuntimeCall = RuntimeCall;
+        fn create_bare(call: RuntimeCall) -> Self::Extrinsic {
+            TestXt::new_unsigned(call)
+        }
     }
 
     impl patient_identity::Config for Test {

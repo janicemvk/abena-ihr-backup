@@ -40,7 +40,7 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use codec::{Decode, Encode, MaxEncodedLen};
+use codec::{Decode, DecodeWithMemTracking, Encode, MaxEncodedLen};
 use frame_support::traits::ConstU32;
 use scale_info::TypeInfo;
 use sp_runtime::{BoundedVec, RuntimeDebug};
@@ -67,7 +67,7 @@ pub type ChannelId = u64;
 pub type DataEntryId = u64;
 
 /// Purpose / topology of the channel.
-#[derive(Clone, Copy, PartialEq, Eq, Encode, Decode, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Copy, PartialEq, Eq, Encode, Decode, DecodeWithMemTracking, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 #[cfg_attr(feature = "std", derive(serde::Serialize, serde::Deserialize))]
 pub enum ChannelType {
     /// One hospital and one or more insurers.
@@ -85,7 +85,7 @@ pub enum ChannelType {
 }
 
 /// Operational status of a channel.
-#[derive(Clone, Copy, PartialEq, Eq, Encode, Decode, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Copy, PartialEq, Eq, Encode, Decode, DecodeWithMemTracking, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 #[cfg_attr(feature = "std", derive(serde::Serialize, serde::Deserialize))]
 pub enum ChannelStatus {
     Active,
@@ -93,7 +93,7 @@ pub enum ChannelStatus {
 }
 
 /// Permissions a member holds inside a channel.
-#[derive(Clone, Copy, PartialEq, Eq, Encode, Decode, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Copy, PartialEq, Eq, Encode, Decode, DecodeWithMemTracking, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 #[cfg_attr(feature = "std", derive(serde::Serialize, serde::Deserialize))]
 pub enum MemberRole {
     /// May invite/remove members, post data, and close the channel.
@@ -105,7 +105,7 @@ pub enum MemberRole {
 }
 
 /// Taxonomy for a data entry posted to a channel.
-#[derive(Clone, Copy, PartialEq, Eq, Encode, Decode, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Copy, PartialEq, Eq, Encode, Decode, DecodeWithMemTracking, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 #[cfg_attr(feature = "std", derive(serde::Serialize, serde::Deserialize))]
 pub enum DataType {
     HealthRecord,
@@ -120,7 +120,7 @@ pub enum DataType {
 }
 
 /// Metadata stored on-chain for a channel.
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub struct ChannelInfo<AccountId, BlockNumber> {
     pub id: ChannelId,
     /// Human-readable name (≤ 64 bytes).
@@ -136,14 +136,14 @@ pub struct ChannelInfo<AccountId, BlockNumber> {
 }
 
 /// A member's record inside a channel.
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub struct MemberInfo<BlockNumber> {
     pub role: MemberRole,
     pub enrolled_at: BlockNumber,
 }
 
 /// A data entry recorded inside a channel.
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub struct DataEntry<AccountId, BlockNumber> {
     pub entry_id: DataEntryId,
     pub channel_id: ChannelId,
@@ -159,7 +159,7 @@ pub struct DataEntry<AccountId, BlockNumber> {
 }
 
 /// A record of a cross-channel data grant.
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub struct CrossChannelGrant<BlockNumber> {
     pub source_channel: ChannelId,
     pub target_channel: ChannelId,

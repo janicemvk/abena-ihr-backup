@@ -30,7 +30,7 @@ pub mod pallet {
     use frame_system::pallet_prelude::*;
     use sp_std::vec::Vec;
     use sp_core::H256;
-    use codec::{Encode, Decode, MaxEncodedLen};
+    use codec::{Encode, Decode, DecodeWithMemTracking, MaxEncodedLen};
     use scale_info::TypeInfo;
     use sp_runtime::RuntimeDebug;
     use sp_runtime::traits::{BlakeTwo256, CheckedDiv, Hash, SaturatedConversion, Zero};
@@ -38,7 +38,7 @@ pub mod pallet {
     use crate::WeightInfo;
 
     /// Data tier: what kind of data and sharing policy.
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     pub enum DataTier {
         /// Direct identifiers — never shared.
         DirectIdentifiers,
@@ -49,7 +49,7 @@ pub mod pallet {
     }
 
     /// Level of anonymization applied (k-anonymity, l-diversity, differential privacy).
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     pub enum AnonymizationLevel {
         KAnonymity(u32),
         LDiversity(u32),
@@ -59,7 +59,7 @@ pub mod pallet {
     }
 
     /// Purpose for which data is licensed.
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     pub enum LicensePurpose {
         DrugDevelopment,
         ClinicalTrial,
@@ -71,13 +71,13 @@ pub mod pallet {
     }
 
     /// Clinical condition filter (e.g. "Diabetes", "Hypertension").
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     pub struct ClinicalCondition {
         pub code: BoundedVec<u8, ConstU32<64>>,
     }
 
     /// Demographic filter (age range, gender, etc.).
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     pub struct DemographicFilter {
         pub age_min: Option<u8>,
         pub age_max: Option<u8>,
@@ -85,13 +85,13 @@ pub mod pallet {
     }
 
     /// Data field requested in a query.
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     pub struct DataField {
         pub name: BoundedVec<u8, ConstU32<64>>,
     }
 
     /// What data a licensee wants (conditions, demographics, fields, min size).
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     pub struct DataQuery {
         pub conditions: BoundedVec<ClinicalCondition, ConstU32<32>>,
         pub demographics: DemographicFilter,
@@ -100,7 +100,7 @@ pub mod pallet {
     }
 
     /// Privacy guarantees for a license (k, l-diversity, epsilon, no re-identification).
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     pub struct PrivacyGuarantee {
         pub k_anonymity: Option<u32>,
         pub l_diversity: Option<u32>,
@@ -110,7 +110,7 @@ pub mod pallet {
     }
 
     /// Data type for pricing (base price per record in ABENA Coins).
-    #[derive(Clone, Copy, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Copy, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     pub enum DataType {
         BasicVitals,
         LabResults,
@@ -121,7 +121,7 @@ pub mod pallet {
     }
 
     /// Base prices in ABENA Coins per record (configurable via Config).
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     pub struct DataPricing {
         pub basic_vitals: u128,
         pub lab_results: u128,
@@ -132,7 +132,7 @@ pub mod pallet {
     }
 
     /// Type of data misuse for violation reporting.
-    #[derive(Clone, Copy, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Copy, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     pub enum DataViolation {
         UnauthorizedReidentification,
         PurposeMisuse,
@@ -217,7 +217,7 @@ pub mod pallet {
         <<T as Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance;
 
     /// Data asset registered by patient (patient identity only via pseudonym on-chain).
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     #[scale_info(skip_type_params(T))]
     pub struct DataAsset<T: Config> {
         /// Unique identifier (32 bytes).
@@ -241,7 +241,7 @@ pub mod pallet {
     }
 
     /// Patient anonymization preferences.
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     pub struct AnonymizationPrefs {
         pub k_min: u32,
         pub l_diversity_min: u32,
@@ -249,7 +249,7 @@ pub mod pallet {
     }
 
     /// Data licensing agreement.
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     #[scale_info(skip_type_params(T))]
     pub struct DataLicense<T: Config> {
         pub license_id: [u8; 32],
@@ -264,7 +264,7 @@ pub mod pallet {
     }
 
     /// Attestation that differential privacy was applied (e.g. Laplace noise).
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     pub struct DPAttestation {
         pub epsilon_micro: u32,
         pub applied: bool,

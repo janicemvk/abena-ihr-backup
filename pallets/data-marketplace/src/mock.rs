@@ -67,9 +67,12 @@ impl pallet_data_marketplace::Config for Test {
     type WeightInfo = ();
 }
 
-impl frame_system::offchain::SendTransactionTypes<pallet_data_marketplace::Call<Test>> for Test {
-    type OverarchingCall = RuntimeCall;
+impl frame_system::offchain::CreateBare<pallet_data_marketplace::Call<Test>> for Test {
     type Extrinsic = frame_system::mocking::MockUncheckedExtrinsic<Test>;
+    type RuntimeCall = RuntimeCall;
+    fn create_bare(call: RuntimeCall) -> Self::Extrinsic {
+        frame_system::mocking::MockUncheckedExtrinsic::new_bare(call)
+    }
 }
 
 /// Build test externalities

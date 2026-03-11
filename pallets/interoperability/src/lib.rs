@@ -7,7 +7,7 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use codec::{Encode, Decode, MaxEncodedLen};
+use codec::{Encode, Decode, DecodeWithMemTracking, MaxEncodedLen};
 use scale_info::TypeInfo;
 use sp_runtime::RuntimeDebug;
 use frame_system::pallet_prelude::BlockNumberFor;
@@ -365,7 +365,7 @@ pub type PharmacyId = u32;
 pub type LabId = u32;
 
 /// Healthcare data standard for interoperability
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 #[allow(non_camel_case_types)] // HL7, FHIR, IHE, XDS are industry-standard acronyms
 pub enum DataStandard {
     /// HL7 FHIR R4
@@ -381,7 +381,7 @@ pub enum DataStandard {
 }
 
 /// FHIR resource type
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub enum FHIRResourceType {
     /// Patient resource
     Patient,
@@ -400,7 +400,7 @@ pub enum FHIRResourceType {
 }
 
 /// FHIR resource mapping
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 #[scale_info(skip_type_params(T))]
 pub struct FHIRResourceMapping<T: frame_system::Config> {
     /// Hash of the FHIR resource
@@ -414,7 +414,7 @@ pub struct FHIRResourceMapping<T: frame_system::Config> {
 }
 
 /// Cross-chain exchange
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 #[scale_info(skip_type_params(T))]
 pub struct CrossChainExchange<T: frame_system::Config> {
     /// Exchange identifier
@@ -432,7 +432,7 @@ pub struct CrossChainExchange<T: frame_system::Config> {
 }
 
 /// Exchange status
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub enum ExchangeStatus {
     /// Exchange is pending
     Pending,
@@ -443,7 +443,7 @@ pub enum ExchangeStatus {
 }
 
 /// Insurance claim
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 #[scale_info(skip_type_params(T))]
 pub struct InsuranceClaim<T: frame_system::Config> {
     /// Claim identifier
@@ -461,7 +461,7 @@ pub struct InsuranceClaim<T: frame_system::Config> {
 }
 
 /// Pharmacy integration
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 #[scale_info(skip_type_params(T))]
 pub struct PharmacyIntegration<T: frame_system::Config> {
     /// Pharmacy identifier
@@ -477,7 +477,7 @@ pub struct PharmacyIntegration<T: frame_system::Config> {
 }
 
 /// Lab integration
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 #[scale_info(skip_type_params(T))]
 pub struct LabIntegration<T: frame_system::Config> {
     /// Lab identifier

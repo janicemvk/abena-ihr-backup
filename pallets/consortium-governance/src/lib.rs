@@ -17,7 +17,7 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use codec::{Decode, Encode, MaxEncodedLen};
+use codec::{Decode, DecodeWithMemTracking, Encode, MaxEncodedLen};
 use frame_support::{pallet_prelude::*, traits::EnsureOrigin};
 use sp_runtime::traits::Dispatchable;
 use scale_info::TypeInfo;
@@ -38,7 +38,7 @@ pub use pallet::*;
 pub use weights::WeightInfo;
 
 /// Healthcare organization type for weighted voting.
-#[derive(Clone, Copy, PartialEq, Eq, Encode, Decode, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Copy, PartialEq, Eq, Encode, Decode, DecodeWithMemTracking, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 #[cfg_attr(feature = "std", derive(serde::Serialize, serde::Deserialize))]
 pub enum OrgType {
     Hospital,
@@ -51,7 +51,7 @@ pub enum OrgType {
 }
 
 /// Consortium member: a healthcare organization with voting rights.
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 #[scale_info(skip_type_params(T))]
 pub struct HealthcareOrg<T: frame_system::Config> {
     /// Organization type (Hospital, Insurer, etc.)
@@ -63,7 +63,7 @@ pub struct HealthcareOrg<T: frame_system::Config> {
 }
 
 /// Proposal status.
-#[derive(Clone, Copy, PartialEq, Eq, Encode, Decode, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Copy, PartialEq, Eq, Encode, Decode, DecodeWithMemTracking, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub enum ProposalStatus {
     Open,
     Approved,
@@ -72,7 +72,7 @@ pub enum ProposalStatus {
 }
 
 /// Proposal priority: determines voting period and approval threshold.
-#[derive(Clone, Copy, PartialEq, Eq, Encode, Decode, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Copy, PartialEq, Eq, Encode, Decode, DecodeWithMemTracking, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 #[cfg_attr(feature = "std", derive(serde::Serialize, serde::Deserialize))]
 pub enum ProposalPriority {
     /// Normal proposals: longer voting period (e.g. 7 days), standard threshold (e.g. 67%).
@@ -85,7 +85,7 @@ pub enum ProposalPriority {
 pub type MaxProposalCallLen = frame_support::traits::ConstU32<2048>;
 
 /// Governance proposal. Call is stored as encoded bytes to avoid MaxEncodedLen on RuntimeCall.
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 #[scale_info(skip_type_params(T))]
 pub struct GovernanceProposal<T: frame_system::Config> {
     pub proposer: T::AccountId,

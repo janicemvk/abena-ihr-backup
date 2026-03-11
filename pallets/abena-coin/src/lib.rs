@@ -11,7 +11,7 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use codec::{Encode, Decode, MaxEncodedLen};
+use codec::{Encode, Decode, DecodeWithMemTracking, MaxEncodedLen};
 use scale_info::TypeInfo;
 use sp_runtime::RuntimeDebug;
 use frame_system::pallet_prelude::BlockNumberFor;
@@ -42,7 +42,7 @@ pub mod pallet {
     use sp_std::vec::Vec;
     use sp_runtime::traits::{Zero, CheckedAdd, CheckedDiv, Saturating};
     use sp_runtime::SaturatedConversion;
-    use codec::{Encode, Decode, MaxEncodedLen};
+    use codec::{Encode, Decode, DecodeWithMemTracking, MaxEncodedLen};
     use scale_info::TypeInfo;
     use sp_runtime::RuntimeDebug;
 
@@ -51,7 +51,7 @@ pub mod pallet {
     pub type BalanceOf<T> = <<T as Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance;
 
     /// Reward types for gamification
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     pub enum RewardType {
         /// Reward for creating health records
         HealthRecordCreated,
@@ -70,7 +70,7 @@ pub mod pallet {
 }
 
     /// Achievement types
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     pub enum AchievementType {
         /// Created first health record
         HealthRecordCreator,
@@ -87,7 +87,7 @@ pub mod pallet {
     }
 
 /// Achievement record for a user
-#[derive(Clone, Encode, Decode, PartialEq, Eq, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, TypeInfo, MaxEncodedLen)]
 #[scale_info(skip_type_params(T))]
 pub struct AchievementRecord<T: Config> {
         /// List of unlocked achievements
@@ -109,7 +109,7 @@ pub struct AchievementRecord<T: Config> {
     }
 
     /// Reward entry in history
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     #[scale_info(skip_type_params(T))]
     pub struct RewardEntry<T: Config> {
         /// Amount rewarded
@@ -119,7 +119,7 @@ pub struct AchievementRecord<T: Config> {
     }
 
     /// Vesting schedule for team/investors (linear release after cliff).
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     #[scale_info(skip_type_params(T))]
     pub struct VestingSchedule<T: Config> {
         pub total_amount: BalanceOf<T>,
@@ -131,7 +131,7 @@ pub struct AchievementRecord<T: Config> {
     }
 
     /// Commercial entity staking tier (min: Bronze 100K, Silver 500K, Gold 1M, Platinum 5M ABENA).
-    #[derive(Clone, Copy, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Copy, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     pub enum StakingTier {
         Bronze,
         Silver,
@@ -142,7 +142,7 @@ pub struct AchievementRecord<T: Config> {
     // ---------- Gamification module types ----------
 
     /// Category of achievement for wellness, engagement, and clinical outcomes.
-    #[derive(Clone, Copy, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Copy, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     pub enum AchievementCategory {
         Wellness,
         Engagement,
@@ -152,7 +152,7 @@ pub struct AchievementRecord<T: Config> {
     }
 
     /// How achievement completion is verified (anti-gaming: higher trust = less rate limiting).
-    #[derive(Clone, Copy, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Copy, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     pub enum VerificationMethod {
         SelfReported,
         DeviceVerified,
@@ -162,7 +162,7 @@ pub struct AchievementRecord<T: Config> {
     }
 
     /// Requirement threshold for an achievement (bounded, no dynamic logic).
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebugNoBound, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebugNoBound, TypeInfo, MaxEncodedLen)]
     #[scale_info(skip_type_params(T))]
     pub enum AchievementRequirement<T: Config> {
         StepsCount(u32),
@@ -178,7 +178,7 @@ pub struct AchievementRecord<T: Config> {
     pub type AchievementRequirements<T> = BoundedVec<AchievementRequirement<T>, ConstU32<8>>;
 
     /// Achievement definition (governance-created).
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebugNoBound, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebugNoBound, TypeInfo, MaxEncodedLen)]
     #[scale_info(skip_type_params(T))]
     pub struct AchievementDefinition<T: Config> {
         pub achievement_id: u32,
@@ -192,7 +192,7 @@ pub struct AchievementRecord<T: Config> {
     }
 
     /// Completion status for a patient's achievement (repeatable = claim count).
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     #[scale_info(skip_type_params(T))]
     pub struct CompletionStatus<T: Config> {
         pub completed_at: BlockNumberFor<T>,
@@ -201,7 +201,7 @@ pub struct AchievementRecord<T: Config> {
     }
 
     /// Streak type for multiplier calculation.
-    #[derive(Clone, Copy, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Copy, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     pub enum StreakType {
         DailyLogin,
         MedicationAdherence,
@@ -209,7 +209,7 @@ pub struct AchievementRecord<T: Config> {
     }
 
     /// Current and longest streak per type (blocks or days represented as block intervals).
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     #[scale_info(skip_type_params(T))]
     pub struct StreakInfo<T: Config> {
         pub current_streak: u32,
@@ -220,7 +220,7 @@ pub struct AchievementRecord<T: Config> {
     // ---------- Treasury & Governance types ----------
 
     /// Type of governance proposal.
-    #[derive(Clone, Copy, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Copy, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     pub enum ProposalType {
         TreasurySpend,
         ParameterChange,
@@ -230,7 +230,7 @@ pub struct AchievementRecord<T: Config> {
     }
 
     /// Lifecycle status of a proposal.
-    #[derive(Clone, Copy, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Copy, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     pub enum ProposalStatus {
         Active,
         Passed,
@@ -240,7 +240,7 @@ pub struct AchievementRecord<T: Config> {
     }
 
     /// Governance proposal (treasury spend, parameter change, etc.).
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     #[scale_info(skip_type_params(T))]
     pub struct Proposal<T: Config> {
         pub proposal_id: u32,
@@ -257,14 +257,14 @@ pub struct AchievementRecord<T: Config> {
     }
 
     /// Vote direction and optional conviction (locked balance for weight).
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     pub enum VoteDirection {
         Yes,
         No,
     }
 
     /// A vote on a proposal (1 ABENA = 1 vote; conviction multiplies weight).
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     #[scale_info(skip_type_params(T))]
     pub struct VoteRecord<T: Config> {
         pub direction: VoteDirection,
@@ -273,7 +273,7 @@ pub struct AchievementRecord<T: Config> {
     }
 
     /// Treasury allocation category for transparent spending.
-    #[derive(Clone, Copy, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Copy, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     pub enum TreasuryAllocationCategory {
         PatientRewardPool,
         Development,
@@ -283,7 +283,7 @@ pub struct AchievementRecord<T: Config> {
     }
 
     /// Single entry in the spending audit trail.
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     #[scale_info(skip_type_params(T))]
     pub struct SpendingRecord<T: Config> {
         pub proposal_id: u32,
@@ -617,7 +617,7 @@ pub struct AchievementRecord<T: Config> {
     pub type VotingParameters<T: Config> = StorageValue<_, VotingParams<T>, OptionQuery>;
 
     /// VotingParams: optional overrides (use default from Config if not set).
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     #[scale_info(skip_type_params(T))]
     pub struct VotingParams<T: Config> {
         pub min_quorum_permille: u32,

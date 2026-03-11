@@ -1,0 +1,52 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "ABENA Node (Dev)",
+      "cargo": {
+        "args": [
+          "build",
+          "-p",
+          "abena-node",
+          "--bin",
+          "abena-node"
+        ],
+        "filter": {
+          "name": "abena-node",
+          "kind": "bin"
+        }
+      },
+      "args": ["--dev", "--tmp"],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "RUST_LOG": "info"
+      }
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "ABENA Node (Debug)",
+      "cargo": {
+        "args": [
+          "build",
+          "-p",
+          "abena-node",
+          "--bin",
+          "abena-node",
+          "--no-default-features"
+        ],
+        "filter": {
+          "name": "abena-node",
+          "kind": "bin"
+        }
+      },
+      "args": ["--dev", "--tmp"],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "RUST_LOG": "debug"
+      }
+    }
+  ]
+}

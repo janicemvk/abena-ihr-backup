@@ -1,4 +1,5 @@
 #![recursion_limit = "256"]
+#![cfg_attr(not(feature = "std"), no_std)]
 
 #[cfg(feature = "std")]
 include!(concat!(env!("OUT_DIR"), "/wasm_binary.rs"));
@@ -6,7 +7,7 @@ include!(concat!(env!("OUT_DIR"), "/wasm_binary.rs"));
 pub mod constants;
 pub mod weights;
 
-use frame_support::genesis_builder_helper::{build_config, create_default_config};
+use frame_support::genesis_builder_helper::{build_state, get_preset};
 use frame_support::{
     construct_runtime, parameter_types,
     traits::{ConstBool, ConstU32, ConstU64, ConstU8, Everything},
@@ -22,6 +23,7 @@ use sp_runtime::{
     transaction_validity::{TransactionSource, TransactionValidity},
     ApplyExtrinsicResult, MultiSignature,
 };
+#[cfg(not(feature = "std"))]
 use sp_std::prelude::*;
 use sp_version::RuntimeVersion;
 
@@ -110,7 +112,7 @@ pub const VERSION: RuntimeVersion = RuntimeVersion {
     impl_version: 1,
     apis: sp_version::create_apis_vec!([]),
     transaction_version: 1,
-    state_version: 1,
+    system_version: 1,
 };
 
 /// This determines the average expected block time that we are targeting.
@@ -246,6 +248,7 @@ impl system::Config for Runtime {
     type PreInherents = ();
     type PostInherents = ();
     type PostTransactions = ();
+    type ExtensionsWeightInfo = ();
 }
 
 impl pallet_aura::Config for Runtime {
@@ -287,6 +290,7 @@ impl pallet_balances::Config for Runtime {
     type RuntimeFreezeReason = ();
     type FreezeIdentifier = ();
     type MaxFreezes = ConstU32<0>;
+    type DoneSlashHandler = ();
 }
 
 parameter_types! {
@@ -295,11 +299,12 @@ parameter_types! {
 
 impl pallet_transaction_payment::Config for Runtime {
     type RuntimeEvent = Event;
-    type OnChargeTransaction = pallet_transaction_payment::CurrencyAdapter<Balances, ()>;
+    type OnChargeTransaction = pallet_transaction_payment::FungibleAdapter<Balances, ()>;
     type OperationalFeeMultiplier = ConstU8<5>;
     type WeightToFee = frame_support::weights::IdentityFee<Balance>;
     type LengthToFee = frame_support::weights::ConstantMultiplier<Balance, TransactionByteFee>;
     type FeeMultiplierUpdate = ();
+    type WeightInfo = pallet_transaction_payment::weights::SubstrateWeight<Runtime>;
 }
 
 parameter_types! {
@@ -434,7 +439,6 @@ impl pallet_data_separation::Config for Runtime {
 // ----------------------------------------------------------------------------
 
 impl pallet_quantum_results::Config for Runtime {
-    type RuntimeEvent = Event;
     type WeightInfo = pallet_quantum_results::weights::SubstrateWeight<Runtime>;
     /// Run quantum results off-chain worker every N blocks (poll IBM, submit attestations).
     type OffchainWorkerInterval = frame_support::traits::ConstU32<10>;
@@ -561,13 +565,23 @@ pub type Executive = frame_executive::Executive<
 >;
 
 // Off-chain workers submit unsigned transactions; these impls allow the runtime to accept them.
-impl frame_system::offchain::SendTransactionTypes<pallet_data_marketplace::Call<Runtime>> for Runtime {
-    type OverarchingCall = Call;
+impl frame_system::offchain::CreateTransactionBase<pallet_data_marketplace::Call<Runtime>> for Runtime {
     type Extrinsic = UncheckedExtrinsic;
+    type RuntimeCall = Call;
 }
-impl frame_system::offchain::SendTransactionTypes<pallet_quantum_results::Call<Runtime>> for Runtime {
-    type OverarchingCall = Call;
+impl frame_system::offchain::CreateBare<pallet_data_marketplace::Call<Runtime>> for Runtime {
+    fn create_bare(call: Call) -> UncheckedExtrinsic {
+        UncheckedExtrinsic::new_bare(call)
+    }
+}
+impl frame_system::offchain::CreateTransactionBase<pallet_quantum_results::Call<Runtime>> for Runtime {
     type Extrinsic = UncheckedExtrinsic;
+    type RuntimeCall = Call;
+}
+impl frame_system::offchain::CreateBare<pallet_quantum_results::Call<Runtime>> for Runtime {
+    fn create_bare(call: Call) -> UncheckedExtrinsic {
+        UncheckedExtrinsic::new_bare(call)
+    }
 }
 
 #[cfg(feature = "runtime-benchmarks")]
@@ -603,7 +617,7 @@ impl_runtime_apis! {
             VERSION
         }
 
-        fn execute_block(block: Block) {
+        fn execute_block(block: <Block as BlockT>::LazyBlock) {
             Executive::execute_block(block);
         }
 
@@ -638,7 +652,7 @@ impl_runtime_apis! {
         }
 
         fn check_inherents(
-            block: Block,
+            block: <Block as BlockT>::LazyBlock,
             data: sp_inherents::InherentData,
         ) -> sp_inherents::CheckInherentsResult {
             data.check_extrinsics(&block)
@@ -680,7 +694,7 @@ impl_runtime_apis! {
         }
 
         fn authorities() -> Vec<AuraId> {
-            Aura::authorities().into_inner()
+            pallet_aura::Authorities::<Runtime>::get().into_inner()
         }
     }
 
@@ -712,12 +726,16 @@ impl_runtime_apis! {
     }
 
     impl sp_genesis_builder::GenesisBuilder<Block> for Runtime {
-        fn create_default_config() -> sp_std::vec::Vec<u8> {
-            create_default_config::<RuntimeGenesisConfig>()
+        fn build_state(json: sp_std::vec::Vec<u8>) -> sp_genesis_builder::Result {
+            build_state::<RuntimeGenesisConfig>(json)
         }
 
-        fn build_config(json: sp_std::vec::Vec<u8>) -> sp_genesis_builder::Result {
-            build_config::<RuntimeGenesisConfig>(json)
+        fn get_preset(id: &Option<sp_genesis_builder::PresetId>) -> Option<sp_std::vec::Vec<u8>> {
+            get_preset::<RuntimeGenesisConfig>(id, |_| None)
+        }
+
+        fn preset_names() -> sp_std::vec::Vec<sp_genesis_builder::PresetId> {
+            Default::default()
         }
     }
 }

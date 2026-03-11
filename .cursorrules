@@ -1,0 +1,36 @@
+# ABENA Healthcare Blockchain - Cursor Rules
+
+## Project Overview
+ABENA is a Substrate/Polkadot-based blockchain for healthcare. The stack includes:
+- **Node**: abena-node (Substrate-based)
+- **Runtime**: abena-runtime
+- **Pallets**: patient-health-records, patient-identity, abena-coin, quantum-computing, and 15+ custom FRAME pallets
+
+## Code Conventions
+- Use Rust edition 2021
+- Follow Substrate/Polkadot SDK patterns (polkadot-stable2512)
+- Pallet configs use `Config` trait with associated types
+- Prefer `#[pallet::call_index(N)]` for extrinsics
+
+## Path Notes
+- Project root has a space: `C:\Users\Jan Marie\Abena Blockchain`
+- When running terminal commands, wrap paths in quotes: `cd "C:\Users\Jan Marie\Abena Blockchain"`
+- On Windows, use PowerShell env var syntax: `$env:RUST_LOG='info'; cargo run ...`
+
+## Build & Run
+- Build node: `cargo build -p abena-node --release`
+- Dev with temp chain: `cargo run -p abena-node -- --dev --tmp`
+- On Linux/WSL, RocksDB and protoc are required: `apt install build-essential clang libclang-dev libssl-dev pkg-config cmake protobuf-compiler`
+
+## File Structure
+- `pallets/` - FRAME pallets
+- `runtime/` - Runtime assembly
+- `node/` - Node binary and CLI
+- `services/fhir-api/` - FHIR API service
+- `cli/` - Node.js CLI tools
+- `connectors/` - EHR connectors
+
+## AI Assistance
+- Preserve Substrate/FRAME idioms when editing pallets
+- When adding pallets, register in runtime and workspace Cargo.toml
+- Healthcare data: follow HL7/FHIR conventions where relevant

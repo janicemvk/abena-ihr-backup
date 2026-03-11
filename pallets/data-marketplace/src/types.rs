@@ -2,13 +2,13 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use codec::{Decode, Encode, MaxEncodedLen};
+use codec::{Decode, DecodeWithMemTracking, Encode, MaxEncodedLen};
 use scale_info::TypeInfo;
 use sp_runtime::RuntimeDebug;
 use sp_std::vec::Vec;
 
 /// Therapeutic modalities for consent tracking
-#[derive(Encode, Decode, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Encode, Decode, DecodeWithMemTracking, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub enum TherapeuticModality {
     WesternMedicine,
     TraditionalChineseMedicine,
@@ -19,7 +19,7 @@ pub enum TherapeuticModality {
 }
 
 /// Data tiers for privacy classification
-#[derive(Encode, Decode, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Encode, Decode, DecodeWithMemTracking, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub enum DataTier {
     /// Direct identifiers - NEVER shared (name, SSN, address, email, phone)
     DirectIdentifiers,
@@ -34,7 +34,7 @@ pub enum DataTier {
 }
 
 /// Anonymization levels and techniques
-#[derive(Encode, Decode, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Encode, Decode, DecodeWithMemTracking, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub enum AnonymizationLevel {
     /// K-anonymity with specified k value
     KAnonymity(u32),
@@ -47,7 +47,7 @@ pub enum AnonymizationLevel {
 }
 
 /// Purpose for data licensing
-#[derive(Encode, Decode, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Encode, Decode, DecodeWithMemTracking, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub enum LicensePurpose {
     DrugDevelopment,
     ClinicalTrial,
@@ -60,7 +60,7 @@ pub enum LicensePurpose {
 }
 
 /// Privacy guarantee specifications
-#[derive(Encode, Decode, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Encode, Decode, DecodeWithMemTracking, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub struct PrivacyGuarantee {
     pub k_anonymity: Option<u32>,
     pub l_diversity: Option<u32>,
@@ -69,7 +69,7 @@ pub struct PrivacyGuarantee {
 }
 
 /// Data field types that can be requested
-#[derive(Encode, Decode, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Encode, Decode, DecodeWithMemTracking, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub enum DataField {
     Age,
     Gender,
@@ -84,7 +84,7 @@ pub enum DataField {
 }
 
 /// Clinical condition filter
-#[derive(Encode, Decode, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Encode, Decode, DecodeWithMemTracking, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub enum ClinicalCondition {
     Diabetes,
     Hypertension,
@@ -99,7 +99,7 @@ pub enum ClinicalCondition {
 }
 
 /// Demographic filter for data queries
-#[derive(Encode, Decode, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Encode, Decode, DecodeWithMemTracking, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub struct DemographicFilter {
     pub age_min: Option<u32>,
     pub age_max: Option<u32>,
@@ -107,7 +107,7 @@ pub struct DemographicFilter {
     pub geographic_region: Option<GeographicRegion>,
 }
 
-#[derive(Encode, Decode, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Encode, Decode, DecodeWithMemTracking, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub enum Gender {
     Male,
     Female,
@@ -115,7 +115,7 @@ pub enum Gender {
     Any,
 }
 
-#[derive(Encode, Decode, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Encode, Decode, DecodeWithMemTracking, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub enum GeographicRegion {
     NorthAmerica,
     Europe,
@@ -126,7 +126,7 @@ pub enum GeographicRegion {
 }
 
 /// Data violation types
-#[derive(Encode, Decode, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Encode, Decode, DecodeWithMemTracking, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub enum DataViolation {
     UnauthorizedReidentification,
     PurposeMisuse,
@@ -136,7 +136,7 @@ pub enum DataViolation {
 }
 
 /// Commercial entity status
-#[derive(Encode, Decode, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Encode, Decode, DecodeWithMemTracking, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub enum EntityStatus {
     Pending,
     Approved,
@@ -145,7 +145,7 @@ pub enum EntityStatus {
 }
 
 /// Entity type for commercial entities
-#[derive(Encode, Decode, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Encode, Decode, DecodeWithMemTracking, Clone, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub enum EntityType {
     PharmaceuticalCompany,
     BiotechCompany,

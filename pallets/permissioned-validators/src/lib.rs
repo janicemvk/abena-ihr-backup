@@ -31,7 +31,7 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use codec::{Decode, Encode, MaxEncodedLen};
+use codec::{Decode, DecodeWithMemTracking, Encode, MaxEncodedLen};
 use frame_support::dispatch::DispatchResult;
 use sp_runtime::DispatchError;
 use frame_support::traits::ConstU32;
@@ -56,7 +56,7 @@ pub use weights::WeightInfo;
 // ── runtime parameter_types! without importing the inner pallet module)   ──
 
 /// The four operational modes for the ABENA network.
-#[derive(Clone, Copy, PartialEq, Eq, Encode, Decode, RuntimeDebug, TypeInfo, MaxEncodedLen, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Copy, PartialEq, Eq, Encode, Decode, DecodeWithMemTracking, RuntimeDebug, TypeInfo, MaxEncodedLen, serde::Serialize, serde::Deserialize)]
 pub enum NetworkMode {
     /// Open to any validator — equivalent to a standard Substrate chain.
     Public,
@@ -77,7 +77,7 @@ impl Default for NetworkMode {
 }
 
 /// Healthcare institution categories recognised by the network.
-#[derive(Clone, Copy, PartialEq, Eq, Encode, Decode, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Copy, PartialEq, Eq, Encode, Decode, DecodeWithMemTracking, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 #[cfg_attr(feature = "std", derive(serde::Serialize, serde::Deserialize))]
 pub enum InstitutionType {
     Hospital,
@@ -90,7 +90,7 @@ pub enum InstitutionType {
 }
 
 /// Approval state for validators and institutions.
-#[derive(Clone, Copy, PartialEq, Eq, Encode, Decode, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Copy, PartialEq, Eq, Encode, Decode, DecodeWithMemTracking, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 #[cfg_attr(feature = "std", derive(serde::Serialize, serde::Deserialize))]
 pub enum ApprovalStatus {
     Pending,
@@ -99,7 +99,7 @@ pub enum ApprovalStatus {
 }
 
 /// Role a validator plays in the network.
-#[derive(Clone, Copy, PartialEq, Eq, Encode, Decode, RuntimeDebug, TypeInfo, MaxEncodedLen, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Copy, PartialEq, Eq, Encode, Decode, DecodeWithMemTracking, RuntimeDebug, TypeInfo, MaxEncodedLen, serde::Serialize, serde::Deserialize)]
 pub enum ValidatorRole {
     /// Full block-producing authority.
     BlockProducer,
@@ -112,7 +112,7 @@ pub enum ValidatorRole {
 }
 
 /// On-chain record for an approved validator node.
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub struct ValidatorInfo<AccountId, BlockNumber> {
     /// The validator's `AccountId` (authority key).
     pub account: AccountId,
@@ -157,7 +157,7 @@ impl<T: frame_system::Config> ValidatorProposalSubmitter<T> for () {
 }
 
 /// On-chain record for a registered healthcare institution.
-#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub struct InstitutionInfo<AccountId, BlockNumber> {
     /// Representative account for the institution.
     pub account: AccountId,

@@ -43,7 +43,7 @@ pub mod pallet {
     }
 
     /// License lifecycle status.
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     pub enum LicenseStatus {
         Pending,
         Active,
@@ -51,7 +51,7 @@ pub mod pallet {
     }
 
     /// Data query (bounded).
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     pub struct DataQuery {
         pub fields: BoundedVec<DataField, ConstU32<16>>,
         pub condition: Option<ClinicalCondition>,
@@ -59,7 +59,7 @@ pub mod pallet {
     }
 
     /// Data license (request + result).
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     #[scale_info(skip_type_params(T))]
     pub struct DataLicense<T: Config> {
         pub license_id: T::Hash,
@@ -72,7 +72,7 @@ pub mod pallet {
     }
 
     /// Data asset (metadata; content referenced by data_hash).
-    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     #[scale_info(skip_type_params(T))]
     pub struct DataAsset<T: Config> {
         pub owner: T::AccountId,
@@ -162,7 +162,7 @@ pub mod pallet {
     #[pallet::hooks]
     impl<T: Config> Hooks<BlockNumberFor<T>> for Pallet<T>
     where
-        T: frame_system::offchain::SendTransactionTypes<Call<T>>,
+        T: frame_system::offchain::CreateBare<Call<T>>,
     {
         fn offchain_worker(block_number: BlockNumberFor<T>) {
             crate::offchain::offchain_worker::<T>(block_number);

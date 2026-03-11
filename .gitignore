@@ -6,7 +6,6 @@ Cargo.lock
 
 # IDE
 .idea/
-.vscode/
 *.swp
 *.swo
 *~
@@ -17,6 +16,11 @@ Thumbs.db
 
 # Logs
 *.log
+build-output.txt
+
+# Rust compiler crash dumps
+rustc-ice-*.txt
+**/rustc-ice-*.txt
 
 # Node.js
 node_modules/

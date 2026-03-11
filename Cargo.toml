@@ -92,7 +92,7 @@ sc-transaction-pool = { git = "https://github.com/paritytech/polkadot-sdk", tag 
 sc-transaction-pool-api = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2512" }
 
 # RPC
-jsonrpsee = { version = "0.23.2", features = ["server"] }
+jsonrpsee = { version = "0.24.10", features = ["server"] }
 substrate-frame-rpc-system = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2512" }
 pallet-transaction-payment-rpc = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2512" }
 
@@ -118,7 +118,8 @@ opt-level = 3
 lto = true
 codegen-units = 1
 strip = true
-panic = "abort"
+# panic = "abort" — disabled: causes duplicate lang item `sized` in WASM build
+# when combined with -Z build-std. Use panic=unwind for now until Cargo fixes.
 
 [profile.release-with-debug]
 inherits = "release"

@@ -1,0 +1,122 @@
+{
+  "version": "2.0.0",
+  "options": {
+    "cwd": "C:\\Users\\Jan Marie\\Abena Blockchain",
+    "shell": {
+      "executable": "powershell.exe",
+      "args": ["-NoProfile", "-Command"]
+    }
+  },
+  "tasks": [
+    {
+      "label": "Build ABENA Node",
+      "type": "shell",
+      "command": "cargo build -p abena-node --release",
+      "options": {
+        "cwd": "C:\\Users\\Jan Marie\\Abena Blockchain"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Run ABENA Node (Dev)",
+      "type": "shell",
+      "command": "$env:RUST_LOG='info'; Set-Location 'C:\\Users\\Jan Marie\\Abena Blockchain'; cargo run -p abena-node -- --dev --tmp",
+      "options": {
+        "cwd": "C:\\Users\\Jan Marie\\Abena Blockchain",
+        "shell": {
+          "executable": "powershell.exe",
+          "args": ["-NoProfile", "-Command"]
+        }
+      },
+      "group": "none",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "dependsOn": "Build ABENA Node"
+    },
+    {
+      "label": "Run ABENA Node (Dev - Verbose)",
+      "type": "shell",
+      "command": "$env:RUST_LOG='debug'; Set-Location 'C:\\Users\\Jan Marie\\Abena Blockchain'; cargo run -p abena-node -- --dev --tmp",
+      "options": {
+        "cwd": "C:\\Users\\Jan Marie\\Abena Blockchain",
+        "shell": {
+          "executable": "powershell.exe",
+          "args": ["-NoProfile", "-Command"]
+        }
+      },
+      "group": "none",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "Export Chain Spec (Dev)",
+      "type": "shell",
+      "command": "Set-Location 'C:\\Users\\Jan Marie\\Abena Blockchain'; cargo run -p abena-node -- build-spec --chain dev 2>&1 | Tee-Object -FilePath 'chain-spec-dev.json' -Encoding utf8; Write-Host 'Chain spec written to chain-spec-dev.json'",
+      "options": {
+        "cwd": "C:\\Users\\Jan Marie\\Abena Blockchain",
+        "shell": {
+          "executable": "powershell.exe",
+          "args": ["-NoProfile", "-Command"]
+        }
+      },
+      "group": "none",
+      "presentation": {
+        "reveal": "always"
+      }
+    },
+    {
+      "label": "View Build Output (First 80 Lines)",
+      "type": "shell",
+      "command": "Set-Location 'C:\\Users\\Jan Marie\\Abena Blockchain'; cargo build -p abena-node --release 2>&1 | Select-Object -First 80",
+      "options": {
+        "cwd": "C:\\Users\\Jan Marie\\Abena Blockchain",
+        "shell": {
+          "executable": "powershell.exe",
+          "args": ["-NoProfile", "-Command"]
+        }
+      },
+      "group": "none",
+      "presentation": {
+        "reveal": "always"
+      }
+    },
+    {
+      "label": "Test All",
+      "type": "shell",
+      "command": "cargo test --workspace",
+      "options": {
+        "cwd": "C:\\Users\\Jan Marie\\Abena Blockchain"
+      },
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always"
+      }
+    },
+    {
+      "label": "Check",
+      "type": "shell",
+      "command": "cargo check --workspace",
+      "options": {
+        "cwd": "C:\\Users\\Jan Marie\\Abena Blockchain"
+      },
+      "group": "build",
+      "presentation": {
+        "reveal": "silent"
+      }
+    }
+  ]
+}
