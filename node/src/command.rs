@@ -1,4 +1,6 @@
-//! Command execution for ABENA node.
+//! ABENA IHR Node — Command Dispatcher
+//!
+//! Routes CLI subcommands to the appropriate service or utility function.
 
 use crate::chain_spec;
 use crate::cli::{Cli, Subcommand};
@@ -7,7 +9,7 @@ use sc_cli::SubstrateCli;
 
 impl SubstrateCli for Cli {
     fn impl_name() -> String {
-        "ABENA Node".into()
+        "ABENA IHR Node".into()
     }
 
     fn impl_version() -> String {
@@ -23,17 +25,25 @@ impl SubstrateCli for Cli {
     }
 
     fn support_url() -> String {
-        "https://github.com/abena-healthcare/abena-blockchain/issues".into()
+        "https://github.com/janicemvk/abena-ihr-backup/issues".into()
     }
 
     fn copyright_start_year() -> i32 {
-        2024
+        2025
     }
 
     fn load_spec(&self, id: &str) -> Result<Box<dyn sc_service::ChainSpec>, String> {
         Ok(match id {
-            "dev" => Box::new(chain_spec::development_config()?),
-            "" | "local" => Box::new(chain_spec::local_testnet_config()?),
+            // Dev chain: single Alice validator, dev endowments
+            "dev" | "" => Box::new(chain_spec::development_config()?),
+
+            // Local two-validator testnet
+            "local" => Box::new(chain_spec::local_testnet_config()?),
+
+            // Public testnet at wss://testnet.abenihr.com
+            "abena-testnet" | "testnet" => Box::new(chain_spec::abena_testnet_config()?),
+
+            // Load a custom chain spec from file path
             path => Box::new(chain_spec::ChainSpec::from_json_file(
                 std::path::PathBuf::from(path),
             )?),
@@ -41,10 +51,14 @@ impl SubstrateCli for Cli {
     }
 }
 
+/// Parse CLI args and dispatch to the appropriate command.
 pub fn run() -> sc_cli::Result<()> {
     let cli = Cli::parse();
 
     match &cli.subcommand {
+        // ── Utility subcommands ──────────────────────────────────────────
+        Some(Subcommand::Key(cmd)) => cmd.run(&cli),
+
         Some(Subcommand::BuildSpec(cmd)) => {
             let runner = cli.create_runner(cmd)?;
             runner.sync_run(|config| cmd.run(config.chain_spec, config.network))
@@ -90,9 +104,22 @@ pub fn run() -> sc_cli::Result<()> {
             runner.async_run(|config| {
                 let crate::service::NewPartial { client, task_manager, backend, .. } =
                     crate::service::new_partial(&config)?;
-                Ok((cmd.run(client, backend, None), task_manager))
+                let aux_revert = Box::new(|client, _, blocks| {
+                    sc_consensus_grandpa::revert(client, blocks)?;
+                    Ok(())
+                });
+                Ok((cmd.run(client, backend, Some(aux_revert)), task_manager))
             })
         }
+        // ── Main node run ────────────────────────────────────────────────
+        None => {
+            let runner = cli.create_runner(&cli.run)?;
+            runner.run_node_until_exit(|config| async move {
+                crate::service::new_full(config).map_err(sc_cli::Error::Service)
+            })
+        }
+
+        // ── Benchmarking (feature-gated) ─────────────────────────────────
         #[cfg(feature = "runtime-benchmarks")]
         Some(Subcommand::Benchmark(cmd)) => {
             use crate::service::{FullBackend, FullClient};
@@ -103,11 +130,6 @@ pub fn run() -> sc_cli::Result<()> {
                 cmd.run::<abena_runtime::Block, FullClient>(client, backend)
             })
         }
-        None => {
-            let runner = cli.create_runner(&cli.run)?;
-            runner.run_node_until_exit(|config| async move {
-                crate::service::new_full(config).map_err(sc_cli::Error::Service)
-            })
-        }
+
     }
 }

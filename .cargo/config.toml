@@ -1,0 +1,36 @@
+# .cargo/config.toml
+# Fixes build issues on both Windows (PowerShell/Cursor) and DigitalOcean (Ubuntu)
+
+[build]
+# Use faster linker on Linux (DigitalOcean server)
+# On Windows this is ignored — MSVC linker is used automatically
+# rustflags = ["-C", "linker=clang", "-C", "link-arg=-fuse-ld=lld"]
+
+# ─── WASM target configuration ────────────────────────────────────────────────
+[target.wasm32-unknown-unknown]
+rustflags = [
+    # Needed for no_std WASM compilation
+    "-C", "target-feature=+bulk-memory",
+]
+
+# ─── Linux (DigitalOcean server) ──────────────────────────────────────────────
+[target.x86_64-unknown-linux-gnu]
+rustflags = [
+    # Prevents stack overflow during deep Substrate macro expansion
+    "-C", "link-arg=-Wl,-z,stack-size=33554432",
+]
+
+# ─── OpenSSL fix for Linux builds ─────────────────────────────────────────────
+# If you get: "Could not find directory of OpenSSL installation"
+# Run on your DigitalOcean server:
+#   sudo apt-get install -y pkg-config libssl-dev
+# Then these env vars will be picked up automatically.
+# OR uncomment and set paths explicitly:
+# [env]
+# OPENSSL_DIR = "/usr"
+# OPENSSL_INCLUDE_DIR = "/usr/include/openssl"
+# OPENSSL_LIB_DIR = "/usr/lib/x86_64-linux-gnu"
+
+# ─── Speeds up repeated builds ────────────────────────────────────────────────
+[net]
+retry = 3

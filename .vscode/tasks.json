@@ -107,6 +107,19 @@
       }
     },
     {
+      "label": "Upload index.html to Server",
+      "type": "shell",
+      "command": "scp \"C:\\Users\\Jan Marie\\Abena Blockchain\\index.html\" root@64.23.131.21:/var/www/html/index.html",
+      "options": {
+        "cwd": "C:\\Users\\Jan Marie\\Abena Blockchain"
+      },
+      "group": "none",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
       "label": "Check",
       "type": "shell",
       "command": "cargo check --workspace",

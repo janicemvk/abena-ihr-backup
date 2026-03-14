@@ -1,12 +1,23 @@
-#![recursion_limit = "256"]
-#![cfg_attr(not(feature = "std"), no_std)]
+//! ABENA IHR Runtime
+//! DK Technologies, Inc. — Integrative Health Record
+//! Quantum-powered healthcare blockchain on Substrate/Polkadot SDK
+//!
+//! ABENA Coin: Native currency of the ABENA blockchain
+//!   Symbol:   ABENA
+//!   Decimals: 12
+//!   Supply:   1,000,000,000 ABENA
 
+#![cfg_attr(not(feature = "std"), no_std)]
+// Required for Substrate runtimes
+#![recursion_limit = "256"]
+
+// Make the WASM binary available.
 #[cfg(feature = "std")]
 include!(concat!(env!("OUT_DIR"), "/wasm_binary.rs"));
 
-pub mod constants;
-pub mod weights;
-
+// ============================================================
+// External crate imports
+// ============================================================
 use frame_support::genesis_builder_helper::{build_state, get_preset};
 use frame_support::{
     construct_runtime, parameter_types,
@@ -16,6 +27,8 @@ use frame_support::{
 };
 use frame_system as system;
 use sp_api::impl_runtime_apis;
+use sp_consensus_aura::sr25519::AuthorityId as AuraId;
+use sp_consensus_grandpa::ed25519::AuthorityId as GrandpaId;
 use sp_core::{crypto::KeyTypeId, OpaqueMetadata};
 use sp_runtime::{
     create_runtime_str, generic, impl_opaque_keys,
@@ -25,51 +38,62 @@ use sp_runtime::{
 };
 #[cfg(not(feature = "std"))]
 use sp_std::prelude::*;
+#[cfg(feature = "std")]
+use sp_version::NativeVersion;
 use sp_version::RuntimeVersion;
 
-use codec::Encode;
-
-pub use sp_consensus_aura::sr25519::AuthorityId as AuraId;
-pub use sp_runtime::{MultiAddress, Perbill, Permill};
-
-/// Import the template pallet.
 pub use pallet_balances;
 pub use pallet_timestamp;
 pub use pallet_aura;
 pub use pallet_sudo;
+pub use pallet_abena_rewards;
+pub use pallet_abena_fee_abstraction;
 
-// Custom pallets
-pub use pallet_patient_health_records;
-pub use pallet_abena_coin;
-pub use pallet_quantum_computing;
-pub use pallet_patient_identity;
-pub use pallet_health_record_hash;
-pub use pallet_treatment_protocol;
-pub use pallet_interoperability;
-pub use pallet_governance;
-pub use pallet_fee_management;
-pub use pallet_access_control;
-pub use pallet_account_management;
-pub use pallet_data_separation;
-pub use pallet_quantum_results;
-pub use pallet_data_marketplace;
-pub use pallet_permissioned_validators;
-pub use pallet_private_channels;
-pub use pallet_enterprise_identity;
-pub use pallet_consortium_governance;
+pub use sp_runtime::{MultiAddress, Perbill, Permill};
+
+// ============================================================
+// ABENA COIN — Currency Constants
+// ============================================================
+/// All currency amounts are in planck units (1 ABENA = 1_000_000_000_000 planck)
+pub mod currency {
+    use super::Balance;
+
+    /// 1 ABENA Coin = 10^12 planck (12 decimal places, Substrate standard)
+    pub const ABENA: Balance = 1_000_000_000_000;
+
+    /// 0.001 ABENA
+    pub const MILLI_ABENA: Balance = ABENA / 1_000;
+
+    /// 0.000001 ABENA
+    pub const MICRO_ABENA: Balance = ABENA / 1_000_000;
+
+    /// Existential deposit — minimum balance to keep an account alive
+    /// Set to 0.001 ABENA (patients don't accidentally lose tiny balances)
+    pub const EXISTENTIAL_DEPOSIT: Balance = MILLI_ABENA;
+
+    /// Transaction base fee
+    pub const TRANSACTION_BASE_FEE: Balance = MILLI_ABENA;
+
+    /// Total supply: 1,000,000,000 ABENA
+    pub const TOTAL_SUPPLY: Balance = 1_000_000_000u128 * ABENA;
+}
+
+// ============================================================
+// Core Type Aliases
+// ============================================================
 
 /// An index to a block.
 pub type BlockNumber = u32;
 
+/// Alias for the ABENA Coin balance type.
+/// u128 supports values up to ~3.4 × 10^38 planck — far beyond total supply.
+pub type Balance = u128;
+
 /// Alias to 512-bit hash when used in the context of a transaction signature on the chain.
 pub type Signature = MultiSignature;
 
-/// Some way of identifying an account on the chain. We intentionally make it equivalent
-/// to the public key of our transaction signing scheme.
+/// Some way of identifying an account on the chain.
 pub type AccountId = <<Signature as Verify>::Signer as IdentifyAccount>::AccountId;
-
-/// Balance of an account.
-pub type Balance = u128;
 
 /// Index of a transaction in the chain.
 pub type Nonce = u32;
@@ -77,171 +101,154 @@ pub type Nonce = u32;
 /// A hash of some data used by the chain.
 pub type Hash = sp_core::H256;
 
-/// Opaque types. These are used by the CLI to instantiate machinery that don't need to know
-/// the specifics of the runtime. They can then be made to be agnostic over specific formats
-/// of data like extrinsics, allowing for them to continue syncing the network through upgrades
-/// to even the core data structures.
+/// The type for storing how many extrinsics an account has signed.
+pub type Index = u32;
+
+// ============================================================
+// Opaque types — used for the node side
+// ============================================================
 pub mod opaque {
     use super::*;
 
     pub use sp_runtime::OpaqueExtrinsic as UncheckedExtrinsic;
 
-    /// Opaque block header type.
     pub type Header = generic::Header<BlockNumber, BlakeTwo256>;
-    /// Opaque block type.
     pub type Block = generic::Block<Header, UncheckedExtrinsic>;
-    /// Opaque block identifier type.
     pub type BlockId = generic::BlockId<Block>;
-}
 
-/// Session keys: just Aura for block production.
-impl_opaque_keys! {
-    pub struct SessionKeys {
-        pub aura: AuraId,
+    impl_opaque_keys! {
+        pub struct SessionKeys {
+            pub aura: AuraId,
+            pub grandpa: GrandpaId,
+        }
     }
 }
 
-// To learn more about runtime versioning, see:
-// https://docs.substrate.io/main-docs/build/upgrade#runtime-versioning
+// ============================================================
+// Runtime Version
+// ============================================================
 #[sp_version::runtime_version]
 pub const VERSION: RuntimeVersion = RuntimeVersion {
-    spec_name: create_runtime_str!("abena"),
-    impl_name: create_runtime_str!("abena"),
+    spec_name: create_runtime_str!("abena-ihr"),
+    impl_name: create_runtime_str!("abena-ihr"),
     authoring_version: 1,
-    spec_version: 1,
+    // Increment spec_version after any runtime logic change
+    spec_version: 100,
     impl_version: 1,
     apis: sp_version::create_apis_vec!([]),
     transaction_version: 1,
     system_version: 1,
 };
 
-/// This determines the average expected block time that we are targeting.
-/// Blocks will be produced at a minimum duration defined by `SLOT_DURATION`.
-/// `SLOT_DURATION` is picked up by `pallet_timestamp` which is in turn picked
-/// up by `pallet_aura` to implement `fn slot_duration()`.
-///
-/// Change this to adjust the block time.
-pub const MILLISECS_PER_BLOCK: u64 = 6000;
-
-// NOTE: Currently it is not possible to change the slot duration after the chain has started.
-//       Attempting to do so will brick block production.
-pub const SLOT_DURATION: u64 = MILLISECS_PER_BLOCK;
-
-// Time is measured by number of blocks.
-pub const MINUTES: BlockNumber = 60_000 / (MILLISECS_PER_BLOCK as BlockNumber);
-pub const HOURS: BlockNumber = MINUTES * 60;
-pub const DAYS: BlockNumber = HOURS * 24;
-
 /// The version information used to identify this runtime when compiled natively.
 #[cfg(feature = "std")]
-pub fn native_version() -> sp_version::NativeVersion {
-    sp_version::NativeVersion {
+pub fn native_version() -> NativeVersion {
+    NativeVersion {
         runtime_version: VERSION,
         can_author_with: Default::default(),
     }
 }
 
+// ============================================================
+// Block & Weight Configuration
+// ============================================================
+pub const MILLISECS_PER_BLOCK: u64 = 6000;
+pub const SLOT_DURATION: u64 = MILLISECS_PER_BLOCK;
+
+pub const MINUTES: BlockNumber = 60_000 / (MILLISECS_PER_BLOCK as BlockNumber);
+pub const HOURS: BlockNumber = MINUTES * 60;
+pub const DAYS: BlockNumber = HOURS * 24;
+
 const NORMAL_DISPATCH_RATIO: Perbill = Perbill::from_percent(75);
 
 parameter_types! {
     pub const BlockHashCount: BlockNumber = 2400;
-    pub const Version: sp_version::RuntimeVersion = VERSION;
-    /// We allow for 2 seconds of compute with a 6 second average block time.
+    pub const Version: RuntimeVersion = VERSION;
     pub BlockWeights: system::limits::BlockWeights = system::limits::BlockWeights::with_sensible_defaults(
         Weight::from_parts(2u64 * WEIGHT_REF_TIME_PER_SECOND, u64::MAX),
         NORMAL_DISPATCH_RATIO,
     );
     pub BlockLength: system::limits::BlockLength = system::limits::BlockLength::max_with_normal_ratio(5 * 1024 * 1024, NORMAL_DISPATCH_RATIO);
-    pub const SS58Prefix: u8 = 42;
+    pub const SS58Prefix: u8 = 42; // Generic Substrate prefix (change to custom for mainnet)
 }
 
-// Create the runtime by composing the FRAME pallets that were previously configured.
+// ============================================================
+// ABENA COIN — pallet_balances existential deposit
+// ============================================================
+parameter_types! {
+    /// Minimum balance to keep an account alive on the ABENA chain.
+    /// Set to 0.001 ABENA. Patients with small balances won't lose their accounts.
+    pub const ExistentialDeposit: Balance = currency::EXISTENTIAL_DEPOSIT;
+    pub const MaxLocks: u32 = 50;
+}
+
+parameter_types! {
+    pub const TransactionByteFee: Balance = 1;
+}
+
+// ============================================================
+// construct_runtime! — Assemble the ABENA runtime
+// ============================================================
 construct_runtime!(
     pub enum Runtime where
         Block = Block,
         NodeBlock = opaque::Block,
         UncheckedExtrinsic = UncheckedExtrinsic,
     {
+        // ── Core system ──────────────────────────────────────────
         System: system,
         Timestamp: pallet_timestamp,
         Aura: pallet_aura,
-        Balances: pallet_balances,
-        TransactionPayment: pallet_transaction_payment,
-        Sudo: pallet_sudo,
+        Grandpa: pallet_grandpa,
 
-        // Custom pallets
-        PatientHealthRecords: pallet_patient_health_records,
-        AbenaCoin: pallet_abena_coin,
-        QuantumComputing: pallet_quantum_computing,
-        PatientIdentity: pallet_patient_identity,
-        HealthRecordHash: pallet_health_record_hash,
-        TreatmentProtocol: pallet_treatment_protocol,
-        Interoperability: pallet_interoperability,
-        Governance: pallet_governance,
-        FeeManagement: pallet_fee_management,
-        AccessControl: pallet_access_control,
-        AccountManagement: pallet_account_management,
-        DataSeparation: pallet_data_separation,
-        QuantumResults: pallet_quantum_results,
-        DataMarketplace: pallet_data_marketplace,
-        PermissionedValidators: pallet_permissioned_validators,
-        PrivateChannels: pallet_private_channels,
-        EnterpriseIdentity: pallet_enterprise_identity,
-        ConsortiumGovernance: pallet_consortium_governance,
+        // ── ABENA COIN ───────────────────────────────────────────
+        Balances: pallet_balances,              // ← Native ABENA Coin
+        TransactionPayment: pallet_transaction_payment,
+
+        // ── ABENA Health Rewards ─────────────────────────────────
+        AbenaRewards: pallet_abena_rewards,     // ← Health incentive minting
+
+        // ── Gasless model for patients ───────────────────────────
+        AbenaFeeAbstraction: pallet_abena_fee_abstraction,
+
+        // ── Admin (testnet only) ─────────────────────────────────
+        Sudo: pallet_sudo,
     }
 );
 
-// Type aliases for compatibility with code that expects Call, Event, Origin.
 pub type Call = RuntimeCall;
 pub type Event = RuntimeEvent;
 pub type Origin = RuntimeOrigin;
 
+// ============================================================
+// frame_system — System pallet
+// ============================================================
 impl system::Config for Runtime {
-    /// The basic call filter to use in dispatchable.
     type BaseCallFilter = Everything;
-    /// The block type for the runtime.
     type Block = Block;
-    /// Block & extrinsics weights: base values and limits.
     type BlockWeights = BlockWeights;
-    /// The maximum length of a block (in bytes).
     type BlockLength = BlockLength;
-    /// The identifier used to distinguish between accounts.
-    type AccountId = AccountId;
-    /// The aggregated dispatch type that is available for extrinsics.
-    type RuntimeCall = Call;
-    /// The lookup mechanism to get account ID from whatever is passed in dispatchers.
-    type Lookup = sp_runtime::traits::AccountIdLookup<AccountId, ()>;
-    /// The type for storing how many extrinsics an account has signed.
-    type Nonce = Nonce;
-    /// The type for hashing blocks and tries.
-    type Hash = Hash;
-    /// The hashing algorithm used.
-    type Hashing = BlakeTwo256;
-    /// The ubiquitous event type.
-    type RuntimeEvent = Event;
-    /// The ubiquitous origin type.
+    type DbWeight = frame_support::weights::constants::RocksDbWeight;
     type RuntimeOrigin = Origin;
-    /// Maximum number of block number to block hash mappings to keep (oldest pruned first).
+    type RuntimeCall = Call;
+    type Nonce = Nonce;
+    type Hash = Hash;
+    type Hashing = BlakeTwo256;
+    type AccountId = AccountId;
+    type Lookup = sp_runtime::traits::AccountIdLookup<AccountId, ()>;
+    type Block = Block;
+    type RuntimeEvent = Event;
     type BlockHashCount = BlockHashCount;
-    /// The weight of database operations that the runtime can invoke.
-    type DbWeight = weights::RuntimeDbWeightGet;
-    /// Version of the runtime.
     type Version = Version;
-    /// Converts a module to the index of the module in `construct_runtime!`.
     type PalletInfo = PalletInfo;
-    /// What to do if a new account is created.
-    type OnNewAccount = ();
-    /// What to do if an account is fully reaped from the system.
-    type OnKilledAccount = ();
-    /// The data to be stored in an account.
+    // AccountData holds ABENA Coin balances (free, reserved, frozen)
     type AccountData = pallet_balances::AccountData<Balance>;
-    /// Weight information for the extrinsics of this pallet.
+    type OnNewAccount = ();
+    type OnKilledAccount = ();
     type SystemWeightInfo = ();
-    /// This is used as an identifier of the chain. 42 is the generic substrate prefix.
     type SS58Prefix = SS58Prefix;
-    /// The set code logic, just the default since we're not a parachain.
     type OnSetCode = ();
-    type MaxConsumers = frame_support::traits::ConstU32<16>;
+    type MaxConsumers = ConstU32<16>;
     type RuntimeTask = RuntimeTask;
     type SingleBlockMigrations = ();
     type MultiBlockMigrator = ();
@@ -251,41 +258,58 @@ impl system::Config for Runtime {
     type ExtensionsWeightInfo = ();
 }
 
+// ============================================================
+// pallet_grandpa — BFT finality gadget
+// ============================================================
+impl pallet_grandpa::Config for Runtime {
+    type RuntimeEvent = Event;
+    type WeightInfo = ();
+}
+
+// ============================================================
+// pallet_aura — Block authorship
+// ============================================================
 impl pallet_aura::Config for Runtime {
     type AuthorityId = AuraId;
-    type MaxAuthorities = ConstU32<32>;
     type DisabledValidators = ();
+    type MaxAuthorities = ConstU32<32>;
     type AllowMultipleBlocksPerSlot = ConstBool<false>;
     type SlotDuration = pallet_aura::MinimumPeriodTimesTwo<Runtime>;
 }
 
+// ============================================================
+// pallet_timestamp
+// ============================================================
 impl pallet_timestamp::Config for Runtime {
-    /// A timestamp: milliseconds since the unix epoch.
     type Moment = u64;
     type OnTimestampSet = Aura;
-    type MinimumPeriod = ConstU64<{ SLOT_DURATION / 2 }>;
+    type MinimumPeriod = ConstU64<{ SLOT_DURATION / 2 }>; // 3 seconds (6s block time / 2)
     type WeightInfo = ();
 }
 
-parameter_types! {
-    pub const ExistentialDeposit: u128 = 500;
-    pub const MaxLocks: u32 = 50;
-}
-
+// ============================================================
+// pallet_balances — ABENA COIN CONFIGURATION
+// ============================================================
 impl pallet_balances::Config for Runtime {
     type MaxLocks = MaxLocks;
     type MaxReserves = ();
     type ReserveIdentifier = [u8; 8];
-    /// The type for recording an account's balance.
+
+    /// Balance type: u128 supports 1 billion ABENA × 10^12 planck per ABENA
     type Balance = Balance;
-    /// The ubiquitous event type.
+
     type RuntimeEvent = Event;
+
+    /// Dust removal: burn tiny balances below existential deposit
     type DustRemoval = ();
-    /// The existence deposit.
+
     type ExistentialDeposit = ExistentialDeposit;
-    /// Weight information for the extrinsics of this pallet.
-    type WeightInfo = pallet_balances::weights::SubstrateWeight<Runtime>;
+
+    /// Store account data in the System pallet (standard approach)
     type AccountStore = system::Pallet<Runtime>;
+
+    type WeightInfo = pallet_balances::weights::SubstrateWeight<Runtime>;
+
     type RuntimeHoldReason = ();
     type RuntimeFreezeReason = ();
     type FreezeIdentifier = ();
@@ -293,10 +317,9 @@ impl pallet_balances::Config for Runtime {
     type DoneSlashHandler = ();
 }
 
-parameter_types! {
-    pub const TransactionByteFee: Balance = 1;
-}
-
+// ============================================================
+// pallet_transaction_payment — Fee handling
+// ============================================================
 impl pallet_transaction_payment::Config for Runtime {
     type RuntimeEvent = Event;
     type OnChargeTransaction = pallet_transaction_payment::FungibleAdapter<Balances, ()>;
@@ -307,255 +330,54 @@ impl pallet_transaction_payment::Config for Runtime {
     type WeightInfo = pallet_transaction_payment::weights::SubstrateWeight<Runtime>;
 }
 
-parameter_types! {
-    pub const PatientHealthRecordsPalletId: PalletId = PalletId(*b"abena/hr");
-    pub const AbenaCoinPalletId: PalletId = PalletId(*b"abena/co");
-    pub const QuantumComputingPalletId: PalletId = PalletId(*b"abena/qc");
-    pub const PatientIdentityPalletId: PalletId = PalletId(*b"abena/pi");
-    pub const TreatmentProtocolPalletId: PalletId = PalletId(*b"abena/tp");
-    pub const MaxProvidersPerPatient: u32 = 50;
-    pub const MaxConsentRecords: u32 = 10;
-    pub const AbenaMinProposalDeposit: Balance = 1_000_000_000_000_000_000; // 1 ABENA
-    pub const AbenaVotingPeriodBlocks: BlockNumber = 7200; // ~1 day at 12s/block
-    pub const AbenaMinQuorumPermille: u32 = 100;  // 10%
-    pub const AbenaApprovalThresholdPermille: u32 = 500; // majority
-    pub const AbenaMaxSpendingHistoryEntries: u32 = 200;
-}
-
-impl pallet_patient_health_records::Config for Runtime {
-    type RuntimeEvent = Event;
-    type PalletId = PatientHealthRecordsPalletId;
-    type WeightInfo = pallet_patient_health_records::weights::SubstrateWeight<Runtime>;
-}
-
-impl pallet_abena_coin::Config for Runtime {
-    type RuntimeEvent = RuntimeEvent;
-    type PalletId = AbenaCoinPalletId;
-    type Currency = Balances;
-    type WeightInfo = pallet_abena_coin::weights::SubstrateWeight<Runtime>;
-    type MaxVestingSchedules = ConstU32<10>;
-    type MaxReferralsPerAccount = ConstU32<100>;
-    type SelfReportCooldownBlocks = ConstU32<100>;
-    type MinProposalDeposit = AbenaMinProposalDeposit;
-    type VotingPeriodBlocks = AbenaVotingPeriodBlocks;
-    type MinQuorumPermille = AbenaMinQuorumPermille;
-    type ApprovalThresholdPermille = AbenaApprovalThresholdPermille;
-    type MaxSpendingHistoryEntries = AbenaMaxSpendingHistoryEntries;
-}
-
-impl pallet_quantum_computing::Config for Runtime {
-    type RuntimeEvent = Event;
-    type PalletId = QuantumComputingPalletId;
-    type WeightInfo = pallet_quantum_computing::weights::SubstrateWeight<Runtime>;
-}
-
-
+// ============================================================
+// pallet_sudo — Admin control (testnet only — remove for mainnet)
+// ============================================================
 impl pallet_sudo::Config for Runtime {
     type RuntimeEvent = Event;
     type RuntimeCall = Call;
     type WeightInfo = ();
 }
 
-impl pallet_patient_identity::Config for Runtime {
-    type RuntimeEvent = Event;
-    type MaxProvidersPerPatient = MaxProvidersPerPatient;
-    type MaxConsentRecords = MaxConsentRecords;
-    type WeightInfo = pallet_patient_identity::weights::SubstrateWeight<Runtime>;
+parameter_types! {
+    pub const AbenaMaxActionsPerBlock: u32 = 100;
 }
 
-impl pallet_health_record_hash::Config for Runtime {
+// ============================================================
+// pallet_abena_rewards — Health reward coin minting
+// ============================================================
+impl pallet_abena_rewards::Config for Runtime {
     type RuntimeEvent = Event;
-    type WeightInfo = pallet_health_record_hash::weights::SubstrateWeight<Runtime>;
-}
-
-impl pallet_treatment_protocol::Config for Runtime {
-    type RuntimeEvent = Event;
-    type WeightInfo = pallet_treatment_protocol::weights::SubstrateWeight<Runtime>;
-}
-
-impl pallet_interoperability::Config for Runtime {
-    type RuntimeEvent = Event;
-    type WeightInfo = pallet_interoperability::weights::SubstrateWeight<Runtime>;
-}
-
-impl pallet_governance::Config for Runtime {
-    type RuntimeEvent = Event;
-    type WeightInfo = pallet_governance::weights::SubstrateWeight<Runtime>;
-}
-
-impl pallet_fee_management::Config for Runtime {
-    type RuntimeEvent = Event;
-    type WeightInfo = pallet_fee_management::weights::SubstrateWeight<Runtime>;
     type Currency = Balances;
+    type AuthorizedOracle = frame_system::EnsureRoot<AccountId>;
+    type MaxActionsPerBlock = AbenaMaxActionsPerBlock;
+    type WeightInfo = pallet_abena_rewards::weights::SubstrateWeight<Runtime>;
 }
 
-impl pallet_access_control::Config for Runtime {
+// ============================================================
+// pallet_abena_fee_abstraction — Gasless model for patients
+// ============================================================
+impl pallet_abena_fee_abstraction::Config for Runtime {
     type RuntimeEvent = Event;
-    type WeightInfo = pallet_access_control::weights::SubstrateWeight<Runtime>;
-}
-
-impl pallet_account_management::Config for Runtime {
-    type RuntimeEvent = Event;
-    type WeightInfo = pallet_account_management::weights::SubstrateWeight<Runtime>;
-    type Currency = Balances;
-}
-
-parameter_types! {
-    pub const MinKAnonymity: u32 = 2;
-    pub const MaxDataAssetsPerPatient: u32 = 64;
-    pub const MaxAssetsToScan: u32 = 256;
-    pub const DataPricingConfig: pallet_data_separation::DataPricing =
-        pallet_data_separation::DataPricing {
-            basic_vitals: 10,
-            lab_results: 50,
-            genetic_data: 500,
-            longitudinal_data: 200,
-            quantum_analyzed_data: 1_000,
-            rare_disease_data: 5_000,
-        };
-    pub const ViolationPenalty: u128 = 1_000_000;
-}
-
-impl pallet_data_separation::Config for Runtime {
-    type RuntimeEvent = Event;
-    type WeightInfo = pallet_data_separation::weights::SubstrateWeight<Runtime>;
-    type Currency = Balances;
-    type MinKAnonymity = MinKAnonymity;
-    type MaxDataAssetsPerPatient = MaxDataAssetsPerPatient;
-    type MaxAssetsToScan = MaxAssetsToScan;
-    type DataPricing = DataPricingConfig;
-    type ViolationPenalty = ViolationPenalty;
-}
-
-// ----------------------------------------------------------------------------
-// Off-chain worker configuration
-// ----------------------------------------------------------------------------
-// Pallets with off-chain workers: PatientIdentity, DataMarketplace, QuantumResults.
-// - QuantumResults: polls IBM Quantum API for job completion, submits attestations via
-//   submit_attestation_unsigned (requires OffchainWorkerInterval and SendTransactionTypes).
-// - DataMarketplace: dataset preparation, anonymization, IPFS; submits finalize via unsigned tx.
-// - Executive::offchain_worker(header) runs all pallets' Hooks::offchain_worker each block.
-// - sp_offchain::OffchainWorkerApi below exposes that to the node so workers are executed.
-// ----------------------------------------------------------------------------
-
-impl pallet_quantum_results::Config for Runtime {
-    type WeightInfo = pallet_quantum_results::weights::SubstrateWeight<Runtime>;
-    /// Run quantum results off-chain worker every N blocks (poll IBM, submit attestations).
-    type OffchainWorkerInterval = frame_support::traits::ConstU32<10>;
-}
-
-impl pallet_data_marketplace::Config for Runtime {
-    type RuntimeEvent = Event;
-    type WeightInfo = ();
-}
-
-parameter_types! {
-    pub const MaxPermissionedValidators: u32 = 100;
-    pub const MaxRegisteredInstitutions: u32 = 500;
-}
-
-parameter_types! {
-    pub const MaxMembersPerChannel: u32 = 50;
-    pub const MaxChannelsPerMember: u32 = 20;
-    pub const MaxEntriesPerChannel: u32 = 10_000;
-}
-
-impl pallet_private_channels::Config for Runtime {
-    type RuntimeEvent = Event;
-    type MaxMembersPerChannel = MaxMembersPerChannel;
-    type MaxChannelsPerMember = MaxChannelsPerMember;
-    type MaxEntriesPerChannel = MaxEntriesPerChannel;
-    type WeightInfo = pallet_private_channels::weights::SubstrateWeight<Runtime>;
-}
-
-impl pallet_enterprise_identity::Config for Runtime {
-    type RuntimeEvent = Event;
-    type WeightInfo = pallet_enterprise_identity::weights::SubstrateWeight<Runtime>;
-    type RegisterOrigin = frame_system::EnsureRoot<AccountId>;
-}
-
-parameter_types! {
-    pub const ConsortiumVotingPeriod: u32 = 100_800; // ~7 days at 6s/block
-    pub const ConsortiumEmergencyVotingPeriod: u32 = 14_400; // ~24 hours at 6s/block
-    pub const ConsortiumApprovalThreshold: Permill = Permill::from_percent(67); // 2/3 for normal
-    pub const ConsortiumEmergencyApprovalThreshold: Permill = Permill::from_percent(75); // 75% for emergency
-}
-
-impl pallet_consortium_governance::Config for Runtime {
-    type RuntimeEvent = Event;
-    type WeightInfo = pallet_consortium_governance::weights::SubstrateWeight<Runtime>;
-    type RegisterOrigin = frame_system::EnsureRoot<AccountId>;
-    type VotingPeriod = ConsortiumVotingPeriod;
-    type EmergencyVotingPeriod = ConsortiumEmergencyVotingPeriod;
-    type ApprovalThreshold = ConsortiumApprovalThreshold;
-    type EmergencyApprovalThreshold = ConsortiumEmergencyApprovalThreshold;
-}
-
-/// Bridges propose_new_validator to consortium-governance: builds the add_validator call
-/// and submits it via ConsortiumGovernance::propose for weighted consortium vote.
-pub struct AbenaValidatorProposalSubmitter;
-
-impl pallet_permissioned_validators::ValidatorProposalSubmitter<Runtime> for AbenaValidatorProposalSubmitter {
-    fn submit_validator_proposal(
-        origin: <Runtime as frame_system::Config>::RuntimeOrigin,
-        candidate: AccountId,
-        institution_name: sp_std::vec::Vec<u8>,
-        role: pallet_permissioned_validators::ValidatorRole,
-        consortium_id: u32,
-    ) -> sp_runtime::DispatchResult {
-        use pallet_consortium_governance::MaxProposalCallLen;
-        use sp_runtime::BoundedVec;
-
-        let inner_call = pallet_permissioned_validators::Call::<Runtime>::add_validator {
-            validator: candidate,
-            institution_name,
-            role,
-            consortium_id,
-        };
-        let runtime_call = Call::PermissionedValidators(inner_call);
-        let encoded = runtime_call.encode();
-
-        let bounded = BoundedVec::<u8, MaxProposalCallLen>::try_from(encoded)
-        .map_err(|_| sp_runtime::DispatchError::Other("Proposal call too large"))?;
-        pallet_consortium_governance::Pallet::<Runtime>::propose(
-            origin,
-            bounded,
-            pallet_consortium_governance::ProposalPriority::Normal,
-        )
-    }
-}
-
-impl pallet_permissioned_validators::Config for Runtime {
-    type RuntimeEvent = Event;
-    /// Only Root (Sudo) or a future governance collective may change validators/mode.
     type AdminOrigin = frame_system::EnsureRoot<AccountId>;
-    type MaxValidators = MaxPermissionedValidators;
-    type MaxInstitutions = MaxRegisteredInstitutions;
-    type WeightInfo = pallet_permissioned_validators::weights::SubstrateWeight<Runtime>;
-    type ValidatorProposalSubmitter = AbenaValidatorProposalSubmitter;
+    type WeightInfo = pallet_abena_fee_abstraction::weights::SubstrateWeight<Runtime>;
 }
 
-/// The address format for describing accounts.
+// ============================================================
+// Block & Extrinsic types
+// ============================================================
 pub type Address = MultiAddress<AccountId, ()>;
-/// Block header type as expected by this runtime.
 pub type Header = generic::Header<BlockNumber, BlakeTwo256>;
-/// Block type as expected by this runtime.
 pub type Block = generic::Block<Header, UncheckedExtrinsic>;
-/// A signed block.
 pub type SignedBlock = generic::SignedBlock<Block>;
-/// Block ID type as expected by this runtime.
 pub type BlockId = generic::BlockId<Block>;
-/// The SignedExtension to the basic transaction logic.
 pub type SignedExtra = (
     system::CheckNonce<Runtime>,
     system::CheckWeight<Runtime>,
     pallet_transaction_payment::ChargeTransactionPayment<Runtime>,
 );
-/// Unchecked extrinsic type as expected by this runtime.
 pub type UncheckedExtrinsic = generic::UncheckedExtrinsic<Address, Call, Signature, SignedExtra>;
-/// The payload being signed in transactions.
 pub type SignedPayload = generic::SignedPayload<Call, SignedExtra>;
-/// Executive: handles dispatch to the various modules.
 pub type Executive = frame_executive::Executive<
     Runtime,
     Block,
@@ -564,63 +386,17 @@ pub type Executive = frame_executive::Executive<
     AllPalletsWithSystem,
 >;
 
-// Off-chain workers submit unsigned transactions; these impls allow the runtime to accept them.
-impl frame_system::offchain::CreateTransactionBase<pallet_data_marketplace::Call<Runtime>> for Runtime {
-    type Extrinsic = UncheckedExtrinsic;
-    type RuntimeCall = Call;
-}
-impl frame_system::offchain::CreateBare<pallet_data_marketplace::Call<Runtime>> for Runtime {
-    fn create_bare(call: Call) -> UncheckedExtrinsic {
-        UncheckedExtrinsic::new_bare(call)
-    }
-}
-impl frame_system::offchain::CreateTransactionBase<pallet_quantum_results::Call<Runtime>> for Runtime {
-    type Extrinsic = UncheckedExtrinsic;
-    type RuntimeCall = Call;
-}
-impl frame_system::offchain::CreateBare<pallet_quantum_results::Call<Runtime>> for Runtime {
-    fn create_bare(call: Call) -> UncheckedExtrinsic {
-        UncheckedExtrinsic::new_bare(call)
-    }
-}
-
-#[cfg(feature = "runtime-benchmarks")]
-#[macro_use]
-extern crate frame_benchmarking;
-
-#[cfg(feature = "runtime-benchmarks")]
-mod benches {
-    define_benchmarks!(
-        [frame_benchmarking, BaselineBench::<Runtime>]
-        [frame_system, SystemBench::<Runtime>]
-        [pallet_balances, Balances]
-        [pallet_patient_health_records, PatientHealthRecords]
-        [pallet_abena_coin, AbenaCoin]
-        [pallet_quantum_computing, QuantumComputing]
-        [pallet_patient_identity, PatientIdentity]
-        [pallet_health_record_hash, HealthRecordHash]
-        [pallet_treatment_protocol, TreatmentProtocol]
-        [pallet_interoperability, Interoperability]
-        [pallet_governance, Governance]
-        [pallet_fee_management, FeeManagement]
-        [pallet_access_control, AccessControl]
-        [pallet_account_management, AccountManagement]
-        [pallet_permissioned_validators, PermissionedValidators]
-        [pallet_private_channels, PrivateChannels]
-        [pallet_enterprise_identity, EnterpriseIdentity]
-    );
-}
-
+// ============================================================
+// Runtime API Implementations
+// ============================================================
 impl_runtime_apis! {
     impl sp_api::Core<Block> for Runtime {
-        fn version() -> sp_version::RuntimeVersion {
+        fn version() -> RuntimeVersion {
             VERSION
         }
-
         fn execute_block(block: <Block as BlockT>::LazyBlock) {
             Executive::execute_block(block);
         }
-
         fn initialize_block(header: &<Block as BlockT>::Header) -> sp_runtime::ExtrinsicInclusionMode {
             Executive::initialize_block(header)
         }
@@ -642,15 +418,12 @@ impl_runtime_apis! {
         fn apply_extrinsic(extrinsic: <Block as BlockT>::Extrinsic) -> ApplyExtrinsicResult {
             Executive::apply_extrinsic(extrinsic)
         }
-
         fn finalize_block() -> <Block as BlockT>::Header {
             Executive::finalize_block()
         }
-
         fn inherent_extrinsics(data: sp_inherents::InherentData) -> Vec<<Block as BlockT>::Extrinsic> {
             data.create_extrinsics()
         }
-
         fn check_inherents(
             block: <Block as BlockT>::LazyBlock,
             data: sp_inherents::InherentData,
@@ -669,7 +442,6 @@ impl_runtime_apis! {
         }
     }
 
-    /// Enable off-chain workers: node calls this each block; Executive runs all pallets' workers.
     impl sp_offchain::OffchainWorkerApi<Block> for Runtime {
         fn offchain_worker(header: &<Block as BlockT>::Header) {
             Executive::offchain_worker(header)
@@ -678,13 +450,12 @@ impl_runtime_apis! {
 
     impl sp_session::SessionKeys<Block> for Runtime {
         fn generate_session_keys(seed: Option<Vec<u8>>) -> Vec<u8> {
-            SessionKeys::generate(seed)
+            opaque::SessionKeys::generate(seed)
         }
-
         fn decode_session_keys(
             encoded: Vec<u8>,
         ) -> Option<Vec<(Vec<u8>, KeyTypeId)>> {
-            SessionKeys::decode_into_raw_public_keys(&encoded)
+            opaque::SessionKeys::decode_into_raw_public_keys(&encoded)
         }
     }
 
@@ -692,9 +463,17 @@ impl_runtime_apis! {
         fn slot_duration() -> sp_consensus_aura::SlotDuration {
             sp_consensus_aura::SlotDuration::from_millis(Aura::slot_duration())
         }
-
         fn authorities() -> Vec<AuraId> {
             pallet_aura::Authorities::<Runtime>::get().into_inner()
+        }
+    }
+
+    impl sp_consensus_grandpa::GrandpaApi<Block> for Runtime {
+        fn grandpa_authorities() -> sp_consensus_grandpa::AuthorityList {
+            Grandpa::grandpa_authorities()
+        }
+        fn current_set_id() -> sp_consensus_grandpa::SetId {
+            Grandpa::current_set_id()
         }
     }
 
@@ -739,4 +518,3 @@ impl_runtime_apis! {
         }
     }
 }
-

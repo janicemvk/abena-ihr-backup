@@ -1,163 +1,129 @@
 [package]
-name = "abena-runtime"
-version = "4.0.0-dev"
-description = "ABENA Healthcare Blockchain Runtime"
-authors = ["ABENA Healthcare Platform"]
-license = "Unlicense"
+name = "abena-ihr-runtime"
+version = "0.1.0"
+description = "ABENA IHR Runtime — DK Technologies, Inc."
+authors = ["DK Technologies, Inc."]
 edition = "2021"
+license = "Unlicense"
+homepage = "https://abenihr.com"
+repository = "https://github.com/janicemvk/abena-ihr-backup"
+publish = false
 
-[package.metadata]
-docs.rs = { document-private-items = true }
+[package.metadata.docs.rs]
+targets = ["x86_64-unknown-linux-gnu"]
+
+[lib]
+name = "abena_runtime"
 
 [dependencies]
-codec = { package = "parity-scale-codec", version = "3.4.0", default-features = false, features = ["derive"] }
-scale-info = { version = "2.11.1", default-features = false, features = ["derive"] }
-serde = { version = "1.0", default-features = false, features = ["derive"] }
+codec = { package = "parity-scale-codec", version = "3.6.1", default-features = false, features = ["derive"] }
+scale-info = { version = "2.10.0", default-features = false, features = ["derive"] }
 
-# Substrate
-sp-api = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2512", default-features = false }
-sp-block-builder = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2512", default-features = false }
-sp-consensus-aura = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2512", default-features = false }
-sp-core = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2512", default-features = false }
-sp-inherents = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2512", default-features = false }
-sp-offchain = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2512", default-features = false }
-sp-runtime = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2512", default-features = false }
-sp-session = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2512", default-features = false }
-sp-std = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2512", default-features = false }
-sp-transaction-pool = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2512", default-features = false }
-sp-version = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2512", default-features = false }
-sp-genesis-builder = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2512", default-features = false }
-sp-io = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2512", default-features = false }
+# Substrate Primitives
+sp-api = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2409", default-features = false }
+sp-block-builder = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2409", default-features = false }
+sp-consensus-aura = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2409", default-features = false }
+sp-consensus-grandpa = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2409", default-features = false }
+sp-core = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2409", default-features = false }
+sp-genesis-builder = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2409", default-features = false }
+sp-inherents = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2409", default-features = false }
+sp-io = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2409", default-features = false }
+sp-offchain = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2409", default-features = false }
+sp-runtime = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2409", default-features = false }
+sp-session = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2409", default-features = false }
+sp-std = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2409", default-features = false }
+sp-storage = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2409", default-features = false }
+sp-transaction-pool = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2409", default-features = false }
+sp-version = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2409", default-features = false }
 
-# Substrate FRAME
-frame-benchmarking = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2512", default-features = false, optional = true }
-frame-executive = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2512", default-features = false }
-frame-support = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2512", default-features = false }
-frame-system = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2512", default-features = false }
-frame-system-benchmarking = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2512", default-features = false }
-frame-system-rpc-runtime-api = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2512", default-features = false }
-frame-try-runtime = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2512", default-features = false, optional = true }
-pallet-aura = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2512", default-features = false }
-pallet-balances = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2512", default-features = false }
-pallet-sudo = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2512", default-features = false }
-pallet-timestamp = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2512", default-features = false }
-pallet-transaction-payment = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2512", default-features = false }
-pallet-transaction-payment-rpc-runtime-api = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2512", default-features = false }
+# FRAME
+frame-executive = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2409", default-features = false }
+frame-support = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2409", default-features = false }
+frame-system = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2409", default-features = false }
+frame-system-rpc-runtime-api = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2409", default-features = false }
+frame-try-runtime = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2409", default-features = false, optional = true }
 
-# Custom pallets
-pallet-patient-health-records = { path = "../pallets/patient-health-records", default-features = false }
-pallet-abena-coin = { path = "../pallets/abena-coin", default-features = false }
-pallet-quantum-computing = { path = "../pallets/quantum-computing", default-features = false }
-pallet-patient-identity = { path = "../pallets/patient-identity", default-features = false }
-pallet-health-record-hash = { path = "../pallets/health-record-hash", default-features = false }
-pallet-treatment-protocol = { path = "../pallets/treatment-protocol", default-features = false }
-pallet-interoperability = { path = "../pallets/interoperability", default-features = false }
-pallet-governance = { path = "../pallets/governance", default-features = false }
-pallet-fee-management = { path = "../pallets/fee-management", default-features = false }
-pallet-access-control = { path = "../pallets/access-control", default-features = false }
-pallet-account-management = { path = "../pallets/account-management", default-features = false }
-pallet-data-separation = { path = "../pallets/data-separation", default-features = false }
-pallet-quantum-results = { path = "../pallets/quantum-results", default-features = false }
-pallet-data-marketplace = { path = "../pallets/data-marketplace", default-features = false }
-pallet-permissioned-validators = { path = "../pallets/permissioned-validators", default-features = false }
-pallet-private-channels = { path = "../pallets/private-channels", default-features = false }
-pallet-enterprise-identity = { path = "../pallets/enterprise-identity", default-features = false }
-pallet-consortium-governance = { path = "../pallets/consortium-governance", default-features = false }
+# Pallets
+pallet-aura = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2409", default-features = false }
+pallet-balances = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2409", default-features = false }
+pallet-grandpa = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2409", default-features = false }
+pallet-sudo = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2409", default-features = false }
+pallet-timestamp = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2409", default-features = false }
+pallet-transaction-payment = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2409", default-features = false }
+pallet-transaction-payment-rpc-runtime-api = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2409", default-features = false }
+
+# ABENA custom pallets
+pallet-abena-rewards = { path = "../pallets/abena-rewards", default-features = false }
+pallet-abena-fee-abstraction = { path = "../pallets/abena-fee-abstraction", default-features = false }
+
+# Benchmarking (optional)
+frame-benchmarking = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2409", default-features = false, optional = true }
+frame-system-benchmarking = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2409", default-features = false, optional = true }
 
 [build-dependencies]
-abena-build-fix = { path = "../build-fix" }
-substrate-wasm-builder = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2512" }
+substrate-wasm-builder = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2409" }
 
 [dev-dependencies]
-sp-io = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2512" }
-sp-core = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2512" }
+sp-core = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2409" }
+sp-io = { git = "https://github.com/paritytech/polkadot-sdk.git", branch = "stable2409" }
 
 [features]
 default = ["std"]
-runtime-benchmarks = [
-    "frame-benchmarking/runtime-benchmarks",
-    "frame-system/runtime-benchmarks",
-    "pallet-balances/runtime-benchmarks",
-    "pallet-patient-health-records/runtime-benchmarks",
-    "pallet-abena-coin/runtime-benchmarks",
-    "pallet-quantum-computing/runtime-benchmarks",
-    "pallet-patient-identity/runtime-benchmarks",
-    "pallet-health-record-hash/runtime-benchmarks",
-    "pallet-treatment-protocol/runtime-benchmarks",
-    "pallet-interoperability/runtime-benchmarks",
-    "pallet-governance/runtime-benchmarks",
-    "pallet-fee-management/runtime-benchmarks",
-    "pallet-access-control/runtime-benchmarks",
-    "pallet-account-management/runtime-benchmarks",
-    "pallet-data-separation/runtime-benchmarks",
-    "pallet-data-marketplace/runtime-benchmarks",
-    "pallet-permissioned-validators/runtime-benchmarks",
-    "pallet-private-channels/runtime-benchmarks",
-    "pallet-enterprise-identity/runtime-benchmarks",
-    "pallet-consortium-governance/runtime-benchmarks",
-]
-try-runtime = [
-    "frame-try-runtime",
-    "frame-system/try-runtime",
-    "pallet-balances/try-runtime",
-    "pallet-patient-health-records/try-runtime",
-    "pallet-abena-coin/try-runtime",
-    "pallet-quantum-computing/try-runtime",
-    "pallet-patient-identity/try-runtime",
-    "pallet-health-record-hash/try-runtime",
-    "pallet-treatment-protocol/try-runtime",
-    "pallet-interoperability/try-runtime",
-    "pallet-governance/try-runtime",
-    "pallet-fee-management/try-runtime",
-    "pallet-access-control/try-runtime",
-    "pallet-account-management/try-runtime",
-]
 std = [
     "codec/std",
     "scale-info/std",
-    "serde/std",
+    "frame-executive/std",
+    "frame-support/std",
+    "frame-system-rpc-runtime-api/std",
+    "frame-system/std",
+    "frame-try-runtime?/std",
+    "pallet-aura/std",
+    "pallet-balances/std",
+    "pallet-grandpa/std",
+    "pallet-sudo/std",
+    "pallet-timestamp/std",
+    "pallet-transaction-payment-rpc-runtime-api/std",
+    "pallet-transaction-payment/std",
+    "pallet-abena-rewards/std",
+    "pallet-abena-fee-abstraction/std",
     "sp-api/std",
     "sp-block-builder/std",
     "sp-consensus-aura/std",
+    "sp-consensus-grandpa/std",
     "sp-core/std",
+    "sp-genesis-builder/std",
     "sp-inherents/std",
+    "sp-io/std",
     "sp-offchain/std",
     "sp-runtime/std",
     "sp-session/std",
     "sp-std/std",
+    "sp-storage/std",
     "sp-transaction-pool/std",
     "sp-version/std",
-    "sp-genesis-builder/std",
-    "frame-benchmarking/std",
-    "frame-executive/std",
-    "frame-support/std",
-    "frame-system/std",
-    "frame-system-benchmarking/std",
-    "frame-system-rpc-runtime-api/std",
-    "frame-try-runtime/std",
-    "pallet-aura/std",
-    "pallet-balances/std",
-    "pallet-sudo/std",
-    "pallet-timestamp/std",
-    "pallet-transaction-payment/std",
-    "pallet-transaction-payment-rpc-runtime-api/std",
-    "pallet-patient-health-records/std",
-    "pallet-abena-coin/std",
-    "pallet-quantum-computing/std",
-    "pallet-patient-identity/std",
-    "pallet-health-record-hash/std",
-    "pallet-treatment-protocol/std",
-    "pallet-interoperability/std",
-    "pallet-governance/std",
-    "pallet-fee-management/std",
-    "pallet-access-control/std",
-    "pallet-account-management/std",
-    "pallet-data-separation/std",
-    "pallet-quantum-results/std",
-    "pallet-data-marketplace/std",
-    "pallet-permissioned-validators/std",
-    "pallet-private-channels/std",
-    "pallet-enterprise-identity/std",
-    "pallet-consortium-governance/std",
 ]
-
+runtime-benchmarks = [
+    "frame-benchmarking/runtime-benchmarks",
+    "frame-support/runtime-benchmarks",
+    "frame-system-benchmarking/runtime-benchmarks",
+    "frame-system/runtime-benchmarks",
+    "pallet-balances/runtime-benchmarks",
+    "pallet-grandpa/runtime-benchmarks",
+    "pallet-sudo/runtime-benchmarks",
+    "pallet-timestamp/runtime-benchmarks",
+    # pallet-transaction-payment may not expose runtime-benchmarks in stable2409
+    "pallet-abena-rewards/runtime-benchmarks",
+    "sp-runtime/runtime-benchmarks",
+]
+try-runtime = [
+    "frame-executive/try-runtime",
+    "frame-system/try-runtime",
+    "frame-try-runtime/try-runtime",
+    "pallet-aura/try-runtime",
+    "pallet-balances/try-runtime",
+    "pallet-grandpa/try-runtime",
+    "pallet-sudo/try-runtime",
+    "pallet-timestamp/try-runtime",
+    # pallet-transaction-payment try-runtime optional
+    "sp-runtime/try-runtime",
+]

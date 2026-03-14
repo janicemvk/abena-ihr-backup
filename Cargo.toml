@@ -1,129 +1,32 @@
 [workspace]
+resolver = "2"
 members = [
     "node",
     "runtime",
-    "pallets/patient-health-records",
-    "pallets/abena-coin",
-    "pallets/quantum-computing",
-    "pallets/patient-identity",
-    "pallets/health-record-hash",
-    "pallets/treatment-protocol",
-    "pallets/interoperability",
-    "pallets/governance",
-    "pallets/fee-management",
-    "pallets/access-control",
-    "pallets/account-management",
-    "pallets/data-separation",
-    "pallets/quantum-results",
-    "pallets/data-marketplace",
-    "pallets/permissioned-validators",
-    "pallets/private-channels",
-    "pallets/enterprise-identity",
-    "pallets/consortium-governance",
-    "anonymization",
-    "services/fhir-api",
-    "patches/fflonk",
-    "patches/ring",
-    "build-fix",
+    "pallets/abena-rewards",
+    "pallets/abena-fee-abstraction",
 ]
-resolver = "2"
 
 [workspace.package]
-version = "4.0.0-dev"
+authors = ["DK Technologies, Inc."]
 edition = "2021"
-authors = ["ABENA Healthcare Platform"]
+repository = "https://github.com/janicemvk/abena-ihr-backup"
 license = "Unlicense"
-repository = "https://github.com/abena-healthcare/abena-blockchain"
-
-[workspace.dependencies]
-codec = { package = "parity-scale-codec", version = "3.4.0", default-features = false, features = ["derive"] }
-scale-info = { version = "2.11.1", default-features = false, features = ["derive"] }
-serde = { version = "1.0", default-features = false, features = ["derive"] }
-
-# Substrate primitives
-sp-api = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2512", default-features = false }
-sp-block-builder = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2512", default-features = false }
-sp-blockchain = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2512" }
-sp-consensus-aura = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2512", default-features = false }
-sp-consensus-grandpa = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2512", default-features = false }
-sp-core = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2512", default-features = false }
-sp-inherents = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2512", default-features = false }
-sp-io = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2512", default-features = false }
-sp-runtime = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2512", default-features = false }
-sp-session = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2512", default-features = false }
-sp-std = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2512", default-features = false }
-sp-storage = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2512", default-features = false }
-sp-timestamp = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2512" }
-sp-transaction-pool = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2512", default-features = false }
-sp-version = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2512", default-features = false }
-
-# FRAME dependencies
-frame-benchmarking = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2512", default-features = false }
-frame-executive = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2512", default-features = false }
-frame-support = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2512", default-features = false }
-frame-system = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2512", default-features = false }
-frame-system-benchmarking = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2512", default-features = false }
-frame-system-rpc-runtime-api = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2512", default-features = false }
-frame-try-runtime = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2512", default-features = false }
-
-# Pallets
-pallet-aura = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2512", default-features = false }
-pallet-balances = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2512", default-features = false }
-pallet-grandpa = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2512", default-features = false }
-pallet-sudo = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2512", default-features = false }
-pallet-timestamp = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2512", default-features = false }
-pallet-transaction-payment = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2512", default-features = false }
-pallet-transaction-payment-rpc-runtime-api = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2512", default-features = false }
-
-# Node dependencies
-sc-basic-authorship = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2512" }
-sc-cli = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2512" }
-sc-client-api = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2512" }
-sc-consensus = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2512" }
-sc-consensus-aura = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2512" }
-sc-consensus-grandpa = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2512" }
-sc-executor = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2512" }
-sc-network = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2512" }
-sc-offchain = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2512" }
-sc-rpc-api = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2512" }
-sc-service = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2512" }
-sc-telemetry = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2512" }
-sc-transaction-pool = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2512" }
-sc-transaction-pool-api = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2512" }
-
-# RPC
-jsonrpsee = { version = "0.24.10", features = ["server"] }
-substrate-frame-rpc-system = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2512" }
-pallet-transaction-payment-rpc = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2512" }
-
-# Build dependencies
-substrate-build-script-utils = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2512" }
-substrate-wasm-builder = { git = "https://github.com/paritytech/polkadot-sdk", tag = "polkadot-stable2512" }
-
-# Note: Removed unused dependencies (Polkadot SDK, Cumulus, Frontier, ORML)
-# These can be added back if needed for parachain or EVM compatibility
-
-# Crypto (sp-core is already included in Substrate dependencies above)
-
-# Patch: w3f/fflonk repo has package named "w3f-pcs" but bandersnatch_vrfs expects "fflonk"
-[patch."https://github.com/w3f/fflonk"]
-fflonk = { path = "patches/fflonk" }
-
-# Patch: w3f/ring-proof repo has package named "w3f-ring-proof" but bandersnatch_vrfs expects "ring"
-[patch."https://github.com/w3f/ring-proof"]
-ring = { path = "patches/ring" }
+homepage = "https://abenihr.com"
 
 [profile.release]
+# Runtime WASM needs panic = abort for no_std
+panic = "unwind"
 opt-level = 3
+
+[profile.production]
+inherits = "release"
 lto = true
 codegen-units = 1
-strip = true
-# panic = "abort" — disabled: causes duplicate lang item `sized` in WASM build
-# when combined with -Z build-std. Use panic=unwind for now until Cargo fixes.
 
-[profile.release-with-debug]
-inherits = "release"
-debug = true
-
-# Upgraded to polkadot-stable2512 (1.21) for WASM opcode support
-
+# ─── Fix for the enum index bug you've been hitting ───────────────────────────
+# This locks codec to a known-good version that doesn't conflict
+# with Substrate's internal enum encoding.
+[workspace.dependencies]
+codec = { package = "parity-scale-codec", version = "3.6.1", features = ["derive"] }
+scale-info = { version = "2.10.0", features = ["derive"] }

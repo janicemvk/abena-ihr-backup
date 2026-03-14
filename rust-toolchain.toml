@@ -1,4 +1,6 @@
 [toolchain]
-channel = "1.88.0"
-targets = ["wasm32v1-none"]
-profile = "minimal"
+# 1.85+ required for constant_time_eq and edition2024 in transitive deps
+# DO NOT change this without also changing the SDK branch in all Cargo.toml files
+channel = "1.88"
+targets = ["wasm32-unknown-unknown"]
+components = ["rustfmt", "clippy", "rust-src"]

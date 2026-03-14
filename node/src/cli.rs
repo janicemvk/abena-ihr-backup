@@ -1,8 +1,9 @@
-//! CLI for ABENA node.
+//! ABENA IHR Node CLI
 
 use clap::Parser;
 use sc_cli::RunCmd;
 
+/// ABENA IHR Node CLI arguments
 #[derive(Debug, Parser)]
 pub struct Cli {
     #[command(subcommand)]
@@ -12,8 +13,13 @@ pub struct Cli {
     pub run: RunCmd,
 }
 
+/// Available subcommands
 #[derive(Debug, clap::Subcommand)]
+#[allow(clippy::large_enum_variant)]
 pub enum Subcommand {
+    /// Key management CLI utilities
+    Key(sc_cli::KeySubcommand),
+
     /// Build a chain specification.
     BuildSpec(sc_cli::BuildSpecCmd),
 
