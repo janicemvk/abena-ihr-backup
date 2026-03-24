@@ -1,14 +1,14 @@
 //! ABENA IHR Chain Specification
 //! Genesis configuration for ABENA Coin distribution
 
-use abena_runtime::{
-    currency::ABENA,
-    AccountId, Signature, WASM_BINARY,
-};
+use abena_runtime::{AccountId, Signature, WASM_BINARY};
 use sc_service::ChainType;
 use sp_consensus_aura::sr25519::AuthorityId as AuraId;
-use sp_consensus_grandpa::ed25519::AuthorityId as GrandpaId;
-use sp_core::{ed25519, sr25519, Pair, Public};
+use sp_consensus_grandpa::AuthorityId as GrandpaId;
+use sp_core::{sr25519, Pair, Public};
+
+/// 1 ABENA in planck; must match `abena_runtime::currency::ABENA`.
+const ABENA: u128 = 1_000_000_000_000;
 use sp_runtime::traits::{IdentifyAccount, Verify};
 
 pub type ChainSpec = sc_service::GenericChainSpec<()>;

@@ -34,7 +34,8 @@ sc-consensus = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "
 sc-consensus-aura = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2409" }
 sc-consensus-grandpa = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2409" }
 sc-executor = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2409" }
-sc-network = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2409" }
+# Use patched sc-network (fixes Consensus/RemoteCallResponse duplicate index 6)
+sc-network = { path = "../patches/sc-network" }
 sc-network-sync = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2409" }
 sc-offchain = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2409" }
 sc-rpc-api = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2409" }
@@ -55,6 +56,7 @@ sp-io = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkado
 sp-keyring = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2409" }
 sp-runtime = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2409" }
 sp-timestamp = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2409" }
+sp-transaction-pool = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2409" }
 
 # RPC
 jsonrpsee = { version = "0.24.10", features = ["server"] }

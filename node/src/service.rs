@@ -17,9 +17,9 @@
 
 use abena_runtime::{self, opaque::Block, RuntimeApi};
 use sc_consensus_aura::{ImportQueueParams, SlotProportion, StartAuraParams};
-use sc_consensus_grandpa::AuthorityPair as GrandpaPair;
 use sc_consensus_grandpa::warp_proof::NetworkProvider;
-use sc_service::{RpcMethods, WarpSyncConfig};
+use sc_network_sync::strategy::warp::WarpSyncConfig;
+use sc_service::RpcMethods;
 use sc_service::{error::Error as ServiceError, Configuration, TaskManager};
 use sc_telemetry::{Telemetry, TelemetryWorker};
 use sp_consensus_aura::sr25519::AuthorityPair as AuraPair;
