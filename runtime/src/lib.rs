@@ -23,16 +23,15 @@ use frame_support::{
     construct_runtime, parameter_types,
     traits::{ConstBool, ConstU32, ConstU64, ConstU8, Everything},
     weights::{constants::WEIGHT_REF_TIME_PER_SECOND, Weight},
-    PalletId,
 };
 use frame_system as system;
 use sp_api::impl_runtime_apis;
 use sp_consensus_aura::sr25519::AuthorityId as AuraId;
-use sp_consensus_grandpa::ed25519::AuthorityId as GrandpaId;
+use sp_consensus_grandpa::AuthorityId as GrandpaId;
 use sp_core::{crypto::KeyTypeId, OpaqueMetadata};
 use sp_runtime::{
     create_runtime_str, generic, impl_opaque_keys,
-    traits::{BlakeTwo256, Block as BlockT, IdentifyAccount, Verify},
+    traits::{BlakeTwo256, Block as BlockT, IdentifyAccount, NumberFor, Verify},
     transaction_validity::{TransactionSource, TransactionValidity},
     ApplyExtrinsicResult, MultiSignature,
 };
@@ -137,7 +136,7 @@ pub const VERSION: RuntimeVersion = RuntimeVersion {
     impl_version: 1,
     apis: sp_version::create_apis_vec!([]),
     transaction_version: 1,
-    system_version: 1,
+    state_version: 1,
 };
 
 /// The version information used to identify this runtime when compiled natively.
@@ -163,7 +162,7 @@ const NORMAL_DISPATCH_RATIO: Perbill = Perbill::from_percent(75);
 
 parameter_types! {
     pub const BlockHashCount: BlockNumber = 2400;
-    pub const Version: RuntimeVersion = VERSION;
+    pub const Version: RuntimeVersion = crate::VERSION;
     pub BlockWeights: system::limits::BlockWeights = system::limits::BlockWeights::with_sensible_defaults(
         Weight::from_parts(2u64 * WEIGHT_REF_TIME_PER_SECOND, u64::MAX),
         NORMAL_DISPATCH_RATIO,
@@ -236,7 +235,6 @@ impl system::Config for Runtime {
     type Hashing = BlakeTwo256;
     type AccountId = AccountId;
     type Lookup = sp_runtime::traits::AccountIdLookup<AccountId, ()>;
-    type Block = Block;
     type RuntimeEvent = Event;
     type BlockHashCount = BlockHashCount;
     type Version = Version;
@@ -255,7 +253,6 @@ impl system::Config for Runtime {
     type PreInherents = ();
     type PostInherents = ();
     type PostTransactions = ();
-    type ExtensionsWeightInfo = ();
 }
 
 // ============================================================
@@ -264,6 +261,11 @@ impl system::Config for Runtime {
 impl pallet_grandpa::Config for Runtime {
     type RuntimeEvent = Event;
     type WeightInfo = ();
+    type MaxAuthorities = ConstU32<32>;
+    type MaxNominators = ConstU32<0>;
+    type MaxSetIdSessionEntries = ConstU64<0>;
+    type KeyOwnerProof = sp_core::Void;
+    type EquivocationReportSystem = ();
 }
 
 // ============================================================
@@ -314,7 +316,6 @@ impl pallet_balances::Config for Runtime {
     type RuntimeFreezeReason = ();
     type FreezeIdentifier = ();
     type MaxFreezes = ConstU32<0>;
-    type DoneSlashHandler = ();
 }
 
 // ============================================================
@@ -327,7 +328,6 @@ impl pallet_transaction_payment::Config for Runtime {
     type WeightToFee = frame_support::weights::IdentityFee<Balance>;
     type LengthToFee = frame_support::weights::ConstantMultiplier<Balance, TransactionByteFee>;
     type FeeMultiplierUpdate = ();
-    type WeightInfo = pallet_transaction_payment::weights::SubstrateWeight<Runtime>;
 }
 
 // ============================================================
@@ -394,7 +394,7 @@ impl_runtime_apis! {
         fn version() -> RuntimeVersion {
             VERSION
         }
-        fn execute_block(block: <Block as BlockT>::LazyBlock) {
+        fn execute_block(block: Block) {
             Executive::execute_block(block);
         }
         fn initialize_block(header: &<Block as BlockT>::Header) -> sp_runtime::ExtrinsicInclusionMode {
@@ -425,7 +425,7 @@ impl_runtime_apis! {
             data.create_extrinsics()
         }
         fn check_inherents(
-            block: <Block as BlockT>::LazyBlock,
+            block: Block,
             data: sp_inherents::InherentData,
         ) -> sp_inherents::CheckInherentsResult {
             data.check_extrinsics(&block)
@@ -474,6 +474,21 @@ impl_runtime_apis! {
         }
         fn current_set_id() -> sp_consensus_grandpa::SetId {
             Grandpa::current_set_id()
+        }
+        fn submit_report_equivocation_unsigned_extrinsic(
+            _equivocation_proof: sp_consensus_grandpa::EquivocationProof<
+                <Block as BlockT>::Hash,
+                NumberFor<Block>,
+            >,
+            _key_owner_proof: sp_consensus_grandpa::OpaqueKeyOwnershipProof,
+        ) -> Option<()> {
+            None
+        }
+        fn generate_key_ownership_proof(
+            _set_id: sp_consensus_grandpa::SetId,
+            _authority_id: GrandpaId,
+        ) -> Option<sp_consensus_grandpa::OpaqueKeyOwnershipProof> {
+            None
         }
     }
 
