@@ -69,7 +69,7 @@ pub mod pallet {
     use super::weights::WeightInfo;
     use frame_support::{
         pallet_prelude::*,
-        traits::{Currency, ExistenceRequirement, ReservableCurrency},
+        traits::{Currency, ReservableCurrency},
     };
     use frame_system::pallet_prelude::*;
     use sp_runtime::traits::{Saturating, Zero};
@@ -94,6 +94,7 @@ pub mod pallet {
         Encode, Decode, Clone, Copy, PartialEq, Eq,
         TypeInfo, MaxEncodedLen, RuntimeDebug, PartialOrd, Ord,
     )]
+    #[cfg_attr(feature = "std", derive(serde::Serialize, serde::Deserialize))]
     pub enum HealthAction {
         /// Patient uploads lab result (blood panel, imaging, pathology, etc.)
         LabResultUploaded       = 0,
@@ -371,10 +372,10 @@ pub mod pallet {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // Constants
+    // Constants (internal; not pallet metadata — use `#[pallet::constant]` on
+    // `Config` if this must appear in chain metadata)
     // ─────────────────────────────────────────────────────────────────────────
 
-    #[pallet::constant_name(BlocksPerDay)]
     const BLOCKS_PER_DAY: u32 = 14_400;
 
     // ─────────────────────────────────────────────────────────────────────────
