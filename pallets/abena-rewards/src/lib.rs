@@ -94,7 +94,9 @@ pub mod pallet {
         Encode, Decode, Clone, Copy, PartialEq, Eq,
         TypeInfo, MaxEncodedLen, RuntimeDebug, PartialOrd, Ord,
     )]
-    #[cfg_attr(feature = "std", derive(serde::Serialize, serde::Deserialize))]
+    /// Serde is required for `GenesisConfig` in both native and WASM runtime builds; use the
+    /// `serde` feature (not `std`) so derives apply under `wasm32-unknown-unknown`.
+    #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
     pub enum HealthAction {
         /// Patient uploads lab result (blood panel, imaging, pathology, etc.)
         LabResultUploaded       = 0,
