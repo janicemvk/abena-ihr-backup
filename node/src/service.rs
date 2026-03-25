@@ -16,7 +16,7 @@
 //!   `new_light` — Light client (future: ABENA mobile app backend)
 
 use abena_runtime::{self, opaque::Block, RuntimeApi};
-use sc_client_api::BlockBackend;
+use sc_client_api::{Backend, BlockBackend};
 use futures::FutureExt;
 use sc_consensus_aura::{ImportQueueParams, SlotProportion, StartAuraParams};
 use sc_consensus_grandpa::warp_proof::NetworkProvider;
