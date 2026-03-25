@@ -1,12 +1,16 @@
+# Patched `sc-network` for Abena (polkadot-stable2409).
+# Root manifest was required for `cargo` to load this path dependency; keep in sync with
+# `substrate/client/network/Cargo.toml` in polkadot-sdk @ polkadot-stable2409.
+
 [package]
-description = "Substrate network protocol"
 name = "sc-network"
+description = "Substrate network protocol"
 version = "0.45.0"
 license = "GPL-3.0-or-later WITH Classpath-exception-2.0"
-authors.workspace = true
-edition.workspace = true
-homepage.workspace = true
-repository.workspace = true
+authors = ["DK Technologies, Inc."]
+edition = "2021"
+homepage = "https://abenihr.com"
+repository = "https://github.com/janicemvk/abena-ihr-backup"
 documentation = "https://docs.rs/sc-network"
 readme = "README.md"
 
@@ -82,9 +86,9 @@ tempfile = { workspace = true }
 tokio = { features = ["macros"], workspace = true, default-features = true }
 tokio-util = { features = ["compat"], workspace = true }
 tokio-test = { workspace = true }
-sc-block-builder = { workspace = true }
-sc-network-light = { default-features = true, path = "light" }
-sc-network-sync = { default-features = true, path = "sync" }
+sc-block-builder = { workspace = true, default-features = true }
+sc-network-light = { path = "light", default-features = true }
+sc-network-sync = { path = "sync", default-features = true }
 sp-crypto-hashing = { workspace = true, default-features = true }
 sp-consensus = { workspace = true, default-features = true }
 sp-test-primitives = { workspace = true }

@@ -5,6 +5,7 @@ members = [
     "runtime",
     "pallets/abena-rewards",
     "pallets/abena-fee-abstraction",
+    "patches/sc-network",
 ]
 
 [workspace.lints]
