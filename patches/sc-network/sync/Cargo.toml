@@ -1,12 +1,14 @@
+# Patched `sc-network-sync` (polkadot-stable2409). Keep aligned with substrate `client/network/sync/Cargo.toml`.
+
 [package]
-description = "Substrate sync network protocol"
 name = "sc-network-sync"
+description = "Substrate sync network protocol"
 version = "0.44.0"
 license = "GPL-3.0-or-later WITH Classpath-exception-2.0"
-authors.workspace = true
-edition.workspace = true
-homepage.workspace = true
-repository.workspace = true
+authors = ["DK Technologies, Inc."]
+edition = "2021"
+homepage = "https://abenihr.com"
+repository = "https://github.com/janicemvk/abena-ihr-backup"
 documentation = "https://docs.rs/sc-network-sync"
 
 [lints]
@@ -66,7 +68,7 @@ sp-runtime.default-features = true
 [dev-dependencies]
 mockall = { workspace = true }
 quickcheck = { workspace = true }
-sc-block-builder = { workspace = true }
-sp-test-primitives = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2409" }
-sp-tracing = { workspace = true }
-substrate-test-runtime-client = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2409" }
+sc-block-builder = { workspace = true, default-features = true }
+sp-test-primitives = { workspace = true }
+sp-tracing = { workspace = true, default-features = true }
+substrate-test-runtime-client = { workspace = true }

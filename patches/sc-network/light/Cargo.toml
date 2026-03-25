@@ -1,12 +1,14 @@
+# Patched `sc-network-light` (polkadot-stable2409). Keep aligned with substrate `client/network/light/Cargo.toml`.
+
 [package]
-description = "Substrate light network protocol"
 name = "sc-network-light"
+description = "Substrate light network protocol"
 version = "0.44.0"
 license = "GPL-3.0-or-later WITH Classpath-exception-2.0"
-authors.workspace = true
-edition.workspace = true
-homepage.workspace = true
-repository.workspace = true
+authors = ["DK Technologies, Inc."]
+edition = "2021"
+homepage = "https://abenihr.com"
+repository = "https://github.com/janicemvk/abena-ihr-backup"
 documentation = "https://docs.rs/sc-network-light"
 
 [lints]
@@ -21,9 +23,7 @@ prost-build = { workspace = true }
 [dependencies]
 async-channel = { workspace = true }
 array-bytes = { workspace = true, default-features = true }
-codec = { features = [
-	"derive",
-], workspace = true, default-features = true }
+codec = { features = ["derive"], workspace = true, default-features = true }
 futures = { workspace = true }
 log = { workspace = true, default-features = true }
 prost = { workspace = true }

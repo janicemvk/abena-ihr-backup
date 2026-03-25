@@ -6,6 +6,8 @@ members = [
     "pallets/abena-rewards",
     "pallets/abena-fee-abstraction",
     "patches/sc-network",
+    "patches/sc-network/light",
+    "patches/sc-network/sync",
 ]
 
 [workspace.lints]
