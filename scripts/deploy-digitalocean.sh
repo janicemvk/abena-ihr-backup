@@ -214,7 +214,8 @@ ExecStart=${BINARY_DIR}/abena-node \\
     --validator \\
     --name "ABENA-Testnet-Node-1" \\
     --port 30333 \\
-    --rpc-port 9944 \\
+    --rpc-port 9933 \\
+    --ws-port 9944 \\
     --rpc-cors all \\
     --rpc-methods Unsafe \\
     --log info
@@ -341,7 +342,7 @@ cat << 'KEY_CMD'
       "jsonrpc":"2.0","id":1,
       "method":"author_insertKey",
       "params":["aura","YOUR_SECRET_SEED//aura","YOUR_SR25519_PUBLIC_KEY"]
-    }' http://localhost:9944
+    }' http://localhost:9933
 
   # Insert Grandpa key:
   curl -sS -H "Content-Type: application/json" \
@@ -349,7 +350,7 @@ cat << 'KEY_CMD'
       "jsonrpc":"2.0","id":1,
       "method":"author_insertKey",
       "params":["gran","YOUR_SECRET_SEED//grandpa","YOUR_ED25519_PUBLIC_KEY"]
-    }' http://localhost:9944
+    }' http://localhost:9933
 KEY_CMD
 echo ""
 echo "  After inserting keys: systemctl restart abena-node"
@@ -366,7 +367,7 @@ sleep 10
 # Check chain head
 HEAD=$(curl -sS -H "Content-Type: application/json" \
     --data '{"jsonrpc":"2.0","id":1,"method":"chain_getHeader","params":[]}' \
-    http://localhost:9944 2>/dev/null || echo '{"result":null}')
+    http://localhost:9933 2>/dev/null || echo '{"result":null}')
 
 echo "  Chain head: $(echo $HEAD | jq -r '.result.number // "node not ready yet"')"
 
@@ -376,7 +377,7 @@ echo "║              ABENA IHR TESTNET IS LIVE                      ║"
 echo "╠══════════════════════════════════════════════════════════════╣"
 echo "║  Node:    systemctl status abena-node                        ║"
 echo "║  Logs:    journalctl -u abena-node -f                        ║"
-echo "║  RPC:     ws://localhost:9944 (local)                        ║"
+echo "║  RPC:     http://localhost:9933  ws://localhost:9944 (local) ║"
 echo "║  Public:  wss://testnet.abenihr.com (after SSL)              ║"
 echo "║                                                              ║"
 echo "║  Connect Polkadot.js Apps:                                   ║"

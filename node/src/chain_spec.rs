@@ -11,7 +11,8 @@ use sp_core::{sr25519, Pair, Public};
 const ABENA: u128 = 1_000_000_000_000;
 use sp_runtime::traits::{IdentifyAccount, Verify};
 
-pub type ChainSpec = sc_service::GenericChainSpec<()>;
+/// Default extension type for substrate `polkadot-stable2409` (`NoExtension` = `Option<()>`).
+pub type ChainSpec = sc_service::GenericChainSpec;
 
 type AccountPublic = <Signature as Verify>::Signer;
 
@@ -44,7 +45,7 @@ fn authority_keys_from_seed(seed: &str) -> (AuraId, GrandpaId) {
 pub fn development_config() -> Result<ChainSpec, String> {
     let wasm_binary = WASM_BINARY.ok_or_else(|| "Dev wasm binary not available".to_string())?;
     let (aura, grandpa) = authority_keys_from_seed("Alice");
-    Ok(ChainSpec::builder(wasm_binary, Default::default())
+    Ok(ChainSpec::builder(wasm_binary, None)
         .with_name("ABENA IHR Development")
         .with_id("abena_dev")
         .with_chain_type(ChainType::Development)
@@ -62,7 +63,7 @@ pub fn local_testnet_config() -> Result<ChainSpec, String> {
     let wasm_binary = WASM_BINARY.ok_or_else(|| "Local wasm binary not available".to_string())?;
     let (aura_a, grandpa_a) = authority_keys_from_seed("Alice");
     let (aura_b, grandpa_b) = authority_keys_from_seed("Bob");
-    Ok(ChainSpec::builder(wasm_binary, Default::default())
+    Ok(ChainSpec::builder(wasm_binary, None)
         .with_name("ABENA IHR Local Testnet")
         .with_id("abena_local_testnet")
         .with_chain_type(ChainType::Local)
@@ -80,15 +81,17 @@ pub fn abena_testnet_config() -> Result<ChainSpec, String> {
     let wasm_binary = WASM_BINARY.ok_or_else(|| "ABENA wasm binary not available".to_string())?;
     let (aura_a, grandpa_a) = authority_keys_from_seed("Alice");
     let (aura_b, grandpa_b) = authority_keys_from_seed("Bob");
-    Ok(ChainSpec::builder(wasm_binary, Default::default())
+    let token_props: sc_service::Properties = serde_json::from_value(serde_json::json!({
+        "tokenSymbol": "ABENA",
+        "tokenDecimals": 12,
+        "ss58Format": 42
+    }))
+    .expect("token properties map is valid; qed");
+    Ok(ChainSpec::builder(wasm_binary, None)
         .with_name("ABENA IHR Public Testnet")
         .with_id("abena_testnet")
         .with_chain_type(ChainType::Live)
-        .with_properties(serde_json::json!({
-            "tokenSymbol": "ABENA",
-            "tokenDecimals": 12,
-            "ss58Format": 42
-        }))
+        .with_properties(token_props)
         .with_genesis_config_patch(testnet_genesis(
             vec![aura_a, aura_b],
             vec![grandpa_a, grandpa_b],
@@ -127,7 +130,8 @@ fn testnet_genesis(
 
     // Add validator accounts with operational balances
     for aura in &initial_aura {
-        let validator_account: AccountId = AccountPublic::from(aura.clone()).into_account();
+        let validator_account: AccountId =
+            AccountPublic::from(sr25519::Public::from(aura.clone())).into_account();
         balances.push((validator_account, 10_000u128 * ABENA));
     }
 

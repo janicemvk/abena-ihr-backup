@@ -1,5 +1,6 @@
 [toolchain]
-# 1.85+ required for constant_time_eq and edition2024 in transitive deps
+# 1.88+ required by transitive crates (time, home); also needed for constant_time_eq / edition2024
+# sp-io in polkadot-stable2407 needs scripts/fix-sp-io-no-mangle.sh (Rust 1.88 forbids #[no_mangle] on panic_handler)
 # DO NOT change this without also changing the SDK branch in all Cargo.toml files
 channel = "1.88"
 targets = ["wasm32-unknown-unknown"]
