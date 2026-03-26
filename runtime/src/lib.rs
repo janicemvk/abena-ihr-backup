@@ -205,7 +205,7 @@ construct_runtime!(
         TransactionPayment: pallet_transaction_payment,
 
         // ── ABENA Health Rewards ─────────────────────────────────
-        AbenaRewards: pallet_abena_rewards,     // ← Health incentive minting
+        AbenaRewards: pallet_abena_rewards,
 
         // ── Gasless model for patients ───────────────────────────
         AbenaFeeAbstraction: pallet_abena_fee_abstraction,
@@ -338,6 +338,8 @@ impl pallet_sudo::Config for Runtime {
     type RuntimeCall = Call;
     type WeightInfo = ();
 }
+
+
 
 parameter_types! {
     pub const AbenaMaxActionsPerBlock: u32 = 100;

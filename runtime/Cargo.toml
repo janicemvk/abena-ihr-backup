@@ -55,6 +55,10 @@ pallet-transaction-payment-rpc-runtime-api = { git = "https://github.com/parityt
 # ABENA custom pallets
 pallet-abena-rewards = { path = "../pallets/abena-rewards", default-features = false, features = ["serde"] }
 pallet-abena-fee-abstraction = { path = "../pallets/abena-fee-abstraction", default-features = false }
+pallet-health-record-hash = { path = "../pallets/health-record-hash", default-features = false }
+pallet-access-control = { path = "../pallets/access-control", default-features = false }
+
+
 
 # Benchmarking (optional)
 frame-benchmarking = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2409", default-features = false, optional = true }
@@ -85,6 +89,9 @@ std = [
     "pallet-transaction-payment-rpc-runtime-api/std",
     "pallet-transaction-payment/std",
     "pallet-abena-rewards/std",
+    "pallet-health-record-hash/std",
+    "pallet-access-control/std",
+
     "pallet-abena-fee-abstraction/std",
     "sp-api/std",
     "sp-block-builder/std",

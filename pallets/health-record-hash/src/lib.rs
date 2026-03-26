@@ -10,7 +10,7 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use codec::{Encode, Decode, DecodeWithMemTracking, MaxEncodedLen};
+use codec::{Encode, Decode, MaxEncodedLen};
 use scale_info::TypeInfo;
 use sp_runtime::RuntimeDebug;
 use frame_system::pallet_prelude::BlockNumberFor;
@@ -39,7 +39,7 @@ pub mod pallet {
     use scale_info::TypeInfo;
     use sp_std::vec::Vec;
     use sp_core::H256;
-    use codec::{Encode, Decode, DecodeWithMemTracking, MaxEncodedLen};
+    use codec::{Encode, Decode, MaxEncodedLen};
     use sp_runtime::traits::Hash;
     use sp_runtime::{RuntimeDebug, SaturatedConversion};
 
@@ -53,7 +53,7 @@ pub mod pallet {
     }
 
     /// Therapeutic modality (aligns with patient-identity / integrative care).
-    #[derive(Clone, Copy, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Copy, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     pub enum TherapeuticModality {
         WesternMedicine,
         TraditionalChineseMedicine,
@@ -65,7 +65,7 @@ pub mod pallet {
     }
 
     /// Access record for audit trail (who accessed when, success/fail).
-    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     #[scale_info(skip_type_params(T))]
     pub struct AccessRecord<T: Config> {
         pub accessor: T::AccountId,
@@ -75,7 +75,7 @@ pub mod pallet {
     }
 
     /// Record type (spec: clinical note, lab, prescription, etc.).
-    #[derive(Clone, Copy, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Copy, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     pub enum RecordTypeSpec {
         ClinicalNote,
         LabResult,
@@ -88,7 +88,7 @@ pub mod pallet {
     }
 
     /// Full record hash entry (spec: SHA-3 hash, IPFS CID, version chain, encryption key hash).
-    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     #[scale_info(skip_type_params(T))]
     pub struct RecordHash<T: Config> {
         pub record_id: T::Hash,
@@ -107,7 +107,7 @@ pub mod pallet {
     }
 
     /// Multi-sig requirement: required signers and current signatures.
-    #[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+    #[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
     #[scale_info(skip_type_params(T))]
     pub struct MultiSigRequirement<T: Config> {
         pub required_signatures: u8,
@@ -922,7 +922,7 @@ pub trait WeightInfo {
 pub type RecordId = u64;
 
 /// Record hash entry (hash should be SHA-3/Keccak-256 for ABENA consistency)
-#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 #[scale_info(skip_type_params(T))]
 pub struct RecordHashEntry<T: frame_system::Config> {
     /// Cryptographic hash of the record (ABENA: use SHA-3 Keccak-256)
@@ -940,7 +940,7 @@ pub struct RecordHashEntry<T: frame_system::Config> {
 }
 
 /// Record type
-#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub enum RecordType {
     /// Clinical encounter
     ClinicalEncounter,
@@ -965,7 +965,7 @@ pub enum RecordType {
 }
 
 /// Record version
-#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 #[scale_info(skip_type_params(T))]
 pub struct RecordVersion<T: frame_system::Config> {
     /// Hash of this version
@@ -979,7 +979,7 @@ pub struct RecordVersion<T: frame_system::Config> {
 }
 
 /// Multi-signature configuration
-#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 #[scale_info(skip_type_params(T))]
 pub struct MultiSigConfig<T: frame_system::Config> {
     /// Number of signatures required
@@ -989,7 +989,7 @@ pub struct MultiSigConfig<T: frame_system::Config> {
 }
 
 /// Audit action types
-#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 pub enum AuditAction {
     /// Record was created
     RecordCreated,
@@ -1006,7 +1006,7 @@ pub enum AuditAction {
 }
 
 /// Audit log entry
-#[derive(Clone, Encode, Decode, DecodeWithMemTracking, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
+#[derive(Clone, Encode, Decode, PartialEq, Eq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
 #[scale_info(skip_type_params(T))]
 pub struct AuditLogEntry<T: frame_system::Config> {
     /// Action performed
