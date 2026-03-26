@@ -1,0 +1,41 @@
+# Linux CI: matches most servers; validates runtime WASM + node without relying on Windows toolchains.
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Rust toolchain (see rust-toolchain.toml)
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.88
+          targets: wasm32-unknown-unknown
+          components: rustfmt, clippy, rust-src
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: abena
+
+      - name: Fetch deps (for sp-io patch script)
+        run: cargo fetch
+
+      - name: Patch sp-io for Rust 1.88 (wasm panic symbol)
+        run: bash scripts/fix-sp-io-no-mangle.sh
+
+      - name: Runtime tests (includes WASM build)
+        run: cargo test -p abena-ihr-runtime
+
+      - name: Build node (release graph sanity check)
+        run: cargo build -p abena-node --release
