@@ -4,6 +4,7 @@ members = [
     "node",
     "runtime",
     "pallets/abena-rewards",
+    "pallets/abena-modules",
     "pallets/abena-fee-abstraction",
     "patches/sc-network",
     "patches/sc-network/light",

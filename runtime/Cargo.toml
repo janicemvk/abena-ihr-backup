@@ -54,6 +54,7 @@ pallet-transaction-payment-rpc-runtime-api = { git = "https://github.com/parityt
 
 # ABENA custom pallets
 pallet-abena-rewards = { path = "../pallets/abena-rewards", default-features = false, features = ["serde"] }
+pallet-abena-modules = { path = "../pallets/abena-modules", default-features = false }
 pallet-abena-fee-abstraction = { path = "../pallets/abena-fee-abstraction", default-features = false }
 pallet-health-record-hash = { path = "../pallets/health-record-hash", default-features = false }
 pallet-access-control = { path = "../pallets/access-control", default-features = false }
@@ -89,6 +90,7 @@ std = [
     "pallet-transaction-payment-rpc-runtime-api/std",
     "pallet-transaction-payment/std",
     "pallet-abena-rewards/std",
+    "pallet-abena-modules/std",
     "pallet-health-record-hash/std",
     "pallet-access-control/std",
 

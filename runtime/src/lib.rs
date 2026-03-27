@@ -46,6 +46,7 @@ pub use pallet_timestamp;
 pub use pallet_aura;
 pub use pallet_sudo;
 pub use pallet_abena_rewards;
+pub use pallet_abena_modules;
 pub use pallet_abena_fee_abstraction;
 
 pub use sp_runtime::{MultiAddress, Perbill, Permill};
@@ -206,6 +207,7 @@ construct_runtime!(
 
         // ── ABENA Health Rewards ─────────────────────────────────
         AbenaRewards: pallet_abena_rewards,
+        AbenaModules: pallet_abena_modules,
 
         // ── Gasless model for patients ───────────────────────────
         AbenaFeeAbstraction: pallet_abena_fee_abstraction,
@@ -341,6 +343,13 @@ impl pallet_sudo::Config for Runtime {
 
 
 
+
+impl pallet_abena_modules::Config for Runtime {
+    type RuntimeEvent = Event;
+    type MaxNameLength = frame_support::traits::ConstU32<64>;
+    type MaxModules = frame_support::traits::ConstU32<50>;
+    type AdminOrigin = frame_system::EnsureRoot<AccountId>;
+}
 parameter_types! {
     pub const AbenaMaxActionsPerBlock: u32 = 100;
 }
