@@ -1,0 +1,43 @@
+[package]
+name = "pallet-abena-consent"
+version = "0.1.0"
+description = "ABENA IHR Consent Pallet — DK Technologies, Inc."
+authors = ["DK Technologies, Inc."]
+edition = "2021"
+license = "Unlicense"
+homepage = "https://abenihr.com"
+
+[package.metadata.docs.rs]
+targets = ["x86_64-unknown-linux-gnu"]
+
+[dependencies]
+codec = { package = "parity-scale-codec", version = "3.6.1", default-features = false, features = ["derive"] }
+scale-info = { version = "2.10.0", default-features = false, features = ["derive"] }
+frame-support = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2409", default-features = false }
+frame-system  = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2409", default-features = false }
+sp-runtime    = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2409", default-features = false }
+sp-std        = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2409", default-features = false }
+
+[dev-dependencies]
+sp-io         = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2409" }
+frame-support = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2409", features = ["std"] }
+frame-system  = { git = "https://github.com/paritytech/polkadot-sdk.git", tag = "polkadot-stable2409", features = ["std"] }
+
+[features]
+default = ["std"]
+std = [
+    "codec/std",
+    "scale-info/std",
+    "frame-support/std",
+    "frame-system/std",
+    "sp-runtime/std",
+    "sp-std/std",
+]
+runtime-benchmarks = [
+    "frame-support/runtime-benchmarks",
+    "frame-system/runtime-benchmarks",
+]
+try-runtime = [
+    "frame-support/try-runtime",
+    "frame-system/try-runtime",
+]

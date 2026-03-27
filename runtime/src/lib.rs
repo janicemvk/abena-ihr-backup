@@ -47,6 +47,10 @@ pub use pallet_aura;
 pub use pallet_sudo;
 pub use pallet_abena_rewards;
 pub use pallet_abena_modules;
+pub use pallet_abena_consent;
+pub use pallet_abena_audit;
+pub use pallet_abena_identified_vault;
+pub use pallet_abena_alerts;
 pub use pallet_abena_fee_abstraction;
 
 pub use sp_runtime::{MultiAddress, Perbill, Permill};
@@ -208,6 +212,10 @@ construct_runtime!(
         // ── ABENA Health Rewards ─────────────────────────────────
         AbenaRewards: pallet_abena_rewards,
         AbenaModules: pallet_abena_modules,
+        AbenaConsent: pallet_abena_consent,
+        AbenaAudit: pallet_abena_audit,
+        AbenaIdentifiedVault: pallet_abena_identified_vault,
+        AbenaAlerts: pallet_abena_alerts,
 
         // ── Gasless model for patients ───────────────────────────
         AbenaFeeAbstraction: pallet_abena_fee_abstraction,
@@ -349,6 +357,25 @@ impl pallet_abena_modules::Config for Runtime {
     type MaxNameLength = frame_support::traits::ConstU32<64>;
     type MaxModules = frame_support::traits::ConstU32<50>;
     type AdminOrigin = frame_system::EnsureRoot<AccountId>;
+}
+
+impl pallet_abena_consent::Config for Runtime {
+    type RuntimeEvent = Event;
+    type MaxConsentsPerPatient = frame_support::traits::ConstU32<50>;
+}
+impl pallet_abena_audit::Config for Runtime {
+    type RuntimeEvent = Event;
+    type MaxEntriesPerBlock = frame_support::traits::ConstU32<100>;
+}
+impl pallet_abena_identified_vault::Config for Runtime {
+    type RuntimeEvent = Event;
+    type MaxHashLength = frame_support::traits::ConstU32<66>;
+    type MaxEntriesPerPatient = frame_support::traits::ConstU32<1000>;
+}
+impl pallet_abena_alerts::Config for Runtime {
+    type RuntimeEvent = Event;
+    type MaxAlertsPerPatient = frame_support::traits::ConstU32<100>;
+    type OracleOrigin = frame_system::EnsureRoot<AccountId>;
 }
 parameter_types! {
     pub const AbenaMaxActionsPerBlock: u32 = 100;
